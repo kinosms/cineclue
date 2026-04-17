@@ -397,7 +397,7 @@ export default function CineClue() {
     const tot = results.reduce((s,r)=>s+r.score,0)
     const co = results.filter(r=>r.correct)
     const avgH = co.length>0?(co.reduce((s,r)=>s+r.hintUsed,0)/co.length).toFixed(1):'—'
-    const mx = Math.max(...results.map(r=>r.score),0)
+    const mx = Math.max(...results.map(r => r.score || 0), 0)
     return (
       <div style={S.screen}>
         <div style={{...S.max,display:'flex',flexDirection:'column',alignItems:'center'}}>
