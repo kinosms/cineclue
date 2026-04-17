@@ -165,9 +165,10 @@ export default function CineClue() {
       if (ns >= 2 && mode === null) setMode('combo')
     }
   }
-
+  const [isSubmitting, setIsSubmitting] = useState(false)
   function submit() {
     if (answered || !input.trim()) return
+	setIsSubmitting(true)
     const m = pool[qi]
     if (isCorrect(input, m.title)) {
       const gained = getPts()
@@ -180,6 +181,7 @@ export default function CineClue() {
       if (sh < 5) setSh(s => s+1)
       setInput('')
     }
+	setTimeout(() => setIsSubmitting(false), 200)
   }
 
   function doSkip() {
