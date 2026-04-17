@@ -108,7 +108,9 @@ export default function CineClue() {
 
   // 엔터키로 다음 문제
   useEffect(() => {
-    const handler = (e) => { if (e.key === 'Enter' && answered && screen === 'quiz') nextQ() }
+    const handler = (e) => {
+		if (e.target && e.target.tagName === 'INPUT') return
+		if (e.key === 'Enter' && answered && screen === 'quiz') nextQ() }
     window.addEventListener('keydown', handler)
     return () => window.removeEventListener('keydown', handler)
   }, [answered, screen, qi, pool])
@@ -347,6 +349,7 @@ export default function CineClue() {
                     onKeyDown={e=>{
 		       if(e.key==='Enter'){
                        e.preventDefault()
+			     	   e.stopPropagation() 
                        submit()
 		       }
  		    }}
