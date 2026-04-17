@@ -344,7 +344,12 @@ export default function CineClue() {
                 <div style={{fontSize:14,fontWeight:500,minHeight:19,marginBottom:7,color:fbt==='ok'?'#4fc97a':fbt==='ng'?'#e05252':'rgba(237,232,222,0.5)'}}>{fb}</div>
                 <div style={{display:'flex',gap:7,marginBottom:9}}>
                   <input value={input} onChange={e=>setInput(e.target.value)}
-                    onKeyDown={e=>{if(e.key==='Enter')submit()}}
+                    onKeyDown={e=>{
+		       if(e.key==='Enter'){
+                       e.preventDefault()
+                       submit()
+		       }
+ 		    }}
                     placeholder="영화 제목 입력..."
                     style={{flex:1,height:46,borderRadius:10,border:'1px solid rgba(255,255,255,0.12)',background:'#111',color:'#ede8de',padding:'0 14px',fontSize:15,fontFamily:'system-ui,sans-serif',outline:'none'}}
                     autoFocus
