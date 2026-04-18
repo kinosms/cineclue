@@ -166,7 +166,7 @@ export default function CineClue() {
     }
   }
   const [isSubmitting, setIsSubmitting] = useState(false)
-  function submit() {
+  async function submit() {
     if (answered || !input.trim()) return
 	setIsSubmitting(true)
     const m = pool[qi]
@@ -175,9 +175,28 @@ export default function CineClue() {
       updateCombo(true, sh)
       setScore(s => s + gained)
       setResults(r => [...r, {title:m.title, correct:true, hintUsed:sh, score:gained}])
+	  if (supabase) {
+		  await supabase.from('game_logs').insert({
+			  character_id: selChar || 'guest',
+			  movie_id: m.id,
+			  grade: m.grade,
+			  hint_used: sh,
+			  score_earned: gained,
+			  combo_mode: mode,
+			  timer_expired: false
+  })
+}
       setFb(`정답! +${gained}점`); setFbt('ok'); setAnswered(true); setInput('')
     } else {
       setFb(rFB(sh)); setFbt('ng')
+	  if (supabase) {
+		  await supabase.from('hint_logs').insert({
+			  movie_id: m.id,
+			  hint_level: sh,
+			  is_correct: false
+		  })
+	  }
+
       if (sh < 5) setSh(s => s+1)
       setInput('')
     }
