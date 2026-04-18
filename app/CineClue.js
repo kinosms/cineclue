@@ -132,7 +132,12 @@ export default function CineClue() {
         setLoading(false)
         return
       }
-      movies.sort(() => Math.random() - 0.5)
+      movies.sort((a, b) => {
+		  if (a.attempt_count === b.attempt_count) {
+			  return Math.random() - 0.5
+		  }
+		  return a.attempt_count - b.attempt_count
+	  })
       const selected = movies.slice(0, 5).map(m => ({
         ...m,
         hintsArr: m.hints ? m.hints.sort((a,b)=>a.hint_level-b.hint_level).map(h=>h.hint_text) : [],
