@@ -176,6 +176,13 @@ export default function CineClue() {
       setScore(s => s + gained)
       setResults(r => [...r, {title:m.title, correct:true, hintUsed:sh, score:gained}])
 	  if (supabase) {
+		  await supabase.from('hint_logs').insert({
+			  movie_id: m.id,
+			  hint_level: sh,
+			  is_correct: true
+		  })
+	  }
+	  if (supabase) {
 		  await supabase.from('game_logs').insert({
 			  character_id: selChar || 'guest',
 			  movie_id: m.id,
