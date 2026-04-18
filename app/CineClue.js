@@ -172,7 +172,7 @@ export default function CineClue() {
   }
   const [isSubmitting, setIsSubmitting] = useState(false)
   async function submit() {
-    if (answered || !input.trim()) return
+    if (isSubmitting || answered || !input.trim()) return
 	setIsSubmitting(true)
     const m = pool[qi]
     if (isCorrect(input, m.title)) {
@@ -387,9 +387,11 @@ export default function CineClue() {
 		       if(e.key==='Enter'){
                        e.preventDefault()
 			     	   e.stopPropagation() 
-                       submit()
-		       }
- 		    }}
+						   if (!isSubmitting) {
+							   submit()
+						   }
+			   }
+					}}
                     placeholder="영화 제목 입력..."
                     style={{flex:1,height:46,borderRadius:10,border:'1px solid rgba(255,255,255,0.12)',background:'#111',color:'#ede8de',padding:'0 14px',fontSize:15,fontFamily:'system-ui,sans-serif',outline:'none'}}
                     autoFocus
