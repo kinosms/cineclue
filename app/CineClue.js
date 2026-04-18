@@ -40,11 +40,25 @@ function levenshtein(a,b) {
   for(let i=1;i<=m;i++) for(let j=1;j<=n;j++) dp[i][j]=a[i-1]===b[j-1]?dp[i-1][j-1]:1+Math.min(dp[i-1][j],dp[i][j-1],dp[i-1][j-1])
   return dp[m][n]
 }
-function isCorrect(input,title) {
-  const a=normalize(input),b=normalize(title)
-  if(a===b) return true
-  if(b.length>=4&&a.length===b.length&&levenshtein(a,b)<=1) return true
-  return false
+ffunction isCorrect(input, movie) {
+  const a = normalize(input)
+
+  const candidates = [
+    movie.title,
+    movie.title_en,
+    ...(movie.answers || [])
+  ]
+
+  return candidates.some(c => {
+    if (!c) return false
+
+    const b = normalize(c)
+
+    if (a === b) return true
+    if (b.length >= 4 && a.length === b.length && levenshtein(a, b) <= 1) return true
+
+    return false
+  })
 }
 
 function buildSidePool(side) {
@@ -175,7 +189,7 @@ export default function CineClue() {
     if (isSubmitting || answered || !input.trim()) return
 	setIsSubmitting(true)
     const m = pool[qi]
-    if (isCorrect(input, m.title)) {
+    if (isCorrect(input, m)) {
       const gained = getPts()
       updateCombo(true, sh)
       setScore(s => s + gained)
