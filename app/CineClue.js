@@ -189,6 +189,7 @@ useEffect(()=>{
   // 결과 화면 순차 노출 + 점수 카운트
 useEffect(()=>{
   if(screen !== 'result') return
+  if(results.length === 0) return
 
   setVisibleResults(0)
 
