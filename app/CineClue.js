@@ -156,12 +156,7 @@ export default function CineClue() {
       setPool(sel)
 setQi(0)
 setSh(1)
-
-// ❌ 이거 완전 제거
-// setScore(0)
-
 setResults([]) // ← 이건 유지 (매판 리셋)
-
 setAnswered(false)
 setFb('')
 setFbt('')
