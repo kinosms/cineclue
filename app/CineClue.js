@@ -1016,7 +1016,7 @@ minHeight:0,
       }}>
         <div style={{display:'flex',alignItems:'center',gap:8}}>
           <span style={{
-            Width:28,
+            width:28,
   height:28,
   borderRadius:'50%',
   background:g?.color||'#e8808c',
