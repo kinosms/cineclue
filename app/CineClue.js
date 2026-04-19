@@ -463,6 +463,24 @@ function enterGame(){
   setScreen('grade')
 }
 
+function saveNickname(){
+  if(!nickname.trim()) return
+
+  const newUser = {
+    charId: tempChar,
+    nickname,
+    score: 0,
+    userId: Date.now().toString()
+  }
+
+  const updated = [...users, newUser]
+  setUsers(updated)
+  localStorage.setItem('cineclue_users', JSON.stringify(updated))
+
+  setShowNameModal(false)
+  setNickname('')
+}
+
   // ══════════════════════════════════════════
 // 화면 1: 캐릭터 선택
 // ══════════════════════════════════════════
@@ -570,6 +588,7 @@ if(screen==='char') return(
   }}>
     {u ? (u.score || 0) : ''}
   </div>
+</div>
 </div>
           )
         })}
