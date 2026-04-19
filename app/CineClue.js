@@ -739,8 +739,6 @@ if(showAnswer) return
 </div>
 
             {/* 컨트롤 */}
-            {!answered ? (
-              <>
                 <div style={{fontSize:14,fontWeight:500,minHeight:19,marginBottom:7,color:fbt==='ok'?'#4fc97a':fbt==='ng'?'#e05252':'rgba(237,232,222,0.5)'}}>{fb}</div>
                 <div style={{display:'flex',gap:7,marginBottom:9}}>
                   <input value={input} onChange={e=>setInput(e.target.value)}
