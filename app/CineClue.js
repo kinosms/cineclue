@@ -1161,7 +1161,7 @@ if(screen==='result'){
 
       {/* 결과 리스트 */}
       <div style={{padding:'0 20px'}}>
-        {results.map((r,i)=>{
+        {results.slice(0, visibleResults).map((r,i)=>{
           const rg=GRADES.find(x=>x.id===r.grade)
 
           return(
