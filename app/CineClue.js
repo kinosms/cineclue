@@ -226,12 +226,24 @@ export default function CineClue() {
     }))
 
     // 3️⃣ 노출 적은 순 + 랜덤 살짝 섞기
-    moviesWithCount.sort((a,b)=>{
-      const pa = a.played_count || 0
-      const pb = b.played_count || 0
+const groups = {}
 
-      return (pa - pb) + (Math.random()*2)
-    })
+moviesWithCount.forEach(m => {
+  const count = m.played_count || 0
+  if(!groups[count]) groups[count] = []
+  groups[count].push(m)
+})
+
+function shuffle(arr){
+  return arr
+    .map(v => ({v, r: Math.random()}))
+    .sort((a,b)=>a.r-b.r)
+    .map(x=>x.v)
+}
+
+const sorted = Object.keys(groups)
+  .sort((a,b)=>a-b)
+  .flatMap(k => shuffle(groups[k]))
 
     // 4️⃣ 문제 5개 선택
     const sel = moviesWithCount.slice(0,5).map(m=>({
