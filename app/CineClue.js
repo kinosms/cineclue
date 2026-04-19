@@ -188,12 +188,12 @@ useEffect(()=>{
 
   // 결과 화면 순차 노출 + 점수 카운트
 useEffect(()=>{
-  if(screen !== 'result' || !currentUser) return
+  if(screen !== 'result') return
 
   setVisibleResults(0)
 
 const roundScore = results.reduce((s,r)=>s+r.score,0)
-const startScore = currentUser?.score || 0   // 기존 점수
+const startScore = currentUser?.score ?? 0   // 기존 점수
 const tot = startScore + roundScore          // 최종 점수
 
   setDisplayScore(startScore)
