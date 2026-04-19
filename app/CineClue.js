@@ -810,13 +810,55 @@ if(screen==='quiz' && pool[qi]){
     }}>
 
       {/* ── 고정 헤더 ── */}
-      <div style={{
-        background:'#fff',
-        borderBottom:'1px solid #f0ece6',
-        padding:'14px 20px 0',
-        flexShrink:0
-      }}>
-        {/* (헤더 그대로 유지) */}
+        <div style={{
+  background:'#fff',
+  borderBottom:'1px solid #f0ece6',
+  padding:'14px 20px 0',
+  flexShrink:0
+}}>
+  <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:10}}>
+    <CharAvatar charId={selChar} size={34}/>
+
+    <span style={{
+      fontSize:'0.75rem',
+      fontWeight:700,
+      color:'#1a1814',
+      flex:1
+    }}>
+      {users.find(u=>u.charId===selChar)?.nickname || 'USER'}
+    </span>
+
+    <div style={{display:'flex',alignItems:'center',gap:8}}>
+      <div style={{textAlign:'right'}}>
+        <div style={{fontSize:'0.65rem',color:'#b0aaa3'}}>점수</div>
+        <div style={{fontSize:'0.9rem',fontWeight:800,color:'#1a1814'}}>
+          {score.toLocaleString()}
+        </div>
+      </div>
+
+      {!answered && (
+        <div style={{
+          width:36,
+          height:36,
+          borderRadius:'50%',
+          background:`${timerCol}15`,
+          border:`2.5px solid ${timerCol}`,
+          display:'flex',
+          alignItems:'center',
+          justifyContent:'center'
+        }}>
+          <span style={{
+            fontSize:'0.8rem',
+            fontWeight:800,
+            color:timerCol
+          }}>
+            {tc}
+          </span>
+        </div>
+      )}
+    </div>
+  </div>
+</div>
       </div>
 
       {/* ── 콤보 배너 ── */}
