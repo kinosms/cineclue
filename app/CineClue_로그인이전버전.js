@@ -5,12 +5,6 @@ import { createClient } from '@supabase/supabase-js'
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || ''
 const SUPABASE_KEY = process.env.NEXT_PUBLIC_SUPABASE_KEY || ''
 
-
-const [users, setUsers] = useState([])
-const [showNameModal, setShowNameModal] = useState(false)
-const [tempChar, setTempChar] = useState(null)
-const [nickname, setNickname] = useState('')
-
 const CHARS = [
   { id:'yoda', name:'요다', movie:'스타워즈', color:'#5a9660',
     svg: <svg viewBox="0 0 80 80" fill="none"><ellipse cx="40" cy="52" rx="14" ry="11" fill="#4a7c4e"/><ellipse cx="40" cy="36" rx="16" ry="15" fill="#6aaa6e"/><ellipse cx="8" cy="34" rx="10" ry="5" fill="#5a9660" transform="rotate(-20 8 34)"/><ellipse cx="72" cy="34" rx="10" ry="5" fill="#5a9660" transform="rotate(20 72 34)"/><ellipse cx="34" cy="34" rx="4" ry="4.5" fill="#1a2a1a"/><ellipse cx="46" cy="34" rx="4" ry="4.5" fill="#1a2a1a"/><circle cx="33" cy="33" r="1.5" fill="#fff" opacity=".8"/><circle cx="45" cy="33" r="1.5" fill="#fff" opacity=".8"/><path d="M32 42 Q40 45 48 42" stroke="#3a6040" strokeWidth="1.5" fill="none"/><path d="M28 30 Q30 27 34 29" stroke="#3a6040" strokeWidth="1" fill="none"/><path d="M46 29 Q50 27 52 30" stroke="#3a6040" strokeWidth="1" fill="none"/></svg>},
@@ -192,24 +186,6 @@ export default function CineClue() {
 
 },[screen])
 
-useEffect(()=>{
-  const saved = localStorage.getItem('cineclue_users')
-  if(saved){
-    setUsers(JSON.parse(saved))
-  }
-},[])
-
-function handleCharClick(charId){
-  setSelChar(charId)
-
-  const exists = users.find(u=>u.charId===charId)
-
-  if(!exists){
-    setTempChar(charId)
-    setShowNameModal(true)
-  }
-}
-
   async function loadMovies(grade, keepProgress=false){
   setLoading(true)
 
@@ -220,17 +196,15 @@ function handleCharClick(charId){
       return
     }
 
-    // 1️⃣ 유저별 다른 영화풀 제공
-const currentUser = users.find(u=>u.charId===selChar)
-
-const { data, error } = await supabase
-  .from('movies')
-  .select(`
-    *,
-    hints(*),
-    game_logs(movie_id, user_id)
-  `)
-  .eq('grade', grade)
+    // 1️⃣ movie + log join 느낌으로 가져오기
+    const { data, error } = await supabase
+      .from('movies')
+      .select(`
+        *,
+        hints(*),
+        game_logs(movie_id)
+      `)
+      .eq('grade', grade)
 
     if(error){
       console.error(error)
@@ -246,16 +220,11 @@ const { data, error } = await supabase
     }
 
     // 2️⃣ 노출 횟수 계산
-    const moviesWithCount = data.map(m=>{
-  const userLogs = (m.game_logs || []).filter(
-    log => log.user_id === currentUser?.userId
-  )
+    const moviesWithCount = data.map(m=>({
+      ...m,
+      played_count: m.game_logs ? m.game_logs.length : 0
+    }))
 
-  return {
-    ...m,
-    played_count: userLogs.length
-  }
-})
    // 3️⃣ 노출 적은 그룹 먼저 뽑고 랜덤 섞기
 const minPlayed = Math.min(...moviesWithCount.map(m => m.played_count || 0))
 
@@ -318,39 +287,22 @@ const sel = leastPlayed.slice(0,5).map(m=>({
     }
   }
 
- // ── 원본 버튼 로직 ──
-function submit(){
+  // ── 원본 버튼 로직 ──
+ function submit(){
   if(answered||!input.trim()) return
 
   const m = pool[qi]
-  const currentUser = users.find(u=>u.charId===selChar)
 
   if(isCorrect(input, m.title, Array.isArray(m.answers)?m.answers:[])){
     const gained = getPts()
 
     updateCombo(true, sh)
-
-    // ✅ 점수 증가
     setScore(v=>v+gained)
 
-    // ✅ 캐릭터별 점수 저장
-    const updatedUsers = users.map(u=>{
-      if(u.charId===selChar){
-        return {
-          ...u,
-          score: (u.score || 0) + gained
-        }
-      }
-      return u
-    })
-
-    setUsers(updatedUsers)
-    localStorage.setItem('cineclue_users', JSON.stringify(updatedUsers))
-
-    // ✅ 정답로그 (userId 수정)
+    // ✅ 정답로그
     saveLog({
       supabase,
-      userId: currentUser?.userId,
+      userId:'guest',
       charId: selChar,
       movie: m,
       grade: selGrade,
@@ -380,6 +332,8 @@ function submit(){
 
     updateCombo(false, sh)
 
+    // ✅ 결과
+
     setFb(rFB(sh))
     setFbt('ng')
     setInput('')
@@ -390,12 +344,11 @@ function doSkip(){
   updateCombo(false,0)
 
   const m = pool[qi]
-  const currentUser = users.find(u=>u.charId===selChar)
 
-  // ✅ 스킵로그 (userId 수정)
+  // ✅ 스킵로그
   saveLog({
     supabase,
-    userId: currentUser?.userId,
+    userId:'guest',
     charId: selChar,
     movie: m,
     grade: selGrade,
@@ -435,227 +388,64 @@ function doSkip(){
     setTimeout(()=>inputRef.current?.focus(),100)
   }
 
-function enterGame(){
-  if(!selChar) return
-
-  const u = users.find(x=>x.charId===selChar)
-
-  if(!u){
-    alert('대화명을 먼저 입력하세요')
-    return
-  }
-
-  // ✅ 기존 점수로 시작
-  setScore(u.score || 0)
-
-  // 👉 난이도 선택 화면으로 이동
-  setScreen('grade')
-}
-
   // ══════════════════════════════════════════
-// 화면 1: 캐릭터 선택
-// ══════════════════════════════════════════
-if(screen==='char') return(
-  <div style={{minHeight:'100vh',background:'#fff',display:'flex',flexDirection:'column',padding:'48px 0 40px'}}>
-    <div style={{textAlign:'center',marginBottom:40}}>
-      <div style={{fontSize:'2.6rem',fontWeight:900,letterSpacing:'-1px',lineHeight:1,color:'#1a1814'}}>
-        Cine <span style={{color:'#e8808c'}}>CLUE</span>
-      </div>
-      <div style={{fontSize:'0.75rem',color:'#b0aaa3',letterSpacing:'0.25em',marginTop:8,textTransform:'uppercase',fontWeight:500}}>
-        Follow the clues
-      </div>
-    </div>
-
-    <div style={{padding:'0 20px'}}>
-      <div style={{fontSize:'0.7rem',fontWeight:700,color:'#b0aaa3',letterSpacing:'0.15em',textTransform:'uppercase',marginBottom:14}}>
-        캐릭터를 선택하세요
+  // 화면 1: 캐릭터 선택
+  // ══════════════════════════════════════════
+  if(screen==='char') return(
+    <div style={{minHeight:'100vh',background:'#fff',display:'flex',flexDirection:'column',padding:'48px 0 40px'}}>
+      <div style={{textAlign:'center',marginBottom:40}}>
+        <div style={{fontSize:'2.6rem',fontWeight:900,letterSpacing:'-1px',lineHeight:1,color:'#1a1814'}}>
+          Cine <span style={{color:'#e8808c'}}>CLUE</span>
+        </div>
+        <div style={{fontSize:'0.75rem',color:'#b0aaa3',letterSpacing:'0.25em',marginTop:8,textTransform:'uppercase',fontWeight:500}}>
+          Follow the clues
+        </div>
       </div>
 
-      <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:10,marginBottom:36}}>
-        {CHARS.map(c=>{
-          const sel = selChar===c.id
-          const u = users.find(x=>x.charId===c.id)
+      <div style={{padding:'0 20px'}}>
+        <div style={{fontSize:'0.7rem',fontWeight:700,color:'#b0aaa3',letterSpacing:'0.15em',textTransform:'uppercase',marginBottom:14}}>
+          캐릭터를 선택하세요
+        </div>
 
-          return(
-            <div
-              key={c.id}
-              onClick={()=>handleCharClick(c.id)}
-              style={{
+        <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:10,marginBottom:36}}>
+          {CHARS.map(c=>{
+            const sel=selChar===c.id
+            return(
+              <div key={c.id} onClick={()=>setSelChar(c.id)} style={{
                 borderRadius:18,
                 border:sel?`3px solid ${c.color}`:'1.5px solid #e8e4dd',
                 background:sel?`${c.color}18`:'#faf9f7',
-                padding:'16px 6px 12px',
-                display:'flex',
-                flexDirection:'column',
-                alignItems:'center',
-                gap:8,
-                cursor:'pointer',
+                padding:'16px 6px 12px',display:'flex',flexDirection:'column',
+                alignItems:'center',gap:8,cursor:'pointer',
                 transition:'all .18s cubic-bezier(.34,1.56,.64,1)',
                 boxShadow:sel?`0 6px 22px ${c.color}50`:'0 1px 4px rgba(0,0,0,0.06)',
                 transform:sel?'scale(1.06)':'scale(1)',
                 position:'relative',
-              }}
-            >
-
-              {/* 선택 체크 */}
-              {sel&&(
-                <div style={{
-                  position:'absolute',
-                  top:8,
-                  right:8,
-                  width:18,
-                  height:18,
-                  borderRadius:'50%',
-                  background:c.color,
-                  display:'flex',
-                  alignItems:'center',
-                  justifyContent:'center'
-                }}>
-                  <span style={{color:'#fff',fontSize:'0.6rem',fontWeight:900}}>✓</span>
+              }}>
+                {sel&&(
+                  <div style={{position:'absolute',top:8,right:8,width:18,height:18,borderRadius:'50%',background:c.color,display:'flex',alignItems:'center',justifyContent:'center'}}>
+                    <span style={{color:'#fff',fontSize:'0.6rem',fontWeight:900,lineHeight:1}}>✓</span>
+                  </div>
+                )}
+                <svg viewBox="0 0 80 80" fill="none" style={{width:56,height:56,filter:sel?'none':'grayscale(20%)',transition:'filter .18s'}}>{c.svg.props.children}</svg>
+                <div style={{fontSize:'0.6rem',fontWeight:700,color:sel?c.color:'#9a9490',textAlign:'center',lineHeight:1.3,transition:'color .18s'}}>
+                  {c.name}
+                  <div style={{fontSize:'0.55rem',fontWeight:400,color:sel?`${c.color}aa`:'#b8b4b0',marginTop:2}}>{c.movie}</div>
                 </div>
-              )}
-
-              {/* 삭제 버튼 */}
-              {u && (
-                <div
-                  onClick={(e)=>{
-                    e.stopPropagation()
-                    deleteUser(c.id)
-                  }}
-                  style={{
-                    position:'absolute',
-                    top:8,
-                    left:8,
-                    fontSize:11,
-                    background:'#000',
-                    color:'#fff',
-                    borderRadius:6,
-                    padding:'2px 6px',
-                    cursor:'pointer'
-                  }}
-                >
-                  ✕
-                </div>
-              )}
-
-              <svg viewBox="0 0 80 80" fill="none" style={{width:56,height:56}}>
-  {c.svg.props.children}
-</svg>
-
-<div style={{
-  fontSize:'0.6rem',
-  fontWeight:700,
-  color:sel?c.color:'#9a9490',
-  textAlign:'center',
-  lineHeight:1.3,
-}}>
-  {u ? u.nickname : c.name}
-
-  <div style={{
-    fontSize:'0.55rem',
-    fontWeight:500,
-    marginTop:2,
-    color:'#b8b4b0'
-  }}>
-    {u ? (u.score || 0) : ''}
-  </div>
-</div>
-          )
-        })}
-      </div>
-
-      {/* 입장하기 버튼 */}
-      <button
-        onClick={enterGame}
-        disabled={!users.find(u=>u.charId===selChar)}
-        style={{
-          width:'100%',
-          height:54,
-          borderRadius:14,
-          background:users.find(u=>u.charId===selChar)?'#1a1814':'#d4d0cc',
-          color:'#fff',
-          fontSize:'0.9rem',
-          fontWeight:700,
-          border:'none',
-          cursor:users.find(u=>u.charId===selChar)?'pointer':'default'
-        }}
-      >
-        입장하기
-      </button>
-    </div>
-
-    {/* 닉네임 입력 모달 */}
-    {showNameModal && (
-      <div style={{
-        position:'fixed',
-        inset:0,
-        background:'rgba(0,0,0,0.5)',
-        display:'flex',
-        alignItems:'center',
-        justifyContent:'center',
-        zIndex:999
-      }}>
-        <div style={{
-          width:300,
-          background:'#fff',
-          borderRadius:16,
-          padding:20
-        }}>
-          <div style={{fontSize:'0.9rem',fontWeight:700,marginBottom:10}}>
-            대화명 입력
-          </div>
-
-          <input
-            value={nickname}
-            onChange={(e)=>{
-              if(e.target.value.length<=11){
-                setNickname(e.target.value)
-              }
-            }}
-            placeholder="최대 11자"
-            style={{
-              width:'100%',
-              height:44,
-              borderRadius:10,
-              border:'1.5px solid #e8e4dd',
-              padding:'0 12px',
-              marginBottom:12
-            }}
-          />
-
-          <div style={{display:'flex',gap:8}}>
-            <button
-              onClick={()=>setShowNameModal(false)}
-              style={{
-                flex:1,
-                height:40,
-                borderRadius:10,
-                background:'#eee',
-                border:'none'
-              }}
-            >
-              취소
-            </button>
-
-            <button
-              onClick={saveNickname}
-              style={{
-                flex:1,
-                height:40,
-                borderRadius:10,
-                background:'#1a1814',
-                color:'#fff',
-                border:'none'
-              }}
-            >
-              완료
-            </button>
-          </div>
+              </div>
+            )
+          })}
         </div>
+
+        <button
+          style={{width:'100%',height:54,borderRadius:14,background:selChar?'#1a1814':'#d4d0cc',color:'#fff',fontSize:'0.9rem',fontWeight:700,border:'none',cursor:selChar?'pointer':'default',transition:'background .2s'}}
+          disabled={!selChar}
+          onClick={()=>{if(selChar)setScreen('grade')}}>
+          입장하기
+        </button>
       </div>
-    )}
-  </div>
-)
+    </div>
+  )
 
   // ══════════════════════════════════════════
   // 화면 2: 난이도 선택
@@ -732,7 +522,7 @@ if(screen==='char') return(
         <div style={{background:'#fff',borderBottom:'1px solid #f0ece6',padding:'14px 20px 0',flexShrink:0}}>
           <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:10}}>
             <CharAvatar charId={selChar} size={34}/>
-            <span style={{fontSize:'0.75rem',fontWeight:700,color:'#1a1814',flex:1}}>{users.find(u=>u.charId===selChar)?.nickname || 'USER'}</span>
+            <span style={{fontSize:'0.75rem',fontWeight:700,color:'#1a1814',flex:1}}>USER ID</span>
             <div style={{display:'flex',alignItems:'center',gap:8}}>
               <div style={{textAlign:'right'}}>
                 <div style={{fontSize:'0.65rem',color:'#b0aaa3'}}>점수</div>
@@ -925,12 +715,10 @@ if(screen==='char') return(
 
  // ══════════════════════════════════════════
 // 화면 4: 결과
+// ══════════════════════════════════════════
 if(screen==='result'){
-  const currentUser = users.find(u=>u.charId===selChar)
-
-  const roundScore = results.reduce((s,r)=>s+r.score,0)
-  const totalScore = currentUser?.score || 0
-  const nickname = currentUser?.nickname || 'USER'
+  const tot=results.reduce((s,r)=>s+r.score,0)
+  const co=results.filter(r=>r.correct)
 
   return(
     <div style={{
@@ -941,7 +729,7 @@ if(screen==='result'){
       padding:'24px 0 20px'
     }}>
       
-      {/* 상단 */}
+      {/* 상단 점수 */}
       <div style={{
         display:'flex',
         flexDirection:'column',
@@ -957,52 +745,49 @@ if(screen==='result'){
           display:'flex',
           alignItems:'center',
           justifyContent:'center',
-          marginBottom:10
+          overflow:'hidden',
+          marginBottom:14,
+          boxShadow:'0 4px 20px rgba(0,0,0,0.08)'
         }}>
-          <svg viewBox="0 0 80 80" style={{width:80,height:80}}>
+          <svg viewBox="0 0 80 80" fill="none" style={{width:80,height:80}}>
             {char?.svg.props.children}
           </svg>
         </div>
 
         <div style={{
-          fontSize:'0.8rem',
-          fontWeight:700,
-          color:'#1a1814',
+          fontSize:'0.7rem',
+          color:'#b0aaa3',
+          fontWeight:600,
+          letterSpacing:'0.1em',
           marginBottom:6
         }}>
-          {nickname}
+          USER ID
         </div>
 
-        {/* 이번 점수 */}
         <div style={{
-          fontSize:'2.8rem',
+          fontSize:displayScore>0?'3.5rem':'3rem',
           fontWeight:900,
-          color:'#1a1814'
+          color:'#1a1814',
+          lineHeight:1,
+          letterSpacing:'-2px'
         }}>
-          +{roundScore}
+          {displayScore.toLocaleString()}
         </div>
 
         <div style={{
           fontSize:'0.7rem',
           color:'#b0aaa3',
-          marginBottom:10
+          marginTop:4
         }}>
-          이번 플레이 점수
-        </div>
-
-        {/* 누적 점수 */}
-        <div style={{
-          fontSize:'0.9rem',
-          fontWeight:700,
-          color:'#c8a84a'
-        }}>
-          총 점수 {totalScore.toLocaleString()}점
+          점
         </div>
       </div>
 
-      {/* 결과 리스트 */}
-      <div style={{padding:'0 20px'}}>
+      {/* 결과 리스트 + 버튼 */}
+      <div style={{padding:'0 20px', paddingBottom:40}}>
+
         {results.map((r,i)=>{
+          if(i>=visibleResults) return null
           const rg=GRADES.find(x=>x.id===r.grade)
 
           return(
@@ -1014,39 +799,41 @@ if(screen==='result'){
               marginBottom:8,
               display:'flex',
               alignItems:'center',
-              gap:12
+              gap:12,
+              boxShadow:'0 1px 6px rgba(0,0,0,0.05)'
             }}>
               <div style={{
                 width:28,
                 height:28,
                 borderRadius:'50%',
-                background:r.correct?`${rg?.color}15`:'#f5f3ef',
+                flexShrink:0,
+                background:r.correct?`${rg?.color||'#e8808c'}15`:'#f5f3ef',
                 display:'flex',
                 alignItems:'center',
                 justifyContent:'center',
-                border:`1.5px solid ${r.correct?rg?.color:'#e8e4dd'}`
+                border:`1.5px solid ${r.correct?rg?.color||'#e8808c':'#e8e4dd'}`
               }}>
                 <span style={{
                   fontSize:'0.6rem',
                   fontWeight:800,
-                  color:r.correct?rg?.color:'#b0aaa3'
+                  color:r.correct?rg?.color||'#e8808c':'#b0aaa3'
                 }}>
                   Q{i+1}
                 </span>
               </div>
 
-              <div style={{flex:1}}>
+              <div style={{flex:1,minWidth:0}}>
                 <div style={{
-                  fontSize:'0.8rem',
+                  fontSize:'0.78rem',
                   fontWeight:700,
                   color:r.correct?'#1a1814':'#c0bbb4'
                 }}>
-                  {r.correct ? r.title : '실패'}
+                  {r.correct?r.title:'실패'}
                 </div>
               </div>
 
               <div style={{
-                fontSize:'0.85rem',
+                fontSize:'0.82rem',
                 fontWeight:800,
                 color:r.correct?'#4a9c6d':'#d45c5c'
               }}>
@@ -1055,44 +842,48 @@ if(screen==='result'){
             </div>
           )
         })}
+
+        {/* 버튼 (리스트 안에 위치) */}
+        {visibleResults>=results.length && (
+          <div style={{
+            marginTop:20,
+            display:'flex',
+            flexDirection:'column',
+            gap:10
+          }}>
+            <button
+              style={{
+                height:54,
+                borderRadius:14,
+                background:'#1a1814',
+                color:'#fff',
+                fontSize:'0.9rem',
+                fontWeight:700,
+                border:'none'
+              }}
+              onClick={()=>loadMovies(selGrade,true)}
+            >
+              계속하기
+            </button>
+
+            <button
+              style={{
+                height:44,
+                borderRadius:12,
+                background:'transparent',
+                color:'#9a9490',
+                fontSize:'0.8rem',
+                fontWeight:500,
+                border:'1.5px solid #e8e4dd'
+              }}
+              onClick={()=>{setSelGrade(null);setScreen('grade')}}
+            >
+              레벨 바꾸기
+            </button>
+          </div>
+        )}
+
       </div>
-
-      {/* 버튼 */}
-      <div style={{
-        marginTop:20,
-        padding:'0 20px',
-        display:'flex',
-        flexDirection:'column',
-        gap:10
-      }}>
-        <button
-          onClick={()=>loadMovies(selGrade,true)}
-          style={{
-            height:54,
-            borderRadius:14,
-            background:'#1a1814',
-            color:'#fff',
-            fontWeight:700,
-            border:'none'
-          }}
-        >
-          계속하기
-        </button>
-
-        <button
-          onClick={()=>{setSelGrade(null);setScreen('grade')}}
-          style={{
-            height:44,
-            borderRadius:12,
-            background:'transparent',
-            color:'#9a9490',
-            border:'1.5px solid #e8e4dd'
-          }}
-        >
-          레벨 바꾸기
-        </button>
-      </div>
-
     </div>
   )
 }
