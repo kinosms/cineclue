@@ -1,88 +1,311 @@
 'use client'
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { createClient } from '@supabase/supabase-js'
 
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || ''
 const SUPABASE_KEY = process.env.NEXT_PUBLIC_SUPABASE_KEY || ''
 
+console.log("🔥 수정된 코드 실행됨")
+
+/* ── 캐릭터 SVG (저작권 무관 심플 버전) ── */
 const CHARS = [
-  {id:'yoda',name:'요다',svg:<svg viewBox="0 0 60 60" fill="none"><ellipse cx="30" cy="44" rx="10" ry="8" fill="#3d6b42"/><ellipse cx="30" cy="28" rx="12" ry="12" fill="#5a9660"/><ellipse cx="6" cy="27" rx="8" ry="4.5" fill="#4a7c4e" transform="rotate(-25 6 27)"/><ellipse cx="54" cy="27" rx="8" ry="4.5" fill="#4a7c4e" transform="rotate(25 54 27)"/><ellipse cx="25" cy="27" rx="3.2" ry="3.5" fill="#1a2a1a"/><ellipse cx="35" cy="27" rx="3.2" ry="3.5" fill="#1a2a1a"/><ellipse cx="24.5" cy="26.5" rx="1.2" ry="1.2" fill="#fff" opacity=".9"/><ellipse cx="34.5" cy="26.5" rx="1.2" ry="1.2" fill="#fff" opacity=".9"/><path d="M26 33 Q30 35.5 34 33" stroke="#3a6040" strokeWidth="1.3" fill="none" strokeLinecap="round"/></svg>},
-  {id:'gizmo',name:'기즈모',svg:<svg viewBox="0 0 60 60" fill="none"><ellipse cx="30" cy="46" rx="11" ry="9" fill="#c8a87a"/><ellipse cx="11" cy="22" rx="7" ry="11" fill="#c8a87a" transform="rotate(-10 11 22)"/><ellipse cx="11" cy="22" rx="4.5" ry="7.5" fill="#8b6340" transform="rotate(-10 11 22)"/><ellipse cx="49" cy="22" rx="7" ry="11" fill="#c8a87a" transform="rotate(10 49 22)"/><ellipse cx="49" cy="22" rx="4.5" ry="7.5" fill="#8b6340" transform="rotate(10 49 22)"/><ellipse cx="30" cy="28" rx="14" ry="13" fill="#d4b888"/><ellipse cx="24" cy="27" rx="5" ry="5.5" fill="#fff"/><ellipse cx="36" cy="27" rx="5" ry="5.5" fill="#fff"/><ellipse cx="24" cy="27.5" rx="3.5" ry="3.8" fill="#6b3a1a"/><ellipse cx="36" cy="27.5" rx="3.5" ry="3.8" fill="#6b3a1a"/><ellipse cx="24" cy="27.5" rx="2" ry="2.2" fill="#1a0a00"/><ellipse cx="36" cy="27.5" rx="2" ry="2.2" fill="#1a0a00"/></svg>},
-  {id:'leon',name:'레옹',svg:<svg viewBox="0 0 60 60" fill="none"><rect x="14" y="40" width="32" height="16" rx="4" fill="#2a2a2a"/><ellipse cx="30" cy="28" rx="13" ry="14" fill="#c8956a"/><ellipse cx="30" cy="16" rx="13" ry="7" fill="#1a1a1a"/><rect x="17" y="16" width="26" height="6" fill="#1a1a1a"/><rect x="15" y="20" width="30" height="4" rx="2" fill="#111"/><circle cx="24" cy="27" r="5" fill="#0a0a0a" stroke="#555" strokeWidth="1.2"/><circle cx="36" cy="27" r="5" fill="#0a0a0a" stroke="#555" strokeWidth="1.2"/><line x1="29" y1="27" x2="31" y2="27" stroke="#555" strokeWidth="1"/></svg>},
-  {id:'pennywise',name:'페니와이즈',svg:<svg viewBox="0 0 60 60" fill="none"><ellipse cx="30" cy="52" rx="16" ry="8" fill="#f0f0f0"/><circle cx="22" cy="50" r="3.5" fill="#e05050"/><circle cx="30" cy="51" r="3.5" fill="#e05050"/><circle cx="38" cy="50" r="3.5" fill="#e05050"/><ellipse cx="30" cy="28" rx="14" ry="15" fill="#f5f0e8"/><ellipse cx="9" cy="20" rx="5" ry="8" fill="#e07020" transform="rotate(-20 9 20)"/><ellipse cx="51" cy="20" rx="5" ry="8" fill="#e07020" transform="rotate(20 51 20)"/><ellipse cx="23" cy="24" rx="4.5" ry="4.5" fill="#f5e050"/><ellipse cx="37" cy="24" rx="4.5" ry="4.5" fill="#f5e050"/><ellipse cx="23" cy="24" rx="2.5" ry="2.8" fill="#1a1a1a"/><ellipse cx="37" cy="24" rx="2.5" ry="2.8" fill="#1a1a1a"/><ellipse cx="30" cy="30" rx="3.5" ry="3" fill="#e03030"/><path d="M18 35 Q22 38 30 40 Q38 38 42 35" stroke="#cc2020" strokeWidth="2" fill="none" strokeLinecap="round"/></svg>},
-  {id:'immortan',name:'임모탄',svg:<svg viewBox="0 0 60 60" fill="none"><rect x="15" y="40" width="30" height="16" rx="3" fill="#e8e4dc"/><ellipse cx="30" cy="28" rx="13" ry="13" fill="#d4c8b0"/><rect x="18" y="30" width="24" height="14" rx="6" fill="#e8e8e8"/><rect x="20" y="32" width="20" height="10" rx="4" fill="#ddd"/><ellipse cx="24" cy="24" rx="3.5" ry="2.5" fill="#4a90e8"/><ellipse cx="36" cy="24" rx="3.5" ry="2.5" fill="#4a90e8"/></svg>},
-  {id:'morpheus',name:'모피어스',svg:<svg viewBox="0 0 60 60" fill="none"><rect x="13" y="40" width="34" height="18" rx="3" fill="#111"/><ellipse cx="30" cy="28" rx="12" ry="13" fill="#7a5a3a"/><ellipse cx="30" cy="19" rx="12" ry="7" fill="#6a4a2a"/><ellipse cx="24" cy="26" rx="5.5" ry="3.2" fill="#0a0a0a" stroke="#888" strokeWidth="1"/><ellipse cx="36" cy="26" rx="5.5" ry="3.2" fill="#0a0a0a" stroke="#888" strokeWidth="1"/><path d="M24 34 Q30 37 36 34" stroke="#3a2a1a" strokeWidth="2.5" fill="none" strokeLinecap="round"/><ellipse cx="22" cy="50" rx="3" ry="1.8" fill="#e03030"/><ellipse cx="38" cy="50" rx="3" ry="1.8" fill="#3060e0"/></svg>},
+  { id:'yoda', name:'요다', movie:'스타워즈',
+    svg: <svg viewBox="0 0 80 80" fill="none">
+      <ellipse cx="40" cy="52" rx="14" ry="11" fill="#4a7c4e"/>
+      <ellipse cx="40" cy="36" rx="16" ry="15" fill="#6aaa6e"/>
+      {/* 큰 귀 */}
+      <ellipse cx="8" cy="34" rx="10" ry="5" fill="#5a9660" transform="rotate(-20 8 34)"/>
+      <ellipse cx="72" cy="34" rx="10" ry="5" fill="#5a9660" transform="rotate(20 72 34)"/>
+      {/* 눈 */}
+      <ellipse cx="34" cy="34" rx="4" ry="4.5" fill="#1a2a1a"/>
+      <ellipse cx="46" cy="34" rx="4" ry="4.5" fill="#1a2a1a"/>
+      <circle cx="33" cy="33" r="1.5" fill="#fff" opacity=".8"/>
+      <circle cx="45" cy="33" r="1.5" fill="#fff" opacity=".8"/>
+      {/* 주름 */}
+      <path d="M32 42 Q40 45 48 42" stroke="#3a6040" strokeWidth="1.5" fill="none"/>
+      <path d="M28 30 Q30 27 34 29" stroke="#3a6040" strokeWidth="1" fill="none"/>
+      <path d="M46 29 Q50 27 52 30" stroke="#3a6040" strokeWidth="1" fill="none"/>
+    </svg>
+  },
+  { id:'immortan', name:'임모탄', movie:'매드맥스',
+    svg: <svg viewBox="0 0 80 80" fill="none">
+      {/* 몸 */}
+      <rect x="20" y="50" width="40" height="22" rx="4" fill="#c8c0b0"/>
+      {/* 마스크 */}
+      <ellipse cx="40" cy="36" rx="18" ry="17" fill="#d4cabb"/>
+      {/* 마스크 필터 */}
+      <rect x="24" y="38" width="32" height="18" rx="8" fill="#e8e8e8" stroke="#bbb" strokeWidth="1"/>
+      <rect x="27" y="41" width="26" height="12" rx="5" fill="#d0d0d0"/>
+      {/* 줄무늬 */}
+      {[30,34,38,42,46].map(x=><line key={x} x1={x} y1="41" x2={x} y2="53" stroke="#bbb" strokeWidth="1"/>)}
+      {/* 눈 */}
+      <ellipse cx="32" cy="31" rx="5" ry="3.5" fill="#5588dd" opacity=".9"/>
+      <ellipse cx="48" cy="31" rx="5" ry="3.5" fill="#5588dd" opacity=".9"/>
+      <ellipse cx="32" cy="31" rx="3" ry="2.5" fill="#2255aa"/>
+      <ellipse cx="48" cy="31" rx="3" ry="2.5" fill="#2255aa"/>
+      {/* 흰 머리 */}
+      <ellipse cx="40" cy="20" rx="16" ry="10" fill="#e8e4dc"/>
+    </svg>
+  },
+  { id:'leon', name:'레옹', movie:'레옹',
+    svg: <svg viewBox="0 0 80 80" fill="none">
+      {/* 몸 */}
+      <rect x="18" y="52" width="44" height="22" rx="4" fill="#2a2a2a"/>
+      {/* 얼굴 */}
+      <ellipse cx="40" cy="36" rx="17" ry="18" fill="#c8956a"/>
+      {/* 선글라스 */}
+      <rect x="22" y="24" width="36" height="7" rx="3" fill="#111"/>
+      <circle cx="31" cy="27" r="6" fill="#0a0a0a" stroke="#444" strokeWidth="1.5"/>
+      <circle cx="49" cy="27" r="6" fill="#0a0a0a" stroke="#444" strokeWidth="1.5"/>
+      <line x1="37" y1="27" x2="43" y2="27" stroke="#444" strokeWidth="1.5"/>
+      {/* 입 */}
+      <path d="M33 44 Q40 47 47 44" stroke="#8a6040" strokeWidth="1.5" fill="none"/>
+      {/* 짧은 머리 */}
+      <ellipse cx="40" cy="20" rx="17" ry="8" fill="#1a1a1a"/>
+    </svg>
+  },
+  { id:'morpheus', name:'모피어스', movie:'매트릭스',
+    svg: <svg viewBox="0 0 80 80" fill="none">
+      {/* 몸 - 검정 코트 */}
+      <rect x="15" y="52" width="50" height="22" rx="4" fill="#111"/>
+      {/* 얼굴 */}
+      <ellipse cx="40" cy="36" rx="16" ry="17" fill="#7a5a3a"/>
+      {/* 원형 선글라스 */}
+      <ellipse cx="31" cy="33" rx="7" ry="4.5" fill="#0a0a0a" stroke="#888" strokeWidth="1.5"/>
+      <ellipse cx="49" cy="33" rx="7" ry="4.5" fill="#0a0a0a" stroke="#888" strokeWidth="1.5"/>
+      <line x1="38" y1="33" x2="42" y2="33" stroke="#888" strokeWidth="1.5"/>
+      {/* 입 */}
+      <path d="M33 45 Q40 49 47 45" stroke="#4a3020" strokeWidth="2" fill="none"/>
+      {/* 머리 */}
+      <ellipse cx="40" cy="21" rx="16" ry="9" fill="#5a3a1a"/>
+      {/* 빨강 + 파랑 약 */}
+      <ellipse cx="28" cy="64" rx="4" ry="2.5" fill="#dd2222"/>
+      <ellipse cx="52" cy="64" rx="4" ry="2.5" fill="#2244cc"/>
+    </svg>
+  },
+  { id:'pennywise', name:'페니와이즈', movie:'그것',
+    svg: <svg viewBox="0 0 80 80" fill="none">
+      {/* 러프 칼라 */}
+      <ellipse cx="40" cy="68" rx="22" ry="10" fill="#f0f0f0"/>
+      {/* 방울 */}
+      <circle cx="28" cy="64" r="4" fill="#dd4444"/>
+      <circle cx="40" cy="66" r="4" fill="#dd4444"/>
+      <circle cx="52" cy="64" r="4" fill="#dd4444"/>
+      {/* 얼굴 */}
+      <ellipse cx="40" cy="36" rx="18" ry="19" fill="#f5f0e8"/>
+      {/* 광대 머리 */}
+      <ellipse cx="12" cy="26" rx="7" ry="10" fill="#dd6600" transform="rotate(-20 12 26)"/>
+      <ellipse cx="68" cy="26" rx="7" ry="10" fill="#dd6600" transform="rotate(20 68 26)"/>
+      {/* 눈 */}
+      <ellipse cx="31" cy="31" rx="5.5" ry="5.5" fill="#f5dd44"/>
+      <ellipse cx="49" cy="31" rx="5.5" ry="5.5" fill="#f5dd44"/>
+      <ellipse cx="31" cy="31" rx="3" ry="3.5" fill="#1a1a1a"/>
+      <ellipse cx="49" cy="31" rx="3" ry="3.5" fill="#1a1a1a"/>
+      {/* 코 */}
+      <ellipse cx="40" cy="39" rx="4.5" ry="3.5" fill="#dd2222"/>
+      {/* 입 */}
+      <path d="M24 46 Q28 51 40 53 Q52 51 56 46" stroke="#cc1111" strokeWidth="2.5" fill="none"/>
+    </svg>
+  },
+  { id:'predator', name:'프레데터', movie:'프레데터',
+    svg: <svg viewBox="0 0 80 80" fill="none">
+      {/* 몸 */}
+      <rect x="16" y="52" width="48" height="22" rx="4" fill="#5a7a3a"/>
+      {/* 얼굴 */}
+      <ellipse cx="40" cy="36" rx="17" ry="18" fill="#6a8a4a"/>
+      {/* 드레드락 */}
+      {[-16,-8,0,8,16].map((dx,i)=>(
+        <line key={i} x1={40+dx} y1="20" x2={40+dx*1.5} y2="8" stroke="#4a6a2a" strokeWidth="3" strokeLinecap="round"/>
+      ))}
+      {/* 눈 - 발광 */}
+      <ellipse cx="32" cy="32" rx="4" ry="3" fill="#aadd00"/>
+      <ellipse cx="48" cy="32" rx="4" ry="3" fill="#aadd00"/>
+      <ellipse cx="32" cy="32" rx="2" ry="2" fill="#88bb00"/>
+      <ellipse cx="48" cy="32" rx="2" ry="2" fill="#88bb00"/>
+      {/* 특유의 입 - 4개 송곳니 */}
+      <path d="M30 43 L33 50 L36 43 L40 50 L44 43 L47 50 L50 43" stroke="#3a5a1a" strokeWidth="1.5" fill="none"/>
+      {/* 네트 패턴 */}
+      <path d="M22 55 L58 55 M22 62 L58 62 M28 52 L28 74 M34 52 L34 74 M40 52 L40 74 M46 52 L46 74 M52 52 L52 74" stroke="#4a6a2a" strokeWidth="0.5" opacity=".5"/>
+    </svg>
+  },
+  { id:'sparrow', name:'잭 스패로우', movie:'캐리비안의 해적',
+    svg: <svg viewBox="0 0 80 80" fill="none">
+      {/* 몸 */}
+      <rect x="18" y="52" width="44" height="22" rx="4" fill="#3a2a1a"/>
+      {/* 얼굴 */}
+      <ellipse cx="40" cy="37" rx="16" ry="17" fill="#c8906a"/>
+      {/* 삼각 해적 모자 */}
+      <path d="M16 26 L40 8 L64 26 Z" fill="#1a1a1a"/>
+      <rect x="14" y="24" width="52" height="5" rx="2" fill="#2a2a2a"/>
+      {/* 눈 - 아이라인 */}
+      <ellipse cx="32" cy="34" rx="4.5" ry="3.5" fill="#1a1a1a"/>
+      <ellipse cx="48" cy="34" rx="4.5" ry="3.5" fill="#1a1a1a"/>
+      <path d="M27 32 Q32 29 37 32" stroke="#1a1a1a" strokeWidth="1.5" fill="none"/>
+      <path d="M43 32 Q48 29 53 32" stroke="#1a1a1a" strokeWidth="1.5" fill="none"/>
+      {/* 콧수염 + 수염 */}
+      <path d="M34 42 Q40 44 46 42" stroke="#5a3a1a" strokeWidth="2" fill="none"/>
+      <line x1="38" y1="43" x2="38" y2="48" stroke="#5a3a1a" strokeWidth="1.5"/>
+      <line x1="42" y1="43" x2="42" y2="48" stroke="#5a3a1a" strokeWidth="1.5"/>
+      {/* 붉은 두건 */}
+      <path d="M24 26 Q40 22 56 26 Q56 30 40 32 Q24 30 24 26" fill="#cc3322"/>
+    </svg>
+  },
+  { id:'joker', name:'조커', movie:'다크나이트',
+    svg: <svg viewBox="0 0 80 80" fill="none">
+      {/* 몸 - 보라 코트 */}
+      <rect x="16" y="52" width="48" height="22" rx="4" fill="#5533aa"/>
+      {/* 얼굴 - 흰 분장 */}
+      <ellipse cx="40" cy="36" rx="17" ry="18" fill="#f0eeea"/>
+      {/* 흘러내린 눈 화장 */}
+      <ellipse cx="31" cy="32" rx="5" ry="4" fill="#1a1a1a" opacity=".8"/>
+      <ellipse cx="49" cy="32" rx="5" ry="4" fill="#1a1a1a" opacity=".8"/>
+      <path d="M28 35 Q30 40 29 43" stroke="#1a1a1a" strokeWidth="1.5" fill="none" opacity=".6"/>
+      <path d="M52 35 Q50 40 51 43" stroke="#1a1a1a" strokeWidth="1.5" fill="none" opacity=".6"/>
+      {/* 칼자국 미소 */}
+      <path d="M22 44 Q27 40 31 44 Q35 48 40 46 Q45 48 49 44 Q53 40 58 44" stroke="#dd2222" strokeWidth="2.5" fill="none"/>
+      {/* 초록 머리 */}
+      <ellipse cx="40" cy="20" rx="17" ry="10" fill="#446622"/>
+      {[28,33,38,43,48,53].map((x,i)=>(
+        <line key={i} x1={x} y1="20" x2={x+(i%2===0?-2:2)} y2="10" stroke="#335511" strokeWidth="2.5" strokeLinecap="round"/>
+      ))}
+    </svg>
+  },
+  { id:'sadako', name:'사다코', movie:'링',
+    svg: <svg viewBox="0 0 80 80" fill="none">
+      {/* 흰 잠옷 */}
+      <rect x="18" y="48" width="44" height="28" rx="4" fill="#f0f0f0"/>
+      {/* 머리카락으로 가려진 얼굴 */}
+      <ellipse cx="40" cy="36" rx="16" ry="17" fill="#f5f0e8"/>
+      {/* 긴 검은 머리 - 얼굴 거의 가림 */}
+      <path d="M24 20 Q20 36 18 56" stroke="#1a1a1a" strokeWidth="8" fill="none" strokeLinecap="round"/>
+      <path d="M28 18 Q24 34 22 52" stroke="#1a1a1a" strokeWidth="7" fill="none" strokeLinecap="round"/>
+      <path d="M34 17 Q30 32 28 50" stroke="#1a1a1a" strokeWidth="6" fill="none" strokeLinecap="round"/>
+      <path d="M40 16 Q38 30 36 50" stroke="#1a1a1a" strokeWidth="5" fill="none" strokeLinecap="round"/>
+      <path d="M56 20 Q60 36 62 56" stroke="#1a1a1a" strokeWidth="8" fill="none" strokeLinecap="round"/>
+      <path d="M52 18 Q56 34 58 52" stroke="#1a1a1a" strokeWidth="7" fill="none" strokeLinecap="round"/>
+      <path d="M46 17 Q50 32 52 50" stroke="#1a1a1a" strokeWidth="6" fill="none" strokeLinecap="round"/>
+      {/* 머리 덩어리 */}
+      <ellipse cx="40" cy="20" rx="17" ry="11" fill="#1a1a1a"/>
+      {/* 한 쪽 눈만 살짝 보임 */}
+      <ellipse cx="47" cy="35" rx="3" ry="3.5" fill="#0a0a0a"/>
+      <circle cx="48" cy="34" r="1" fill="#fff" opacity=".6"/>
+    </svg>
+  },
 ]
 
-const GRADES = [
-  {id:'easy',name:'Easy',icon:'🎬',color:'#4fc97a',desc:'1990년대 이후 헐리우드·한국 블록버스터',badge:'정답률 높음'},
-  {id:'normal',name:'Normal',icon:'🎥',color:'#c8a84a',desc:'1980년대 이후 헐리우드·한국 흥행작',badge:'적당한 도전'},
-  {id:'hard',name:'Hard',icon:'🎞',color:'#e07040',desc:'1970년대 이후 헐리우드·한국·일본·유럽',badge:'까다로움'},
-  {id:'expert',name:'Expert',icon:'📽',color:'#e05252',desc:'영화제 수상작·독립·예술영화 포함',badge:'매우 어려움'},
-]
-
-const BP = {easy:100, normal:200, hard:300, expert:500}
-
-const FBW = {
-  1:['힌트가 좀 어려웠지?','첫 번째 힌트는 많이 넘기더라고','아직 힌트 4개나 남았어','힌트1 맞추면 진짜 고수지'],
-  2:['아깝다. 잘 생각해봐','아니야… 그건 아니지','거의 다 왔는데','느낌이 왔을 것 같은데'],
-  3:['이걸 모른다고?','이 영화, 분명 본 적은 있을걸?','이거 모르면 영화 레벨 의심','영화 고수라더니'],
-  4:['이건 맞추는 사람 많던데','배우 이름까지 나왔는데?','자존심 안 상해?','거의 다 가르쳐줬잖아'],
-  5:['포기 포기','오늘은 여기까지','오늘은 이 영화가 이겼어','언젠가 다시 만날 영화야'],
+/* 난이도별 대표 캐릭터 SVG */
+const GRADE_CHARS = {
+  easy: <svg viewBox="0 0 60 60" fill="none">
+    {/* 웃는 얼굴 - Easy = 밝은 캐릭터 */}
+    <circle cx="30" cy="30" r="24" fill="#ffe8a0"/>
+    <circle cx="22" cy="26" r="4" fill="#1a1a1a"/>
+    <circle cx="38" cy="26" r="4" fill="#1a1a1a"/>
+    <circle cx="21" cy="25" r="1.5" fill="#fff"/>
+    <circle cx="37" cy="25" r="1.5" fill="#fff"/>
+    <path d="M20 36 Q30 44 40 36" stroke="#c07020" strokeWidth="2.5" fill="none" strokeLinecap="round"/>
+    <ellipse cx="18" cy="32" rx="4" ry="3" fill="#ffaa80" opacity=".6"/>
+    <ellipse cx="42" cy="32" rx="4" ry="3" fill="#ffaa80" opacity=".6"/>
+  </svg>,
+  normal: <svg viewBox="0 0 60 60" fill="none">
+    {/* 탐정 - Normal */}
+    <rect x="10" y="36" width="40" height="20" rx="4" fill="#2a2a4a"/>
+    <ellipse cx="30" cy="28" rx="16" ry="17" fill="#c8906a"/>
+    <ellipse cx="30" cy="18" rx="16" ry="8" fill="#1a1a1a"/>
+    <rect x="12" y="16" width="36" height="5" rx="2" fill="#111"/>
+    <ellipse cx="22" cy="26" rx="4" ry="3.5" fill="#1a1a1a" opacity=".7"/>
+    <ellipse cx="38" cy="26" rx="4" ry="3.5" fill="#1a1a1a" opacity=".7"/>
+    <path d="M23 36 Q30 39 37 36" stroke="#8a6040" strokeWidth="1.5" fill="none"/>
+  </svg>,
+  hard: <svg viewBox="0 0 60 60" fill="none">
+    {/* 악당 - Hard */}
+    <rect x="12" y="38" width="36" height="18" rx="4" fill="#3a1a2a"/>
+    <ellipse cx="30" cy="28" rx="16" ry="17" fill="#b08060"/>
+    <ellipse cx="30" cy="18" rx="16" ry="8" fill="#1a0a0a"/>
+    <path d="M14 18 Q30 10 46 18" fill="#1a0a0a"/>
+    <ellipse cx="22" cy="27" rx="5" ry="4" fill="#cc2222" opacity=".8"/>
+    <ellipse cx="38" cy="27" rx="5" ry="4" fill="#cc2222" opacity=".8"/>
+    <ellipse cx="22" cy="27" rx="2.5" ry="2.5" fill="#1a1a1a"/>
+    <ellipse cx="38" cy="27" rx="2.5" ry="2.5" fill="#1a1a1a"/>
+    <path d="M20 38 Q25 34 30 36 Q35 34 40 38" stroke="#220000" strokeWidth="2" fill="none"/>
+  </svg>,
+  expert: <svg viewBox="0 0 60 60" fill="none">
+    {/* 수수께끼 마스크 - Expert */}
+    <rect x="10" y="38" width="40" height="18" rx="4" fill="#0a0a1a"/>
+    <ellipse cx="30" cy="28" rx="17" ry="18" fill="#f0eeea"/>
+    <ellipse cx="30" cy="18" rx="17" ry="9" fill="#0a0a1a"/>
+    {/* 마스크 */}
+    <path d="M13 28 Q30 22 47 28 Q47 38 30 42 Q13 38 13 28" fill="#111" opacity=".85"/>
+    {/* 눈 구멍 */}
+    <ellipse cx="22" cy="30" rx="5" ry="3.5" fill="#cc4400"/>
+    <ellipse cx="38" cy="30" rx="5" ry="3.5" fill="#cc4400"/>
+    <ellipse cx="22" cy="30" rx="3" ry="2" fill="#ff6600"/>
+    <ellipse cx="38" cy="30" rx="3" ry="2" fill="#ff6600"/>
+    {/* ? 마크 */}
+    <text x="26" y="56" fontSize="14" fontWeight="bold" fill="#cc4400">?</text>
+  </svg>,
 }
 
-const rFB = (h) => { const a = FBW[h]||FBW[5]; return a[Math.floor(Math.random()*a.length)] }
+const GRADES = [
+  {id:'easy',  name:'Easy',   color:'#e8808c', bg:'#fff5f6', border:'#fad0d4',
+   desc:'1990년대 이후 헐리우드·한국 블록버스터', subDesc:'누구나 아는 인기작'},
+  {id:'normal',name:'Normal', color:'#c8a84a', bg:'#fffbf0', border:'#f0dfa0',
+   desc:'1980년대 이후 헐리우드·한국 흥행작', subDesc:'영화 좀 본 사람들'},
+  {id:'hard',  name:'Hard',   color:'#e07040', bg:'#fff8f5', border:'#f0c4a8',
+   desc:'1970년대 이후 헐리우드·한국·일본·유럽', subDesc:'영화 마니아 도전'},
+  {id:'expert',name:'Expert', color:'#c05060', bg:'#fff5f5', border:'#f0b4b8',
+   desc:'영화제 수상작·독립·예술영화', subDesc:'진짜 고수만'},
+]
 
-function normalize(s) { return s.replace(/[\s:!"',.·~…()\[\]/\\]/g,'') }
-function levenshtein(a,b) {
+const BP = {easy:100,normal:200,hard:300,expert:500}
+const FBW = {
+  1:['힌트가 좀 어려웠지?','아직 힌트 4개나 남았어','처음부터 맞추면 재미없잖아'],
+  2:['아깝다. 좀 더 생각해봐','거의 다 왔는데!','느낌이 왔을 것 같은데...'],
+  3:['이걸 모른다고?','이 영화 분명 본 적 있을걸?','이거 모르면 영화 레벨 의심'],
+  4:['배우 이름까지 나왔는데?','이건 맞추는 사람 많던데','자존심 안 상해?'],
+  5:['포기 포기 😮‍💨','오늘은 여기까지','오늘은 이 영화가 이겼어'],
+}
+const rFB = h => { const a=FBW[h]||FBW[5]; return a[Math.floor(Math.random()*a.length)] }
+
+function normalize(s){ return s.toLowerCase().replace(/[\s:!"',.·~…()\[\]/\\-_]/g,'') }
+function lev(a,b){
   const m=a.length,n=b.length
   const dp=Array.from({length:m+1},(_,i)=>Array.from({length:n+1},(_,j)=>i===0?j:j===0?i:0))
   for(let i=1;i<=m;i++) for(let j=1;j<=n;j++) dp[i][j]=a[i-1]===b[j-1]?dp[i-1][j-1]:1+Math.min(dp[i-1][j],dp[i][j-1],dp[i-1][j-1])
   return dp[m][n]
 }
-function isCorrect(input, movie) {
-  const a = normalize(input)
 
-  const candidates = [
-    movie.title,
-    movie.title_en,
-    ...(movie.answers || [])
-  ]
-
-  return candidates.some(c => {
-    if (!c) return false
-
-    const b = normalize(c)
-
-    if (a === b) return true
-    if (b.length >= 4 && a.length === b.length && levenshtein(a, b) <= 1) return true
-
-    return false
-  })
+=======
+function isCorrect(inp,title,answers=[]){
+  const a=normalize(inp)
+  for(const c of [title,...answers]){
+    const b=normalize(c)
+    if(a===b) return true
+    if(b.length>=4&&a.length===b.length&&lev(a,b)<=1) return true
+  }
+  return false
+>>>>>>> 3225d10 (update: cineclue UX + layout fix)
 }
-
-function buildSidePool(side) {
-  if (!side) return []
-  const p = []
-  if (side.year) p.push({t:'year',v:side.year})
-  if (side.actors) side.actors.forEach(a=>p.push({t:'actor',v:a}))
-  if (side.genre) p.push({t:'genre',v:side.genre})
-  if (side.awards) side.awards.forEach(a=>p.push({t:'award',v:a}))
-  if (side.runtime) p.push({t:'rt',v:side.runtime})
-  if (side.nc17) p.push({t:'nc17',v:'NC-17 등급'})
-  for(let i=p.length-1;i>0;i--) { const j=Math.floor(Math.random()*(i+1));[p[i],p[j]]=[p[j],p[i]] }
+function buildSidePool(side){
+  if(!side) return []
+  const p=[]
+  if(side.year) p.push({t:'year',v:side.year})
+  if(side.actors) side.actors.forEach(a=>p.push({t:'a',v:a}))
+  if(side.genre) p.push({t:'g',v:side.genre})
+  if(side.awards) side.awards.forEach(a=>p.push({t:'aw',v:a}))
+  if(side.runtime) p.push({t:'rt',v:side.runtime})
+  for(let i=p.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[p[i],p[j]]=[p[j],p[i]]}
   return p
 }
 
-const S = {
-  screen: {minHeight:'100vh',background:'#080808',padding:'1.2rem 1rem 3rem'},
-  max: {maxWidth:600,margin:'0 auto'},
-  btnGold: {height:50,borderRadius:10,border:'none',background:'#c8a84a',color:'#080808',fontSize:15,fontWeight:500,cursor:'pointer',width:'100%',fontFamily:'system-ui,sans-serif'},
-  btnGhost: {height:44,borderRadius:8,border:'1px solid rgba(255,255,255,0.25)',background:'rgba(255,255,255,0.06)',color:'#ede8de',fontSize:13,cursor:'pointer',width:'100%',fontFamily:'system-ui,sans-serif'},
-  btnAns: {height:46,padding:'0 14px',borderRadius:10,border:'none',background:'#c8a84a',color:'#080808',fontSize:14,fontWeight:500,cursor:'pointer',fontFamily:'system-ui,sans-serif'},
-  btnNh: {flex:1,height:38,borderRadius:8,border:'1px solid rgba(255,255,255,0.25)',background:'rgba(255,255,255,0.06)',color:'#ede8de',fontSize:12,cursor:'pointer',fontFamily:'system-ui,sans-serif'},
-  btnSk: {flex:1,height:38,borderRadius:8,border:'1px solid rgba(224,82,82,0.5)',background:'rgba(224,82,82,0.07)',color:'#e05252',fontSize:12,cursor:'pointer',fontFamily:'system-ui,sans-serif'},
-  btnNxt: {width:'100%',height:46,borderRadius:10,border:'1px solid rgba(255,255,255,0.25)',background:'rgba(255,255,255,0.06)',color:'#ede8de',fontSize:14,cursor:'pointer',marginTop:12,fontFamily:'system-ui,sans-serif'},
+/* ── 공통 컴포넌트 ── */
+function CharAvatar({charId, size=40}){
+  const c=CHARS.find(x=>x.id===charId)
+  if(!c) return <div style={{width:size,height:size,borderRadius:'50%',background:'#f0eeea',border:'1.5px solid #e0dcd4'}}/>
+  return(
+    <div style={{width:size,height:size,borderRadius:'50%',background:'#f5f3ef',border:'1.5px solid #e8e4dd',display:'flex',alignItems:'center',justifyContent:'center',overflow:'hidden',flexShrink:0}}>
+      <svg viewBox="0 0 80 80" fill="none" style={{width:size,height:size}}>{c.svg.props.children}</svg>
+    </div>
+  )
 }
 
 export default function CineClue() {
@@ -97,291 +320,411 @@ export default function CineClue() {
   const [fb, setFb] = useState('')
   const [fbt, setFbt] = useState('')
   const [input, setInput] = useState('')
+  const [mode, setMode] = useState(null)
   const [comboStreak, setComboStreak] = useState(0)
   const [crazyStreak, setCrazyStreak] = useState(0)
-  const [mode, setMode] = useState(null)
   const [td, setTd] = useState(false)
   const [tc, setTc] = useState(10)
   const [sidePool, setSidePool] = useState([])
   const [results, setResults] = useState([])
   const [loading, setLoading] = useState(false)
-  const [pendingRep, setPendingRep] = useState({})
+  const [visibleResults, setVisibleResults] = useState(0)
+  const [displayScore, setDisplayScore] = useState(0)
+  const [showAnswer, setShowAnswer] = useState(false)
+  const [revealedTitle, setRevealedTitle] = useState('')
+  const inputRef = useRef(null)
+  const supabase = SUPABASE_URL ? createClient(SUPABASE_URL,SUPABASE_KEY) : null
 
-  const supabase = SUPABASE_URL ? createClient(SUPABASE_URL, SUPABASE_KEY) : null
+  const char = CHARS.find(c=>c.id===selChar)
+  const g = GRADES.find(x=>x.id===selGrade)
 
-  const getMult = useCallback(() => mode==='crazy'?5:mode==='combo'?2:1, [mode])
-  const getPts = useCallback(() => Math.round((td ? BP[selGrade]/2 : BP[selGrade]||100) * getMult()), [td, selGrade, getMult])
+  /* 타이머 */
+  useEffect(()=>{
+    if(screen!=='quiz'||answered||td) return
+    if(tc<=0){setTd(true);return}
+    const t=setTimeout(()=>setTc(v=>v-1),1000)
+    return ()=>clearTimeout(t)
+  },[screen,answered,td,tc])
 
-  // 타이머
-  useEffect(() => {
-    if (screen !== 'quiz' || answered || td) return
-    if (tc <= 0) { setTd(true); return }
-    const timer = setTimeout(() => setTc(t => t-1), 1000)
-    return () => clearTimeout(timer)
-  }, [screen, answered, td, tc])
+  /* 엔터 */
+  useEffect(()=>{
+    const h=e=>{ if(e.key==='Enter'&&answered&&screen==='quiz' && !showAnswer) handleNextQ() }
+    window.addEventListener('keydown',h)
+    return ()=>window.removeEventListener('keydown',h)
+  },[answered,screen,qi,pool])
 
-  // 엔터키로 다음 문제
-  useEffect(() => {
-    const handler = (e) => {
-		if (e.target && (
-  e.target.tagName === 'INPUT' ||
-  e.target.tagName === 'TEXTAREA' ||
-  e.target.isContentEditable
-)) return
-		if (e.key === 'Enter' && answered && screen === 'quiz') nextQ() }
-    window.addEventListener('keydown', handler)
-    return () => window.removeEventListener('keydown', handler)
-  }, [answered, screen, qi, pool])
+<<<<<<< HEAD
 
-  async function loadMovies(grade) {
+=======
+  /* 결과화면 - Q 순차 노출 + 점수 카운트 */
+  useEffect(()=>{
+    if(screen!=='result') return
+    setVisibleResults(0); setDisplayScore(0)
+    const tot=results.reduce((s,r)=>s+r.score,0)
+    results.forEach((_,i)=>{
+      setTimeout(()=>setVisibleResults(v=>v+1),(i+1)*500)
+    })
+    // 모든 Q 노출 후 점수 카운트 (1.5배 빠르게: interval 20ms)
+    setTimeout(()=>{
+      let cur=0
+      const step=Math.ceil(tot/60)
+      const iv=setInterval(()=>{
+        cur=Math.min(cur+step,tot)
+        setDisplayScore(cur)
+        if(cur>=tot) clearInterval(iv)
+      },20)
+    }, results.length*500+300)
+  },[screen])
+>>>>>>> 3225d10 (update: cineclue UX + layout fix)
+
+  async function loadMovies(grade){
     setLoading(true)
-    try {
-      let movies = []
-      if (supabase) {
-        const { data } = await supabase.from('movies').select('*, hints(*)').eq('grade', grade)
-        if (data && data.length > 0) movies = data
+    try{
+      let movies=[]
+      if(supabase){
+        const{data}=await supabase.from('movies').select('*,hints(*)').eq('grade',grade)
+        if(data&&data.length>0) movies=data
       }
-      if (movies.length === 0) {
-        alert('DB 연결이 필요합니다. .env.local 파일에 Supabase 키를 설정해주세요.')
-        setLoading(false)
-        return
-      }
-      movies.sort((a, b) => {
-		  if (a.attempt_count === b.attempt_count) {
-			  return Math.random() - 0.5
-		  }
-		  return a.attempt_count - b.attempt_count
-	  })
-      const selected = movies.slice(0, 8).map(m => ({
+
+ 
+=======
+      if(!movies.length){alert('DB에 영화 데이터가 없습니다.');setLoading(false);return}
+      movies.sort(()=>Math.random()-.5)
+      const sel=movies.slice(0,5).map(m=>({
+>>>>>>> 3225d10 (update: cineclue UX + layout fix)
         ...m,
-        hintsArr: m.hints ? m.hints.sort((a,b)=>a.hint_level-b.hint_level).map(h=>h.hint_text) : [],
-        pts: [500,400,300,200,100],
+        hintsArr:m.hints?m.hints.sort((a,b)=>a.hint_level-b.hint_level).map(h=>h.hint_text):[],
       }))
-      setPool(selected)
-      setQi(0); setSh(1); setScore(0); setAnswered(false); setFb(''); setFbt(''); setInput('')
-      setComboStreak(0); setCrazyStreak(0); setMode(null); setTd(false); setTc(10)
-      setResults([]); setPendingRep({})
-      setSidePool(buildSidePool(selected[0]?.side))
+      setPool(sel);setQi(0);setSh(1);setScore(0)
+      setAnswered(false);setFb('');setFbt('');setInput('')
+      setMode(null);setComboStreak(0);setCrazyStreak(0)
+      setTd(false);setTc(10);setResults([])
+      setSidePool(buildSidePool(sel[0]?.side))
       setScreen('quiz')
-    } catch(e) {
-      console.error(e)
-      alert('영화 데이터를 불러오지 못했습니다.')
-    }
+    }catch(e){console.error(e);alert('오류가 발생했습니다.')}
     setLoading(false)
   }
 
-  function updateCombo(correct, hintUsed) {
-    if (!correct) { setComboStreak(0); setCrazyStreak(0); setMode(null); return }
-    if (hintUsed === 1) {
-      const ncs = crazyStreak + 1, ns = comboStreak + 1
-      setCrazyStreak(ncs); setComboStreak(ns)
-      if (ncs >= 2) setMode('crazy')
-      else if (ns >= 2) setMode('combo')
-    } else {
-      setCrazyStreak(0)
-      if (mode === 'crazy') setMode(null)
-      const ns = comboStreak + 1; setComboStreak(ns)
-      if (ns >= 2 && mode === null) setMode('combo')
+  function getPts(){ const base=td?BP[selGrade]/2:BP[selGrade]||100; return Math.round(base*(mode==='crazy'?5:mode==='combo'?2:1)) }
+
+  function updateCombo(correct,hu){
+    if(!correct){setComboStreak(0);setCrazyStreak(0);setMode(null);return}
+    if(hu===1){
+      const ncs=crazyStreak+1,ns=comboStreak+1
+      setCrazyStreak(ncs);setComboStreak(ns)
+      if(ncs>=2)setMode('crazy');else if(ns>=2)setMode('combo')
+    }else{
+      setCrazyStreak(0);if(mode==='crazy')setMode(null)
+      const ns=comboStreak+1;setComboStreak(ns)
+      if(ns>=2&&!mode)setMode('combo')
     }
   }
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  async function submit() {
-    if (isSubmitting || answered || !input.trim()) return
-	setIsSubmitting(true)
-    const m = pool[qi]
-    if (isCorrect(input, m)) {
-      const gained = getPts()
-      updateCombo(true, sh)
-      setScore(s => s + gained)
-      setResults(r => [...r, {title:m.title, correct:true, hintUsed:sh, score:gained}])
-	  if (supabase) {
-		  await supabase.from('hint_logs').insert({
-			  movie_id: m.id,
-			  hint_level: sh,
-			  is_correct: true
-		  })
-	  }
-	  if (supabase) {
-		  await supabase.from('game_logs').insert({
-			  character_id: selChar || 'guest',
-			  movie_id: m.id,
-			  grade: m.grade,
-			  hint_used: sh,
-			  score_earned: gained,
-			  combo_mode: mode,
-			  timer_expired: false
-  })
-}
-      setFb(`정답! +${gained}점`); setFbt('ok'); setAnswered(true); setInput('')
-    } else {
-      setFb(rFB(sh)); setFbt('ng')
-	  if (supabase) {
-		  await supabase.from('hint_logs').insert({
-			  movie_id: m.id,
-			  hint_level: sh,
-			  is_correct: false
-		  })
-	  }
+  
+=======
 
-      if (sh < 5) setSh(s => s+1)
+  function submit(){
+    if(fbt==='ok'||!input.trim()) return
+    const m=pool[qi]
+    if(isCorrect(input,m.title,m.answers||[])){
+      const gained=getPts()
+      updateCombo(true,sh);setScore(v=>v+gained)
+      setResults(r=>[...r,{title:m.title,correct:true,hintUsed:sh,score:gained,grade:selGrade,country:m.country,genre:m.side?.genre||''}])
+setFb(`정답! +${gained}점`)
+setFbt('ok')
+setAnswered(true)
+setShowAnswer(true)
+setRevealedTitle(m.title)   // 추가
+setInput('')
+
+setTimeout(() => {
+  setShowAnswer(false)
+  setRevealedTitle('')
+  handleNextQ()
+}, 1500)
+    }else{
+      setFb(rFB(sh));setFbt('ng')
+>>>>>>> 3225d10 (update: cineclue UX + layout fix)
       setInput('')
+      setTimeout(()=>inputRef.current?.focus(),50)
     }
 	setTimeout(() => setIsSubmitting(false), 200)
   }
 
-  function doSkip() {
-    updateCombo(false, 0)
-    setResults(r => [...r, {title:pool[qi].title, correct:false, hintUsed:0, score:0}])
-    setFb('다음번엔 꼭 맞추길...'); setFbt('sk'); setAnswered(true)
+  function doSkip(){
+    if(fbt==='ok') return
+    const m=pool[qi]
+    if(results.length<=qi){
+      updateCombo(false,0)
+      setResults(r=>[...r,{title:m.title,correct:false,hintUsed:0,score:0,grade:selGrade,country:m.country,genre:m.side?.genre||''}])
+    }
+    // 즉시 다음 퀴즈로 이동
+    if(qi+1>=pool.length){
+      setScreen('result')
+    } else {
+      const nqi=qi+1
+      setQi(nqi);setSh(1);setFb('');setFbt('');setInput('')
+      setAnswered(false);setTd(false);setTc(10)
+      setSidePool(buildSidePool(pool[nqi]?.side))
+      setTimeout(()=>inputRef.current?.focus(),100)
+    }
   }
 
-  function nextH() {
-    if (sh < 5) { setSh(s=>s+1); setFb(''); setFbt('') }
-    else doSkip()
+  function handleNextH(){
+    if(sh<5){
+      setSh(v=>v+1);setFb('');setFbt('')
+      setTimeout(()=>inputRef.current?.focus(),50)
+    } else {
+      doSkip()
+    }
   }
 
-  function nextQ() {
-    if (qi + 1 >= pool.length) { showResult(); return }
-    const nqi = qi + 1
-    setQi(nqi); setSh(1); setAnswered(false); setFb(''); setFbt(''); setInput('')
-    setTd(false); setTc(10); setPendingRep({})
-    setSidePool(buildSidePool(pool[nqi]?.side))
+  function handleNextQ(){
+if(showAnswer) return
+    if(qi+1>=pool.length){setScreen('result');return}
+    const nqi=qi+1
+    setQi(nqi);setSh(1);setAnswered(false);setFb('');setFbt('');setInput('')
+    setTd(false);setTc(10);setSidePool(buildSidePool(pool[nqi]?.side))
+    setTimeout(()=>inputRef.current?.focus(),100)
   }
 
-  function showResult() {
-    setScreen('result')
-  }
-
-  function goHome() {
-    setSelGrade(null); setScreen('char')
-  }
-
-  const m = pool[qi]
-  const g = GRADES.find(x=>x.id===selGrade)
-  const char = CHARS.find(c=>c.id===selChar)
-  const timerColor = tc > 6 ? '#4fc97a' : tc > 3 ? '#c8a84a' : '#e05252'
-
-  // ── 캐릭터 선택 ──
-  if (screen === 'char') return (
-    <div style={S.screen}>
-      <div style={{...S.max, display:'flex',flexDirection:'column',alignItems:'center'}}>
-        <div style={{fontSize:'3.5rem',fontWeight:700,letterSpacing:'-1px',marginBottom:4}}>Cine<span style={{color:'#c8a84a'}}>Clue</span></div>
-        <div style={{fontSize:11,letterSpacing:'0.25em',textTransform:'uppercase',color:'rgba(237,232,222,0.4)',marginBottom:32}}>영화 힌트 퀴즈</div>
-        <div style={{fontSize:11,letterSpacing:'0.2em',textTransform:'uppercase',color:'rgba(237,232,222,0.4)',marginBottom:12,width:'100%',maxWidth:460}}>캐릭터를 선택하세요</div>
-        <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:10,width:'100%',maxWidth:460,marginBottom:28}}>
-          {CHARS.map(c => (
-            <div key={c.id} onClick={()=>setSelChar(c.id)}
-              style={{border:`1px solid ${selChar===c.id?'#c8a84a':'rgba(255,255,255,0.12)'}`,borderRadius:12,background:selChar===c.id?'rgba(200,168,74,0.07)':'#111',cursor:'pointer',padding:'1rem 0.6rem 0.8rem',display:'flex',flexDirection:'column',alignItems:'center',gap:6}}>
-              <svg viewBox="0 0 60 60" fill="none" style={{width:52,height:52}}>{c.svg.props.children}</svg>
-              <div style={{fontSize:11,color:selChar===c.id?'#c8a84a':'rgba(237,232,222,0.5)'}}>{c.name}</div>
-            </div>
-          ))}
+  /* ══════════════════════════════════════════
+     화면 1: 캐릭터 선택
+  ══════════════════════════════════════════ */
+  if(screen==='char') return(
+    <div style={{minHeight:'100vh',background:'#fff',display:'flex',flexDirection:'column',padding:'48px 0 40px'}}>
+      {/* 로고 */}
+      <div style={{textAlign:'center',marginBottom:40}}>
+        <div style={{fontSize:'2.6rem',fontWeight:900,letterSpacing:'-1px',lineHeight:1,color:'#1a1814'}}>
+          Cine <span style={{color:'#e8808c'}}>CLUE</span>
         </div>
-        <div style={{width:'100%',maxWidth:460}}>
-          <button style={{...S.btnGold,opacity:selChar?1:0.35}} disabled={!selChar} onClick={()=>{if(selChar)setScreen('grade')}}>시작하기 →</button>
+        <div style={{fontSize:'0.75rem',color:'#b0aaa3',letterSpacing:'0.25em',marginTop:8,textTransform:'uppercase',fontWeight:500}}>
+          Follow the clues
         </div>
       </div>
-    </div>
-  )
 
-  // ── 난이도 선택 ──
-  if (screen === 'grade') return (
-    <div style={S.screen}>
-      <div style={S.max}>
-        <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:24}}>
-          <div style={{width:38,height:38,borderRadius:'50%',background:'#111',border:'1px solid rgba(255,255,255,0.12)',display:'flex',alignItems:'center',justifyContent:'center',overflow:'hidden',flexShrink:0}}>
-            <svg viewBox="0 0 60 60" fill="none" style={{width:30,height:30}}>{char?.svg.props.children}</svg>
-          </div>
-          <div><div style={{fontSize:13,fontWeight:500,color:'#ede8de'}}>{char?.name}</div><div style={{fontSize:11,color:'rgba(237,232,222,0.4)'}}>선택됨</div></div>
+      <div style={{padding:'0 20px',flex:1}}>
+        <div style={{fontSize:'0.7rem',fontWeight:700,color:'#b0aaa3',letterSpacing:'0.15em',textTransform:'uppercase',marginBottom:14}}>
+          캐릭터를 선택하세요
         </div>
-        <div style={{fontSize:11,letterSpacing:'0.2em',textTransform:'uppercase',color:'rgba(237,232,222,0.4)',marginBottom:10}}>난이도 선택</div>
-        <div style={{display:'flex',flexDirection:'column',gap:8,marginBottom:16}}>
-          {GRADES.map(gr => (
-            <div key={gr.id} onClick={()=>setSelGrade(gr.id)}
-              style={{border:`1px solid ${selGrade===gr.id?gr.color:'rgba(255,255,255,0.12)'}`,borderRadius:12,background:'#111',cursor:'pointer',padding:'1rem 1.2rem',display:'flex',alignItems:'center',gap:12}}>
-              <div style={{fontSize:'1.2rem',width:28,flexShrink:0}}>{gr.icon}</div>
-              <div style={{flex:1}}>
-                <div style={{fontSize:14,fontWeight:500,color:selGrade===gr.id?gr.color:'#ede8de',marginBottom:2}}>{gr.name}</div>
-                <div style={{fontSize:11,color:'rgba(237,232,222,0.4)',lineHeight:1.4}}>{gr.desc}</div>
+
+        {/* 3×3 캐릭터 그리드 */}
+        <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:10,marginBottom:36}}>
+          {CHARS.map(c=>{
+            const sel=selChar===c.id
+            return(
+              <div key={c.id} onClick={()=>setSelChar(c.id)} style={{
+                borderRadius:18,
+                border:sel?`3px solid ${c.color}`:'1.5px solid #e8e4dd',
+                background:sel?`${c.color}18`:'#faf9f7',
+                padding:'16px 6px 12px',display:'flex',flexDirection:'column',
+                alignItems:'center',gap:8,cursor:'pointer',
+                transition:'all .18s cubic-bezier(.34,1.56,.64,1)',
+                boxShadow:sel?`0 6px 22px ${c.color}50`:'0 1px 4px rgba(0,0,0,0.06)',
+                transform:sel?'scale(1.06)':'scale(1)',
+                position:'relative',
+              }}>
+                {/* 선택 체크 뱃지 */}
+                {sel&&(
+                  <div style={{
+                    position:'absolute',top:8,right:8,
+                    width:18,height:18,borderRadius:'50%',
+                    background:c.color,display:'flex',alignItems:'center',justifyContent:'center',
+                    animation:'fadeIn .15s ease',
+                  }}>
+                    <span style={{color:'#fff',fontSize:'0.6rem',fontWeight:900,lineHeight:1}}>✓</span>
+                  </div>
+                )}
+                <svg viewBox="0 0 80 80" fill="none" style={{width:56,height:56,filter:sel?'none':'grayscale(20%)',transition:'filter .18s'}}>{c.svg.props.children}</svg>
+                <div style={{fontSize:'0.6rem',fontWeight:700,color:sel?c.color:'#9a9490',textAlign:'center',lineHeight:1.3,transition:'color .18s'}}>
+                  {c.name}
+                  <div style={{fontSize:'0.55rem',fontWeight:400,color:sel?`${c.color}aa`:'#b8b4b0',marginTop:2}}>{c.movie}</div>
+                </div>
               </div>
-              <div style={{fontSize:10,fontWeight:500,padding:'2px 8px',borderRadius:20,color:gr.color,background:`${gr.color}18`,border:`1px solid ${gr.color}30`,flexShrink:0}}>{gr.badge}</div>
-            </div>
-          ))}
+            )
+          })}
         </div>
-        <button style={{...S.btnGold,opacity:selGrade&&!loading?1:0.35}} disabled={!selGrade||loading} onClick={()=>loadMovies(selGrade)}>
-          {loading ? '로딩 중...' : '퀴즈 시작 →'}
+
+        <button
+          style={{width:'100%',height:54,borderRadius:14,background:selChar?'#1a1814':'#d4d0cc',color:'#fff',fontSize:'0.9rem',fontWeight:700,border:'none',cursor:selChar?'pointer':'default',transition:'background .2s',letterSpacing:'0.05em'}}
+          disabled={!selChar}
+          onClick={()=>{if(selChar)setScreen('grade')}}>
+          입장하기
         </button>
-        <div style={{marginTop:8}}><button style={S.btnGhost} onClick={()=>setScreen('char')}>← 캐릭터 다시 선택</button></div>
       </div>
     </div>
   )
 
-  // ── 퀴즈 ──
-  if (screen === 'quiz' && m) return (
-    <div style={S.screen}>
-      <div style={S.max}>
-        {/* 상단 */}
-        <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:8}}>
-          <div style={{display:'flex',alignItems:'center',gap:8}}>
-            <div style={{width:32,height:32,borderRadius:'50%',background:'#111',border:'1px solid rgba(255,255,255,0.12)',display:'flex',alignItems:'center',justifyContent:'center',overflow:'hidden',flexShrink:0}}>
-              <svg viewBox="0 0 60 60" fill="none" style={{width:26,height:26}}>{char?.svg.props.children}</svg>
-            </div>
-            <span style={{fontSize:13,color:'rgba(237,232,222,0.5)'}}>Q{qi+1}/{pool.length}</span>
-          </div>
-          <div style={{fontSize:13,fontWeight:500,color:'#c8a84a',background:'rgba(200,168,74,0.1)',padding:'3px 10px',borderRadius:20,border:'1px solid rgba(200,168,74,0.2)'}}>{score}점</div>
+  /* ══════════════════════════════════════════
+     화면 2: 난이도 선택
+  ══════════════════════════════════════════ */
+  if(screen==='grade') return(
+    <div style={{minHeight:'100vh',background:'#fff',display:'flex',flexDirection:'column',padding:'28px 0 40px'}}>
+      {/* 상단 유저 */}
+      <div style={{padding:'0 20px',display:'flex',alignItems:'center',gap:12,marginBottom:32}}>
+        <CharAvatar charId={selChar} size={44}/>
+        <div>
+          <div style={{fontSize:'0.65rem',color:'#b0aaa3',fontWeight:500}}>플레이어</div>
+          <div style={{fontSize:'0.85rem',fontWeight:700,color:'#1a1814'}}>USER ID</div>
+        </div>
+      </div>
+
+      {/* 난이도 슬롯 */}
+      <div style={{padding:'0 20px',flex:1}}>
+        <div style={{fontSize:'0.7rem',fontWeight:700,color:'#b0aaa3',letterSpacing:'0.15em',textTransform:'uppercase',marginBottom:14}}>
+          난이도를 선택하세요
         </div>
 
-        {/* 프로그레스 */}
-        <div style={{height:2,background:'#191919',borderRadius:2,marginBottom:8}}>
-          <div style={{height:2,background:'#c8a84a',borderRadius:2,width:`${(qi/pool.length)*100}%`,transition:'width .4s'}}/>
-        </div>
-
-        {/* 타이머 */}
-        {!answered && !td && (
-          <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:8}}>
-            <div style={{fontSize:'1.5rem',fontWeight:500,minWidth:26,textAlign:'center',color:timerColor}}>{tc}</div>
-            <div style={{flex:1,height:3,background:'#222',borderRadius:2}}>
-              <div style={{height:3,borderRadius:2,background:timerColor,width:`${tc/10*100}%`,transition:'width 1s linear'}}/>
+        {GRADES.map(gr=>{
+          const sel=selGrade===gr.id
+          return(
+            <div key={gr.id} onClick={()=>setSelGrade(gr.id)} style={{
+              borderRadius:16,border:`2px solid ${sel?gr.color:gr.border}`,
+              background:sel?gr.bg:'#fff',
+              padding:'14px 16px',marginBottom:10,cursor:'pointer',
+              display:'flex',alignItems:'center',gap:14,
+              transition:'all .2s',
+              boxShadow:sel?`0 3px 16px ${gr.color}20`:'0 1px 4px rgba(0,0,0,0.05)',
+            }}>
+              {/* 캐릭터 이미지 */}
+              <div style={{width:52,height:52,borderRadius:12,background:sel?`${gr.color}18`:'#f5f3ef',border:`1.5px solid ${sel?gr.color:gr.border}`,display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0,overflow:'hidden'}}>
+                <svg viewBox="0 0 60 60" fill="none" style={{width:52,height:52}}>{GRADE_CHARS[gr.id].props.children}</svg>
+              </div>
+              <div style={{flex:1,minWidth:0}}>
+                <div style={{fontSize:'0.9rem',fontWeight:800,color:sel?gr.color:'#1a1814',marginBottom:3}}>{gr.name}</div>
+                <div style={{fontSize:'0.65rem',color:'#a09a93',lineHeight:1.4}}>{gr.desc}</div>
+                <div style={{fontSize:'0.6rem',color:sel?gr.color:'#c0bab3',fontWeight:600,marginTop:3}}>{gr.subDesc}</div>
+              </div>
+              <div style={{width:22,height:22,borderRadius:'50%',border:`2px solid ${sel?gr.color:'#ddd'}`,background:sel?gr.color:'transparent',flexShrink:0,display:'flex',alignItems:'center',justifyContent:'center'}}>
+                {sel&&<div style={{width:8,height:8,borderRadius:'50%',background:'#fff'}}/>}
+              </div>
             </div>
-            <div style={{fontSize:11,color:'rgba(237,232,222,0.4)',whiteSpace:'nowrap'}}>{BP[selGrade]}점 → {BP[selGrade]/2}점</div>
+          )
+        })}
+      </div>
+
+      <div style={{padding:'20px 20px 0',display:'flex',flexDirection:'column',gap:10}}>
+        <button
+          style={{height:54,borderRadius:14,background:selGrade&&!loading?'#1a1814':'#d4d0cc',color:'#fff',fontSize:'0.9rem',fontWeight:700,border:'none',cursor:selGrade&&!loading?'pointer':'default',transition:'background .2s'}}
+          disabled={!selGrade||loading}
+          onClick={()=>loadMovies(selGrade)}>
+          {loading?'로딩 중...':'퀴즈시작'}
+        </button>
+        <button
+          style={{height:44,borderRadius:12,background:'transparent',color:'#9a9490',fontSize:'0.8rem',fontWeight:500,border:'1.5px solid #e8e4dd',cursor:'pointer'}}
+          onClick={()=>setScreen('char')}>
+          캐릭터 다시 선택
+        </button>
+      </div>
+    </div>
+  )
+
+  /* ══════════════════════════════════════════
+     화면 3: 퀴즈
+  ══════════════════════════════════════════ */
+  if(screen==='quiz'&&pool[qi]){
+    const m=pool[qi]
+    const timerCol=tc>6?'#4a9c6d':tc>3?'#c8a84a':'#d45c5c'
+    const isLast=sh>=5||answered
+
+    return(
+      <div style={{minHeight:'100vh',background:'#fff',display:'flex',flexDirection:'column'}}>
+        {/* 고정 헤더 */}
+        <div style={{background:'#fff',borderBottom:'1px solid #f0ece6',padding:'14px 20px 0',flexShrink:0}}>
+          {/* 유저 + 점수 + 타이머 */}
+          <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:10}}>
+            <CharAvatar charId={selChar} size={34}/>
+            <span style={{fontSize:'0.75rem',fontWeight:700,color:'#1a1814',flex:1}}>USER ID</span>
+            <div style={{display:'flex',alignItems:'center',gap:8}}>
+              <div style={{textAlign:'right'}}>
+                <div style={{fontSize:'0.65rem',color:'#b0aaa3'}}>점수</div>
+                <div style={{fontSize:'0.9rem',fontWeight:800,color:'#1a1814'}}>{score.toLocaleString()}</div>
+              </div>
+              {!answered&&(
+                <div style={{width:36,height:36,borderRadius:'50%',background:`${timerCol}15`,border:`2.5px solid ${timerCol}`,display:'flex',alignItems:'center',justifyContent:'center'}}>
+                  <span style={{fontSize:'0.8rem',fontWeight:800,color:timerCol}}>{tc}</span>
+                </div>
+              )}
+            </div>
           </div>
-        )}
+
+          {/* 메타 정보 바 */}
+          <div style={{display:'flex',alignItems:'center',gap:6,paddingBottom:12,flexWrap:'wrap'}}>
+            {/* 퀴즈 번호 */}
+            <span style={{fontSize:'0.62rem',fontWeight:700,padding:'3px 9px',borderRadius:20,background:'#f5f3ef',color:'#6b6560',border:'1px solid #e8e4dd'}}>{qi+1}/5</span>
+            {/* 선택된 난이도 1개만 */}
+            <span style={{fontSize:'0.62rem',fontWeight:700,padding:'3px 10px',borderRadius:20,
+              background:g?.color||'#e8808c',color:'#fff',
+            }}>{g?.name}</span>
+            {/* 국가 - 파란 계열 강조 */}
+            {m.country&&<span style={{fontSize:'0.62rem',fontWeight:700,padding:'3px 10px',borderRadius:20,
+              background:'#e8f0fc',color:'#3a6abf',border:'1px solid #c0d4f8',
+            }}>{m.country}</span>}
+            {/* 장르 - 초록 계열 강조 */}
+            {m.side?.genre&&<span style={{fontSize:'0.62rem',fontWeight:700,padding:'3px 10px',borderRadius:20,
+              background:'#e8f5ee',color:'#2e8a52',border:'1px solid #a8dfc0',
+            }}>{m.side.genre}</span>}
+            {/* 점수 */}
+            <span style={{fontSize:'0.62rem',fontWeight:700,padding:'3px 9px',borderRadius:20,
+              background:`${g?.color||'#e8808c'}15`,color:g?.color||'#e8808c',
+              border:`1px solid ${g?.color||'#e8808c'}30`,marginLeft:'auto',
+            }}>{getPts()}pt</span>
+          </div>
+        </div>
 
         {/* 콤보 */}
-        {mode && (
-          <div style={{borderRadius:10,padding:'9px 14px',marginBottom:8,display:'flex',alignItems:'center',justifyContent:'space-between',
-            background:mode==='crazy'?'rgba(224,82,82,0.1)':'rgba(200,168,74,0.1)',
-            border:mode==='crazy'?'1px solid rgba(224,82,82,0.4)':'1px solid rgba(200,168,74,0.3)'}}>
-            <span style={{fontSize:13,fontWeight:500,color:mode==='crazy'?'#ff6b6b':'#c8a84a'}}>{mode==='crazy'?'CRAZY COMBO':'COMBO'}</span>
-            <span style={{fontSize:12,color:mode==='crazy'?'rgba(255,107,107,0.6)':'rgba(200,168,74,0.6)'}}>{mode==='crazy'?crazyStreak:comboStreak}연속</span>
-            <span style={{fontSize:11,padding:'2px 8px',borderRadius:20,fontWeight:500,
-              background:mode==='crazy'?'rgba(224,82,82,0.15)':'rgba(200,168,74,0.15)',
-              color:mode==='crazy'?'#ff6b6b':'#c8a84a',
-              border:mode==='crazy'?'1px solid rgba(224,82,82,0.3)':'1px solid rgba(200,168,74,0.25)'}}>{mode==='crazy'?'x5':'x2'}</span>
+        {mode&&(
+          <div style={{margin:'8px 16px 0',borderRadius:10,padding:'7px 14px',display:'flex',alignItems:'center',justifyContent:'space-between',background:mode==='crazy'?'#fff0f0':'#fffbf0',border:`1px solid ${mode==='crazy'?'#f0b4b4':'#f0dfa0'}`}}>
+            <span style={{fontSize:'0.72rem',fontWeight:800,color:mode==='crazy'?'#d45c5c':'#c8a84a'}}>{mode==='crazy'?'🔥 CRAZY COMBO':'⚡ COMBO'}</span>
+            <span style={{fontSize:'0.68rem',color:mode==='crazy'?'#d45c5c':'#c8a84a'}}>{mode==='crazy'?crazyStreak:comboStreak}연속 ×{mode==='crazy'?5:2}</span>
           </div>
         )}
 
-        {/* 난이도 칩 */}
-        <div style={{display:'inline-flex',alignItems:'center',gap:5,fontSize:11,padding:'3px 9px',borderRadius:20,border:'1px solid rgba(255,255,255,0.12)',color:'rgba(237,232,222,0.6)',marginBottom:12}}>
-          <span style={{width:6,height:6,borderRadius:'50%',background:g?.color,display:'inline-block'}}/>
-          <span style={{color:g?.color}}>{g?.name}</span>
-          <span> · {m.country}</span>
-        </div>
+        {/* 스크롤 콘텐츠 */}
+        <div style={{flex:1,padding:'12px 16px',overflowY:'auto',paddingBottom:120}}>
+          {Array.from({length:5}).map((_,i)=>{
+            if(i>=sh) return null
+            const isCurrent=i===sh-1
+            // 사이드힌트: i>=1(힌트2부터)이고, sidePool[i-1]이 있을 때 힌트 위에 표시
+            // 이전 사이드힌트들은 이미 해당 힌트 카드 위에 고정 노출됨
+            const sideItem = i>=1 ? sidePool[i-1] : null
 
-        {/* 퀴즈 메인 */}
-        <div style={{display:'grid',gridTemplateColumns:'1fr 96px',gap:10,alignItems:'start'}}>
-          <div>
-            {/* 힌트 카드 */}
-            {Array.from({length:5}).map((_,i) => {
-              if (i < sh) return (
-                <div key={i} style={{borderRadius:10,border:'1px solid rgba(255,255,255,0.1)',padding:'12px 14px',background:'#111',display:'flex',gap:9,alignItems:'flex-start',marginBottom:9}}>
-                  <span style={{fontSize:10,fontWeight:500,padding:'2px 6px',borderRadius:20,whiteSpace:'nowrap',marginTop:2,flexShrink:0,color:'#c8a84a',background:'rgba(200,168,74,0.12)',border:'1px solid rgba(200,168,74,0.22)'}}>힌트 {i+1}</span>
-                  <div style={{flex:1}}>
-                    <div style={{fontSize:14,color:'#ede8de',lineHeight:1.6}}>{m.hintsArr?.[i] || '힌트 없음'}</div>
-                    <div style={{fontSize:11,color:'rgba(237,232,222,0.25)',marginTop:3}}>정답 시 {getPts()}점</div>
+            return(
+              <div key={i}>
+                {/* 사이드 힌트 - 힌트2부터, 해당 힌트 위에 항상 유지 */}
+                {sideItem&&(
+                  <div style={{
+                    borderRadius:10,background:'#faf9f7',border:'1px dashed #e0dcd4',
+                    padding:'8px 12px',marginBottom:6,
+                    display:'flex',alignItems:'center',gap:10,
+                    animation:isCurrent?'fadeIn .3s ease':'none',
+                  }}>
+                    <div style={{width:6,height:6,borderRadius:'50%',background:g?.color||'#e8808c',flexShrink:0}}/>
+                    <div style={{fontSize:'0.68rem',color:'#9a9490'}}>
+                      {sideItem.t==='year'?`📅 ${sideItem.v}`:sideItem.v}
+                    </div>
+                  </div>
+                )}
+
+                {/* 힌트 카드 */}
+                <div style={{
+                  borderRadius:13,border:`1.5px solid ${isCurrent?g?.color||'#e8808c':'#ece8e2'}`,
+                  background:isCurrent?`${g?.bg||'#fff5f6'}`:'#fff',
+                  padding:'13px 15px',marginBottom:8,
+                  boxShadow:isCurrent?`0 2px 12px ${g?.color||'#e8808c'}18`:'none',
+                  animation:'fadeIn .3s ease',
+                }}>
+                  <div style={{display:'flex',alignItems:'flex-start',gap:8}}>
+                    <span style={{
+                      fontSize:'0.58rem',fontWeight:800,padding:'2px 8px',borderRadius:20,
+                      whiteSpace:'nowrap',marginTop:2,flexShrink:0,
+                      background:g?.color||'#e8808c',color:'#fff',
+                    }}>힌트 {i+1}</span>
+                    <div style={{flex:1}}>
+                      <div style={{fontSize:'0.78rem',color:'#1a1814',lineHeight:1.7}}>{m.hintsArr?.[i]||'힌트를 불러오는 중...'}</div>
+                    </div>
                   </div>
                 </div>
-              )
+
               if (i === sh && !answered) return (
                 <div key={i} style={{borderRadius:10,border:'1px solid rgba(255,255,255,0.06)',padding:'11px 14px',background:'#111',display:'flex',gap:10,alignItems:'center',opacity:0.3,marginBottom:9}}>
                   <span style={{fontSize:10,padding:'2px 6px',borderRadius:20,color:'rgba(237,232,222,0.3)',border:'1px solid rgba(255,255,255,0.1)'}}>힌트 {i+1}</span>
@@ -437,13 +780,94 @@ export default function CineClue() {
                     ? <div style={{fontSize:'1.35rem',fontWeight:500,color:'#ede8de',letterSpacing:2}}>{sidePool[i].v}</div>
                     : <div style={{fontSize:11,color:'rgba(237,232,222,0.6)',textAlign:'center',wordBreak:'keep-all',lineHeight:1.4,padding:'0 3px'}}>{sidePool[i].v}</div>
                 )}
+=======
+>>>>>>> 3225d10 (update: cineclue UX + layout fix)
               </div>
-            ))}
-          </div>
+            )
+          })}
+        </div>
+
+        {/* 고정 하단 입력 영역 */}
+        <div style={{
+          position:'fixed',bottom:0,left:'50%',transform:'translateX(-50%)',
+          width:'100%',maxWidth:430,
+          background:'#fff',borderTop:'1px solid #f0ece6',
+          padding:'12px 16px 20px',
+        }}>
+          {/* 피드백/정답 타이틀 */}
+          {fb&&(
+            <div style={{fontSize:'0.78rem',fontWeight:700,marginBottom:8,color:'#d45c5c'}}>
+              {fb}
+            </div>
+          )}
+
+          {showAnswer ? (
+            /* ── 정답 맞춘 경우 ── 타이틀 + 다음퀴즈 버튼 1개 */
+            <>
+              <div style={{
+  fontSize:'1.3rem',
+  fontWeight:900,
+  textAlign:'center',
+  color:'#1a1814',
+  marginBottom:12,
+  padding:'14px',
+  background:'#fff8f0',
+  borderRadius:12,
+  border:'2px solid #e8808c',
+}}>
+  🎉 {revealedTitle}
+</div>    <div style={{
+      fontSize:'0.8rem',
+      color:'#9a9490',
+      textAlign:'center'
+    }}>
+      다음 퀴즈로 이동 중...
+    </div>
+
+            </>
+          ) : (
+            /* ── 그 외 모든 경우 ── 입력창 + 다음힌트/넘기기 */
+            <>
+              <div style={{display:'flex',gap:8,marginBottom:8}}>
+                <input
+                  ref={inputRef}
+                  value={input}
+                  onChange={e=>setInput(e.target.value)}
+                  onKeyDown={e=>{if(e.key==='Enter')submit()}}
+                  placeholder="영화 제목 입력"
+                  style={{
+                    flex:1,height:46,borderRadius:11,
+                    border:`1.5px solid ${input?'#1a1814':'#e8e4dd'}`,
+                    background:'#faf9f7',color:'#1a1814',
+                    padding:'0 14px',fontSize:'0.85rem',
+                    fontFamily:'inherit',outline:'none',
+                    transition:'border-color .15s',
+                  }}
+                />
+                <button
+                  onClick={submit}
+                  style={{height:46,padding:'0 18px',borderRadius:11,background:'#1a1814',color:'#fff',fontSize:'0.8rem',fontWeight:700,border:'none',cursor:'pointer',whiteSpace:'nowrap'}}>
+                  정답
+                </button>
+              </div>
+              <div style={{display:'flex',gap:8}}>
+                <button
+                  onClick={handleNextH}
+                  style={{flex:1,height:40,borderRadius:10,fontSize:'0.72rem',fontWeight:700,cursor:'pointer',background:'#f5f3ef',color:'#6b6560',border:'1.5px solid #e8e4dd',transition:'all .15s'}}>
+                  다음 힌트 ({sh}/5)
+                </button>
+                <button
+                  onClick={doSkip}
+                  style={{flex:1,height:40,borderRadius:10,fontSize:'0.72rem',fontWeight:700,cursor:'pointer',background:'#fff5f6',color:'#d45c5c',border:'1.5px solid #fad0d4'}}>
+                  넘기기
+                </button>
+              </div>
+            </>
+          )}
         </div>
       </div>
-    </div>
-  )
+    )
+  }
 
   // ── 결과 ──
   if (screen === 'result') {
@@ -456,36 +880,99 @@ export default function CineClue() {
         <div style={{...S.max,display:'flex',flexDirection:'column',alignItems:'center'}}>
           <div style={{width:68,height:68,borderRadius:'50%',background:'#111',border:'1px solid rgba(255,255,255,0.12)',display:'flex',alignItems:'center',justifyContent:'center',overflow:'hidden',marginBottom:12}}>
             <svg viewBox="0 0 60 60" fill="none" style={{width:52,height:52}}>{char?.svg.props.children}</svg>
+=======
+  /* ══════════════════════════════════════════
+     화면 4: 결과
+  ══════════════════════════════════════════ */
+  if(screen==='result'){
+    const tot=results.reduce((s,r)=>s+r.score,0)
+    const co=results.filter(r=>r.correct)
+
+    return(
+      <div style={{minHeight:'100vh',background:'#fff',display:'flex',flexDirection:'column',padding:'48px 0 40px'}}>
+        {/* 캐릭터 + 점수 */}
+        <div style={{display:'flex',flexDirection:'column',alignItems:'center',marginBottom:36}}>
+          <div style={{
+            width:80,height:80,borderRadius:'50%',background:'#faf9f7',
+            border:'2.5px solid #e8e4dd',display:'flex',alignItems:'center',
+            justifyContent:'center',overflow:'hidden',marginBottom:14,
+            boxShadow:'0 4px 20px rgba(0,0,0,0.08)',
+          }}>
+            <svg viewBox="0 0 80 80" fill="none" style={{width:80,height:80}}>{char?.svg.props.children}</svg>
+>>>>>>> 3225d10 (update: cineclue UX + layout fix)
           </div>
-          <div style={{display:'inline-flex',alignItems:'center',gap:5,fontSize:11,padding:'3px 9px',borderRadius:20,border:'1px solid rgba(255,255,255,0.12)',color:'rgba(237,232,222,0.6)',marginBottom:12}}>
-            <span style={{width:6,height:6,borderRadius:'50%',background:g?.color,display:'inline-block'}}/><span style={{color:g?.color}}>{g?.name}</span><span> · {char?.name}</span>
+          <div style={{fontSize:'0.7rem',color:'#b0aaa3',fontWeight:600,letterSpacing:'0.1em',marginBottom:6}}>USER ID</div>
+          <div style={{
+            fontSize:displayScore>0?'3.5rem':'3rem',fontWeight:900,
+            color:'#1a1814',lineHeight:1,letterSpacing:'-2px',
+            transition:'font-size .1s',
+          }}>
+            {displayScore.toLocaleString()}
           </div>
-          <div style={{fontSize:'4rem',fontWeight:500,color:'#c8a84a',lineHeight:1,marginBottom:4}}>{tot}</div>
-          <div style={{fontSize:11,color:'rgba(237,232,222,0.3)',letterSpacing:'0.2em',textTransform:'uppercase',marginBottom:24}}>이번 게임 점수</div>
-          <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:8,width:'100%',marginBottom:16}}>
-            {[{v:`${co.length}/${pool.length}`,l:'맞춘 문제'},{v:avgH,l:'평균 힌트'},{v:`${mx}점`,l:'최고점'}].map((s,i)=>(
-              <div key={i} style={{background:'#111',borderRadius:10,border:'1px solid rgba(255,255,255,0.1)',padding:'0.8rem',textAlign:'center'}}>
-                <div style={{fontSize:'1.4rem',fontWeight:500,color:'#ede8de',marginBottom:3}}>{s.v}</div>
-                <div style={{fontSize:11,color:'rgba(237,232,222,0.35)'}}>{s.l}</div>
-              </div>
-            ))}
-          </div>
-          <div style={{fontSize:11,letterSpacing:'0.15em',textTransform:'uppercase',color:'rgba(237,232,222,0.3)',width:'100%',marginBottom:10}}>문제별 결과</div>
-          <div style={{width:'100%',marginBottom:20,display:'flex',flexDirection:'column',gap:7}}>
-            {results.map((r,i)=>(
-              <div key={i} style={{display:'flex',alignItems:'center',gap:9,background:'#111',borderRadius:10,border:'1px solid rgba(255,255,255,0.1)',padding:'11px 12px'}}>
-                <div style={{fontSize:12,color:'rgba(237,232,222,0.25)',width:16,flexShrink:0}}>{i+1}</div>
-                <div style={{flex:1,fontSize:13,color:r.correct?'#ede8de':'rgba(237,232,222,0.28)'}}>{r.correct?r.title:'???'}</div>
-                <div style={{fontSize:11,color:'rgba(237,232,222,0.3)'}}>{r.correct?`힌트${r.hintUsed}`:'—'}</div>
-                <div style={{fontSize:12,fontWeight:500,marginLeft:5,color:r.correct?'#4fc97a':'#e05252'}}>{r.correct?`+${r.score}점`:'미정답'}</div>
-              </div>
-            ))}
-          </div>
-          <div style={{display:'flex',gap:8,width:'100%'}}>
-            <button style={{...S.btnGold,flex:1}} onClick={()=>loadMovies(selGrade)}>다시 하기</button>
-            <button style={{...S.btnGhost,flex:1,height:50}} onClick={goHome}>처음으로</button>
-          </div>
+          <div style={{fontSize:'0.7rem',color:'#b0aaa3',marginTop:4,letterSpacing:'0.1em'}}>점</div>
         </div>
+
+        {/* Q1~Q5 결과 리스트 */}
+        <div style={{padding:'0 20px',flex:1}}>
+          {results.map((r,i)=>{
+            if(i>=visibleResults) return null
+            const rg=GRADES.find(x=>x.id===r.grade)
+            return(
+              <div key={i} style={{
+                borderRadius:13,border:'1.5px solid #ece8e2',background:'#fff',
+                padding:'12px 16px',marginBottom:8,
+                display:'flex',alignItems:'center',gap:12,
+                animation:'slideIn .4s ease',
+                boxShadow:'0 1px 6px rgba(0,0,0,0.05)',
+              }}>
+                {/* Q번호 */}
+                <div style={{
+                  width:28,height:28,borderRadius:'50%',flexShrink:0,
+                  background:r.correct?`${rg?.color||'#e8808c'}15`:'#f5f3ef',
+                  display:'flex',alignItems:'center',justifyContent:'center',
+                  border:`1.5px solid ${r.correct?rg?.color||'#e8808c':'#e8e4dd'}`,
+                }}>
+                  <span style={{fontSize:'0.6rem',fontWeight:800,color:r.correct?rg?.color||'#e8808c':'#b0aaa3'}}>Q{i+1}</span>
+                </div>
+                <div style={{flex:1,minWidth:0}}>
+                  <div style={{fontSize:'0.78rem',fontWeight:700,color:r.correct?'#1a1814':'#c0bbb4',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>
+                    {r.correct?r.title:'실패'}
+                  </div>
+                  <div style={{display:'flex',gap:5,marginTop:3,alignItems:'center'}}>
+                    {r.correct&&<>
+                      <span style={{fontSize:'0.58rem',padding:'1px 6px',borderRadius:20,background:`${rg?.color||'#e8808c'}15`,color:rg?.color||'#e8808c',fontWeight:600}}>{rg?.name}</span>
+                      {r.country&&<span style={{fontSize:'0.58rem',color:'#b0aaa3'}}>{r.country}</span>}
+                      {r.genre&&<span style={{fontSize:'0.58rem',color:'#b0aaa3'}}>{r.genre}</span>}
+                      <span style={{fontSize:'0.58rem',color:'#c0bbb4'}}>힌트{r.hintUsed}</span>
+                    </>}
+                  </div>
+                </div>
+                <div style={{
+                  fontSize:'0.82rem',fontWeight:800,flexShrink:0,
+                  color:r.correct?'#4a9c6d':'#d45c5c',
+                }}>
+                  {r.correct?`+${r.score}`:'-'}
+                </div>
+              </div>
+            )
+          })}
+        </div>
+
+        {/* 버튼 */}
+        {visibleResults>=results.length&&(
+          <div style={{padding:'20px 20px 0',display:'flex',flexDirection:'column',gap:10}}>
+            <button
+              style={{height:54,borderRadius:14,background:'#1a1814',color:'#fff',fontSize:'0.9rem',fontWeight:700,border:'none',cursor:'pointer'}}
+              onClick={()=>loadMovies(selGrade)}>
+              계속하기
+            </button>
+            <button
+              style={{height:44,borderRadius:12,background:'transparent',color:'#9a9490',fontSize:'0.8rem',fontWeight:500,border:'1.5px solid #e8e4dd',cursor:'pointer'}}
+              onClick={()=>{setSelGrade(null);setScreen('grade')}}>
+              레벨 바꾸기
+            </button>
+          </div>
+        )}
       </div>
     )
   }
