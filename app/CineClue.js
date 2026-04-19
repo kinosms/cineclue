@@ -803,7 +803,7 @@ if(screen==='quiz' && pool[qi]){
 
   return(
     <div style={{
-      height:'100dvh',
+      height:'100vh',
       background:'#fff',
       display:'flex',
       flexDirection:'column',
