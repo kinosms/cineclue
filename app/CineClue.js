@@ -951,161 +951,63 @@ console.log('grade id:', gr.id, GRADE_CHARS?.[gr.id]);
             </div>
           )
         })}
-      </div>
 
-      {/* ── 고정 하단 입력/버튼 영역 ── */}
-      <div style={{
-        background:'#fff',
-        borderTop:'1px solid #f0ece6',
-        padding:'12px 16px 20px',
-        paddingBottom:'calc(20px + env(safe-area-inset-bottom))',
-        flexShrink:0
-      }}>
-        {fb&&(
-          <div style={{fontSize:'0.78rem',fontWeight:700,marginBottom:8,color:fbt==='ok'?'#4a9c6d':'#d45c5c'}}>
-            {fb}
-          </div>
-        )}
-
-        {!answered ? (
-          <>
-            <div style={{
-              display:'flex',
-              gap:8,
-              marginBottom:8,
-              width:'100%',
-              boxSizing:'border-box'
-            }}>
-              <input
-                ref={inputRef}
-                value={input}
-                onChange={e=>setInput(e.target.value)}
-                onKeyDown={e=>{
-                  if(e.key==='Enter'){
-                    e.preventDefault()
-                    e.stopPropagation()
-                    submit()
-                  }
-                }}
-                placeholder="영화 제목 입력"
-                style={{
-                  flex:1,
-                  minWidth:0,
-                  height:46,
-                  borderRadius:11,
-                  border:`1.5px solid ${input?'#1a1814':'#e8e4dd'}`,
-                  background:'#faf9f7',
-                  color:'#1a1814',
-                  padding:'0 14px',
-                  fontSize:'16px',
-                  fontFamily:'inherit',
-                  outline:'none'
-                }}
-              />
-
-              <button
-                onClick={submit}
-                style={{
-                  flexShrink:0,
-                  width:72,
-                  height:46,
-                  borderRadius:11,
-                  background:'#1a1814',
-                  color:'#fff',
-                  fontSize:'0.8rem',
-                  fontWeight:700,
-                  border:'none',
-                  whiteSpace:'nowrap'
-                }}
-              >
-                정답
-              </button>
-            </div>
-
-            <div style={{display:'flex',gap:8}}>
-              <button
-                onClick={nextH}
-                disabled={sh>=5}
-                style={{
-                  flex:1,
-                  height:40,
-                  borderRadius:10,
-                  fontSize:'0.72rem',
-                  fontWeight:700,
-                  cursor:'pointer',
-                  background:'#f5f3ef',
-                  color:sh>=5?'#c0bbb4':'#6b6560',
-                  border:'1.5px solid #e8e4dd',
-                  opacity:sh>=5?0.5:1,
-                  transition:'all .15s'
-                }}
-              >
-                다음 힌트 ({sh}/5)
-              </button>
-
-              <button
-                onClick={doSkip}
-                style={{
-                  flex:1,
-                  height:40,
-                  borderRadius:10,
-                  fontSize:'0.72rem',
-                  fontWeight:700,
-                  cursor:'pointer',
-                  background:'#fff5f6',
-                  color:'#d45c5c',
-                  border:'1.5px solid #fad0d4'
-                }}
-              >
-                넘기기
-              </button>
-            </div>
-          </>
-        ) : (
-          <>
-            {fbt==='ok' && (
-              <div style={{
-                fontSize:'1.1rem',
-                fontWeight:900,
-                color:'#c8a84a',
-                marginBottom:12,
-                textAlign:'center'
-              }}>
-                {m.title}
-              </div>
-            )}
-
-            <button
-              onClick={nextQ}
-              style={{
-                width:'100%',
-                height:46,
-                borderRadius:12,
-                fontSize:'0.85rem',
-                fontWeight:800,
-                cursor:'pointer',
-                background:'#1a1814',
-                color:'#fff',
-                border:'none'
-              }}
-            >
-              {qi+1<pool.length ? '다음 문제 →' : '결과 보기 →'}
-            </button>
-
-            <div style={{
-              fontSize:'0.65rem',
-              color:'#b0aaa3',
-              textAlign:'center',
-              marginTop:6
-            }}>
-            </div>
-          </>
-        )}
-      </div>
+<div style={{
+  marginTop:16
+}}>
+  {fb&&(
+    <div style={{
+      fontSize:'0.78rem',
+      fontWeight:700,
+      marginBottom:8,
+      color:fbt==='ok'?'#4a9c6d':'#d45c5c'
+    }}>
+      {fb}
     </div>
-  )
-}
+  )}
 
+  {!answered ? (
+    <>
+      <div style={{
+        display:'flex',
+        gap:8,
+        marginBottom:8
+      }}>
+        <input ... />
+        <button ...>정답</button>
+      </div>
+
+      <div style={{display:'flex',gap:8}}>
+        <button ...>다음 힌트</button>
+        <button ...>넘기기</button>
+      </div>
+    </>
+  ) : (
+    <>
+      {fbt==='ok' && (
+        <div style={{
+          fontSize:'1.1rem',
+          fontWeight:900,
+          color:'#c8a84a',
+          marginBottom:12,
+          textAlign:'center'
+        }}>
+          {m.title}
+        </div>
+      )}
+
+      <button ...>
+        {qi+1<pool.length ? '다음 문제 →' : '결과 보기 →'}
+      </button>
+    </>
+  )}
+</div>
+
+</div>
+
+
+
+      
  // ══════════════════════════════════════════
 // 화면 4: 결과
 if(screen==='result'){
