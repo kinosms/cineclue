@@ -263,6 +263,7 @@ setScreen('quiz')
   }
 
   function nextQ(){
+    inputRef.current?.blur()
     if(qi+1>=pool.length){setScreen('result');return}
     const nqi=qi+1
     setQi(nqi);setSh(1);setAnswered(false);setFb('');setFbt('');setInput('')
@@ -398,7 +399,7 @@ setScreen('quiz')
     const timerCol=tc>6?'#4a9c6d':tc>3?'#c8a84a':'#d45c5c'
 
     return(
-      <div style={{minHeight:'100vh',background:'#fff',display:'flex',flexDirection:'column'}}>
+      <div style={{minHeight:'100dvh',background:'#fff',display:'flex',flexDirection:'column'}}>
 
         {/* ── 고정 헤더 ── */}
         <div style={{background:'#fff',borderBottom:'1px solid #f0ece6',padding:'14px 20px 0',flexShrink:0}}>
@@ -466,7 +467,7 @@ setScreen('quiz')
         </div>
 
         {/* ── 고정 하단 입력/버튼 영역 ── */}
-        <div style={{position:'fixed',bottom:0,left:'50%',transform:'translateX(-50%)',width:'100%',maxWidth:430,background:'#fff',borderTop:'1px solid #f0ece6',padding:'12px 16px 20px'}}>
+        <div style={{position:'sticky',bottom:0,left:'50%',transform:'translateX(-50%)',width:'100%',maxWidth:430,background:'#fff',borderTop:'1px solid #f0ece6',padding:'12px 16px 20px'}}>
 
           {/* 피드백 */}
           {fb&&(
@@ -485,8 +486,8 @@ setScreen('quiz')
                   onChange={e=>setInput(e.target.value)}
                   onKeyDown={e=>{if(e.key==='Enter'){e.preventDefault();e.stopPropagation();submit()}}}
                   placeholder="영화 제목 입력"
-                  style={{flex:1,height:46,borderRadius:11,border:`1.5px solid ${input?'#1a1814':'#e8e4dd'}`,background:'#faf9f7',color:'#1a1814',padding:'0 14px',fontSize:'0.85rem',fontFamily:'inherit',outline:'none',transition:'border-color .15s'}}
-                  autoFocus
+                  style={{flex:1,height:46,borderRadius:11,border:`1.5px solid ${input?'#1a1814':'#e8e4dd'}`,background:'#faf9f7',color:'#1a1814',padding:'0 14px',fontSize:'16px',fontFamily:'inherit',outline:'none',transition:'border-color .15s'}}
+                  
                 />
                 <button onClick={submit} style={{height:46,padding:'0 18px',borderRadius:11,background:'#1a1814',color:'#fff',fontSize:'0.8rem',fontWeight:700,border:'none',cursor:'pointer',whiteSpace:'nowrap'}}>
                   정답
