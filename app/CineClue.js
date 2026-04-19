@@ -1108,10 +1108,13 @@ console.log('grade id:', gr.id, GRADE_CHARS?.[gr.id]);
  // ══════════════════════════════════════════
 // 화면 4: 결과
 if(screen==='result'){
-  const baseScore = currentUser?.score ?? 0
-const roundScore = results.reduce((s,r)=>s+r.score,0)
-const tot = baseScore + roundScore
-const nickname = currentUser?.nickname || 'USER'
+
+  const user = users?.find(u => u.charId === selChar)
+
+  const baseScore = user?.score ?? 0
+  const roundScore = (results ?? []).reduce((s,r)=>s+r.score,0)
+  const tot = baseScore + roundScore
+  const nickname = user?.nickname || 'USER'
 
   return(
     <div style={{
