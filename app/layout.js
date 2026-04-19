@@ -1,5 +1,24 @@
 import './globals.css'
-export const metadata = { title: 'CineCLUE', description: 'Follow the clues' }
+
+export const metadata = {
+  title: 'CineClue',
+  description: '영알못은 들어오지마세요',
+  openGraph: {
+    title: 'CineClue',
+    description: '영알못은 들어오지마세요',
+    url: 'https://cineclue-sable.vercel.app/',
+    siteName: 'CineClue',
+    images: [
+      {
+        url: '/og.png',
+        width: 1200,
+        height: 630,
+      },
+    ],
+    type: 'website',
+  },
+}
+
 export default function RootLayout({ children }) {
   return (
     <html lang="ko">
