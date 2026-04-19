@@ -128,16 +128,32 @@ export default function CineClue() {
 
   // 결과 화면 순차 노출 + 점수 카운트
   useEffect(()=>{
-    if(screen!=='result') return
-    setVisibleResults(0); setDisplayScore(0)
-    const tot=results.reduce((s,r)=>s+r.score,0)
-    results.forEach((_,i)=>{ setTimeout(()=>setVisibleResults(v=>v+1),(i+1)*500) })
-    setTimeout(()=>{
-      let cur=0
-      const step=Math.ceil(tot/60)
-      const iv=setInterval(()=>{ cur=Math.min(cur+step,tot); setDisplayScore(cur); if(cur>=tot) clearInterval(iv) },20)
-    }, results.length*500+300)
-  },[screen])
+  if(screen!=='result') return
+
+  setVisibleResults(0)
+
+  const roundScore = results.reduce((s,r)=>s+r.score,0)
+  const startScore = score - roundScore
+  const tot = score
+
+  setDisplayScore(startScore)
+
+  results.forEach((_,i)=>{
+    setTimeout(()=>setVisibleResults(v=>v+1),(i+1)*500)
+  })
+
+  setTimeout(()=>{
+    let cur = startScore
+    const step = Math.ceil((tot - startScore)/60)
+
+    const iv = setInterval(()=>{
+      cur = Math.min(cur + step, tot)
+      setDisplayScore(cur)
+      if(cur >= tot) clearInterval(iv)
+    },20)
+  }, results.length*500+300)
+
+},[screen])
 
   async function loadMovies(grade, keepProgress=false){
     setLoading(true)
