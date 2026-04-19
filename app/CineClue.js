@@ -986,7 +986,7 @@ minHeight:0,
     <div key={i}>
       {sideItem&&(
         <div style={{
-          borderRadius:8,
+          borderRadius:10,
           background:'#faf9f7',
           border:'1px dashed #e0dcd4',
           padding:'8px 12px',
@@ -1016,8 +1016,8 @@ minHeight:0,
       }}>
         <div style={{display:'flex',alignItems:'center',gap:8}}>
           <span style={{
-            width:32,
-  height:32,
+            width:26,
+  Height:26,
   borderRadius:'50%',
   background:g?.color||'#e8808c',
   color:'#fff',
