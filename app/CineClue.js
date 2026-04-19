@@ -334,7 +334,7 @@ setScreen('quiz')
   // 화면 2: 난이도 선택
   // ══════════════════════════════════════════
   if(screen==='grade') return(
-    <div style={{minHeight:'100vh',background:'#fff',display:'flex',flexDirection:'column',padding:'28px 0 40px'}}>
+    <div style={{background:'#fff',display:'flex',flexDirection:'column',padding:'28px 0 40px'}}>
       <div style={{padding:'0 20px',display:'flex',alignItems:'center',gap:12,marginBottom:32}}>
         <CharAvatar charId={selChar} size={44}/>
         <div>
@@ -343,7 +343,7 @@ setScreen('quiz')
         </div>
       </div>
 
-      <div style={{padding:'0 20px',flex:1}}>
+      <div style={{padding:'0 20px'}}>
         <div style={{fontSize:'0.7rem',fontWeight:700,color:'#b0aaa3',letterSpacing:'0.15em',textTransform:'uppercase',marginBottom:14}}>
           난이도를 선택하세요
         </div>
