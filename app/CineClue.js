@@ -1067,7 +1067,7 @@ if(screen==='result'){
 
   const roundScore = results.reduce((s,r)=>s+r.score,0)
   const totalScore = currentUser?.score || 0
-  const nickname = currentUser?currentUser.nickname || 'USER'
+  const nickname = currentUser?.nickname || 'USER'
 
   return(
     <div style={{
