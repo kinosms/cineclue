@@ -809,13 +809,15 @@ if(screen==='quiz' && pool[qi]){
       flexDirection:'column',
     }}>
 
-      {/* ── 고정 헤더 ── */}
-        <div style={{
+{/* ── 고정 헤더 ── */}
+<div style={{
   background:'#fff',
   borderBottom:'1px solid #f0ece6',
   padding:'14px 20px 0',
   flexShrink:0
 }}>
+
+  {/* 1️⃣ 캐릭터 / 점수 라인 */}
   <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:10}}>
     <CharAvatar charId={selChar} size={34}/>
 
@@ -858,6 +860,80 @@ if(screen==='quiz' && pool[qi]){
       )}
     </div>
   </div>
+
+  {/* 2️⃣ 👇 여기 추가 */}
+  <div style={{
+    display:'flex',
+    alignItems:'center',
+    gap:6,
+    paddingBottom:12,
+    flexWrap:'wrap'
+  }}>
+    <span style={{
+      fontSize:'0.62rem',
+      fontWeight:700,
+      padding:'3px 9px',
+      borderRadius:20,
+      background:'#f5f3ef',
+      color:'#6b6560',
+      border:'1px solid #e8e4dd'
+    }}>
+      {qi+1}/5
+    </span>
+
+    <span style={{
+      fontSize:'0.62rem',
+      fontWeight:700,
+      padding:'3px 10px',
+      borderRadius:20,
+      background:g?.color||'#e8808c',
+      color:'#fff'
+    }}>
+      {g?.name}
+    </span>
+
+    {m.country && (
+      <span style={{
+        fontSize:'0.62rem',
+        fontWeight:700,
+        padding:'3px 10px',
+        borderRadius:20,
+        background:'#e8f0fc',
+        color:'#3a6abf',
+        border:'1px solid #c0d4f8'
+      }}>
+        {m.country}
+      </span>
+    )}
+
+    {m.side?.genre && (
+      <span style={{
+        fontSize:'0.62rem',
+        fontWeight:700,
+        padding:'3px 10px',
+        borderRadius:20,
+        background:'#e8f5ee',
+        color:'#2e8a52',
+        border:'1px solid #a8dfc0'
+      }}>
+        {m.side.genre}
+      </span>
+    )}
+
+    <span style={{
+      fontSize:'0.62rem',
+      fontWeight:700,
+      padding:'3px 9px',
+      borderRadius:20,
+      background:`${g?.color||'#e8808c'}15`,
+      color:g?.color||'#e8808c',
+      border:`1px solid ${g?.color||'#e8808c'}30`,
+      marginLeft:'auto'
+    }}>
+      {getPts()}pt
+    </span>
+  </div>
+
 </div>
 
       {/* ── 콤보 배너 ── */}
