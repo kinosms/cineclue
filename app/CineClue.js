@@ -695,7 +695,7 @@ if(screen==='char') return(
         <CharAvatar charId={selChar} size={44}/>
         <div>
           <div style={{fontSize:'0.65rem',color:'#b0aaa3',fontWeight:500}}>플레이어</div>
-          <div style={{fontSize:'0.85rem',fontWeight:700,color:'#1a1814'}}>USER ID</div>
+          <div style={{fontSize:'0.85rem',fontWeight:700,color:'#1a1814'}}>{currentUser?.nickname : 'USER ID'}</div>
         </div>
       </div>
 
@@ -750,207 +750,315 @@ if(screen==='char') return(
   // ══════════════════════════════════════════
   // 화면 3: 퀴즈
   // ══════════════════════════════════════════
-  if(screen==='quiz'&&pool[qi]){
-    const m=pool[qi]
-    const timerCol=tc>6?'#4a9c6d':tc>3?'#c8a84a':'#d45c5c'
+ if(screen==='quiz'&&pool[qi]){
+  const m=pool[qi]
+  const timerCol=tc>6?'#4a9c6d':tc>3?'#c8a84a':'#d45c5c'
 
-    return(
-      <div style={{minHeight:'100dvh',background:'#fff',display:'flex',flexDirection:'column'}}>
+  return(
+    <div style={{
+      height:'100dvh',
+      background:'#fff',
+      display:'flex',
+      flexDirection:'column',
+      overflow:'hidden'
+    }}>
 
-        {/* ── 고정 헤더 ── */}
-        <div style={{background:'#fff',borderBottom:'1px solid #f0ece6',padding:'14px 20px 0',flexShrink:0}}>
-          <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:10}}>
-            <CharAvatar charId={selChar} size={34}/>
-            <span style={{fontSize:'0.75rem',fontWeight:700,color:'#1a1814',flex:1}}>{users.find(u=>u.charId===selChar)?.nickname || 'USER'}</span>
-            <div style={{display:'flex',alignItems:'center',gap:8}}>
-              <div style={{textAlign:'right'}}>
-                <div style={{fontSize:'0.65rem',color:'#b0aaa3'}}>점수</div>
-                <div style={{fontSize:'0.9rem',fontWeight:800,color:'#1a1814'}}>{score.toLocaleString()}</div>
-              </div>
-              {!answered&&(
-                <div style={{width:36,height:36,borderRadius:'50%',background:`${timerCol}15`,border:`2.5px solid ${timerCol}`,display:'flex',alignItems:'center',justifyContent:'center'}}>
-                  <span style={{fontSize:'0.8rem',fontWeight:800,color:timerCol}}>{tc}</span>
-                </div>
-              )}
+      {/* ── 고정 헤더 ── */}
+      <div style={{
+        background:'#fff',
+        borderBottom:'1px solid #f0ece6',
+        padding:'14px 20px 0',
+        flexShrink:0
+      }}>
+        <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:10}}>
+          <CharAvatar charId={selChar} size={34}/>
+          <span style={{fontSize:'0.75rem',fontWeight:700,color:'#1a1814',flex:1}}>
+            {users.find(u=>u.charId===selChar)?.nickname || 'USER'}
+          </span>
+          <div style={{display:'flex',alignItems:'center',gap:8}}>
+            <div style={{textAlign:'right'}}>
+              <div style={{fontSize:'0.65rem',color:'#b0aaa3'}}>점수</div>
+              <div style={{fontSize:'0.9rem',fontWeight:800,color:'#1a1814'}}>{score.toLocaleString()}</div>
             </div>
-          </div>
-
-          {/* 메타 정보 바 */}
-          <div style={{display:'flex',alignItems:'center',gap:6,paddingBottom:12,flexWrap:'wrap'}}>
-            <span style={{fontSize:'0.62rem',fontWeight:700,padding:'3px 9px',borderRadius:20,background:'#f5f3ef',color:'#6b6560',border:'1px solid #e8e4dd'}}>{qi+1}/5</span>
-            <span style={{fontSize:'0.62rem',fontWeight:700,padding:'3px 10px',borderRadius:20,background:g?.color||'#e8808c',color:'#fff'}}>{g?.name}</span>
-            {m.country&&<span style={{fontSize:'0.62rem',fontWeight:700,padding:'3px 10px',borderRadius:20,background:'#e8f0fc',color:'#3a6abf',border:'1px solid #c0d4f8'}}>{m.country}</span>}
-            {m.side?.genre&&<span style={{fontSize:'0.62rem',fontWeight:700,padding:'3px 10px',borderRadius:20,background:'#e8f5ee',color:'#2e8a52',border:'1px solid #a8dfc0'}}>{m.side.genre}</span>}
-            <span style={{fontSize:'0.62rem',fontWeight:700,padding:'3px 9px',borderRadius:20,background:`${g?.color||'#e8808c'}15`,color:g?.color||'#e8808c',border:`1px solid ${g?.color||'#e8808c'}30`,marginLeft:'auto'}}>{getPts()}pt</span>
+            {!answered&&(
+              <div style={{
+                width:36,
+                height:36,
+                borderRadius:'50%',
+                background:`${timerCol}15`,
+                border:`2.5px solid ${timerCol}`,
+                display:'flex',
+                alignItems:'center',
+                justifyContent:'center'
+              }}>
+                <span style={{fontSize:'0.8rem',fontWeight:800,color:timerCol}}>{tc}</span>
+              </div>
+            )}
           </div>
         </div>
 
-        {/* ── 콤보 배너 ── */}
-        {mode&&(
-          <div style={{margin:'8px 16px 0',borderRadius:10,padding:'7px 14px',display:'flex',alignItems:'center',justifyContent:'space-between',background:mode==='crazy'?'#fff0f0':'#fffbf0',border:`1px solid ${mode==='crazy'?'#f0b4b4':'#f0dfa0'}`}}>
-            <span style={{fontSize:'0.72rem',fontWeight:800,color:mode==='crazy'?'#d45c5c':'#c8a84a'}}>{mode==='crazy'?'🔥 CRAZY COMBO':'⚡ COMBO'}</span>
-            <span style={{fontSize:'0.68rem',color:mode==='crazy'?'#d45c5c':'#c8a84a'}}>{mode==='crazy'?crazyStreak:comboStreak}연속 ×{mode==='crazy'?5:2}</span>
+        <div style={{display:'flex',alignItems:'center',gap:6,paddingBottom:12,flexWrap:'wrap'}}>
+          <span style={{fontSize:'0.62rem',fontWeight:700,padding:'3px 9px',borderRadius:20,background:'#f5f3ef',color:'#6b6560',border:'1px solid #e8e4dd'}}>
+            {qi+1}/5
+          </span>
+          <span style={{fontSize:'0.62rem',fontWeight:700,padding:'3px 10px',borderRadius:20,background:g?.color||'#e8808c',color:'#fff'}}>
+            {g?.name}
+          </span>
+          {m.country&&(
+            <span style={{fontSize:'0.62rem',fontWeight:700,padding:'3px 10px',borderRadius:20,background:'#e8f0fc',color:'#3a6abf',border:'1px solid #c0d4f8'}}>
+              {m.country}
+            </span>
+          )}
+          {m.side?.genre&&(
+            <span style={{fontSize:'0.62rem',fontWeight:700,padding:'3px 10px',borderRadius:20,background:'#e8f5ee',color:'#2e8a52',border:'1px solid #a8dfc0'}}>
+              {m.side.genre}
+            </span>
+          )}
+          <span style={{fontSize:'0.62rem',fontWeight:700,padding:'3px 9px',borderRadius:20,background:`${g?.color||'#e8808c'}15`,color:g?.color||'#e8808c',border:`1px solid ${g?.color||'#e8808c'}30`,marginLeft:'auto'}}>
+            {getPts()}pt
+          </span>
+        </div>
+      </div>
+
+      {/* ── 콤보 배너 ── */}
+      {mode&&(
+        <div style={{
+          margin:'8px 16px 0',
+          borderRadius:10,
+          padding:'7px 14px',
+          display:'flex',
+          alignItems:'center',
+          justifyContent:'space-between',
+          background:mode==='crazy'?'#fff0f0':'#fffbf0',
+          border:`1px solid ${mode==='crazy'?'#f0b4b4':'#f0dfa0'}`,
+          flexShrink:0
+        }}>
+          <span style={{fontSize:'0.72rem',fontWeight:800,color:mode==='crazy'?'#d45c5c':'#c8a84a'}}>
+            {mode==='crazy'?'🔥 CRAZY COMBO':'⚡ COMBO'}
+          </span>
+          <span style={{fontSize:'0.68rem',color:mode==='crazy'?'#d45c5c':'#c8a84a'}}>
+            {mode==='crazy'?crazyStreak:comboStreak}연속 ×{mode==='crazy'?5:2}
+          </span>
+        </div>
+      )}
+
+      {/* ── 스크롤 영역 ── */}
+      <div style={{
+        flex:1,
+        minHeight:0,
+        overflowY:'auto',
+        WebkitOverflowScrolling:'touch',
+        padding:'12px 16px 24px'
+      }}>
+        {Array.from({length:5}).map((_,i)=>{
+          if(i>=sh) return null
+          const isCurrent=i===sh-1
+          const sideItem=i>=1?sidePool[i-1]:null
+          return(
+            <div key={i}>
+              {sideItem&&(
+                <div style={{
+                  borderRadius:10,
+                  background:'#faf9f7',
+                  border:'1px dashed #e0dcd4',
+                  padding:'8px 12px',
+                  marginBottom:6,
+                  display:'flex',
+                  alignItems:'center',
+                  gap:10
+                }}>
+                  <div style={{width:6,height:6,borderRadius:'50%',background:g?.color||'#e8808c',flexShrink:0}}/>
+                  <div style={{fontSize:'0.68rem',color:'#9a9490'}}>
+                    {sideItem.t==='year'?`📅 ${sideItem.v}`:sideItem.v}
+                  </div>
+                </div>
+              )}
+
+              <div style={{
+                borderRadius:13,
+                border:`1.5px solid ${isCurrent?g?.color||'#e8808c':'#ece8e2'}`,
+                background:isCurrent?g?.bg||'#fff5f6':'#fff',
+                padding:'13px 15px',
+                marginBottom:8,
+                boxShadow:isCurrent?`0 2px 12px ${g?.color||'#e8808c'}18`:'none'
+              }}>
+                <div style={{display:'flex',alignItems:'flex-start',gap:8}}>
+                  <span style={{
+                    fontSize:'0.58rem',
+                    fontWeight:800,
+                    padding:'2px 8px',
+                    borderRadius:20,
+                    whiteSpace:'nowrap',
+                    marginTop:2,
+                    flexShrink:0,
+                    background:g?.color||'#e8808c',
+                    color:'#fff'
+                  }}>
+                    힌트 {i+1}
+                  </span>
+                  <div style={{flex:1,fontSize:'0.78rem',color:'#1a1814',lineHeight:1.7}}>
+                    {m.hintsArr?.[i]||'힌트를 불러오는 중...'}
+                  </div>
+                </div>
+              </div>
+            </div>
+          )
+        })}
+      </div>
+
+      {/* ── 고정 하단 입력/버튼 영역 ── */}
+      <div style={{
+        background:'#fff',
+        borderTop:'1px solid #f0ece6',
+        padding:'12px 16px 20px',
+        paddingBottom:'calc(20px + env(safe-area-inset-bottom))',
+        flexShrink:0
+      }}>
+        {fb&&(
+          <div style={{fontSize:'0.78rem',fontWeight:700,marginBottom:8,color:fbt==='ok'?'#4a9c6d':'#d45c5c'}}>
+            {fb}
           </div>
         )}
 
-        {/* ── 스크롤 힌트 영역 ── */}
-        <div style={{padding:'12px 16px'}}>
-          {Array.from({length:5}).map((_,i)=>{
-            if(i>=sh) return null
-            const isCurrent=i===sh-1
-            const sideItem=i>=1?sidePool[i-1]:null
-            return(
-              <div key={i}>
-                {/* 사이드힌트: 힌트2부터, 해당 힌트 위에 유지 */}
-                {sideItem&&(
-                  <div style={{borderRadius:10,background:'#faf9f7',border:'1px dashed #e0dcd4',padding:'8px 12px',marginBottom:6,display:'flex',alignItems:'center',gap:10}}>
-                    <div style={{width:6,height:6,borderRadius:'50%',background:g?.color||'#e8808c',flexShrink:0}}/>
-                    <div style={{fontSize:'0.68rem',color:'#9a9490'}}>
-                      {sideItem.t==='year'?`📅 ${sideItem.v}`:sideItem.v}
-                    </div>
-                  </div>
-                )}
-                {/* 힌트 카드 */}
-                <div style={{borderRadius:13,border:`1.5px solid ${isCurrent?g?.color||'#e8808c':'#ece8e2'}`,background:isCurrent?g?.bg||'#fff5f6':'#fff',padding:'13px 15px',marginBottom:8,boxShadow:isCurrent?`0 2px 12px ${g?.color||'#e8808c'}18`:'none'}}>
-                  <div style={{display:'flex',alignItems:'flex-start',gap:8}}>
-                    <span style={{fontSize:'0.58rem',fontWeight:800,padding:'2px 8px',borderRadius:20,whiteSpace:'nowrap',marginTop:2,flexShrink:0,background:g?.color||'#e8808c',color:'#fff'}}>힌트 {i+1}</span>
-                    <div style={{flex:1,fontSize:'0.78rem',color:'#1a1814',lineHeight:1.7}}>{m.hintsArr?.[i]||'힌트를 불러오는 중...'}</div>
-                  </div>
-                </div>
-              </div>
-            )
-          })}
-        </div>
+        {!answered ? (
+          <>
+            <div style={{
+              display:'flex',
+              gap:8,
+              marginBottom:8,
+              width:'100%',
+              boxSizing:'border-box'
+            }}>
+              <input
+                ref={inputRef}
+                value={input}
+                onChange={e=>setInput(e.target.value)}
+                onKeyDown={e=>{
+                  if(e.key==='Enter'){
+                    e.preventDefault()
+                    e.stopPropagation()
+                    submit()
+                  }
+                }}
+                placeholder="영화 제목 입력"
+                style={{
+                  flex:1,
+                  minWidth:0,
+                  height:46,
+                  borderRadius:11,
+                  border:`1.5px solid ${input?'#1a1814':'#e8e4dd'}`,
+                  background:'#faf9f7',
+                  color:'#1a1814',
+                  padding:'0 14px',
+                  fontSize:'16px',
+                  fontFamily:'inherit',
+                  outline:'none'
+                }}
+              />
 
-        {/* ── 고정 하단 입력/버튼 영역 ── */}
-        <div style={{
-
-  background:'#fff',
-  borderTop:'1px solid #f0ece6',
-  padding:'12px 16px 20px',
-  paddingBottom:'env(safe-area-inset-bottom)'
-}}>
-          {/* 피드백 */}
-          {fb&&(
-            <div style={{fontSize:'0.78rem',fontWeight:700,marginBottom:8,color:fbt==='ok'?'#4a9c6d':'#d45c5c'}}>
-              {fb}
+              <button
+                onClick={submit}
+                style={{
+                  flexShrink:0,
+                  width:72,
+                  height:46,
+                  borderRadius:11,
+                  background:'#1a1814',
+                  color:'#fff',
+                  fontSize:'0.8rem',
+                  fontWeight:700,
+                  border:'none',
+                  whiteSpace:'nowrap'
+                }}
+              >
+                정답
+              </button>
             </div>
-          )}
 
-          {/* 원본 버튼 로직 */}
-          {!answered ? (
-            <>
+            <div style={{display:'flex',gap:8}}>
+              <button
+                onClick={nextH}
+                disabled={sh>=5}
+                style={{
+                  flex:1,
+                  height:40,
+                  borderRadius:10,
+                  fontSize:'0.72rem',
+                  fontWeight:700,
+                  cursor:'pointer',
+                  background:'#f5f3ef',
+                  color:sh>=5?'#c0bbb4':'#6b6560',
+                  border:'1.5px solid #e8e4dd',
+                  opacity:sh>=5?0.5:1,
+                  transition:'all .15s'
+                }}
+              >
+                다음 힌트 ({sh}/5)
+              </button>
+
+              <button
+                onClick={doSkip}
+                style={{
+                  flex:1,
+                  height:40,
+                  borderRadius:10,
+                  fontSize:'0.72rem',
+                  fontWeight:700,
+                  cursor:'pointer',
+                  background:'#fff5f6',
+                  color:'#d45c5c',
+                  border:'1.5px solid #fad0d4'
+                }}
+              >
+                넘기기
+              </button>
+            </div>
+          </>
+        ) : (
+          <>
+            {fbt==='ok' && (
               <div style={{
-  display:'flex',
-  gap:8,
-  marginBottom:8,
-  width:'100%',
-  boxSizing:'border-box'
-}}>
-  <input
-    ref={inputRef}
-    value={input}
-    onChange={e=>setInput(e.target.value)}
-    onKeyDown={e=>{
-      if(e.key==='Enter'){
-        e.preventDefault()
-        e.stopPropagation()
-        submit()
-      }
-    }}
-    placeholder="영화 제목 입력"
-    style={{
-      flex:1,
-      minWidth:0,
-      height:46,
-      borderRadius:11,
-      border:`1.5px solid ${input?'#1a1814':'#e8e4dd'}`,
-      background:'#faf9f7',
-      color:'#1a1814',
-      padding:'0 14px',
-      fontSize:'16px',
-      fontFamily:'inherit',
-      outline:'none'
-    }}
-  />
-
-  <button
-    onClick={submit}
-    style={{
-      flexShrink:0,
-      width:72,
-      height:46,
-      borderRadius:11,
-      background:'#1a1814',
-      color:'#fff',
-      fontSize:'0.8rem',
-      fontWeight:700,
-      border:'none',
-      whiteSpace:'nowrap'
-    }}
-  >
-    정답
-  </button>
-</div>
-              <div style={{display:'flex',gap:8}}>
-                <button
-                  onClick={nextH}
-                  disabled={sh>=5}
-                  style={{flex:1,height:40,borderRadius:10,fontSize:'0.72rem',fontWeight:700,cursor:'pointer',background:'#f5f3ef',color:sh>=5?'#c0bbb4':'#6b6560',border:'1.5px solid #e8e4dd',opacity:sh>=5?0.5:1,transition:'all .15s'}}>
-                  다음 힌트 ({sh}/5)
-                </button>
-                <button
-                  onClick={doSkip}
-                  style={{flex:1,height:40,borderRadius:10,fontSize:'0.72rem',fontWeight:700,cursor:'pointer',background:'#fff5f6',color:'#d45c5c',border:'1.5px solid #fad0d4'}}>
-                  넘기기
-                </button>
+                fontSize:'1.1rem',
+                fontWeight:900,
+                color:'#c8a84a',
+                marginBottom:12,
+                textAlign:'center'
+              }}>
+                {m.title}
               </div>
-            </>
-      ) : (
-  <>
-    {fbt==='ok' && (
-      <div style={{
-  fontSize:'1.1rem',
-  fontWeight:900,
-  color:'#c8a84a',
-  marginBottom:12,
-  textAlign:'center'
-}}>
-  {m.title}
-</div>
-    )}
+            )}
 
-    <button
-      onClick={nextQ}
-      style={{
-        width:'100%',
-        height:46,
-        borderRadius:12,
-        fontSize:'0.85rem',
-        fontWeight:800,
-        cursor:'pointer',
-        background:'#1a1814',
-        color:'#fff',
-        border:'none'
-      }}
-    >
-      {qi+1<pool.length ? '다음 문제 →' : '결과 보기 →'}
-    </button>
+            <button
+              onClick={nextQ}
+              style={{
+                width:'100%',
+                height:46,
+                borderRadius:12,
+                fontSize:'0.85rem',
+                fontWeight:800,
+                cursor:'pointer',
+                background:'#1a1814',
+                color:'#fff',
+                border:'none'
+              }}
+            >
+              {qi+1<pool.length ? '다음 문제 →' : '결과 보기 →'}
+            </button>
 
-    <div style={{
-      fontSize:'0.65rem',
-      color:'#b0aaa3',
-      textAlign:'center',
-      marginTop:6
-    }}>
-      Enter 키로도 넘어갈 수 있어요
-    </div>
-  </>
-)}
-        </div>
+            <div style={{
+              fontSize:'0.65rem',
+              color:'#b0aaa3',
+              textAlign:'center',
+              marginTop:6
+            }}>
+              Enter 키로도 넘어갈 수 있어요
+            </div>
+          </>
+        )}
       </div>
-    )
-  }
+    </div>
+  )
+}
 
  // ══════════════════════════════════════════
 // 화면 4: 결과
