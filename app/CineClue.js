@@ -303,7 +303,6 @@ setScreen('quiz')
 
     setFb(rFB(sh))
     setFbt('ng')
-    setAnswered(true)
     setInput('')
   }
 }
