@@ -629,7 +629,7 @@ function doSkip(){
     const tot=results.reduce((s,r)=>s+r.score,0)
     const co=results.filter(r=>r.correct)
     return(
-      <div style={{minHeight:'100vh',background:'#fff',display:'flex',flexDirection:'column',padding:'48px 0 40px'}}>
+      <div style={{minHeight:'100vh',background:'#fff',display:'flex',flexDirection:'column',justifyContent:'space-between',padding:'48px 0 40px'}}>
         <div style={{display:'flex',flexDirection:'column',alignItems:'center',marginBottom:36}}>
           <div style={{width:80,height:80,borderRadius:'50%',background:'#faf9f7',border:'2.5px solid #e8e4dd',display:'flex',alignItems:'center',justifyContent:'center',overflow:'hidden',marginBottom:14,boxShadow:'0 4px 20px rgba(0,0,0,0.08)'}}>
             <svg viewBox="0 0 80 80" fill="none" style={{width:80,height:80}}>{char?.svg.props.children}</svg>
