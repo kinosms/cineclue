@@ -24,6 +24,7 @@
 
 html { font-size: 16px; }
 body {
+  overscroll-behavior: none;
   background: var(--bg);
   font-family: 'Pretendard', 'Apple SD Gothic Neo', system-ui, sans-serif;
   color: var(--text);
