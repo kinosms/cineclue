@@ -622,77 +622,180 @@ function doSkip(){
     )
   }
 
-  // ══════════════════════════════════════════
-  // 화면 4: 결과
-  // ══════════════════════════════════════════
-  if(screen==='result'){
-    const tot=results.reduce((s,r)=>s+r.score,0)
-    const co=results.filter(r=>r.correct)
-    return(
-      <div style={{minHeight:'100vh',background:'#fff',display:'flex',flexDirection:'column',padding:'24px 0 20px'}}>
-        <div style={{display:'flex',flexDirection:'column',alignItems:'center',marginBottom:20}}>
-          <div style={{width:80,height:80,borderRadius:'50%',background:'#faf9f7',border:'2.5px solid #e8e4dd',display:'flex',alignItems:'center',justifyContent:'center',overflow:'hidden',marginBottom:14,boxShadow:'0 4px 20px rgba(0,0,0,0.08)'}}>
-            <svg viewBox="0 0 80 80" fill="none" style={{width:80,height:80}}>{char?.svg.props.children}</svg>
-          </div>
-          <div style={{fontSize:'0.7rem',color:'#b0aaa3',fontWeight:600,letterSpacing:'0.1em',marginBottom:6}}>USER ID</div>
-          <div style={{fontSize:displayScore>0?'3.5rem':'3rem',fontWeight:900,color:'#1a1814',lineHeight:1,letterSpacing:'-2px',transition:'font-size .1s'}}>
-            {displayScore.toLocaleString()}
-          </div>
-          <div style={{fontSize:'0.7rem',color:'#b0aaa3',marginTop:4,letterSpacing:'0.1em'}}>점</div>
+ // ══════════════════════════════════════════
+// 화면 4: 결과
+// ══════════════════════════════════════════
+if(screen==='result'){
+  const tot=results.reduce((s,r)=>s+r.score,0)
+  const co=results.filter(r=>r.correct)
+
+  return(
+    <div style={{
+      minHeight:'100vh',
+      background:'#fff',
+      display:'flex',
+      flexDirection:'column',
+      padding:'24px 0 20px'
+    }}>
+      
+      {/* 상단 점수 */}
+      <div style={{
+        display:'flex',
+        flexDirection:'column',
+        alignItems:'center',
+        marginBottom:20
+      }}>
+        <div style={{
+          width:80,
+          height:80,
+          borderRadius:'50%',
+          background:'#faf9f7',
+          border:'2.5px solid #e8e4dd',
+          display:'flex',
+          alignItems:'center',
+          justifyContent:'center',
+          overflow:'hidden',
+          marginBottom:14,
+          boxShadow:'0 4px 20px rgba(0,0,0,0.08)'
+        }}>
+          <svg viewBox="0 0 80 80" fill="none" style={{width:80,height:80}}>
+            {char?.svg.props.children}
+          </svg>
         </div>
 
-        <div style={{padding:'0 20px', paddingBottom:180}}>
-          {results.map((r,i)=>{
-            if(i>=visibleResults) return null
-            const rg=GRADES.find(x=>x.id===r.grade)
-            return(
-              <div key={i} style={{borderRadius:13,border:'1.5px solid #ece8e2',background:'#fff',padding:'12px 16px',marginBottom:8,display:'flex',alignItems:'center',gap:12,animation:'slideIn .4s ease',boxShadow:'0 1px 6px rgba(0,0,0,0.05)'}}>
-                <div style={{width:28,height:28,borderRadius:'50%',flexShrink:0,background:r.correct?`${rg?.color||'#e8808c'}15`:'#f5f3ef',display:'flex',alignItems:'center',justifyContent:'center',border:`1.5px solid ${r.correct?rg?.color||'#e8808c':'#e8e4dd'}`}}>
-                  <span style={{fontSize:'0.6rem',fontWeight:800,color:r.correct?rg?.color||'#e8808c':'#b0aaa3'}}>Q{i+1}</span>
-                </div>
-                <div style={{flex:1,minWidth:0}}>
-                  <div style={{fontSize:'0.78rem',fontWeight:700,color:r.correct?'#1a1814':'#c0bbb4',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>
-                    {r.correct?r.title:'실패'}
-                  </div>
-                  {r.correct&&(
-                    <div style={{display:'flex',gap:5,marginTop:3,alignItems:'center'}}>
-                      <span style={{fontSize:'0.58rem',padding:'1px 6px',borderRadius:20,background:`${rg?.color||'#e8808c'}15`,color:rg?.color||'#e8808c',fontWeight:600}}>{rg?.name}</span>
-                      {r.country&&<span style={{fontSize:'0.58rem',color:'#b0aaa3'}}>{r.country}</span>}
-                      {r.genre&&<span style={{fontSize:'0.58rem',color:'#b0aaa3'}}>{r.genre}</span>}
-                      <span style={{fontSize:'0.58rem',color:'#c0bbb4'}}>힌트{r.hintUsed}</span>
-                    </div>
-                  )}
-                </div>
-                <div style={{fontSize:'0.82rem',fontWeight:800,flexShrink:0,color:r.correct?'#4a9c6d':'#d45c5c'}}>
-                  {r.correct?`+${r.score}`:'-'}
+        <div style={{
+          fontSize:'0.7rem',
+          color:'#b0aaa3',
+          fontWeight:600,
+          letterSpacing:'0.1em',
+          marginBottom:6
+        }}>
+          USER ID
+        </div>
+
+        <div style={{
+          fontSize:displayScore>0?'3.5rem':'3rem',
+          fontWeight:900,
+          color:'#1a1814',
+          lineHeight:1,
+          letterSpacing:'-2px'
+        }}>
+          {displayScore.toLocaleString()}
+        </div>
+
+        <div style={{
+          fontSize:'0.7rem',
+          color:'#b0aaa3',
+          marginTop:4
+        }}>
+          점
+        </div>
+      </div>
+
+      {/* 결과 리스트 + 버튼 */}
+      <div style={{padding:'0 20px', paddingBottom:40}}>
+
+        {results.map((r,i)=>{
+          if(i>=visibleResults) return null
+          const rg=GRADES.find(x=>x.id===r.grade)
+
+          return(
+            <div key={i} style={{
+              borderRadius:13,
+              border:'1.5px solid #ece8e2',
+              background:'#fff',
+              padding:'12px 16px',
+              marginBottom:8,
+              display:'flex',
+              alignItems:'center',
+              gap:12,
+              boxShadow:'0 1px 6px rgba(0,0,0,0.05)'
+            }}>
+              <div style={{
+                width:28,
+                height:28,
+                borderRadius:'50%',
+                flexShrink:0,
+                background:r.correct?`${rg?.color||'#e8808c'}15`:'#f5f3ef',
+                display:'flex',
+                alignItems:'center',
+                justifyContent:'center',
+                border:`1.5px solid ${r.correct?rg?.color||'#e8808c':'#e8e4dd'}`
+              }}>
+                <span style={{
+                  fontSize:'0.6rem',
+                  fontWeight:800,
+                  color:r.correct?rg?.color||'#e8808c':'#b0aaa3'
+                }}>
+                  Q{i+1}
+                </span>
+              </div>
+
+              <div style={{flex:1,minWidth:0}}>
+                <div style={{
+                  fontSize:'0.78rem',
+                  fontWeight:700,
+                  color:r.correct?'#1a1814':'#c0bbb4'
+                }}>
+                  {r.correct?r.title:'실패'}
                 </div>
               </div>
-            )
-          })}
-        </div>
 
-        {visibleResults>=results.length&&(
-          <div style={{bottom:0,
-  left:0,
-  right:0,
-  margin:'0 auto',
-  width:'100%',
-  maxWidth:430,
-  background:'#fff',
-  padding:'12px 16px',
-  paddingBottom:'calc(20px + env(safe-area-inset-bottom))',
-  borderTop:'1px solid #eee',
-  display:'flex',
-  flexDirection:'column',
-  gap:10,
-  zIndex:100}}>
-            <button style={{height:54,borderRadius:14,background:'#1a1814',color:'#fff',fontSize:'0.9rem',fontWeight:700,border:'none',cursor:'pointer'}} onClick={()=>loadMovies(selGrade,true)}>계속하기</button>
-            <button style={{height:44,borderRadius:12,background:'transparent',color:'#9a9490',fontSize:'0.8rem',fontWeight:500,border:'1.5px solid #e8e4dd',cursor:'pointer'}} onClick={()=>{setSelGrade(null);setScreen('grade')}}>레벨 바꾸기</button>
+              <div style={{
+                fontSize:'0.82rem',
+                fontWeight:800,
+                color:r.correct?'#4a9c6d':'#d45c5c'
+              }}>
+                {r.correct?`+${r.score}`:'-'}
+              </div>
+            </div>
+          )
+        })}
+
+        {/* 버튼 (리스트 안에 위치) */}
+        {visibleResults>=results.length && (
+          <div style={{
+            marginTop:20,
+            display:'flex',
+            flexDirection:'column',
+            gap:10
+          }}>
+            <button
+              style={{
+                height:54,
+                borderRadius:14,
+                background:'#1a1814',
+                color:'#fff',
+                fontSize:'0.9rem',
+                fontWeight:700,
+                border:'none'
+              }}
+              onClick={()=>loadMovies(selGrade,true)}
+            >
+              계속하기
+            </button>
+
+            <button
+              style={{
+                height:44,
+                borderRadius:12,
+                background:'transparent',
+                color:'#9a9490',
+                fontSize:'0.8rem',
+                fontWeight:500,
+                border:'1.5px solid #e8e4dd'
+              }}
+              onClick={()=>{setSelGrade(null);setScreen('grade')}}
+            >
+              레벨 바꾸기
+            </button>
           </div>
         )}
+
       </div>
-    )
-  }
+    </div>
+  )
+}
 
   return null
 }
