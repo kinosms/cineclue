@@ -1142,7 +1142,6 @@ if(screen==='result'){
   {displayScore.toLocaleString()}점
 </div>
         </div>
-      </div>
 
       {/* 결과 리스트 */}
       <div style={{padding:'0 20px'}}>
