@@ -1014,16 +1014,21 @@ minHeight:0,
         padding:'13px 15px',
         marginBottom:8
       }}>
-        <div style={{display:'flex',gap:8}}>
+        <div style={{display:'flex',alignItems:'center',gap:8}}>
           <span style={{
-            fontSize:'0.58rem',
-            fontWeight:800,
-            padding:'2px 8px',
-            borderRadius:20,
-            background:g?.color||'#e8808c',
-            color:'#fff'
+            width:32,
+  height:32,
+  borderRadius:'50%',
+  background:g?.color||'#e8808c',
+  color:'#fff',
+  fontSize:'0.6rem',
+  fontWeight:800,
+  display:'flex',
+  alignItems:'center',
+  justifyContent:'center',
+  flexShrink:0 
           }}>
-            힌트 {i+1}
+            {i+1}
           </span>
 
           <div style={{
