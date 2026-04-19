@@ -291,15 +291,6 @@ setScreen('quiz')
     })
 
     // ✅ 결과
-    setResults(r=>[...r,{
-      title:m.title,
-      correct:false,
-      hintUsed:sh,
-      score:0,
-      grade:selGrade,
-      country:m.country,
-      genre:m.side?.genre||''
-    }])
 
     setFb(rFB(sh))
     setFbt('ng')
