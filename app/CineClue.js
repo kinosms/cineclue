@@ -1098,7 +1098,6 @@ console.log('grade id:', gr.id, GRADE_CHARS?.[gr.id]);
               textAlign:'center',
               marginTop:6
             }}>
-              Enter 키로도 넘어갈 수 있어요
             </div>
           </>
         )}
