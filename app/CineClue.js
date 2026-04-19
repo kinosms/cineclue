@@ -803,7 +803,7 @@ if(screen==='quiz' && pool[qi]){
 
   return(
     <div style={{
-      height:'100vh',
+      height:'100dvh',
       background:'#fff',
       display:'flex',
       flexDirection:'column',
@@ -969,6 +969,7 @@ if(screen==='quiz' && pool[qi]){
       {/* ── 스크롤 영역 ── */}
       <div style={{
         flex:1,
+minHeight:0,
         overflowY:'auto',
         WebkitOverflowScrolling:'touch',
         padding:'12px 16px 24px'
@@ -1041,7 +1042,7 @@ if(screen==='quiz' && pool[qi]){
 
 
         {/* ── 입력 & 버튼 ── */}
-        <div style={{marginTop:16}}>
+        <div style={{marginTop:16}},paddingBottom: 'env(safe-area-inset-bottom)'>
 
           {fb && (
             <div style={{
