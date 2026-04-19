@@ -629,8 +629,8 @@ function doSkip(){
     const tot=results.reduce((s,r)=>s+r.score,0)
     const co=results.filter(r=>r.correct)
     return(
-      <div style={{minHeight:'100vh',background:'#fff',display:'flex',flexDirection:'column',padding:'48px 0 40px'}}>
-        <div style={{display:'flex',flexDirection:'column',alignItems:'center',marginBottom:36}}>
+      <div style={{minHeight:'100vh',background:'#fff',display:'flex',flexDirection:'column',padding:'24px 0 20px'}}>
+        <div style={{display:'flex',flexDirection:'column',alignItems:'center',marginBottom:20}}>
           <div style={{width:80,height:80,borderRadius:'50%',background:'#faf9f7',border:'2.5px solid #e8e4dd',display:'flex',alignItems:'center',justifyContent:'center',overflow:'hidden',marginBottom:14,boxShadow:'0 4px 20px rgba(0,0,0,0.08)'}}>
             <svg viewBox="0 0 80 80" fill="none" style={{width:80,height:80}}>{char?.svg.props.children}</svg>
           </div>
@@ -641,8 +641,7 @@ function doSkip(){
           <div style={{fontSize:'0.7rem',color:'#b0aaa3',marginTop:4,letterSpacing:'0.1em'}}>점</div>
         </div>
 
-        <div style={{padding:'0 20px',  flex:1,
-  overflowY:'auto', paddingBottom:180}}>
+        <div style={{padding:'0 20px', paddingBottom:180}}>
           {results.map((r,i)=>{
             if(i>=visibleResults) return null
             const rg=GRADES.find(x=>x.id===r.grade)
@@ -673,8 +672,7 @@ function doSkip(){
         </div>
 
         {visibleResults>=results.length&&(
-          <div style={{  position:'fixed',
-  bottom:0,
+          <div style={{bottom:0,
   left:0,
   right:0,
   margin:'0 auto',
