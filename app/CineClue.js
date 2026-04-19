@@ -457,17 +457,47 @@ export default function CineClue() {
                 </button>
               </div>
             </>
-          ) : (
-            <>
-              {fbt==='ok'&&<div style={{fontSize:'0.95rem',fontWeight:800,color:'#1a1814',marginBottom:10,padding:'10px 14px',background:'#faf9f7',borderRadius:10,border:'1.5px solid #e8e4dd'}}>{m.title}</div>}
-              <button
-                onClick={nextQ}
-                style={{width:'100%',height:40,borderRadius:10,fontSize:'0.72rem',fontWeight:700,cursor:'pointer',background:'#f5f3ef',color:'#6b6560',border:'1.5px solid #e8e4dd'}}>
-                {qi+1<pool.length?'다음 퀴즈 →':'결과 보기 →'}
-              </button>
-              <div style={{fontSize:'0.62rem',color:'#c0bbb4',textAlign:'center',marginTop:4}}>Enter 키로도 넘어갈 수 있어요</div>
-            </>
-          )}
+      ) : (
+  <>
+    {fbt==='ok' && (
+      <div style={{
+        fontSize:'1.1rem',
+        fontWeight:900,
+        color:'#c8a84a',
+        marginBottom:12,
+        textAlign:'center'
+      }}>
+        🎬 {m.title}
+      </div>
+    )}
+
+    <button
+      onClick={nextQ}
+      style={{
+        width:'100%',
+        height:46,
+        borderRadius:12,
+        fontSize:'0.85rem',
+        fontWeight:800,
+        cursor:'pointer',
+        background:'#1a1814',
+        color:'#fff',
+        border:'none'
+      }}
+    >
+      {qi+1<pool.length ? '다음 문제 →' : '결과 보기 →'}
+    </button>
+
+    <div style={{
+      fontSize:'0.65rem',
+      color:'#b0aaa3',
+      textAlign:'center',
+      marginTop:6
+    }}>
+      Enter 키로도 넘어갈 수 있어요
+    </div>
+  </>
+)}
         </div>
       </div>
     )
