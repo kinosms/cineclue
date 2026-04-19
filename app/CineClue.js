@@ -187,37 +187,85 @@ export default function CineClue() {
 },[screen])
 
   async function loadMovies(grade, keepProgress=false){
-    setLoading(true)
-    try{
-      let movies=[]
-      if(supabase){
-        const{data}=await supabase.from('movies').select('*,hints(*)').eq('grade',grade)
-        if(data&&data.length>0) movies=data
-      }
-      if(!movies.length){alert('DB에 영화 데이터가 없습니다.');setLoading(false);return}
-      movies.sort(()=>Math.random()-.5)
-      const sel=movies.slice(0,5).map(m=>({
-        ...m,
-        hintsArr:m.hints?m.hints.sort((a,b)=>a.hint_level-b.hint_level).map(h=>h.hint_text):[],
-      }))
-      setPool(sel)
-setQi(0)
-setSh(1)
-setResults([]) // ← 이건 유지 (매판 리셋)
-setAnswered(false)
-setFb('')
-setFbt('')
-setInput('')
-setMode(null)
-setComboStreak(0)
-setCrazyStreak(0)
-setTd(false)
-setTc(10)
-setSidePool(buildSidePool(sel[0]?.side))
-setScreen('quiz')
-    }catch(e){console.error(e);alert('오류가 발생했습니다.')}
-    setLoading(false)
+  setLoading(true)
+
+  try{
+    if(!supabase){
+      alert('DB 연결 안됨')
+      setLoading(false)
+      return
+    }
+
+    // 1️⃣ movie + log join 느낌으로 가져오기
+    const { data, error } = await supabase
+      .from('movies')
+      .select(`
+        *,
+        hints(*),
+        game_logs(movie_id)
+      `)
+      .eq('grade', grade)
+
+    if(error){
+      console.error(error)
+      alert('데이터 오류')
+      setLoading(false)
+      return
+    }
+
+    if(!data || data.length===0){
+      alert('영화 없음')
+      setLoading(false)
+      return
+    }
+
+    // 2️⃣ 노출 횟수 계산
+    const moviesWithCount = data.map(m=>({
+      ...m,
+      played_count: m.game_logs ? m.game_logs.length : 0
+    }))
+
+    // 3️⃣ 노출 적은 순 + 랜덤 살짝 섞기
+    moviesWithCount.sort((a,b)=>{
+      const pa = a.played_count || 0
+      const pb = b.played_count || 0
+
+      return (pa - pb) + (Math.random()*2)
+    })
+
+    // 4️⃣ 문제 5개 선택
+    const sel = moviesWithCount.slice(0,5).map(m=>({
+      ...m,
+      hintsArr: m.hints
+        ? m.hints
+            .sort((a,b)=>a.hint_level - b.hint_level)
+            .map(h=>h.hint_text)
+        : []
+    }))
+
+    setPool(sel)
+    setQi(0)
+    setSh(1)
+    setResults([])
+    setAnswered(false)
+    setFb('')
+    setFbt('')
+    setInput('')
+    setMode(null)
+    setComboStreak(0)
+    setCrazyStreak(0)
+    setTd(false)
+    setTc(10)
+    setSidePool(buildSidePool(sel[0]?.side))
+    setScreen('quiz')
+
+  }catch(e){
+    console.error(e)
+    alert('오류 발생')
   }
+
+  setLoading(false)
+}
 
   function getPts(){ return Math.round((td?BP[selGrade]/2:BP[selGrade]||100)*(mode==='crazy'?5:mode==='combo'?2:1)) }
 
