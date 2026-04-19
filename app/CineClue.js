@@ -438,7 +438,7 @@ setScreen('quiz')
         )}
 
         {/* ── 스크롤 힌트 영역 ── */}
-        <div style={{flex:1,padding:'12px 16px',overflowY:'auto',paddingBottom:140}}>
+        <div style={{padding:'12px 16px'}}>
           {Array.from({length:5}).map((_,i)=>{
             if(i>=sh) return null
             const isCurrent=i===sh-1
@@ -468,10 +468,7 @@ setScreen('quiz')
 
         {/* ── 고정 하단 입력/버튼 영역 ── */}
         <div style={{
-  position:'fixed',
-  bottom:0,
-  left:0,
-  right:0,
+
   margin:'0 auto',
   width:'100%',
   maxWidth:430,
