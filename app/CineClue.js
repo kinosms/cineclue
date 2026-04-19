@@ -641,7 +641,7 @@ function doSkip(){
           <div style={{fontSize:'0.7rem',color:'#b0aaa3',marginTop:4,letterSpacing:'0.1em'}}>점</div>
         </div>
 
-        <div style={{padding:'0 20px', paddingBottom:140}}>
+        <div style={{padding:'0 20px', paddingBottom:180}}>
           {results.map((r,i)=>{
             if(i>=visibleResults) return null
             const rg=GRADES.find(x=>x.id===r.grade)
@@ -672,7 +672,21 @@ function doSkip(){
         </div>
 
         {visibleResults>=results.length&&(
-          <div style={{padding:'20px 20px 0',display:'flex',flexDirection:'column',gap:10}}>
+          <div style={{  position:'fixed',
+  bottom:0,
+  left:0,
+  right:0,
+  margin:'0 auto',
+  width:'100%',
+  maxWidth:430,
+  background:'#fff',
+  padding:'12px 16px',
+  paddingBottom:'calc(20px + env(safe-area-inset-bottom))',
+  borderTop:'1px solid #eee',
+  display:'flex',
+  flexDirection:'column',
+  gap:10,
+  zIndex:100}}>
             <button style={{height:54,borderRadius:14,background:'#1a1814',color:'#fff',fontSize:'0.9rem',fontWeight:700,border:'none',cursor:'pointer'}} onClick={()=>loadMovies(selGrade,true)}>계속하기</button>
             <button style={{height:44,borderRadius:12,background:'transparent',color:'#9a9490',fontSize:'0.8rem',fontWeight:500,border:'1.5px solid #e8e4dd',cursor:'pointer'}} onClick={()=>{setSelGrade(null);setScreen('grade')}}>레벨 바꾸기</button>
           </div>
