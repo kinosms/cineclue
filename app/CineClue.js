@@ -225,35 +225,28 @@ export default function CineClue() {
       played_count: m.game_logs ? m.game_logs.length : 0
     }))
 
-    // 3️⃣ 노출 적은 순 + 랜덤 살짝 섞기
-const groups = {}
+   // 3️⃣ 노출 적은 그룹 먼저 뽑고 랜덤 섞기
+const minPlayed = Math.min(...moviesWithCount.map(m => m.played_count || 0))
 
-moviesWithCount.forEach(m => {
-  const count = m.played_count || 0
-  if(!groups[count]) groups[count] = []
-  groups[count].push(m)
-})
+const leastPlayed = moviesWithCount.filter(
+  m => (m.played_count || 0) === minPlayed
+)
 
-function shuffle(arr){
-  return arr
-    .map(v => ({v, r: Math.random()}))
-    .sort((a,b)=>a.r-b.r)
-    .map(x=>x.v)
+// 랜덤 셔플 (진짜 랜덤)
+for (let i = leastPlayed.length - 1; i > 0; i--) {
+  const j = Math.floor(Math.random() * (i + 1))
+  ;[leastPlayed[i], leastPlayed[j]] = [leastPlayed[j], leastPlayed[i]]
 }
 
-const sorted = Object.keys(groups)
-  .sort((a,b)=>a-b)
-  .flatMap(k => shuffle(groups[k]))
-
-    // 4️⃣ 문제 5개 선택
-    const sel = moviesWithCount.slice(0,5).map(m=>({
-      ...m,
-      hintsArr: m.hints
-        ? m.hints
-            .sort((a,b)=>a.hint_level - b.hint_level)
-            .map(h=>h.hint_text)
-        : []
-    }))
+// 4️⃣ 문제 선택
+const sel = leastPlayed.slice(0,5).map(m=>({
+  ...m,
+  hintsArr: m.hints
+    ? m.hints
+        .sort((a,b)=>a.hint_level - b.hint_level)
+        .map(h=>h.hint_text)
+    : []
+}))
 
     setPool(sel)
     setQi(0)
