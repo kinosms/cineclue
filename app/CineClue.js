@@ -144,6 +144,7 @@ export default function CineClue() {
   const [loading,  setLoading]  = useState(false)
   const [visibleResults, setVisibleResults] = useState(0)
   const [displayScore,   setDisplayScore]   = useState(0)
+const [prevScore, setPrevScore] = useState(0)
 const [currentUser, setCurrentUser] = useState(null);
 const [users, setUsers] = useState([])
 const [showNameModal, setShowNameModal] = useState(false)
@@ -194,8 +195,8 @@ useEffect(()=>{
   setVisibleResults(0)
 
 const roundScore = results.reduce((s,r)=>s+r.score,0)
-const startScore = currentUser?.score ?? 0   // 기존 점수
-const tot = startScore + roundScore          // 최종 점수
+const startScore = prevScore        // 👈 핵심
+const tot = prevScore + roundScore  // 👈 핵심
 
   setDisplayScore(startScore)
 
@@ -469,7 +470,8 @@ function doSkip(){
 
   function nextQ(){
     inputRef.current?.blur()
-    if(qi+1>=pool.length){setScreen('result');return}
+    if(qi+1>=pool.length){setPrevScore(currentUser?.score ?? 0)
+    setScreen('result');return}
     const nqi=qi+1
     setQi(nqi);setSh(1);setAnswered(false);setFb('');setFbt('');setInput('')
     setTd(false);setTc(10);setSidePool(buildSidePool(pool[nqi]?.side))
