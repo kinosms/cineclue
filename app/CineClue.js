@@ -807,7 +807,6 @@ if(screen==='quiz' && pool[qi]){
       background:'#fff',
       display:'flex',
       flexDirection:'column',
-      overflow:'hidden'
     }}>
 
       {/* ── 고정 헤더 ── */}
