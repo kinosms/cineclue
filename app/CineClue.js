@@ -285,7 +285,7 @@ setScreen('quiz')
         </div>
       </div>
 
-      <div style={{padding:'0 20px',flex:1}}>
+      <div style={{padding:'0 20px'}}>
         <div style={{fontSize:'0.7rem',fontWeight:700,color:'#b0aaa3',letterSpacing:'0.15em',textTransform:'uppercase',marginBottom:14}}>
           캐릭터를 선택하세요
         </div>
