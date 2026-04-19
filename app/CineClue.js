@@ -532,7 +532,10 @@ function doSkip(){
 
         {/* ── 고정 하단 입력/버튼 영역 ── */}
         <div style={{
-
+  position:'fixed',   // 🔥 핵심
+  bottom:0,
+  left:0,
+  right:0,
   margin:'0 auto',
   width:'100%',
   maxWidth:430,
@@ -645,7 +648,7 @@ function doSkip(){
           <div style={{fontSize:'0.7rem',color:'#b0aaa3',marginTop:4,letterSpacing:'0.1em'}}>점</div>
         </div>
 
-        <div style={{padding:'0 20px',flex:1,paddingBottom:120}}>
+        <div style={{padding:'0 20px',flex:1,paddingBottom:140}}>
           {results.map((r,i)=>{
             if(i>=visibleResults) return null
             const rg=GRADES.find(x=>x.id===r.grade)
