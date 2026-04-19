@@ -1044,7 +1044,7 @@ minHeight:0,
         {/* ── 입력 & 버튼 ── */}
         <div style={{
   marginTop:16,
-  paddingBottom: 'calc(16px + env(safe-area-inset-bottom))'
+  paddingBottom: 'calc(20px + env(safe-area-inset-bottom))'
 }}>
 
           {fb && (
