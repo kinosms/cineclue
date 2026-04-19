@@ -89,24 +89,28 @@ async function saveLog({
   comboMode,
   isCorrect
 }){
-  if(!supabase) return
+  if(!supabase) {
+    alert('❌ supabase 없음')
+    return
+  }
 
-  try{
-    await supabase.from('game_logs').insert({
-      user_id: userId,
-      character_id: charId,
-      movie_id: movie.id,
-      grade: grade,
-      hint_used: hintUsed,
-      score_earned: score,
-      combo_mode: comboMode,
-      is_correct: isCorrect
-    })
-  }catch(e){
-    console.error('log error', e)
+  const { error } = await supabase.from('game_logs').insert({
+    user_id: userId,
+    character_id: charId,
+    movie_id: movie?.id,
+    grade: grade,
+    hint_used: hintUsed,
+    score_earned: score,
+    combo_mode: comboMode,
+    is_correct: isCorrect
+  })
+
+  if(error){
+    alert('❌ DB 에러: ' + error.message)
+  } else {
+    alert('✅ 로그 저장됨')
   }
 }
-
 function CharAvatar({charId,size=40}){
   const c=CHARS.find(x=>x.id===charId)
   if(!c) return <div style={{width:size,height:size,borderRadius:'50%',background:'#f0eeea',border:'1.5px solid #e0dcd4'}}/>
