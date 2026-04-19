@@ -716,7 +716,7 @@ if(screen==='char') return(
               boxShadow:sel?`0 3px 16px ${gr.color}20`:'0 1px 4px rgba(0,0,0,0.05)',
             }}>
               <div style={{width:52,height:52,borderRadius:12,background:sel?`${gr.color}18`:'#f5f3ef',border:`1.5px solid ${sel?gr.color:gr.border}`,display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0,overflow:'hidden'}}>
-                <svg viewBox="0 0 60 60" fill="none" style={{width:52,height:52}}>{GRADE_CHARS[gr.id].props.children}</svg>
+                <svg viewBox="0 0 60 60" fill="none" style={{width:52,height:52}}>{GRADE_CHARS[gr.id].props.children??null}</svg>
               </div>
               <div style={{flex:1,minWidth:0}}>
                 <div style={{fontSize:'0.9rem',fontWeight:800,color:sel?gr.color:'#1a1814',marginBottom:3}}>{gr.name}</div>
