@@ -33,7 +33,7 @@ body {
   background: var(--bg);
   font-family: 'Pretendard', 'Apple SD Gothic Neo', system-ui, sans-serif;
   color: var(--text);
-  min-height: 100vh;
+  min-height: 100dvh;
   -webkit-font-smoothing: antialiased;
 }
 
@@ -47,7 +47,7 @@ body {
 .app-inner {
   width: 100%;
   max-width: 430px;
-  min-height: 100vh;
+  min-height: 100dvh;
   background: var(--surface);
   position: relative;
   overflow-y: auto;        /* 🔥 추가 */
