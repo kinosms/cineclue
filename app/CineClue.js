@@ -139,7 +139,7 @@ export default function CineClue() {
     }, results.length*500+300)
   },[screen])
 
-  async function loadMovies(grade){
+  async function loadMovies(grade, keepProgress=false){
     setLoading(true)
     try{
       let movies=[]
@@ -153,10 +153,14 @@ export default function CineClue() {
         ...m,
         hintsArr:m.hints?m.hints.sort((a,b)=>a.hint_level-b.hint_level).map(h=>h.hint_text):[],
       }))
-      setPool(sel); setQi(0); setSh(1); setScore(0)
+      setPool(sel); setQi(0); setSh(1); if(!keepProgress){
+  setScore(0)
+  setResults([])
+}
+
       setAnswered(false); setFb(''); setFbt(''); setInput('')
       setMode(null); setComboStreak(0); setCrazyStreak(0)
-      setTd(false); setTc(10); setResults([])
+      setTd(false); setTc(10);
       setSidePool(buildSidePool(sel[0]?.side))
       setScreen('quiz')
     }catch(e){console.error(e);alert('오류가 발생했습니다.')}
@@ -323,7 +327,7 @@ export default function CineClue() {
         <button
           style={{height:54,borderRadius:14,background:selGrade&&!loading?'#1a1814':'#d4d0cc',color:'#fff',fontSize:'0.9rem',fontWeight:700,border:'none',cursor:selGrade&&!loading?'pointer':'default',transition:'background .2s'}}
           disabled={!selGrade||loading}
-          onClick={()=>loadMovies(selGrade)}>
+          onClick={()=>loadMovies(selGrade, true))}>
           {loading?'로딩 중...':'퀴즈시작'}
         </button>
         <button
@@ -548,7 +552,7 @@ export default function CineClue() {
 
         {visibleResults>=results.length&&(
           <div style={{padding:'20px 20px 0',display:'flex',flexDirection:'column',gap:10}}>
-            <button style={{height:54,borderRadius:14,background:'#1a1814',color:'#fff',fontSize:'0.9rem',fontWeight:700,border:'none',cursor:'pointer'}} onClick={()=>loadMovies(selGrade)}>계속하기</button>
+            <button style={{height:54,borderRadius:14,background:'#1a1814',color:'#fff',fontSize:'0.9rem',fontWeight:700,border:'none',cursor:'pointer'}} onClick={()=>loadMovies(selGrade,true)}>계속하기</button>
             <button style={{height:44,borderRadius:12,background:'transparent',color:'#9a9490',fontSize:'0.8rem',fontWeight:500,border:'1.5px solid #e8e4dd',cursor:'pointer'}} onClick={()=>{setSelGrade(null);setScreen('grade')}}>레벨 바꾸기</button>
           </div>
         )}
