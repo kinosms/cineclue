@@ -986,7 +986,7 @@ minHeight:0,
     <div key={i}>
       {sideItem&&(
         <div style={{
-          borderRadius:10,
+          borderRadius:8,
           background:'#faf9f7',
           border:'1px dashed #e0dcd4',
           padding:'8px 12px',
