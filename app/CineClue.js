@@ -188,7 +188,7 @@ useEffect(()=>{
 
   // 결과 화면 순차 노출 + 점수 카운트
 useEffect(()=>{
-  if(screen !== 'result') return
+  if(screen !== 'result' || !currentUser) return
 
   setVisibleResults(0)
 
@@ -200,28 +200,33 @@ const tot = startScore + roundScore          // 최종 점수
 
   let i = 0
 
-  const interval = setInterval(()=>{
-    i++
-    setVisibleResults(i)
+const interval = setInterval(()=>{
+  i++
+  setVisibleResults(i)
 
-    if(i >= results.length){
-        clearInterval(interval)
-  setTimeout(()=>{
-    setVisibleResults(v => v + 1) // 👈 이거 추가
-  }, 500) // 👈 마지막 간격만큼 딜레이
+  if(i >= results.length){
+    clearInterval(interval)
 
-      // 점수 카운트 시작
-      let cur = startScore
-      const step = Math.ceil((tot - startScore)/60)
+    setTimeout(()=>{
+      setVisibleResults(v => v + 1) // 버튼 등장
 
-      const iv = setInterval(()=>{
-        cur = Math.min(cur + step, tot)
-        setDisplayScore(cur)
-        if(cur >= tot) clearInterval(iv)
-      },20)
-    }
+      // 👇 버튼 이후 카운트 시작
+      setTimeout(()=>{
+        let cur = startScore
+        const step = Math.ceil((tot - startScore)/60)
 
-  }, 800)
+        const iv = setInterval(()=>{
+          cur = Math.min(cur + step, tot)
+          setDisplayScore(cur)
+          if(cur >= tot) clearInterval(iv)
+        },20)
+
+      }, 400)
+
+    }, 400)
+  }
+
+}, 400)
 
   return () => clearInterval(interval)
 
@@ -1088,11 +1093,10 @@ console.log('grade id:', gr.id, GRADE_CHARS?.[gr.id]);
  // ══════════════════════════════════════════
 // 화면 4: 결과
 if(screen==='result'){
-  const currentUser = users.find(u=>u.charId===selChar)
-
-  const roundScore = results.reduce((s,r)=>s+r.score,0)
-  const totalScore = currentUser?.score || 0
-  const nickname = currentUser?.nickname || 'USER'
+  const baseScore = currentUser?.score ?? 0
+const roundScore = results.reduce((s,r)=>s+r.score,0)
+const tot = baseScore + roundScore
+const nickname = currentUser?.nickname || 'USER'
 
   return(
     <div style={{
@@ -1213,9 +1217,9 @@ if(screen==='result'){
         border:'none',
         cursor:'pointer'
       }}
-      onClick={()=>setScreen('char')}
+      onClick={()=>loadMovies(selGrade, true)} 
     >
-      다시하기
+      계속하기
     </button>
 
     <button
@@ -1229,7 +1233,7 @@ if(screen==='result'){
         border:'1.5px solid #e8e4dd',
         cursor:'pointer'
       }}
-      onClick={()=>setScreen('home')}
+      onClick={()=>setScreen('char')} 
     >
       홈으로
     </button>
