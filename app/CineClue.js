@@ -187,8 +187,8 @@ useEffect(()=>{
 
 
   // 결과 화면 순차 노출 + 점수 카운트
-  useEffect(()=>{
-  if(screen!=='result') return
+useEffect(()=>{
+  if(screen !== 'result') return
 
   setVisibleResults(0)
 
@@ -198,22 +198,31 @@ useEffect(()=>{
 
   setDisplayScore(startScore)
 
-  results.forEach((_,i)=>{
-    setTimeout(()=>setVisibleResults(v=>v+1),(i+1)*500)
-  })
+  let i = 0
 
-  setTimeout(()=>{
-    let cur = startScore
-    const step = Math.ceil((tot - startScore)/60)
+  const interval = setInterval(()=>{
+    i++
+    setVisibleResults(i)
 
-    const iv = setInterval(()=>{
-      cur = Math.min(cur + step, tot)
-      setDisplayScore(cur)
-      if(cur >= tot) clearInterval(iv)
-    },20)
-  }, results.length*500+300)
+    if(i >= results.length){
+      clearInterval(interval)
 
-},[screen])
+      // 점수 카운트 시작
+      let cur = startScore
+      const step = Math.ceil((tot - startScore)/60)
+
+      const iv = setInterval(()=>{
+        cur = Math.min(cur + step, tot)
+        setDisplayScore(cur)
+        if(cur >= tot) clearInterval(iv)
+      },20)
+    }
+
+  }, 500)
+
+  return () => clearInterval(interval)
+
+}, [screen, results])
 
 useEffect(()=>{
   const saved = localStorage.getItem('cineclue_users')
