@@ -190,10 +190,11 @@ useEffect(()=>{
 useEffect(()=>{
   if(screen !== 'result') return
   if(results.length === 0) return
+if(!users || users.length === 0) return 
 
   setVisibleResults(0)
 
-const roundScore = results.reduce((s,r)=>s+r.score,0)
+const roundScore = (results ?? []).reduce((s,r)=>s+r.score,0)
 const startScore = user?.score ?? 0       // 👈 핵심
 const tot = startScore + roundScore  // 👈 핵심
 
@@ -1140,7 +1141,7 @@ const nickname = currentUser?.nickname || 'USER'
           marginBottom:10
         }}>
           <svg viewBox="0 0 80 80" style={{width:80,height:80}}>
-            {char?.svg.props.children}
+            {char?.svg?.props?.children}
           </svg>
         </div>
 
