@@ -467,7 +467,7 @@ setScreen('quiz')
         </div>
 
         {/* ── 고정 하단 입력/버튼 영역 ── */}
-        <div style={{position:'sticky',bottom:0,left:'50%',transform:'translateX(-50%)',width:'100%',maxWidth:430,background:'#fff',borderTop:'1px solid #f0ece6',padding:'12px 16px 20px'}}>
+        <div style={{position:'sticky',bottom:0,zIndex: 10,left:'50%',transform:'translateX(-50%)',width:'100%',maxWidth:430,background:'#fff',borderTop:'1px solid #f0ece6',padding:'12px 16px 20px'}}>
 
           {/* 피드백 */}
           {fb&&(
