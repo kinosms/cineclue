@@ -78,6 +78,35 @@ function buildSidePool(side){
   return p
 }
 
+async function saveLog({
+  supabase,
+  userId,
+  charId,
+  movie,
+  grade,
+  hintUsed,
+  score,
+  comboMode,
+  isCorrect
+}){
+  if(!supabase) return
+
+  try{
+    await supabase.from('game_logs').insert({
+      user_id: userId,
+      character_id: charId,
+      movie_id: movie.id,
+      grade: grade,
+      hint_used: hintUsed,
+      score_earned: score,
+      combo_mode: comboMode,
+      is_correct: isCorrect
+    })
+  }catch(e){
+    console.error('log error', e)
+  }
+}
+
 function CharAvatar({charId,size=40}){
   const c=CHARS.find(x=>x.id===charId)
   if(!c) return <div style={{width:size,height:size,borderRadius:'50%',background:'#f0eeea',border:'1.5px solid #e0dcd4'}}/>
@@ -215,6 +244,17 @@ setScreen('quiz')
     updateCombo(true, sh)
     setScore(v=>v+gained)
 
+  saveLog({
+    supabase,
+    userId:'guest', // 나중에 로그인 붙이면 바꾸면 됨
+    charId: selChar,
+    movie: m,
+    grade: selGrade,
+    hintUsed: sh,
+    score: gained,
+    comboMode: mode,
+    isCorrect: true
+
     setResults(r=>[...r,{
       title:m.title,
       correct:true,
@@ -233,6 +273,17 @@ setScreen('quiz')
   }else{
 
     updateCombo(false, sh)
+
+  saveLog({
+    supabase,
+    userId:'guest',
+    charId: selChar,
+    movie: m,
+    grade: selGrade,
+    hintUsed: sh,
+    score: 0,
+    comboMode: mode,
+    isCorrect: false
 
     setResults(r=>[...r,{
       title:m.title,
@@ -254,6 +305,17 @@ setScreen('quiz')
   function doSkip(){
     updateCombo(false,0)
     setResults(r=>[...r,{title:pool[qi].title,correct:false,hintUsed:0,score:0,grade:selGrade,country:pool[qi].country,genre:pool[qi].side?.genre||''}])
+
+  saveLog({
+    supabase,
+    userId:'guest',
+    charId: selChar,
+    movie: m,
+    grade: selGrade,
+    hintUsed: 0,
+    score: 0,
+    comboMode: mode,
+    isCorrect: false
     setFb('다음번엔 꼭 맞추길...'); setFbt('sk'); setAnswered(true)
   }
 
