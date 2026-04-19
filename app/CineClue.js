@@ -727,7 +727,7 @@ if(screen==='char') return(
                 {sel&&<div style={{width:8,height:8,borderRadius:'50%',background:'#fff'}}/>}
               </div>
             </div>
-          )
+          );
         })}
       </div>
 
