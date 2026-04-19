@@ -327,7 +327,7 @@ export default function CineClue() {
         <button
           style={{height:54,borderRadius:14,background:selGrade&&!loading?'#1a1814':'#d4d0cc',color:'#fff',fontSize:'0.9rem',fontWeight:700,border:'none',cursor:selGrade&&!loading?'pointer':'default',transition:'background .2s'}}
           disabled={!selGrade||loading}
-          onClick={()=>loadMovies(selGrade, true))}>
+          onClick={()=>loadMovies(selGrade, true)}>
           {loading?'로딩 중...':'퀴즈시작'}
         </button>
         <button
