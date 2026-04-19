@@ -1207,41 +1207,41 @@ if(screen==='result'){
         })}
       </div>
 
-      {/* 버튼 */}
-      <div style={{
-        marginTop:20,
-        padding:'0 20px',
-        display:'flex',
-        flexDirection:'column',
-        gap:10
-      }}>
-        <button
-          onClick={()=>loadMovies(selGrade,true)}
-          style={{
-            height:54,
-            borderRadius:14,
-            background:'#1a1814',
-            color:'#fff',
-            fontWeight:700,
-            border:'none'
-          }}
-        >
-          계속하기
-        </button>
+{visibleResults >= results.length && (
+  <div style={{padding:'20px', display:'flex', flexDirection:'column', gap:10}}>
+    <button
+      style={{
+        height:54,
+        borderRadius:14,
+        background:'#1a1814',
+        color:'#fff',
+        fontSize:'0.9rem',
+        fontWeight:700,
+        border:'none',
+        cursor:'pointer'
+      }}
+      onClick={()=>setScreen('char')}
+    >
+      다시하기
+    </button>
 
-        <button
-          onClick={()=>{setSelGrade(null);setScreen('grade')}}
-          style={{
-            height:44,
-            borderRadius:12,
-            background:'transparent',
-            color:'#9a9490',
-            border:'1.5px solid #e8e4dd'
-          }}
-        >
-          레벨 바꾸기
-        </button>
-      </div>
+    <button
+      style={{
+        height:44,
+        borderRadius:12,
+        background:'transparent',
+        color:'#9a9490',
+        fontSize:'0.8rem',
+        fontWeight:500,
+        border:'1.5px solid #e8e4dd',
+        cursor:'pointer'
+      }}
+      onClick={()=>setScreen('home')}
+    >
+      홈으로
+    </button>
+  </div>
+)}
 
     </div>
   )
