@@ -645,7 +645,7 @@ function doSkip(){
           <div style={{fontSize:'0.7rem',color:'#b0aaa3',marginTop:4,letterSpacing:'0.1em'}}>점</div>
         </div>
 
-        <div style={{padding:'0 20px',flex:1}}>
+        <div style={{padding:'0 20px',flex:1,paddingBottom:120}}>
           {results.map((r,i)=>{
             if(i>=visibleResults) return null
             const rg=GRADES.find(x=>x.id===r.grade)
