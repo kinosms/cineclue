@@ -860,6 +860,70 @@ if(screen==='quiz' && pool[qi]){
 
         {/* 👉 여기 힌트 리스트 들어가면 됨 */}
 
+{Array.from({length:5}).map((_,i)=>{
+  if(i>=sh) return null
+  const isCurrent=i===sh-1
+  const sideItem=i>=1?sidePool[i-1]:null
+
+  return(
+    <div key={i}>
+      {sideItem&&(
+        <div style={{
+          borderRadius:10,
+          background:'#faf9f7',
+          border:'1px dashed #e0dcd4',
+          padding:'8px 12px',
+          marginBottom:6,
+          display:'flex',
+          alignItems:'center',
+          gap:10
+        }}>
+          <div style={{
+            width:6,
+            height:6,
+            borderRadius:'50%',
+            background:g?.color||'#e8808c'
+          }}/>
+          <div style={{fontSize:'0.68rem',color:'#9a9490'}}>
+            {sideItem.t==='year'?`📅 ${sideItem.v}`:sideItem.v}
+          </div>
+        </div>
+      )}
+
+      <div style={{
+        borderRadius:13,
+        border:`1.5px solid ${isCurrent?g?.color||'#e8808c':'#ece8e2'}`,
+        background:isCurrent?g?.bg||'#fff5f6':'#fff',
+        padding:'13px 15px',
+        marginBottom:8
+      }}>
+        <div style={{display:'flex',gap:8}}>
+          <span style={{
+            fontSize:'0.58rem',
+            fontWeight:800,
+            padding:'2px 8px',
+            borderRadius:20,
+            background:g?.color||'#e8808c',
+            color:'#fff'
+          }}>
+            힌트 {i+1}
+          </span>
+
+          <div style={{
+            fontSize:'0.78rem',
+            lineHeight:1.7
+          }}>
+            {m.hintsArr?.[i]||'힌트 로딩중...'}
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+})}
+
+
+
+
         {/* ── 입력 & 버튼 ── */}
         <div style={{marginTop:16}}>
 
