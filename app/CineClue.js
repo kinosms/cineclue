@@ -1038,9 +1038,22 @@ console.log('grade id:', gr.id, GRADE_CHARS?.[gr.id]);
         </div>
       )}
 
-      <button ...>
-        {qi+1<pool.length ? '다음 문제 →' : '결과 보기 →'}
-      </button>
+      <button
+  onClick={nextQ}
+  style={{
+    width:'100%',
+    height:46,
+    borderRadius:12,
+    fontSize:'0.85rem',
+    fontWeight:800,
+    cursor:'pointer',
+    background:'#1a1814',
+    color:'#fff',
+    border:'none'
+  }}
+>
+  {qi+1<pool.length ? '다음 문제 →' : '결과 보기 →'}
+</button>
     </>
   )}
 </div>
