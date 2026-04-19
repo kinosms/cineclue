@@ -1026,16 +1026,8 @@ console.log('grade id:', gr.id, GRADE_CHARS?.[gr.id]);
     </>
   )}
 </div>
-      {fbt==='ok' && (
-        <div style={{
-          fontSize:'1.1rem',
-          fontWeight:900,
-          color:'#c8a84a',
-          marginBottom:12,
-          textAlign:'center'
-        }}>
-          {m.title}
-        </div>
+
+</div>
       )}
 
       <button
