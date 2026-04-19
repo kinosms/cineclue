@@ -601,20 +601,58 @@ function doSkip(){
           {/* 원본 버튼 로직 */}
           {!answered ? (
             <>
-              <div style={{display:'flex',gap:8,marginBottom:8}}>
-                <input
-                  ref={inputRef}
-                  value={input}
-                  onChange={e=>setInput(e.target.value)}
-                  onKeyDown={e=>{if(e.key==='Enter'){e.preventDefault();e.stopPropagation();submit()}}}
-                  placeholder="영화 제목 입력"
-                  style={{flex:1,height:46,borderRadius:11,border:`1.5px solid ${input?'#1a1814':'#e8e4dd'}`,background:'#faf9f7',color:'#1a1814',padding:'0 14px',fontSize:'16px',fontFamily:'inherit',outline:'none',transition:'border-color .15s'}}
-                  
-                />
-                <button onClick={submit} style={{height:46,padding:'0 18px',borderRadius:11,background:'#1a1814',color:'#fff',fontSize:'0.8rem',fontWeight:700,border:'none',cursor:'pointer',whiteSpace:'nowrap'}}>
-                  정답
-                </button>
-              </div>
+              <div style={{
+  display:'flex',
+  gap:8,
+  marginBottom:8,
+  width:'100%',
+  boxSizing:'border-box'
+}}>
+  <input
+    ref={inputRef}
+    value={input}
+    onChange={e=>setInput(e.target.value)}
+    onKeyDown={e=>{
+      if(e.key==='Enter'){
+        e.preventDefault()
+        e.stopPropagation()
+        submit()
+      }
+    }}
+    placeholder="영화 제목 입력"
+    style={{
+      flex:1,
+      minWidth:0,
+      height:46,
+      borderRadius:11,
+      border:`1.5px solid ${input?'#1a1814':'#e8e4dd'}`,
+      background:'#faf9f7',
+      color:'#1a1814',
+      padding:'0 14px',
+      fontSize:'16px',
+      fontFamily:'inherit',
+      outline:'none'
+    }}
+  />
+
+  <button
+    onClick={submit}
+    style={{
+      flexShrink:0,
+      width:72,
+      height:46,
+      borderRadius:11,
+      background:'#1a1814',
+      color:'#fff',
+      fontSize:'0.8rem',
+      fontWeight:700,
+      border:'none',
+      whiteSpace:'nowrap'
+    }}
+  >
+    정답
+  </button>
+</div>
               <div style={{display:'flex',gap:8}}>
                 <button
                   onClick={nextH}
