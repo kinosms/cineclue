@@ -859,7 +859,6 @@ if(screen==='quiz' && pool[qi]){
     </div>
   </div>
 </div>
-      </div>
 
       {/* ── 콤보 배너 ── */}
       {mode && (
