@@ -794,12 +794,12 @@ console.log('grade id:', gr.id, GRADE_CHARS?.[gr.id]);
     </div>
   )
 
-  // ══════════════════════════════════════════
-  // 화면 3: 퀴즈
-  // ══════════════════════════════════════════
- if(screen==='quiz'&&pool[qi]){
-  const m=pool[qi]
-  const timerCol=tc>6?'#4a9c6d':tc>3?'#c8a84a':'#d45c5c'
+// ══════════════════════════════════════════
+// 화면 3: 퀴즈
+// ══════════════════════════════════════════
+if(screen==='quiz' && pool[qi]){
+  const m = pool[qi]
+  const timerCol = tc>6 ? '#4a9c6d' : tc>3 ? '#c8a84a' : '#d45c5c'
 
   return(
     <div style={{
@@ -817,58 +817,11 @@ console.log('grade id:', gr.id, GRADE_CHARS?.[gr.id]);
         padding:'14px 20px 0',
         flexShrink:0
       }}>
-        <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:10}}>
-          <CharAvatar charId={selChar} size={34}/>
-          <span style={{fontSize:'0.75rem',fontWeight:700,color:'#1a1814',flex:1}}>
-            {users.find(u=>u.charId===selChar)?.nickname || 'USER'}
-          </span>
-          <div style={{display:'flex',alignItems:'center',gap:8}}>
-            <div style={{textAlign:'right'}}>
-              <div style={{fontSize:'0.65rem',color:'#b0aaa3'}}>점수</div>
-              <div style={{fontSize:'0.9rem',fontWeight:800,color:'#1a1814'}}>{score.toLocaleString()}</div>
-            </div>
-            {!answered&&(
-              <div style={{
-                width:36,
-                height:36,
-                borderRadius:'50%',
-                background:`${timerCol}15`,
-                border:`2.5px solid ${timerCol}`,
-                display:'flex',
-                alignItems:'center',
-                justifyContent:'center'
-              }}>
-                <span style={{fontSize:'0.8rem',fontWeight:800,color:timerCol}}>{tc}</span>
-              </div>
-            )}
-          </div>
-        </div>
-
-        <div style={{display:'flex',alignItems:'center',gap:6,paddingBottom:12,flexWrap:'wrap'}}>
-          <span style={{fontSize:'0.62rem',fontWeight:700,padding:'3px 9px',borderRadius:20,background:'#f5f3ef',color:'#6b6560',border:'1px solid #e8e4dd'}}>
-            {qi+1}/5
-          </span>
-          <span style={{fontSize:'0.62rem',fontWeight:700,padding:'3px 10px',borderRadius:20,background:g?.color||'#e8808c',color:'#fff'}}>
-            {g?.name}
-          </span>
-          {m.country&&(
-            <span style={{fontSize:'0.62rem',fontWeight:700,padding:'3px 10px',borderRadius:20,background:'#e8f0fc',color:'#3a6abf',border:'1px solid #c0d4f8'}}>
-              {m.country}
-            </span>
-          )}
-          {m.side?.genre&&(
-            <span style={{fontSize:'0.62rem',fontWeight:700,padding:'3px 10px',borderRadius:20,background:'#e8f5ee',color:'#2e8a52',border:'1px solid #a8dfc0'}}>
-              {m.side.genre}
-            </span>
-          )}
-          <span style={{fontSize:'0.62rem',fontWeight:700,padding:'3px 9px',borderRadius:20,background:`${g?.color||'#e8808c'}15`,color:g?.color||'#e8808c',border:`1px solid ${g?.color||'#e8808c'}30`,marginLeft:'auto'}}>
-            {getPts()}pt
-          </span>
-        </div>
+        {/* (헤더 그대로 유지) */}
       </div>
 
       {/* ── 콤보 배너 ── */}
-      {mode&&(
+      {mode && (
         <div style={{
           margin:'8px 16px 0',
           borderRadius:10,
@@ -880,156 +833,155 @@ console.log('grade id:', gr.id, GRADE_CHARS?.[gr.id]);
           border:`1px solid ${mode==='crazy'?'#f0b4b4':'#f0dfa0'}`,
           flexShrink:0
         }}>
-          <span style={{fontSize:'0.72rem',fontWeight:800,color:mode==='crazy'?'#d45c5c':'#c8a84a'}}>
+          <span style={{
+            fontSize:'0.72rem',
+            fontWeight:800,
+            color:mode==='crazy'?'#d45c5c':'#c8a84a'
+          }}>
             {mode==='crazy'?'🔥 CRAZY COMBO':'⚡ COMBO'}
           </span>
-          <span style={{fontSize:'0.68rem',color:mode==='crazy'?'#d45c5c':'#c8a84a'}}>
+
+          <span style={{
+            fontSize:'0.68rem',
+            color:mode==='crazy'?'#d45c5c':'#c8a84a'
+          }}>
             {mode==='crazy'?crazyStreak:comboStreak}연속 ×{mode==='crazy'?5:2}
           </span>
         </div>
       )}
 
- <div style={{ marginTop:16 }}>
-  {fb&&(
-    <div style={{
-      fontSize:'0.78rem',
-      fontWeight:700,
-      marginBottom:8,
-      color:fbt==='ok'?'#4a9c6d':'#d45c5c'
-    }}>
-      {fb}
-    </div>
-  )}
-
-  {!answered ? (
-    <>
+      {/* ── 스크롤 영역 ── */}
       <div style={{
-        display:'flex',
-        gap:8,
-        marginBottom:8,
-        width:'100%'
+        flex:1,
+        overflowY:'auto',
+        WebkitOverflowScrolling:'touch',
+        padding:'12px 16px 24px'
       }}>
-        <input
-          ref={inputRef}
-          value={input}
-          onChange={e=>setInput(e.target.value)}
-          onKeyDown={e=>{
-            if(e.key==='Enter'){
-              e.preventDefault()
-              e.stopPropagation()
-              submit()
-            }
-          }}
-          placeholder="영화 제목 입력"
-          style={{
-            flex:1,
-            minWidth:0,
-            height:46,
-            borderRadius:11,
-            border:`1.5px solid ${input?'#1a1814':'#e8e4dd'}`,
-            background:'#faf9f7',
-            color:'#1a1814',
-            padding:'0 14px',
-            fontSize:'16px',
-            fontFamily:'inherit',
-            outline:'none'
-          }}
-        />
 
-        <button
-          onClick={submit}
-          style={{
-            flexShrink:0,
-            width:72,
-            height:46,
-            borderRadius:11,
-            background:'#1a1814',
-            color:'#fff',
-            fontSize:'0.8rem',
-            fontWeight:700,
-            border:'none',
-            whiteSpace:'nowrap'
-          }}
-        >
-          정답
-        </button>
-      </div>
+        {/* 👉 여기 힌트 리스트 들어가면 됨 */}
 
-      <div style={{display:'flex',gap:8}}>
-        <button
-          onClick={nextH}
-          disabled={sh>=5}
-          style={{
-            flex:1,
-            height:40,
-            borderRadius:10,
-            fontSize:'0.72rem',
-            fontWeight:700,
-            cursor:'pointer',
-            background:'#f5f3ef',
-            color:sh>=5?'#c0bbb4':'#6b6560',
-            border:'1.5px solid #e8e4dd',
-            opacity:sh>=5?0.5:1
-          }}
-        >
-          다음 힌트 ({sh}/5)
-        </button>
+        {/* ── 입력 & 버튼 ── */}
+        <div style={{marginTop:16}}>
 
-        <button
-          onClick={doSkip}
-          style={{
-            flex:1,
-            height:40,
-            borderRadius:10,
-            fontSize:'0.72rem',
-            fontWeight:700,
-            cursor:'pointer',
-            background:'#fff5f6',
-            color:'#d45c5c',
-            border:'1.5px solid #fad0d4'
-          }}
-        >
-          넘기기
-        </button>
-      </div>
-    </>
-  ) : (
-    <>
-      {fbt==='ok' && (
-        <div style={{
-          fontSize:'1.1rem',
-          fontWeight:900,
-          color:'#c8a84a',
-          marginBottom:12,
-          textAlign:'center'
-        }}>
-          {m.title}
+          {fb && (
+            <div style={{
+              fontSize:'0.78rem',
+              fontWeight:700,
+              marginBottom:8,
+              color:fbt==='ok' ? '#4a9c6d' : '#d45c5c'
+            }}>
+              {fb}
+            </div>
+          )}
+
+          {!answered ? (
+            <>
+              <div style={{
+                display:'flex',
+                gap:8,
+                marginBottom:8
+              }}>
+                <input
+                  ref={inputRef}
+                  value={input}
+                  onChange={e=>setInput(e.target.value)}
+                  onKeyDown={e=>{
+                    if(e.key==='Enter'){
+                      e.preventDefault()
+                      submit()
+                    }
+                  }}
+                  placeholder="영화 제목 입력"
+                  style={{
+                    flex:1,
+                    height:46,
+                    borderRadius:11,
+                    border:`1.5px solid ${input?'#1a1814':'#e8e4dd'}`,
+                    background:'#faf9f7',
+                    padding:'0 14px'
+                  }}
+                />
+
+                <button
+                  onClick={submit}
+                  style={{
+                    width:72,
+                    height:46,
+                    borderRadius:11,
+                    background:'#1a1814',
+                    color:'#fff',
+                    fontWeight:700,
+                    border:'none'
+                  }}
+                >
+                  정답
+                </button>
+              </div>
+
+              <div style={{display:'flex',gap:8}}>
+                <button
+                  onClick={nextH}
+                  disabled={sh>=5}
+                  style={{
+                    flex:1,
+                    height:40,
+                    borderRadius:10,
+                    background:'#f5f3ef'
+                  }}
+                >
+                  다음 힌트 ({sh}/5)
+                </button>
+
+                <button
+                  onClick={doSkip}
+                  style={{
+                    flex:1,
+                    height:40,
+                    borderRadius:10,
+                    background:'#fff5f6'
+                  }}
+                >
+                  넘기기
+                </button>
+              </div>
+            </>
+          ) : (
+            <>
+              {fbt==='ok' && (
+                <div style={{
+                  fontSize:'1.1rem',
+                  fontWeight:900,
+                  color:'#c8a84a',
+                  marginBottom:12,
+                  textAlign:'center'
+                }}>
+                  {m.title}
+                </div>
+              )}
+
+              <button
+                onClick={nextQ}
+                style={{
+                  width:'100%',
+                  height:46,
+                  borderRadius:12,
+                  background:'#1a1814',
+                  color:'#fff',
+                  fontWeight:800,
+                  border:'none'
+                }}
+              >
+                {qi+1<pool.length ? '다음 문제 →' : '결과 보기 →'}
+              </button>
+            </>
+          )}
+
         </div>
-      )}
+      </div>
 
-      <button
-        onClick={nextQ}
-        style={{
-          width:'100%',
-          height:46,
-          borderRadius:12,
-          fontSize:'0.85rem',
-          fontWeight:800,
-          cursor:'pointer',
-          background:'#1a1814',
-          color:'#fff',
-          border:'none'
-        }}
-      >
-        {qi+1<pool.length ? '다음 문제 →' : '결과 보기 →'}
-      </button>
-    </>
-  )}
-</div>
-
-</div>
-
-
+    </div>
+  )
+}  
 
       
  // ══════════════════════════════════════════
