@@ -679,51 +679,63 @@ if(showAnswer) return
         {/* 스크롤 콘텐츠 */}
         <div style={{flex:1,padding:'12px 16px',overflowY:'auto',paddingBottom:120}}>
           {Array.from({length:5}).map((_,i)=>{
-            if(i>=sh) return null
-            const isCurrent=i===sh-1
-            // 사이드힌트: i>=1(힌트2부터)이고, sidePool[i-1]이 있을 때 힌트 위에 표시
-            // 이전 사이드힌트들은 이미 해당 힌트 카드 위에 고정 노출됨
-            const sideItem = i>=1 ? sidePool[i-1] : null
+  if(i>=sh) return null
 
-            return(
-              <div key={i}>
-                {/* 사이드 힌트 - 힌트2부터, 해당 힌트 위에 항상 유지 */}
-                {sideItem&&(
-                  <div style={{
-                    borderRadius:10,background:'#faf9f7',border:'1px dashed #e0dcd4',
-                    padding:'8px 12px',marginBottom:6,
-                    display:'flex',alignItems:'center',gap:10,
-                    animation:isCurrent?'fadeIn .3s ease':'none',
-                  }}>
-                    <div style={{width:6,height:6,borderRadius:'50%',background:g?.color||'#e8808c',flexShrink:0}}/>
-                    <div style={{fontSize:'0.68rem',color:'#9a9490'}}>
-                      {sideItem.t==='year'?` ${sideItem.v}`:sideItem.v}
-                    </div>
-                  </div>
-                )}
+  const isCurrent=i===sh-1
+  const sideItem = i>=1 ? sidePool[i-1] : null
 
-                {/* 힌트 카드 */}
-                <div style={{
-                  borderRadius:13,border:`1.5px solid ${isCurrent?g?.color||'#e8808c':'#ece8e2'}`,
-                  background:isCurrent?`${g?.bg||'#fff5f6'}`:'#fff',
-                  padding:'13px 15px',marginBottom:8,
-                  boxShadow:isCurrent?`0 2px 12px ${g?.color||'#e8808c'}18`:'none',
-                  animation:'fadeIn .3s ease',
-                }}>
-                  <div style={{display:'flex',alignItems:'flex-start',gap:8}}>
-                    <span style={{
-                      fontSize:'0.58rem',fontWeight:800,padding:'2px 8px',borderRadius:20,
-                      whiteSpace:'nowrap',marginTop:2,flexShrink:0,
-                      background:g?.color||'#e8808c',color:'#fff',
-                    }}>힌트 {i+1}</span>
-                    <div style={{flex:1}}>
-                      <div style={{fontSize:'0.78rem',color:'#1a1814',lineHeight:1.7}}>{m.hintsArr?.[i]||'힌트를 불러오는 중...'}</div>
-                    </div>
-                  </div>
-                </div>
+  return (
+    <div key={i}>
+      {sideItem && (
+        <div style={{
+          borderRadius:10,
+          background:'#faf9f7',
+          border:'1px dashed #e0dcd4',
+          padding:'8px 12px',
+          marginBottom:6,
+          display:'flex',
+          alignItems:'center',
+          gap:10,
+        }}>
+          <div style={{
+            width:6,
+            height:6,
+            borderRadius:'50%',
+            background:g?.color||'#e8808c'
+          }}/>
+          <div style={{fontSize:'0.68rem',color:'#9a9490'}}>
+            {sideItem.t==='year'?`📅 ${sideItem.v}`:sideItem.v}
+          </div>
+        </div>
+      )}
+
+      <div style={{
+        borderRadius:13,
+        border:`1.5px solid ${isCurrent?g?.color||'#e8808c':'#ece8e2'}`,
+        background:isCurrent?`${g?.bg||'#fff5f6'}`:'#fff',
+        padding:'13px 15px',
+        marginBottom:8,
+      }}>
+        <div style={{display:'flex',gap:8}}>
+          <span style={{
+            fontSize:'0.58rem',
+            fontWeight:800,
+            padding:'2px 8px',
+            borderRadius:20,
+            background:g?.color||'#e8808c',
+            color:'#fff',
+          }}>
+            힌트 {i+1}
+          </span>
+
+          <div style={{flex:1}}>
+            {m.hintsArr?.[i] || '힌트를 불러오는 중...'}
+          </div>
+        </div>
       </div>
-    )
-  })}
+    </div>
+  )
+})}
 
             {/* 컨트롤 */}
             {!answered ? (
