@@ -124,15 +124,7 @@ export default function CineClue() {
     return ()=>clearTimeout(t)
   },[screen,answered,td,tc])
 
-  // 엔터 → 다음퀴즈 (answered 상태일 때)
-  useEffect(()=>{
-    const h=e=>{
-      if(e.target&&e.target.tagName==='INPUT') return
-      if(e.key==='Enter'&&answered&&screen==='quiz') nextQ()
-    }
-    window.addEventListener('keydown',h)
-    return ()=>window.removeEventListener('keydown',h)
-  },[answered,screen,qi,pool])
+
 
   // 결과 화면 순차 노출 + 점수 카운트
   useEffect(()=>{
@@ -198,7 +190,9 @@ export default function CineClue() {
     }else{
       setFb(rFB(sh)); setFbt('ng')
       setInput('')
-      setTimeout(()=>inputRef.current?.focus(),50)
+        setTimeout(()=>{
+    nextQ()
+  },1500)
     }
   }
 
