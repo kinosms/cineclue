@@ -925,7 +925,7 @@ if(screen==='quiz' && pool[qi]){
             background:g?.color||'#e8808c'
           }}/>
           <div style={{fontSize:'0.68rem',color:'#9a9490'}}>
-            {sideItem.t==='year'?`📅 ${sideItem.v}`:sideItem.v}
+            {sideItem.t==='year'?` ${sideItem.v}`:sideItem.v}
           </div>
         </div>
       )}
