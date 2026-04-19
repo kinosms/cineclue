@@ -695,7 +695,7 @@ if(screen==='char') return(
         <CharAvatar charId={selChar} size={44}/>
         <div>
           <div style={{fontSize:'0.65rem',color:'#b0aaa3',fontWeight:500}}>플레이어</div>
-          <div style={{fontSize:'0.85rem',fontWeight:700,color:'#1a1814'}}>{currentUser?.nickname : 'USER ID'}</div>
+          <div style={{fontSize:'0.85rem',fontWeight:700,color:'#1a1814'}}>{currentUser?currentUser.nickname : 'USER ID'}</div>
         </div>
       </div>
 
@@ -1067,7 +1067,7 @@ if(screen==='result'){
 
   const roundScore = results.reduce((s,r)=>s+r.score,0)
   const totalScore = currentUser?.score || 0
-  const nickname = currentUser?.nickname || 'USER'
+  const nickname = currentUser?currentUser.nickname || 'USER'
 
   return(
     <div style={{
