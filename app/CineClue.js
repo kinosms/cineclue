@@ -697,7 +697,7 @@ if(showAnswer) return
                   }}>
                     <div style={{width:6,height:6,borderRadius:'50%',background:g?.color||'#e8808c',flexShrink:0}}/>
                     <div style={{fontSize:'0.68rem',color:'#9a9490'}}>
-                      {sideItem.t==='year'?`📅 ${sideItem.v}`:sideItem.v}
+                      {sideItem.t==='year'?` ${sideItem.v}`:sideItem.v}
                     </div>
                   </div>
                 )}
@@ -721,8 +721,10 @@ if(showAnswer) return
                     </div>
                   </div>
                 </div>
-
-            })}
+      </div>
+    )
+  })}
+</div>
 
             {/* 컨트롤 */}
             {!answered ? (
@@ -760,7 +762,7 @@ if(showAnswer) return
               <>
                 <div style={{fontSize:15,fontWeight:500,marginBottom:6,color:fbt==='ok'?'#4fc97a':'rgba(237,232,222,0.5)'}}>{fb}</div>
                 {fbt==='ok' && <div style={{fontSize:17,fontWeight:500,color:'#c8a84a',marginBottom:9}}>{m.title}</div>}
-                <button style={S.btnNxt} onClick={nextQ}>{qi+1<pool.length?'다음 문제 →':'결과 보기 →'}</button>
+                <button style={S.btnNxt} onClick={handleNextQ}>{qi+1<pool.length?'다음 문제 →':'결과 보기 →'}</button>
                 <div style={{fontSize:11,color:'rgba(237,232,222,0.3)',marginTop:4,textAlign:'center'}}>Enter 키로도 넘어갈 수 있어요</div>
               </>
             )}
