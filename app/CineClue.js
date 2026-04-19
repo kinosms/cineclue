@@ -204,22 +204,52 @@ setScreen('quiz')
   }
 
   // ── 원본 버튼 로직 ──
-  function submit(){
-    if(answered||!input.trim()) return
-    const m=pool[qi]
-    if(isCorrect(input,m.title,m.answers||[])){
-      const gained=getPts()
-      updateCombo(true,sh); setScore(v=>v+gained)
-      setResults(r=>[...r,{title:m.title,correct:true,hintUsed:sh,score:gained,grade:selGrade,country:m.country,genre:m.side?.genre||''}])
-      setFb(`정답! +${gained}점`); setFbt('ok'); setAnswered(true); setInput('')
-    }else{
-      setFb(rFB(sh)); setFbt('ng')
-      setInput('')
-        setTimeout(()=>{
-    nextQ()
-  },1500)
-    }
+ function submit(){
+  if(answered||!input.trim()) return
+
+  const m = pool[qi]
+
+  if(isCorrect(input, m.title, Array.isArray(m.answers)?m.answers:[])){
+    const gained = getPts()
+
+    updateCombo(true, sh)
+    setScore(v=>v+gained)
+
+    setResults(r=>[...r,{
+      title:m.title,
+      correct:true,
+      hintUsed:sh,
+      score:gained,
+      grade:selGrade,
+      country:m.country,
+      genre:m.side?.genre||''
+    }])
+
+    setFb(`정답! +${gained}점`)
+    setFbt('ok')
+    setAnswered(true)
+    setInput('')
+
+  }else{
+
+    updateCombo(false, sh)
+
+    setResults(r=>[...r,{
+      title:m.title,
+      correct:false,
+      hintUsed:sh,
+      score:0,
+      grade:selGrade,
+      country:m.country,
+      genre:m.side?.genre||''
+    }])
+
+    setFb(rFB(sh))
+    setFbt('ng')
+    setAnswered(true)   // 🔥 핵심
+    setInput('')
   }
+}
 
   function doSkip(){
     updateCombo(false,0)
