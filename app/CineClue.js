@@ -153,16 +153,29 @@ export default function CineClue() {
         ...m,
         hintsArr:m.hints?m.hints.sort((a,b)=>a.hint_level-b.hint_level).map(h=>h.hint_text):[],
       }))
-      setPool(sel); setQi(0); setSh(1); if(!keepProgress){
+      setPool(sel)
+setQi(0)
+setSh(1)
+
+// ❗ score는 유지
+if(!keepProgress){
   setScore(0)
-  setResults([])
 }
 
-      setAnswered(false); setFb(''); setFbt(''); setInput('')
-      setMode(null); setComboStreak(0); setCrazyStreak(0)
-      setTd(false); setTc(10);
-      setSidePool(buildSidePool(sel[0]?.side))
-      setScreen('quiz')
+// ❗ results는 항상 초기화
+setResults([])
+
+setAnswered(false)
+setFb('')
+setFbt('')
+setInput('')
+setMode(null)
+setComboStreak(0)
+setCrazyStreak(0)
+setTd(false)
+setTc(10)
+setSidePool(buildSidePool(sel[0]?.side))
+setScreen('quiz')
     }catch(e){console.error(e);alert('오류가 발생했습니다.')}
     setLoading(false)
   }
