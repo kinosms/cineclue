@@ -501,97 +501,97 @@ if(screen==='char') return(
       </div>
 
       <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:10,marginBottom:36}}>
-        {CHARS.map(c=>{
-          const sel = selChar===c.id
-          const u = users.find(x=>x.charId===c.id)
+       {CHARS.map((c) => {
+  const sel = selChar===c.id
+  const u = users.find(x=>x.charId===c.id)
 
-          return(
-            <div
-              key={c.id}
-              onClick={()=>handleCharClick(c.id)}
-              style={{
-                borderRadius:18,
-                border:sel?`3px solid ${c.color}`:'1.5px solid #e8e4dd',
-                background:sel?`${c.color}18`:'#faf9f7',
-                padding:'16px 6px 12px',
-                display:'flex',
-                flexDirection:'column',
-                alignItems:'center',
-                gap:8,
-                cursor:'pointer',
-                transition:'all .18s cubic-bezier(.34,1.56,.64,1)',
-                boxShadow:sel?`0 6px 22px ${c.color}50`:'0 1px 4px rgba(0,0,0,0.06)',
-                transform:sel?'scale(1.06)':'scale(1)',
-                position:'relative',
-              }}
-            >
+  return (
+    <div
+      key={c.id}
+      onClick={()=>handleCharClick(c.id)}
+      style={{
+        borderRadius:18,
+        border:sel?`3px solid ${c.color}`:'1.5px solid #e8e4dd',
+        background:sel?`${c.color}18`:'#faf9f7',
+        padding:'16px 6px 12px',
+        display:'flex',
+        flexDirection:'column',
+        alignItems:'center',
+        gap:8,
+        cursor:'pointer',
+        transition:'all .18s cubic-bezier(.34,1.56,.64,1)',
+        boxShadow:sel?`0 6px 22px ${c.color}50`:'0 1px 4px rgba(0,0,0,0.06)',
+        transform:sel?'scale(1.06)':'scale(1)',
+        position:'relative',
+      }}
+    >
 
-              {/* 선택 체크 */}
-              {sel&&(
-                <div style={{
-                  position:'absolute',
-                  top:8,
-                  right:8,
-                  width:18,
-                  height:18,
-                  borderRadius:'50%',
-                  background:c.color,
-                  display:'flex',
-                  alignItems:'center',
-                  justifyContent:'center'
-                }}>
-                  <span style={{color:'#fff',fontSize:'0.6rem',fontWeight:900}}>✓</span>
-                </div>
-              )}
+      {sel && (
+        <div style={{
+          position:'absolute',
+          top:8,
+          right:8,
+          width:18,
+          height:18,
+          borderRadius:'50%',
+          background:c.color,
+          display:'flex',
+          alignItems:'center',
+          justifyContent:'center'
+        }}>
+          <span style={{color:'#fff',fontSize:'0.6rem',fontWeight:900}}>✓</span>
+        </div>
+      )}
 
-              {/* 삭제 버튼 */}
-              {u && (
-                <div
-                  onClick={(e)=>{
-                    e.stopPropagation()
-                    deleteUser(c.id)
-                  }}
-                  style={{
-                    position:'absolute',
-                    top:8,
-                    left:8,
-                    fontSize:11,
-                    background:'#000',
-                    color:'#fff',
-                    borderRadius:6,
-                    padding:'2px 6px',
-                    cursor:'pointer'
-                  }}
-                >
-                  ✕
-                </div>
-              )}
+      {u && (
+        <div
+          onClick={(e)=>{
+            e.stopPropagation()
+            deleteUser(c.id)
+          }}
+          style={{
+            position:'absolute',
+            top:8,
+            left:8,
+            fontSize:11,
+            background:'#000',
+            color:'#fff',
+            borderRadius:6,
+            padding:'2px 6px',
+            cursor:'pointer'
+          }}
+        >
+          ✕
+        </div>
+      )}
 
-              <svg viewBox="0 0 80 80" fill="none" style={{width:56,height:56}}>
-  {c.svg.props.children}
-</svg>
+      <svg viewBox="0 0 80 80" fill="none" style={{width:56,height:56}}>
+        {c.svg.props.children}
+      </svg>
 
-<div style={{
-  fontSize:'0.6rem',
-  fontWeight:700,
-  color:sel?c.color:'#9a9490',
-  textAlign:'center',
-  lineHeight:1.3,
-}}>
-  {u ? u.nickname : c.name}
+      <div style={{
+        fontSize:'0.6rem',
+        fontWeight:700,
+        color:sel?c.color:'#9a9490',
+        textAlign:'center',
+        lineHeight:1.3,
+      }}>
+        {u ? u.nickname : c.name}
 
-  <div style={{
-    fontSize:'0.55rem',
-    fontWeight:500,
-    marginTop:2,
-    color:'#b8b4b0'
-  }}>
-    {u ? (u.score || 0) : ''}
-  </div>
-</div>
-</div>
-          
-        })}
+        <div style={{
+          fontSize:'0.55rem',
+          fontWeight:500,
+          marginTop:2,
+          color:'#b8b4b0'
+        }}>
+          {u ? (u.score || 0) : ''}
+        </div>
+      </div>
+
+    </div>
+  )
+))
+}
       </div>
 
       {/* 입장하기 버튼 */}
