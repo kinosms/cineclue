@@ -725,13 +725,6 @@ if(showAnswer) return
                   </div>
                 </div>
 
-              if (i === sh && !answered) return (
-                <div key={i} style={{borderRadius:10,border:'1px solid rgba(255,255,255,0.06)',padding:'11px 14px',background:'#111',display:'flex',gap:10,alignItems:'center',opacity:0.3,marginBottom:9}}>
-                  <span style={{fontSize:10,padding:'2px 6px',borderRadius:20,color:'rgba(237,232,222,0.3)',border:'1px solid rgba(255,255,255,0.1)'}}>힌트 {i+1}</span>
-                  <div style={{fontSize:13,color:'rgba(237,232,222,0.3)'}}>다음 힌트 · {BP[selGrade]}점</div>
-                </div>
-              )
-              return null
             })}
 
             {/* 컨트롤 */}
