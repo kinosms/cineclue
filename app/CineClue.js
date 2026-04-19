@@ -590,7 +590,7 @@ if(screen==='char') return(
   </div>
 </div>
 </div>
-          )
+          
         })}
       </div>
 
