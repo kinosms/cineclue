@@ -192,6 +192,8 @@ useEffect(()=>{
   if(screen !== 'result') return
   if(results.length === 0) return
 
+console.log('prevScore:', prevScore) 
+
   setVisibleResults(0)
 
 const roundScore = results.reduce((s,r)=>s+r.score,0)
