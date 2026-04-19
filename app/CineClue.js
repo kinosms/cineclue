@@ -106,10 +106,8 @@ async function saveLog({
   })
 
   if(error){
-    alert('❌ DB 에러: ' + error.message)
-  } else {
-    alert('✅ 로그 저장됨')
-  }
+  console.error('DB 에러:', error.message)
+}
 }
 function CharAvatar({charId,size=40}){
   const c=CHARS.find(x=>x.id===charId)
