@@ -144,9 +144,10 @@ export default function CineClue() {
   const [loading,  setLoading]  = useState(false)
   const [visibleResults, setVisibleResults] = useState(0)
   const [displayScore,   setDisplayScore]   = useState(0)
-const user = users?.find(u => u.charId === selChar)
+
 const [currentUser, setCurrentUser] = useState(null);
 const [users, setUsers] = useState([])
+const user = users?.find(u => u.charId === selChar)
 const [showNameModal, setShowNameModal] = useState(false)
 const [tempChar, setTempChar] = useState(null)
 const [nickname, setNickname] = useState('')
