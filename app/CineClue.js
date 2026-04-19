@@ -244,7 +244,7 @@ setScreen('quiz')
     updateCombo(true, sh)
     setScore(v=>v+gained)
 
-    // ✅ 로그
+    // ✅ 정답로그
     saveLog({
       supabase,
       userId:'guest',
@@ -277,19 +277,6 @@ setScreen('quiz')
 
     updateCombo(false, sh)
 
-    // ✅ 로그
-    saveLog({
-      supabase,
-      userId:'guest',
-      charId: selChar,
-      movie: m,
-      grade: selGrade,
-      hintUsed: sh,
-      score: 0,
-      comboMode: mode,
-      isCorrect: false,
-    })
-
     // ✅ 결과
 
     setFb(rFB(sh))
@@ -303,14 +290,14 @@ function doSkip(){
 
   const m = pool[qi]
 
-  // ✅ 로그
+  // ✅ 스킵로그
   saveLog({
     supabase,
     userId:'guest',
     charId: selChar,
     movie: m,
     grade: selGrade,
-    hintUsed: 0,
+    hintUsed: sh,
     score: 0,
     comboMode: mode,
     isCorrect: false,
