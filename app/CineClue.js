@@ -274,7 +274,7 @@ function lev(a,b){
   return dp[m][n]
 }
 
-=======
+
 function isCorrect(inp,title,answers=[]){
   const a=normalize(inp)
   for(const c of [title,...answers]){
@@ -283,7 +283,7 @@ function isCorrect(inp,title,answers=[]){
     if(b.length>=4&&a.length===b.length&&lev(a,b)<=1) return true
   }
   return false
->>>>>>> 3225d10 (update: cineclue UX + layout fix)
+
 }
 function buildSidePool(side){
   if(!side) return []
@@ -353,9 +353,8 @@ export default function CineClue() {
     return ()=>window.removeEventListener('keydown',h)
   },[answered,screen,qi,pool])
 
-<<<<<<< HEAD
 
-=======
+
   /* 결과화면 - Q 순차 노출 + 점수 카운트 */
   useEffect(()=>{
     if(screen!=='result') return
@@ -375,7 +374,7 @@ export default function CineClue() {
       },20)
     }, results.length*500+300)
   },[screen])
->>>>>>> 3225d10 (update: cineclue UX + layout fix)
+
 
   async function loadMovies(grade){
     setLoading(true)
@@ -387,11 +386,10 @@ export default function CineClue() {
       }
 
  
-=======
       if(!movies.length){alert('DB에 영화 데이터가 없습니다.');setLoading(false);return}
       movies.sort(()=>Math.random()-.5)
       const sel=movies.slice(0,5).map(m=>({
->>>>>>> 3225d10 (update: cineclue UX + layout fix)
+
         ...m,
         hintsArr:m.hints?m.hints.sort((a,b)=>a.hint_level-b.hint_level).map(h=>h.hint_text):[],
       }))
@@ -420,7 +418,7 @@ export default function CineClue() {
     }
   }
   
-=======
+
 
   function submit(){
     if(fbt==='ok'||!input.trim()) return
@@ -443,11 +441,10 @@ setTimeout(() => {
 }, 1500)
     }else{
       setFb(rFB(sh));setFbt('ng')
->>>>>>> 3225d10 (update: cineclue UX + layout fix)
       setInput('')
       setTimeout(()=>inputRef.current?.focus(),50)
     }
-	setTimeout(() => setIsSubmitting(false), 200)
+	
   }
 
   function doSkip(){
@@ -737,9 +734,9 @@ if(showAnswer) return
 		       if(e.key==='Enter'){
                        e.preventDefault()
 			     	   e.stopPropagation() 
-						   if (!isSubmitting) {
+						   
 							   submit()
-						   }
+						   
 			   }
 					}}
                     placeholder="영화 제목 입력..."
@@ -749,7 +746,13 @@ if(showAnswer) return
                   <button style={S.btnAns} onClick={submit}>정답</button>
                 </div>
                 <div style={{display:'flex',gap:7}}>
-                  <button style={{...S.btnNh,opacity:sh>=5?0.3:1}} disabled={sh>=5} onClick={nextH}>다음 힌트 ({sh}/5)</button>
+<button 
+  style={{...S.btnNh,opacity:sh>=5?0.3:1}} 
+  disabled={sh>=5} 
+  onClick={handleNextH}
+>
+  다음 힌트 ({sh}/5)
+</button>
                   <button style={S.btnSk} onClick={doSkip}>포기! 다른문제</button>
                 </div>
               </>
@@ -773,8 +776,7 @@ if(showAnswer) return
                     ? <div style={{fontSize:'1.35rem',fontWeight:500,color:'#ede8de',letterSpacing:2}}>{sidePool[i].v}</div>
                     : <div style={{fontSize:11,color:'rgba(237,232,222,0.6)',textAlign:'center',wordBreak:'keep-all',lineHeight:1.4,padding:'0 3px'}}>{sidePool[i].v}</div>
                 )}
-=======
->>>>>>> 3225d10 (update: cineclue UX + layout fix)
+
               </div>
             )
           })}
@@ -873,7 +875,7 @@ if(showAnswer) return
         <div style={{...S.max,display:'flex',flexDirection:'column',alignItems:'center'}}>
           <div style={{width:68,height:68,borderRadius:'50%',background:'#111',border:'1px solid rgba(255,255,255,0.12)',display:'flex',alignItems:'center',justifyContent:'center',overflow:'hidden',marginBottom:12}}>
             <svg viewBox="0 0 60 60" fill="none" style={{width:52,height:52}}>{char?.svg.props.children}</svg>
-=======
+
   /* ══════════════════════════════════════════
      화면 4: 결과
   ══════════════════════════════════════════ */
@@ -892,7 +894,7 @@ if(showAnswer) return
             boxShadow:'0 4px 20px rgba(0,0,0,0.08)',
           }}>
             <svg viewBox="0 0 80 80" fill="none" style={{width:80,height:80}}>{char?.svg.props.children}</svg>
->>>>>>> 3225d10 (update: cineclue UX + layout fix)
+
           </div>
           <div style={{fontSize:'0.7rem',color:'#b0aaa3',fontWeight:600,letterSpacing:'0.1em',marginBottom:6}}>USER ID</div>
           <div style={{
