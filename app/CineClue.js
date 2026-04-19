@@ -244,17 +244,20 @@ setScreen('quiz')
     updateCombo(true, sh)
     setScore(v=>v+gained)
 
-  saveLog({
-    supabase,
-    userId:'guest', // 나중에 로그인 붙이면 바꾸면 됨
-    charId: selChar,
-    movie: m,
-    grade: selGrade,
-    hintUsed: sh,
-    score: gained,
-    comboMode: mode,
-    isCorrect: true
+    // ✅ 로그
+    saveLog({
+      supabase,
+      userId:'guest',
+      charId: selChar,
+      movie: m,
+      grade: selGrade,
+      hintUsed: sh,
+      score: gained,
+      comboMode: mode,
+      isCorrect: true,
+    })
 
+    // ✅ 결과
     setResults(r=>[...r,{
       title:m.title,
       correct:true,
@@ -274,17 +277,20 @@ setScreen('quiz')
 
     updateCombo(false, sh)
 
-  saveLog({
-    supabase,
-    userId:'guest',
-    charId: selChar,
-    movie: m,
-    grade: selGrade,
-    hintUsed: sh,
-    score: 0,
-    comboMode: mode,
-    isCorrect: false
+    // ✅ 로그
+    saveLog({
+      supabase,
+      userId:'guest',
+      charId: selChar,
+      movie: m,
+      grade: selGrade,
+      hintUsed: sh,
+      score: 0,
+      comboMode: mode,
+      isCorrect: false,
+    })
 
+    // ✅ 결과
     setResults(r=>[...r,{
       title:m.title,
       correct:false,
@@ -297,15 +303,17 @@ setScreen('quiz')
 
     setFb(rFB(sh))
     setFbt('ng')
-    setAnswered(true)   // 🔥 핵심
+    setAnswered(true)
     setInput('')
   }
 }
 
-  function doSkip(){
-    updateCombo(false,0)
-    setResults(r=>[...r,{title:pool[qi].title,correct:false,hintUsed:0,score:0,grade:selGrade,country:pool[qi].country,genre:pool[qi].side?.genre||''}])
+function doSkip(){
+  updateCombo(false,0)
 
+  const m = pool[qi]
+
+  // ✅ 로그
   saveLog({
     supabase,
     userId:'guest',
@@ -315,9 +323,24 @@ setScreen('quiz')
     hintUsed: 0,
     score: 0,
     comboMode: mode,
-    isCorrect: false
-    setFb('다음번엔 꼭 맞추길...'); setFbt('sk'); setAnswered(true)
-  }
+    isCorrect: false,
+  })
+
+  // ✅ 결과
+  setResults(r=>[...r,{
+    title:m.title,
+    correct:false,
+    hintUsed:0,
+    score:0,
+    grade:selGrade,
+    country:m.country,
+    genre:m.side?.genre||''
+  }])
+
+  setFb('다음번엔 꼭 맞추길...')
+  setFbt('sk')
+  setAnswered(true)
+}
 
   function nextH(){
     if(sh<5){setSh(v=>v+1);setFb('');setFbt('');setTimeout(()=>inputRef.current?.focus(),50)}
