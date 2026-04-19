@@ -590,9 +590,8 @@ if(screen==='char') return(
 
     </div>
   )
-))
-}
-      </div>
+})}
+</div>
 
       {/* 입장하기 버튼 */}
       <button
