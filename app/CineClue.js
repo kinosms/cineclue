@@ -782,18 +782,18 @@ if(showAnswer) return
 
           {/* 사이드 힌트 */}
           <div style={{display:'flex',flexDirection:'column',gap:9}}>
-            {[0,1,2,3].map(i => (
-              <div key={i} style={{height:56,borderRadius:10,display:'flex',alignItems:'center',justifyContent:'center',padding:'0 6px',
-                ...(sh>=i+2&&sidePool[i]?{border:'1px solid rgba(255,255,255,0.1)',background:'#111'}:{})}}>
-                {sh>=i+2&&sidePool[i] && (
-                  sidePool[i].t==='year'
-                    ? <div style={{fontSize:'1.35rem',fontWeight:500,color:'#ede8de',letterSpacing:2}}>{sidePool[i].v}</div>
-                    : <div style={{fontSize:11,color:'rgba(237,232,222,0.6)',textAlign:'center',wordBreak:'keep-all',lineHeight:1.4,padding:'0 3px'}}>{sidePool[i].v}</div>
-                )}
+           {[0,1,2,3].map(i => (
+  <div key={i} style={{height:56,borderRadius:10,display:'flex',alignItems:'center',justifyContent:'center',padding:'0 6px',
+    ...(sh>=i+2&&sidePool[i]?{border:'1px solid rgba(255,255,255,0.1)',background:'#111'}:{})}}>
+    
+    {sh>=i+2&&sidePool[i] && (
+      sidePool[i].t==='year'
+        ? <div style={{fontSize:'1.35rem',fontWeight:500,color:'#ede8de',letterSpacing:2}}>{sidePool[i].v}</div>
+        : <div style={{fontSize:11,color:'rgba(237,232,222,0.6)',textAlign:'center',wordBreak:'keep-all',lineHeight:1.4,padding:'0 3px'}}>{sidePool[i].v}</div>
+    )}
 
-              </div>
-            )
-          })}
+  </div>
+))}
         </div>
 
         {/* 고정 하단 입력 영역 */}
