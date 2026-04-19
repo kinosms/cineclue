@@ -192,9 +192,9 @@ useEffect(()=>{
 
   setVisibleResults(0)
 
-  const roundScore = results.reduce((s,r)=>s+r.score,0)
-  const startScore = score - roundScore
-  const tot = score
+const roundScore = results.reduce((s,r)=>s+r.score,0)
+const startScore = currentUser?.score || 0   // 기존 점수
+const tot = startScore + roundScore          // 최종 점수
 
   setDisplayScore(startScore)
 
@@ -221,7 +221,7 @@ useEffect(()=>{
       },20)
     }
 
-  }, 500)
+  }, 800)
 
   return () => clearInterval(interval)
 
@@ -1134,31 +1134,13 @@ if(screen==='result'){
         }}>
           {nickname}
         </div>
-
-        {/* 이번 점수 */}
-        <div style={{
-          fontSize:'2.8rem',
-          fontWeight:900,
-          color:'#1a1814'
-        }}>
-          +{roundScore}
-        </div>
-
-        <div style={{
-          fontSize:'0.7rem',
-          color:'#b0aaa3',
-          marginBottom:10
-        }}>
-          이번 플레이 점수
-        </div>
-
-        {/* 누적 점수 */}
-        <div style={{
-          fontSize:'0.9rem',
-          fontWeight:700,
-          color:'#c8a84a'
-        }}>
-          총 점수 {totalScore.toLocaleString()}점
+<div style={{
+  fontSize:'2.8rem',
+  fontWeight:900,
+  color:'#1a1814'
+}}>
+  {displayScore.toLocaleString()}점
+</div>
         </div>
       </div>
 
