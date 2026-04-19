@@ -724,7 +724,6 @@ if(showAnswer) return
       </div>
     )
   })}
-</div>
 
             {/* 컨트롤 */}
             {!answered ? (
