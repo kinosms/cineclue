@@ -705,6 +705,7 @@ if(screen==='char') return(
         </div>
 
         {GRADES.map(gr=>{
+console.log('grade id:', gr.id, GRADE_CHARS?.[gr.id]);
           const sel=selGrade===gr.id
           return(
             <div key={gr.id} onClick={()=>setSelGrade(gr.id)} style={{
