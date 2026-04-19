@@ -877,18 +877,6 @@ if(showAnswer) return
     )
   }
 
-  // ── 결과 ──
-  if (screen === 'result') {
-    const tot = results.reduce((s,r)=>s+r.score,0)
-    const co = results.filter(r=>r.correct)
-    const avgH = co.length>0?(co.reduce((s,r)=>s+r.hintUsed,0)/co.length).toFixed(1):'—'
-    const mx = Math.max(...results.map(r => r.score || 0), 0)
-    return (
-      <div style={S.screen}>
-        <div style={{...S.max,display:'flex',flexDirection:'column',alignItems:'center'}}>
-          <div style={{width:68,height:68,borderRadius:'50%',background:'#111',border:'1px solid rgba(255,255,255,0.12)',display:'flex',alignItems:'center',justifyContent:'center',overflow:'hidden',marginBottom:12}}>
-            <svg viewBox="0 0 60 60" fill="none" style={{width:52,height:52}}>{char?.svg.props.children}</svg>
-
   /* ══════════════════════════════════════════
      화면 4: 결과
   ══════════════════════════════════════════ */
