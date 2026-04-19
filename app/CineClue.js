@@ -157,13 +157,10 @@ export default function CineClue() {
 setQi(0)
 setSh(1)
 
-// ❗ score는 유지
-if(!keepProgress){
-  setScore(0)
-}
+// ❌ 이거 완전 제거
+// setScore(0)
 
-// ❗ results는 항상 초기화
-setResults([])
+setResults([]) // ← 이건 유지 (매판 리셋)
 
 setAnswered(false)
 setFb('')
