@@ -205,7 +205,10 @@ useEffect(()=>{
     setVisibleResults(i)
 
     if(i >= results.length){
-      clearInterval(interval)
+        clearInterval(interval)
+  setTimeout(()=>{
+    setVisibleResults(v => v + 1) // 👈 이거 추가
+  }, 500) // 👈 마지막 간격만큼 딜레이
 
       // 점수 카운트 시작
       let cur = startScore
@@ -1216,7 +1219,7 @@ if(screen==='result'){
         })}
       </div>
 
-{visibleResults >= results.length && (
+{visibleResults > results.length && (
   <div style={{padding:'20px', display:'flex', flexDirection:'column', gap:10}}>
     <button
       style={{
