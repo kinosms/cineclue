@@ -150,7 +150,7 @@ const [showNameModal, setShowNameModal] = useState(false)
 const [tempChar, setTempChar] = useState(null)
 const [nickname, setNickname] = useState('')
 
-  const [supabase, setSupabase] = useState(null)  // ✅ 여기 추가
+  const [supabase, setSupabase] = useState(null)
 
   const inputRef = useRef(null)
 
@@ -164,6 +164,17 @@ const [nickname, setNickname] = useState('')
       setSupabase(client)
     }
   },[])
+
+useEffect(()=>{
+  if(!supabase) return;
+
+  const getUser = async () => {
+    const { data } = await supabase.auth.getUser()
+    setCurrentUser(data.user)
+  }
+
+  getUser()
+}, [supabase])
 
   // 타이머
   useEffect(()=>{
