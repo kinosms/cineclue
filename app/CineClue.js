@@ -779,6 +779,8 @@ if(showAnswer) return
               </>
             )}
           </div>
+</div>
+
 
           {/* 사이드 힌트 */}
           <div style={{display:'flex',flexDirection:'column',gap:9}}>
