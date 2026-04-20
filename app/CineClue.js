@@ -137,6 +137,7 @@ export default function CineClue() {
   const [mode,     setMode]     = useState(null)
   const [comboStreak,  setComboStreak]  = useState(0)
   const [crazyStreak,  setCrazyStreak]  = useState(0)
+  const [roundStartScore, setRoundStartScore] = useState(0)
   const [td,       setTd]       = useState(false)
   const [tc,       setTc]       = useState(10)
   const [sidePool, setSidePool] = useState([])
@@ -144,18 +145,14 @@ export default function CineClue() {
   const [loading,  setLoading]  = useState(false)
   const [visibleResults, setVisibleResults] = useState(0)
   const [displayScore,   setDisplayScore]   = useState(0)
-
-const [currentUser, setCurrentUser] = useState(null);
-const [users, setUsers] = useState([])
-const user = users?.find(u => u.charId === selChar)
-const [showNameModal, setShowNameModal] = useState(false)
-const [tempChar, setTempChar] = useState(null)
-const [nickname, setNickname] = useState('')
-
+  const [users, setUsers] = useState([]) 
+  const [authUser, setAuthUser] = useState(null)
+  const currentUser = users.find(u => u.charId === selChar) || null
+  const [showNameModal, setShowNameModal] = useState(false)
+  const [tempChar, setTempChar] = useState(null)
+  const [nickname, setNickname] = useState('')
   const [supabase, setSupabase] = useState(null)
-
   const inputRef = useRef(null)
-
   const char = CHARS.find(c=>c.id===selChar)
   const g    = GRADES.find(x=>x.id===selGrade)
 
@@ -172,7 +169,7 @@ useEffect(()=>{
 
   const getUser = async () => {
     const { data } = await supabase.auth.getUser()
-    setCurrentUser(data.user)
+    setAuthUser(data.user) 
   }
 
   getUser()
@@ -197,7 +194,7 @@ if(!users || users.length === 0) return
   setVisibleResults(0)
 
 const roundScore = (results ?? []).reduce((s,r)=>s+r.score,0)
-const startScore = user?.score ?? 0       // 👈 핵심
+const startScore = roundStartScore        // 👈 핵심
 const tot = startScore + roundScore  // 👈 핵심
 
   setDisplayScore(startScore)
@@ -337,6 +334,7 @@ const sel = leastPlayed.slice(0,5).map(m=>({
     setTd(false)
     setTc(10)
     setSidePool(buildSidePool(sel[0]?.side))
+    setRoundStartScore(score) 
     setScreen('quiz')
 
   }catch(e){
@@ -502,8 +500,11 @@ function enterGame(){
     return
   }
 
+  const baseScore = u.score || 0 
+
   // ✅ 기존 점수로 시작
-  setScore(u.score || 0)
+  setScore(baseScore)
+  setRoundStartScore(baseScore) 
 
   // 👉 난이도 선택 화면으로 이동
   setScreen('grade')
@@ -525,6 +526,23 @@ function saveNickname(){
 
   setShowNameModal(false)
   setNickname('')
+}
+
+// 👉캐릭터 대화명 지우기
+function deleteUser(charId){
+
+  const ok = confirm('대화명과 점수가 초기화됩니다. 계속할까요?')
+
+  if(!ok) return   // ❌ 취소하면 종료
+
+  const updated = users.filter(u => u.charId !== charId)
+
+  setUsers(updated)
+  localStorage.setItem('cineclue_users', JSON.stringify(updated))
+
+  if(selChar === charId){
+    setSelChar(null)
+  }
 }
 
   // ══════════════════════════════════════════
@@ -831,12 +849,6 @@ if(screen==='quiz' && pool[qi]){
     </span>
 
     <div style={{display:'flex',alignItems:'center',gap:8}}>
-      <div style={{textAlign:'right'}}>
-        <div style={{fontSize:'0.65rem',color:'#b0aaa3'}}>점수</div>
-        <div style={{fontSize:'0.9rem',fontWeight:800,color:'#1a1814'}}>
-          {score.toLocaleString()}
-        </div>
-      </div>
 
       {!answered && (
         <div style={{
