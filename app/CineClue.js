@@ -36,13 +36,22 @@ const GRADE_CHARS = {
 }
 
 const GRADES = [
-  {id:'easy',  name:'Easy',   color:'#e8808c', bg:'#fff5f6', border:'#fad0d4', desc:'1990년대 이후 헐리우드·한국 블록버스터', subDesc:'누구나 아는 인기작'},
-  {id:'normal',name:'Normal', color:'#c8a84a', bg:'#fffbf0', border:'#f0dfa0', desc:'1980년대 이후 헐리우드·한국 흥행작',     subDesc:'영화 좀 본 사람들'},
-  {id:'hard',  name:'Hard',   color:'#e07040', bg:'#fff8f5', border:'#f0c4a8', desc:'1970년대 이후 헐리우드·한국·일본·유럽',  subDesc:'영화 마니아 도전'},
-  {id:'expert',name:'Expert', color:'#c05060', bg:'#fff5f5', border:'#f0b4b8', desc:'영화제 수상작·독립·예술영화',             subDesc:'진짜 고수만'},
+
+  {
+    id:'easy', name:'2000+', desc:'2000년 이후 영화', subDesc:'최근 인기 영화'
+  },
+
+  {
+    id:'normal',name:'1990+',desc:'1990년 이후 영화',subDesc:'라떼 인기 영화'
+  },
+
+  {
+    id:'hard', name:'ALL', desc:'모든 기간 영화', subDesc:'연도 제한 없음'
+  }
+
 ]
 
-const BP = {easy:100,normal:200,hard:300,expert:500}
+const BP = 100
 const FBW = {
   1:['힌트가 좀 어려웠지?','아직 힌트 4개나 남았어','처음부터 맞추면 재미없잖아'],
   2:['아깝다. 좀 더 생각해봐','거의 다 왔는데!','느낌이 왔을 것 같은데...'],
@@ -89,7 +98,8 @@ async function saveLog({
   hintUsed,
   score,
   comboMode,
-  isCorrect
+  isCorrect,
+  nickname
 }){
   if(!supabase) {
     alert('❌ supabase 없음')
@@ -104,13 +114,71 @@ async function saveLog({
     hint_used: hintUsed,
     score_earned: score,
     combo_mode: comboMode,
-    is_correct: isCorrect
+    is_correct: isCorrect,
+    nickname: nickname
   })
 
   if(error){
   console.error('DB 에러:', error.message)
 }
 }
+
+
+async function loadRanking({ supabase }){
+
+  const { data, error } = await supabase
+
+    .from('game_logs')
+    .select('id, character_id, score_earned, nickname')
+    .is('movie_id', null)
+
+  if(error){
+
+    console.error('랭킹 에러:', error.message)
+
+    return []
+
+  }
+
+  const map = {}
+
+data.forEach(d => {
+
+  if(!map[d.character_id]){
+    map[d.character_id] = {
+      character_id: d.character_id,
+      score: d.score_earned,
+      nickname: d.nickname || null,
+      id: d.id   // 🔥 최신 비교용
+    }
+  } else {
+
+    // 🔥 더 최신 데이터면 교체
+    if(d.id > map[d.character_id].id){
+      map[d.character_id] = {
+        character_id: d.character_id,
+        score: d.score_earned,
+        nickname: d.nickname || map[d.character_id].nickname,
+        id: d.id
+      }
+    }
+
+  }
+
+})
+
+return Object.values(map)
+  .map(d => ({
+    character_id: d.character_id,
+    score: d.score,
+    nickname: d.nickname
+  }))
+  .sort((a,b)=>b.score - a.score)
+
+}
+
+
+
 function CharAvatar({charId,size=40}){
   const c=CHARS.find(x=>x.id===charId)
   if(!c) return <div style={{width:size,height:size,borderRadius:'50%',background:'#f0eeea',border:'1.5px solid #e0dcd4'}}/>
@@ -149,9 +217,71 @@ export default function CineClue() {
   const [authUser, setAuthUser] = useState(null)
   const currentUser = users.find(u => u.charId === selChar) || null
   const [showNameModal, setShowNameModal] = useState(false)
+  const [resultView, setResultView] = useState('score') 
   const [tempChar, setTempChar] = useState(null)
   const [nickname, setNickname] = useState('')
   const [supabase, setSupabase] = useState(null)
+  const [ranking, setRanking] = useState([])
+  const resultSavedRef = useRef(false)
+  useEffect(()=>{
+
+  if(screen !== 'result'){
+
+    resultSavedRef.current = false
+
+    return
+
+  }
+
+  if(!supabase || !results?.length) return
+  if(resultSavedRef.current) return
+
+  resultSavedRef.current = true
+
+  const safeNickname = currentUser?.nickname || nickname || 'USER'
+  const userId = String(currentUser?.userId)
+  const tot = currentUser?.score || 0
+
+  const run = async () => {
+
+    await saveLog({
+
+      supabase,
+
+      userId,
+
+      charId: selChar,
+
+      movie: { id: null },
+
+      grade: selGrade,
+
+      hintUsed: 0,
+
+      score: tot,
+
+      comboMode: null,
+
+      isCorrect: true,
+
+      nickname: safeNickname
+
+    })
+
+    const data = await loadRanking({ supabase })
+
+    
+
+    setRanking(data)
+
+  }
+
+  run()
+
+}, [screen, supabase, users, selChar, selGrade, nickname, roundStartScore, results])
+
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [isLevelCompleted, setIsLevelCompleted] = useState(false)
   const inputRef = useRef(null)
   const char = CHARS.find(c=>c.id===selChar)
   const g    = GRADES.find(x=>x.id===selGrade)
@@ -189,11 +319,11 @@ useEffect(()=>{
 useEffect(()=>{
   if(screen !== 'result') return
   if(results.length === 0) return
-if(!users || users.length === 0) return 
-
+  if(!users || users.length === 0) return
+  setResultView('score') 
   setVisibleResults(0)
 
-const roundScore = (results ?? []).reduce((s,r)=>s+r.score,0)
+const roundScore = score - roundStartScore
 const startScore = roundStartScore        // 👈 핵심
 const tot = startScore + roundScore  // 👈 핵심
 
@@ -261,57 +391,95 @@ function handleCharClick(charId){
       return
     }
 
-    // 1️⃣ 유저별 다른 영화풀 제공
-const currentUser = users.find(u=>u.charId===selChar)
+    
 
-const { data, error } = await supabase
+// 1️⃣ 현재 유저
+const currentUser = users.find(u=>u.charId===selChar)
+const userId = String(currentUser?.userId)
+
+
+// 2️⃣ 로그 가져오기
+const { data: logs } = await supabase
+
+  .from('game_logs')
+
+  .select('movie_id')
+
+  .eq('user_id', userId)
+
+  .not('movie_id', 'is', null)
+
+
+const playedIds = (logs || []).map(l => l.movie_id)
+
+// 3️⃣ 영화 가져오기 (🔥 필터 제거)
+const { data: movies, error } = await supabase
   .from('movies')
   .select(`
     *,
-    hints(*),
-    game_logs(movie_id, user_id)
+    hints(*)
   `)
-  .eq('grade', grade)
 
-    if(error){
-      console.error(error)
-      alert('데이터 오류')
-      setLoading(false)
-      return
-    }
-
-    if(!data || data.length===0){
-      alert('영화 없음')
-      setLoading(false)
-      return
-    }
-
-    // 2️⃣ 노출 횟수 계산
-    const moviesWithCount = data.map(m=>{
-  const userLogs = (m.game_logs || []).filter(
-    log => log.user_id === currentUser?.userId
-  )
-
-  return {
-    ...m,
-    played_count: userLogs.length
-  }
-})
-   // 3️⃣ 노출 적은 그룹 먼저 뽑고 랜덤 섞기
-const minPlayed = Math.min(...moviesWithCount.map(m => m.played_count || 0))
-
-const leastPlayed = moviesWithCount.filter(
-  m => (m.played_count || 0) === minPlayed
-)
-
-// 랜덤 셔플 (진짜 랜덤)
-for (let i = leastPlayed.length - 1; i > 0; i--) {
-  const j = Math.floor(Math.random() * (i + 1))
-  ;[leastPlayed[i], leastPlayed[j]] = [leastPlayed[j], leastPlayed[i]]
+if(error){
+  console.error(error)
+  alert('데이터 오류')
+  setLoading(false)
+  return
 }
 
-// 4️⃣ 문제 선택
-const sel = leastPlayed.slice(0,5).map(m=>({
+if(!movies || movies.length===0){
+  alert('영화 없음')
+  setLoading(false)
+  return
+}
+
+// 4️⃣ JS에서 필터 (🔥 핵심)
+
+const filtered = movies.filter(m => {
+
+  // 1️⃣ 기간 필터
+
+  if(selGrade === 'easy'){
+
+    if(!m.year || m.year < 2000) return false
+
+  }
+
+  if(selGrade === 'normal'){
+
+    if(!m.year || m.year < 1990) return false
+
+  }
+
+  // 2️⃣ 🔥 캐릭터 기준 중복 제거 (핵심)
+
+  if(playedIds.includes(m.id)) return false
+
+  return true
+
+})
+
+if(filtered.length === 0){
+
+  
+
+  setIsLevelCompleted(true)
+
+  setScreen('result')
+
+  return
+
+}
+
+
+// 👉 만약 다 풀었으면 전체 리셋 (선택)
+const finalPool = filtered.length > 0 ? filtered : movies
+
+// 5️⃣ 랜덤 섞기
+const shuffled = [...finalPool].sort(()=>Math.random()-0.5)
+
+// 6️⃣ 5개 선택
+const sel = shuffled.slice(0,5).map(m=>({
   ...m,
   hintsArr: m.hints
     ? m.hints
@@ -319,6 +487,7 @@ const sel = leastPlayed.slice(0,5).map(m=>({
         .map(h=>h.hint_text)
     : []
 }))
+
 
     setPool(sel)
     setQi(0)
@@ -345,7 +514,10 @@ const sel = leastPlayed.slice(0,5).map(m=>({
   setLoading(false)
 }
 
-  function getPts(){ return Math.round((td?BP[selGrade]/2:BP[selGrade]||100)*(mode==='crazy'?5:mode==='combo'?2:1)) }
+  function getPts(){
+  const base = td ? BP/2 : BP
+  return Math.round(base * (mode==='crazy'?5:mode==='combo'?2:1))
+}
 
   function updateCombo(correct,hu){
     if(!correct){setComboStreak(0);setCrazyStreak(0);setMode(null);return}
@@ -361,11 +533,17 @@ const sel = leastPlayed.slice(0,5).map(m=>({
   }
 
  // ── 원본 버튼 로직 ──
-function submit(){
-  if(answered||!input.trim()) return
+async function submit(){
+  if(answered || !input.trim() || isSubmitting) return
+  setIsSubmitting(true)
 
   const m = pool[qi]
   const currentUser = users.find(u=>u.charId===selChar)
+
+  const { data: logs } = await supabase
+  .from('game_logs')
+  .select('movie_id')
+  .eq('user_id', currentUser?.userId)
 
   if(isCorrect(input, m.title, Array.isArray(m.answers)?m.answers:[])){
     const gained = getPts()
@@ -390,9 +568,10 @@ function submit(){
     localStorage.setItem('cineclue_users', JSON.stringify(updatedUsers))
 
     // ✅ 정답로그 (userId 수정)
-    saveLog({
+    await saveLog({
       supabase,
-      userId: currentUser?.userId,
+      userId: String(currentUser?.userId),
+      movie_id: m,
       charId: selChar,
       movie: m,
       grade: selGrade,
@@ -400,7 +579,9 @@ function submit(){
       score: gained,
       comboMode: mode,
       isCorrect: true,
+      nickname: currentUser?.nickname
     })
+
 
     // ✅ 결과
     setResults(r=>[...r,{
@@ -412,11 +593,13 @@ function submit(){
       country:m.country,
       genre:m.side?.genre||''
     }])
+    
 
     setFb(`정답! +${gained}점`)
     setFbt('ok')
     setAnswered(true)
     setInput('')
+    setIsSubmitting(false)
 
   }else{
 
@@ -425,19 +608,22 @@ function submit(){
     setFb(rFB(sh))
     setFbt('ng')
     setInput('')
+    setIsSubmitting(false)
   }
 }
 
-function doSkip(){
+async function doSkip(){
+  if (answered || isSubmitting) return   // 🔥 추가
+  setIsSubmitting(true) 
   updateCombo(false,0)
 
   const m = pool[qi]
   const currentUser = users.find(u=>u.charId===selChar)
 
   // ✅ 스킵로그 (userId 수정)
-  saveLog({
+  await saveLog({
     supabase,
-    userId: currentUser?.userId,
+    userId: String(currentUser?.userId),
     charId: selChar,
     movie: m,
     grade: selGrade,
@@ -461,6 +647,7 @@ function doSkip(){
   setFb('다음번엔 꼭 맞추길...')
   setFbt('sk')
   setAnswered(true)
+  setIsSubmitting(false)
 }
 
   function nextH(){
@@ -769,8 +956,8 @@ if(screen==='char') return(
         </div>
 
         {GRADES.map(gr=>{
-console.log('grade id:', gr.id, GRADE_CHARS?.[gr.id]);
           const sel=selGrade===gr.id
+
           return(
             <div key={gr.id} onClick={()=>setSelGrade(gr.id)} style={{
               borderRadius:16,border:`2px solid ${sel?gr.color:gr.border}`,
@@ -789,7 +976,7 @@ console.log('grade id:', gr.id, GRADE_CHARS?.[gr.id]);
                 <div style={{fontSize:'0.6rem',color:sel?gr.color:'#c0bab3',fontWeight:600,marginTop:3}}>{gr.subDesc}</div>
               </div>
               <div style={{width:22,height:22,borderRadius:'50%',border:`2px solid ${sel?gr.color:'#ddd'}`,background:sel?gr.color:'transparent',flexShrink:0,display:'flex',alignItems:'center',justifyContent:'center'}}>
-                {sel&&<div style={{width:8,height:8,borderRadius:'50%',background:'#fff'}}/>}
+                {sel&&<div style={{width:8,height:8,borderRadius:'50%',background:'1a1814',boxShadow:'0 0 0 2px rgba(0,0,0,0.2)'}}/>}
               </div>
             </div>
           );
@@ -1188,9 +1375,8 @@ minHeight:0,
  // ══════════════════════════════════════════
 // 화면 4: 결과
 if(screen==='result'){
-
+  
   const user = users?.find(u => u.charId === selChar)
-
   const baseScore = user?.score ?? 0
   const roundScore = (results ?? []).reduce((s,r)=>s+r.score,0)
   const tot = baseScore + roundScore
@@ -1236,110 +1422,320 @@ if(screen==='result'){
         }}>
           {nickname}
         </div>
-<div style={{
+        <div style={{
   fontSize:'2.8rem',
   fontWeight:900,
   color:'#1a1814'
 }}>
   {displayScore.toLocaleString()}점
 </div>
+
+{/* 🔥 토글 버튼 */}
+
+<div style={{
+
+  marginTop:10,
+
+  display:'flex',
+
+  justifyContent:'center'
+
+}}>
+
+  <button
+
+    onClick={()=>{
+
+      setResultView(prev => prev === 'score' ? 'ranking' : 'score')
+
+    }}
+
+    style={{
+
+      padding:'6px 12px',
+
+      borderRadius:20,
+
+      border:'1px solid #ddd',
+
+      background:'#fff',
+
+      fontSize:'0.7rem',
+
+      cursor:'pointer'
+
+    }}
+
+  >
+
+    {resultView === 'score' ? '랭킹 보기' : '점수 보기'}
+
+  </button>
+
+</div>
+
+{isLevelCompleted && (
+
+  <div style={{
+
+    fontSize:'0.8rem',
+
+    color:'#888',
+
+    marginTop:6
+
+  }}>
+
+    {selGrade === 'easy' && '2000+ 레벨을 완료하였습니다'}
+
+    {selGrade === 'normal' && '1990+ 레벨을 완료하였습니다'}
+
+    {selGrade === 'hard' && 'ALL 레벨을 완료하였습니다'}
+
+  </div>
+
+)}
         </div>
 
       {/* 결과 리스트 */}
       <div style={{padding:'0 20px'}}>
-        {results.slice(0, visibleResults).map((r,i)=>{
-          const rg=GRADES.find(x=>x.id===r.grade)
 
-          return(
-            <div key={i} style={{
-              borderRadius:13,
-              border:'1.5px solid #ece8e2',
-              background:'#fff',
-              padding:'12px 16px',
-              marginBottom:8,
-              display:'flex',
-              alignItems:'center',
-              gap:12
-            }}>
-              <div style={{
-                width:28,
-                height:28,
-                borderRadius:'50%',
-                background:r.correct?`${rg?.color}15`:'#f5f3ef',
-                display:'flex',
-                alignItems:'center',
-                justifyContent:'center',
-                border:`1.5px solid ${r.correct?rg?.color:'#e8e4dd'}`
-              }}>
-                <span style={{
-                  fontSize:'0.6rem',
-                  fontWeight:800,
-                  color:r.correct?rg?.color:'#b0aaa3'
-                }}>
-                  Q{i+1}
-                </span>
-              </div>
+  {resultView === 'score' ? (
 
-              <div style={{flex:1}}>
-                <div style={{
-                  fontSize:'0.8rem',
-                  fontWeight:700,
-                  color:r.correct?'#1a1814':'#c0bbb4'
-                }}>
-                  {r.correct ? r.title : '실패'}
-                </div>
-              </div>
 
-              <div style={{
-                fontSize:'0.85rem',
-                fontWeight:800,
-                color:r.correct?'#4a9c6d':'#d45c5c'
-              }}>
-                {r.correct?`+${r.score}`:'-'}
-              </div>
-            </div>
-          )
-        })}
+  // ✅ 기존 결과
+  results.slice(0, visibleResults).map((r,i)=>{
+
+    const rg = GRADES.find(x=>x.id===r.grade)
+
+    return(
+      <div key={i} style={{
+        borderRadius:13,
+        border:'1.5px solid #ece8e2',
+        background:'#fff',
+        padding:'12px 16px',
+        marginBottom:8,
+        display:'flex',
+        alignItems:'center',
+        gap:12
+      }}>
+
+        {/* Q 번호 */}
+        <div style={{
+          width:28,
+          height:28,
+          borderRadius:'50%',
+          background:r.correct ? `${rg?.color}15` : '#f5f3ef',
+          display:'flex',
+          alignItems:'center',
+          justifyContent:'center',
+          border:`1.5px solid ${r.correct ? rg?.color : '#e8e4dd'}`
+        }}>
+          <span style={{
+            fontSize:'0.6rem',
+            fontWeight:800,
+            color:r.correct ? rg?.color : '#b0aaa3'
+          }}>
+            Q{i+1}
+          </span>
+        </div>
+
+        {/* 제목 */}
+        <div style={{flex:1}}>
+          <div style={{
+            fontSize:'0.8rem',
+            fontWeight:700,
+            color:r.correct ? '#1a1814' : '#c0bbb4'
+          }}>
+            {r.correct ? r.title : '실패'}
+          </div>
+        </div>
+
+        {/* 점수 */}
+        <div style={{
+          fontSize:'0.85rem',
+          fontWeight:800,
+          color:r.correct ? '#4a9c6d' : '#d45c5c'
+        }}>
+          {r.correct ? `+${r.score}` : '-'}
+        </div>
+
+      </div>
+    )
+  })
+
+) : (
+
+  // 🔥 랭킹 TOP 5
+  Array.from({ length: 5 }).map((_, i) => {
+
+  const r = ranking[i] || null
+  const char = r ? CHARS.find(c => c.id === r.character_id) : null
+
+  return (
+    <div key={i} style={{
+      borderRadius:13,
+      border:'1.5px solid #ece8e2',
+      background:'#fff',
+      padding:'12px 16px',
+      marginBottom:8,
+      display:'flex',
+      alignItems:'center',
+      gap:12
+    }}>
+
+      {/* 순위 */}
+      <div style={{
+        width:28,
+        height:28,
+        borderRadius:'50%',
+        background:'#f5f3ef',
+        display:'flex',
+        alignItems:'center',
+        justifyContent:'center',
+        border:'1.5px solid #e8e4dd'
+      }}>
+        <span style={{
+          fontSize:'0.65rem',
+          fontWeight:800
+        }}>
+          {i+1}위
+        </span>
       </div>
 
-{visibleResults > results.length && (
-  <div style={{padding:'20px', display:'flex', flexDirection:'column', gap:10}}>
-    <button
-      style={{
-        height:54,
-        borderRadius:14,
-        background:'#1a1814',
-        color:'#fff',
-        fontSize:'0.9rem',
-        fontWeight:700,
-        border:'none',
-        cursor:'pointer'
-      }}
-      onClick={()=>loadMovies(selGrade, true)} 
-    >
-      계속하기
-    </button>
+      {/* 캐릭터 */}
+      {r ? (
+        <CharAvatar charId={r.character_id} size={28} />
+      ) : (
+        <div style={{
+          width:28,
+          height:28,
+          borderRadius:'50%',
+          background:'#f0eeea'
+        }}/>
+      )}
 
-    <button
-      style={{
-        height:44,
-        borderRadius:12,
-        background:'transparent',
-        color:'#9a9490',
-        fontSize:'0.8rem',
-        fontWeight:500,
-        border:'1.5px solid #e8e4dd',
-        cursor:'pointer'
-      }}
-      onClick={()=>setScreen('char')} 
-    >
-      홈으로
-    </button>
-  </div>
-)}
+      {/* 이름 */}
+      <div style={{flex:1}}>
+        <div style={{
+          fontSize:'0.8rem',
+          fontWeight:700,
+          color: r ? '#1a1814' : '#c0bbb4'
+        }}>
+          {r ? (r.nickname || char?.name || 'USER') : '-'}
+        </div>
+      </div>
+
+      {/* 점수 */}
+      <div style={{
+        fontSize:'0.85rem',
+        fontWeight:800,
+        color: r ? '#1a1814' : '#c0bbb4'
+      }}>
+        {r ? r.score : 0}
+      </div>
 
     </div>
   )
+})
+
+)}
+
+</div>
+
+{visibleResults > results.length && (
+  <div style={{
+    padding:'20px',
+    display:'flex',
+    flexDirection:'column',
+    gap:10
+  }}>
+
+    {/* 🔥 레벨 완료 상태 */}
+    {isLevelCompleted ? (
+      <>
+        {selGrade !== 'hard' && (
+          <button
+            style={{
+              height:54,
+              borderRadius:14,
+              background:'#1a1814',
+              color:'#fff',
+              fontSize:'0.9rem',
+              fontWeight:700,
+              border:'none'
+            }}
+            onClick={()=>{
+              const next =
+                selGrade === 'easy' ? 'normal' :
+                selGrade === 'normal' ? 'hard' : null
+
+              if(next){
+                setIsLevelCompleted(false)
+                setSelGrade(next)
+                loadMovies(next, true)
+              }
+            }}
+          >
+            다음 난이도로 시작
+          </button>
+        )}
+
+        <button
+          style={{
+            height:44,
+            borderRadius:12,
+            background:'transparent',
+            color:'#9a9490',
+            fontSize:'0.8rem',
+            fontWeight:500,
+            border:'1.5px solid #e8e4dd'
+          }}
+          onClick={()=>setScreen('char')}
+        >
+          홈으로
+        </button>
+      </>
+    ) : (
+      <>
+        {/* 🔥 기존 흐름 */}
+        <button
+          style={{
+            height:54,
+            borderRadius:14,
+            background:'#1a1814',
+            color:'#fff',
+            fontSize:'0.9rem',
+            fontWeight:700,
+            border:'none'
+          }}
+          onClick={()=>loadMovies(selGrade, true)}
+        >
+          계속하기
+        </button>
+
+        <button
+          style={{
+            height:44,
+            borderRadius:12,
+            background:'transparent',
+            color:'#9a9490',
+            fontSize:'0.8rem',
+            fontWeight:500,
+            border:'1.5px solid #e8e4dd'
+          }}
+          onClick={()=>setScreen('char')}
+        >
+          홈으로
+        </button>
+      </>
+    )}
+  </div>
+)}
+</div> 
+
+  )
+
 }
 
   return null
