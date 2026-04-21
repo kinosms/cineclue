@@ -1,22 +1,29 @@
 import './globals.css'
 
 export const metadata = {
+
+  metadataBase: new URL('https://cineclue-sable.vercel.app'),
+
   title: 'CineClue',
-  description: '영알못은 들어오지마세요',
+
+  description: '영알못은 들어오지 마세요',
+
   openGraph: {
+
     title: 'CineClue',
-    description: '영알못은 들어오지마세요',
-    url: 'https://cineclue-sable.vercel.app/',
+
+    description: '영알못은 들어오지 마세요',
+
+    url: '/',
+
     siteName: 'CineClue',
-    images: [
-      {
-        url: 'https://cineclue-sable.vercel.app/og.png',
-        width: 1200,
-        height: 630,
-      },
-    ],
+
+    images: ['/og2.png'], // 🔥 이게 핵심
+
     type: 'website',
+
   },
+
 }
 
 // 🔥 이거 추가
