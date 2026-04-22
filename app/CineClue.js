@@ -99,6 +99,7 @@ async function saveLog({
   score,
   comboMode,
   isCorrect,
+  isSkip,
   nickname
 }){
   if(!supabase) {
@@ -115,6 +116,7 @@ async function saveLog({
     score_earned: score,
     combo_mode: comboMode,
     is_correct: isCorrect,
+    is_skip: isSkip || false,
     nickname: nickname
   })
 
