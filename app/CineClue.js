@@ -264,6 +264,7 @@ export default function CineClue() {
       comboMode: null,
 
       isCorrect: true,
+      isSkip: true,
 
       nickname: safeNickname
 
