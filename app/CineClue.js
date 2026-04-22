@@ -100,6 +100,7 @@ async function saveLog({
   comboMode,
   isCorrect,
   isSkip,
+  userInput,  
   nickname
 }){
   if(!supabase) {
@@ -117,7 +118,8 @@ async function saveLog({
     combo_mode: comboMode,
     is_correct: isCorrect,
     is_skip: isSkip || false,
-    nickname: nickname
+    nickname: nickname, 
+    user_input: userInput
   })
 
   if(error){
@@ -269,6 +271,7 @@ export default function CineClue() {
       isSkip: true,
 
       nickname: safeNickname
+      
 
     })
 
@@ -640,7 +643,8 @@ async function submit(){
         score: gained,
         comboMode: nextMode,
         isCorrect: true,
-        nickname: currentUser?.nickname
+        nickname: currentUser?.nickname,
+        userInput: input?.trim() || null
       })
 
       setResults(r=>[...r,{
@@ -669,13 +673,15 @@ async function submit(){
       userId: String(currentUser?.userId),
       charId: selChar,
       nickname: currentUser?.nickname,
+      userInput: input,
       movie: m,
       grade: selGrade,
       hintUsed: sh,
       score: 0,
       comboMode: null,
       isCorrect: false,
-      isSkip: false 
+      isSkip: false
+      userInput: input?.trim() || null 
       })
 
       setFb(rFB(sh))
