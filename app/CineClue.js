@@ -273,6 +273,8 @@ export default function CineClue() {
       isSkip: true,
 
       nickname: safeNickname,
+
+      genre
       
 
     })
