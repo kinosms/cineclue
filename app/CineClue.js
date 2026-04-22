@@ -101,7 +101,8 @@ async function saveLog({
   isCorrect,
   isSkip,
   userInput,  
-  nickname
+  nickname,
+  genre
 }){
   if(!supabase) {
     alert('❌ supabase 없음')
@@ -119,7 +120,8 @@ async function saveLog({
     is_correct: isCorrect,
     is_skip: isSkip || false,
     nickname: nickname, 
-    user_input: userInput
+    user_input: userInput,
+    genre: genre
   })
 
   if(error){
@@ -644,7 +646,8 @@ async function submit(){
         comboMode: nextMode,
         isCorrect: true,
         nickname: currentUser?.nickname,
-        userInput: input?.trim() || null
+        userInput: input?.trim() || null,
+        genre: m.side?.genre || null
       })
 
       setResults(r=>[...r,{
@@ -681,7 +684,8 @@ async function submit(){
       comboMode: null,
       isCorrect: false,
       isSkip: false,
-      userInput: input?.trim() || null 
+      userInput: input?.trim() || null,
+      genre: m.side?.genre || null 
       })
 
       setFb(rFB(sh))
@@ -717,6 +721,7 @@ async function doSkip(){
     isCorrect: false,
     isSkip: true,
     nickname: currentUser?.nickname,
+    genre: m.side?.genre || null
   })
 
   // ✅ 결과
