@@ -51,7 +51,7 @@ const GRADES = [
 
 ]
 
-const BP = 100
+const BP = 1000
 const FBW = {
   1:['힌트가 좀 어려웠지?','아직 힌트 4개나 남았어','처음부터 맞추면 재미없잖아'],
   2:['아깝다. 좀 더 생각해봐','거의 다 왔는데!','느낌이 왔을 것 같은데...'],
@@ -223,6 +223,7 @@ export default function CineClue() {
   const [supabase, setSupabase] = useState(null)
   const [ranking, setRanking] = useState([])
   const resultSavedRef = useRef(false)
+  const [hitEffect, setHitEffect] = useState(null)
   useEffect(()=>{
 
   if(screen !== 'result'){
@@ -497,8 +498,6 @@ const sel = shuffled.slice(0,5).map(m=>({
     setFb('')
     setFbt('')
     setInput('')
-    setMode(null)
-    setComboStreak(0)
     setCrazyStreak(0)
     setTd(false)
     setTc(10)
@@ -514,100 +513,159 @@ const sel = shuffled.slice(0,5).map(m=>({
   setLoading(false)
 }
 
-  function getPts(){
-  const base = td ? BP/2 : BP
-  return Math.round(base * (mode==='crazy'?5:mode==='combo'?2:1))
+  function getPts(modeParam){
+
+  const ratioMap = {
+
+    1: 1.0,  // 1000
+
+    2: 0.8,  // 800
+
+    3: 0.6,  // 600
+
+    4: 0.4,  // 400
+
+    5: 0.2   // 200
+
+  }
+
+  let base = BP * (ratioMap[sh] || 0)
+
+  // 타임아웃 반점
+
+  if(td) base = base / 2
+
+  // 콤보
+
+  if(modeParam === 'good') base *= 3
+
+  if(modeParam === 'wow') base *= 4
+
+  if(modeParam === 'crazy') base *= 5
+
+  return Math.round(base)
+
 }
 
-  function updateCombo(correct,hu){
-    if(!correct){setComboStreak(0);setCrazyStreak(0);setMode(null);return}
-    if(hu===1){
-      const ncs=crazyStreak+1,ns=comboStreak+1
-      setCrazyStreak(ncs);setComboStreak(ns)
-      if(ncs>=2)setMode('crazy');else if(ns>=2)setMode('combo')
-    }else{
-      setCrazyStreak(0);if(mode==='crazy')setMode(null)
-      const ns=comboStreak+1;setComboStreak(ns)
-      if(ns>=2&&!mode)setMode('combo')
-    }
+
+
+  // 🔥 핵심: 3번째부터 발동
+
+function updateCombo(correct){
+
+  if(!correct){
+
+    return
+
   }
+
+  setComboStreak(prev => {
+
+  const ns = prev + 1
+
+  if(ns >= 5){
+
+    setMode('crazy')
+
+  } else if(ns === 4){
+
+    setMode('wow')
+
+  } else if(ns === 3){
+
+    setMode('good')
+
+  } else {
+
+    setMode(null)
+
+  }
+
+  return ns
+
+})
+}
 
  // ── 원본 버튼 로직 ──
 async function submit(){
+
   if(answered || !input.trim() || isSubmitting) return
   setIsSubmitting(true)
 
   const m = pool[qi]
   const currentUser = users.find(u=>u.charId===selChar)
 
-  const { data: logs } = await supabase
-  .from('game_logs')
-  .select('movie_id')
-  .eq('user_id', currentUser?.userId)
+  try {
 
-  if(isCorrect(input, m.title, Array.isArray(m.answers)?m.answers:[])){
-    const gained = getPts()
+    if(isCorrect(input, m.title, Array.isArray(m.answers)?m.answers:[])){
 
-    updateCombo(true, sh)
+      const ns = comboStreak + 1
 
-    // ✅ 점수 증가
-    setScore(v=>v+gained)
+      let nextMode = null
+      if(ns >= 5) nextMode = 'crazy'
+      else if(ns === 4) nextMode = 'wow'
+      else if(ns === 3) nextMode = 'good'
 
-    // ✅ 캐릭터별 점수 저장
-    const updatedUsers = users.map(u=>{
-      if(u.charId===selChar){
-        return {
-          ...u,
-          score: (u.score || 0) + gained
-        }
-      }
-      return u
-    })
+      setComboStreak(ns)
+      setMode(nextMode)
 
-    setUsers(updatedUsers)
-    localStorage.setItem('cineclue_users', JSON.stringify(updatedUsers))
+      const gained = getPts(nextMode)
 
-    // ✅ 정답로그 (userId 수정)
-    await saveLog({
-      supabase,
-      userId: String(currentUser?.userId),
-      movie_id: m,
-      charId: selChar,
-      movie: m,
-      grade: selGrade,
-      hintUsed: sh,
-      score: gained,
-      comboMode: mode,
-      isCorrect: true,
-      nickname: currentUser?.nickname
-    })
+      setScore(v=>v + gained)
 
+      setUsers(prev => {
+        const updated = prev.map(u=>{
+          if(u.charId===selChar){
+            return {
+              ...u,
+              score: (u.score || 0) + gained
+            }
+          }
+          return u
+        })
+        localStorage.setItem('cineclue_users', JSON.stringify(updated))
+        return updated
+      })
 
-    // ✅ 결과
-    setResults(r=>[...r,{
-      title:m.title,
-      correct:true,
-      hintUsed:sh,
-      score:gained,
-      grade:selGrade,
-      country:m.country,
-      genre:m.side?.genre||''
-    }])
-    
+      await saveLog({
+        supabase,
+        userId: String(currentUser?.userId),
+        charId: selChar,
+        movie: m,
+        grade: selGrade,
+        hintUsed: sh,
+        score: gained,
+        comboMode: nextMode,
+        isCorrect: true,
+        nickname: currentUser?.nickname
+      })
 
-    setFb(`정답! +${gained}점`)
-    setFbt('ok')
-    setAnswered(true)
-    setInput('')
-    setIsSubmitting(false)
+      setResults(r=>[...r,{
+        title:m.title,
+        correct:true,
+        hintUsed:sh,
+        score:gained,
+        grade:selGrade,
+        country:m.country,
+        genre:m.side?.genre||''
+      }])
 
-  }else{
+      setFb(`정답! +${gained}점`)
+      setFbt('ok')
+      setAnswered(true)
 
-    updateCombo(false, sh)
+    } else {
 
-    setFb(rFB(sh))
-    setFbt('ng')
-    setInput('')
+      setComboStreak(0)
+      setMode(null)
+
+      setFb(rFB(sh))
+      setFbt('ng')
+    }
+
+  } finally {
+
+    // 🔥 무조건 실행됨 (핵심)
     setIsSubmitting(false)
   }
 }
@@ -615,7 +673,8 @@ async function submit(){
 async function doSkip(){
   if (answered || isSubmitting) return   // 🔥 추가
   setIsSubmitting(true) 
-  updateCombo(false,0)
+  setComboStreak(0)
+  setMode(null)
 
   const m = pool[qi]
   const currentUser = users.find(u=>u.charId===selChar)
@@ -941,63 +1000,173 @@ if(screen==='char') return(
   // 화면 2: 난이도 선택
   // ══════════════════════════════════════════
   if(screen==='grade') return(
-    <div style={{background:'#fff',display:'flex',flexDirection:'column',padding:'28px 0 40px'}}>
-      <div style={{padding:'0 20px',display:'flex',alignItems:'center',gap:12,marginBottom:32}}>
-        <CharAvatar charId={selChar} size={44}/>
-        <div>
-          <div style={{fontSize:'0.65rem',color:'#b0aaa3',fontWeight:500}}>플레이어</div>
-          <div style={{fontSize:'0.85rem',fontWeight:700,color:'#1a1814'}}>{currentUser?.nickname || 'USER ID'}</div>
+  <div style={{background:'#fff',display:'flex',flexDirection:'column',padding:'28px 0 40px'}}>
+    <div style={{padding:'0 20px',display:'flex',alignItems:'center',gap:12,marginBottom:32}}>
+      <CharAvatar charId={selChar} size={44}/>
+      <div>
+        <div style={{fontSize:'0.65rem',color:'#b0aaa3',fontWeight:500}}>플레이어</div>
+        <div style={{fontSize:'0.85rem',fontWeight:700,color:'#1a1814'}}>
+          {currentUser?.nickname || 'USER ID'}
         </div>
-      </div>
-
-      <div style={{padding:'0 20px'}}>
-        <div style={{fontSize:'0.7rem',fontWeight:700,color:'#b0aaa3',letterSpacing:'0.15em',textTransform:'uppercase',marginBottom:14}}>
-          난이도를 선택하세요
-        </div>
-
-        {GRADES.map(gr=>{
-          const sel=selGrade===gr.id
-
-          return(
-            <div key={gr.id} onClick={()=>setSelGrade(gr.id)} style={{
-              borderRadius:16,border:`2px solid ${sel?gr.color:gr.border}`,
-              background:sel?gr.bg:'#fff',
-              padding:'14px 16px',marginBottom:10,cursor:'pointer',
-              display:'flex',alignItems:'center',gap:14,
-              transition:'all .2s',
-              boxShadow:sel?`0 3px 16px ${gr.color}20`:'0 1px 4px rgba(0,0,0,0.05)',
-            }}>
-              <div style={{width:52,height:52,borderRadius:12,background:sel?`${gr.color}18`:'#f5f3ef',border:`1.5px solid ${sel?gr.color:gr.border}`,display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0,overflow:'hidden'}}>
-                <svg viewBox="0 0 60 60" fill="none" style={{width:52,height:52}}>{GRADE_CHARS?.[gr.id]?.props?.children}</svg>
-              </div>
-              <div style={{flex:1,minWidth:0}}>
-                <div style={{fontSize:'0.9rem',fontWeight:800,color:sel?gr.color:'#1a1814',marginBottom:3}}>{gr.name}</div>
-                <div style={{fontSize:'0.65rem',color:'#a09a93',lineHeight:1.4}}>{gr.desc}</div>
-                <div style={{fontSize:'0.6rem',color:sel?gr.color:'#c0bab3',fontWeight:600,marginTop:3}}>{gr.subDesc}</div>
-              </div>
-              <div style={{width:22,height:22,borderRadius:'50%',border:`2px solid ${sel?gr.color:'#ddd'}`,background:sel?gr.color:'transparent',flexShrink:0,display:'flex',alignItems:'center',justifyContent:'center'}}>
-                {sel&&<div style={{width:8,height:8,borderRadius:'50%',background:'1a1814',boxShadow:'0 0 0 2px rgba(0,0,0,0.2)'}}/>}
-              </div>
-            </div>
-          );
-        })}
-      </div>
-
-      <div style={{padding:'20px 20px 0',display:'flex',flexDirection:'column',gap:10}}>
-        <button
-          style={{height:54,borderRadius:14,background:selGrade&&!loading?'#1a1814':'#d4d0cc',color:'#fff',fontSize:'0.9rem',fontWeight:700,border:'none',cursor:selGrade&&!loading?'pointer':'default',transition:'background .2s'}}
-          disabled={!selGrade||loading}
-          onClick={()=>loadMovies(selGrade, true)}>
-          {loading?'로딩 중...':'퀴즈시작'}
-        </button>
-        <button
-          style={{height:44,borderRadius:12,background:'transparent',color:'#9a9490',fontSize:'0.8rem',fontWeight:500,border:'1.5px solid #e8e4dd',cursor:'pointer'}}
-          onClick={()=>setScreen('char')}>
-          캐릭터 다시 선택
-        </button>
       </div>
     </div>
-  )
+
+    <div style={{padding:'0 20px'}}>
+      <div style={{
+        fontSize:'0.7rem',
+        fontWeight:700,
+        color:'#b0aaa3',
+        letterSpacing:'0.15em',
+        textTransform:'uppercase',
+        marginBottom:14
+      }}>
+        난이도를 선택하세요
+      </div>
+
+      {GRADES.map(gr=>{
+        const sel = selGrade===gr.id
+
+        const color = gr.color || '#e8808c'
+        const border = gr.border || '#e8e4dd'
+        const bg = gr.bg || '#fff5f6'
+
+        return(
+          <div
+            key={gr.id}
+            onClick={()=>setSelGrade(gr.id)}
+            style={{
+              borderRadius:16,
+              border:`2px solid ${sel ? color : border}`,
+              background: sel ? bg : '#fff',
+              padding:'14px 16px',
+              marginBottom:10,
+              cursor:'pointer',
+              display:'flex',
+              alignItems:'center',
+              gap:14,
+              transition:'all .2s',
+              boxShadow: sel
+                ? `0 3px 16px ${color}20`
+                : '0 1px 4px rgba(0,0,0,0.05)',
+            }}
+          >
+            {/* 아이콘 */}
+            <div style={{
+              width:52,
+              height:52,
+              borderRadius:12,
+              background: sel ? `${color}18` : '#f5f3ef',
+              border:`1.5px solid ${sel ? color : border}`,
+              display:'flex',
+              alignItems:'center',
+              justifyContent:'center',
+              flexShrink:0,
+              overflow:'hidden'
+            }}>
+              <svg viewBox="0 0 60 60" fill="none" style={{width:52,height:52}}>
+                {GRADE_CHARS?.[gr.id]?.props?.children}
+              </svg>
+            </div>
+
+            {/* 텍스트 */}
+            <div style={{flex:1,minWidth:0}}>
+              <div style={{
+                fontSize:'0.9rem',
+                fontWeight:800,
+                color: sel ? color : '#1a1814',
+                marginBottom:3
+              }}>
+                {gr.name}
+              </div>
+
+              <div style={{
+                fontSize:'0.65rem',
+                color:'#a09a93',
+                lineHeight:1.4
+              }}>
+                {gr.desc}
+              </div>
+
+              <div style={{
+                fontSize:'0.6rem',
+                color: sel ? color : '#c0bab3',
+                fontWeight:600,
+                marginTop:3
+              }}>
+                {gr.subDesc}
+              </div>
+            </div>
+
+            {/* 선택 원 */}
+            <div style={{
+              width:22,
+              height:22,
+              borderRadius:'50%',
+              border:`2px solid ${sel ? color : '#ddd'}`,
+              background: sel ? color : 'transparent',
+              flexShrink:0,
+              display:'flex',
+              alignItems:'center',
+              justifyContent:'center'
+            }}>
+              {sel && (
+                <div style={{
+                  width:8,
+                  height:8,
+                  borderRadius:'50%',
+                  background:'#1a1814', // ✅ 수정됨 (# 추가)
+                  boxShadow:'0 0 0 2px rgba(0,0,0,0.2)'
+                }}/>
+              )}
+            </div>
+          </div>
+        )
+      })}
+    </div>
+
+    {/* 버튼 영역 */}
+    <div style={{
+      padding:'20px 20px 0',
+      display:'flex',
+      flexDirection:'column',
+      gap:10
+    }}>
+      <button
+        style={{
+          height:54,
+          borderRadius:14,
+          background: selGrade && !loading ? '#1a1814' : '#d4d0cc',
+          color:'#fff',
+          fontSize:'0.9rem',
+          fontWeight:700,
+          border:'none',
+          cursor: selGrade && !loading ? 'pointer' : 'default',
+          transition:'background .2s'
+        }}
+        disabled={!selGrade || loading}
+        onClick={()=>loadMovies(selGrade, true)}
+      >
+        {loading ? '로딩 중...' : '퀴즈시작'}
+      </button>
+
+      <button
+        style={{
+          height:54,
+          borderRadius:12,
+          background:'transparent',
+          color:'#9a9490',
+          fontSize:'0.8rem',
+          fontWeight:500,
+          border:'1.5px solid #e8e4dd',
+          cursor:'pointer'
+        }}
+        onClick={()=>setScreen('char')}
+      >
+        캐릭터 다시 선택
+      </button>
+    </div>
+  </div>
+)
 
 // ══════════════════════════════════════════
 // 화면 3: 퀴즈
@@ -1144,24 +1313,78 @@ if(screen==='quiz' && pool[qi]){
           display:'flex',
           alignItems:'center',
           justifyContent:'space-between',
-          background:mode==='crazy'?'#fff0f0':'#fffbf0',
-          border:`1px solid ${mode==='crazy'?'#f0b4b4':'#f0dfa0'}`,
+          background:
+            mode==='good'  ? '#fff7e6' :
+            mode==='wow'   ? '#fff0f0' :
+            mode==='crazy' ? '#f3e8ff' : '#fff',
+
+          border: `1px solid ${
+
+  mode==='good'  ? '#f0c36d' :
+
+  mode==='wow'   ? '#f0b4b4' :
+
+  mode==='crazy' ? '#c8a8ff' : '#eee'
+
+}`,
           flexShrink:0
         }}>
           <span style={{
             fontSize:'0.72rem',
             fontWeight:800,
-            color:mode==='crazy'?'#d45c5c':'#c8a84a'
-          }}>
-            {mode==='crazy'?'🔥 CRAZY COMBO':'⚡ COMBO'}
-          </span>
+            color:
+
+    mode==='good' ? '#c8a84a' :
+
+    mode==='wow' ? '#d45c5c' :
+
+    mode==='crazy' ? '#9b5cff' :
+
+    '#aaa'
+
+}}>
+
+  {
+
+    mode==='good' ? '✨ GOOD' :
+
+    mode==='wow' ? '🔥 WOW' :
+
+    mode==='crazy' ? '💀 CRAZY' :
+
+    ''
+
+  }
+
+</span>
 
           <span style={{
-            fontSize:'0.68rem',
-            color:mode==='crazy'?'#d45c5c':'#c8a84a'
-          }}>
-            {mode==='crazy'?crazyStreak:comboStreak}연속 ×{mode==='crazy'?5:2}
-          </span>
+
+  fontSize:'0.68rem',
+
+  color:
+
+    mode==='good' ? '#c8a84a' :
+
+    mode==='wow' ? '#d45c5c' :
+
+    mode==='crazy' ? '#9b5cff' :
+
+    '#aaa'
+
+}}>
+
+  {comboStreak}연속 ×{
+
+    mode==='good' ? 3 :
+
+    mode==='wow' ? 4 :
+
+    mode==='crazy' ? 5 : 1
+
+  }
+
+</span>
         </div>
       )}
 
@@ -1176,70 +1399,128 @@ minHeight:0,
 
         {/* 👉 여기 힌트 리스트 들어가면 됨 */}
 
-{Array.from({length:5}).map((_,i)=>{
-  if(i>=sh) return null
-  const isCurrent=i===sh-1
-  const sideItem=i>=1?sidePool[i-1]:null
+{Array.from({ length: 5 }).map((_, i) => {
 
-  return(
+  if (i >= sh) return null
+
+  const isCurrent = i === sh - 1
+
+  const sideItem = i >= 1 ? sidePool[i - 1] : null
+
+  return (
+
     <div key={i}>
-      {sideItem&&(
+
+      {sideItem && (
+
         <div style={{
+
           borderRadius:10,
+
           background:'#faf9f7',
+
           border:'1px dashed #e0dcd4',
+
           padding:'8px 12px',
+
           marginBottom:6,
+
           display:'flex',
+
           alignItems:'center',
+
           gap:10
+
         }}>
+
           <div style={{
+
             width:6,
+
             height:6,
+
             borderRadius:'50%',
-            background:g?.color||'#e8808c'
-          }}/>
-          <div style={{fontSize:'0.68rem',color:'#9a9490'}}>
-            {sideItem.t==='year'?` ${sideItem.v}`:sideItem.v}
+
+            background: g?.color || '#e8808c'
+
+          }} />
+
+          <div style={{ fontSize:'0.68rem', color:'#9a9490' }}>
+
+            {sideItem.v}
+
           </div>
+
         </div>
+
       )}
 
       <div style={{
+
         borderRadius:13,
-        border:`1.5px solid ${isCurrent?g?.color||'#e8808c':'#ece8e2'}`,
-        background:isCurrent?g?.bg||'#fff5f6':'#fff',
+
+        border: `1.5px solid ${isCurrent ? (g?.color || '#e8808c') : '#ece8e2'}`,
+
+        background: isCurrent ? (g?.bg || '#fff5f6') : '#fff',
+
         padding:'13px 15px',
+
         marginBottom:8
+
       }}>
-        <div style={{display:'flex',alignItems:'center',gap:8}}>
+
+        <div style={{ display:'flex', alignItems:'center', gap:8 }}>
+
           <span style={{
+
             width:28,
-  height:28,
-  borderRadius:'50%',
-  background:g?.color||'#e8808c',
-  color:'#fff',
-  fontSize:'0.6rem',
-  fontWeight:800,
-  display:'flex',
-  alignItems:'center',
-  justifyContent:'center',
-  flexShrink:0 
+
+            height:28,
+
+            borderRadius:'50%',
+
+            background: g?.color || '#e8808c',
+
+            color:'#fff',
+
+            fontSize:'0.6rem',
+
+            fontWeight:800,
+
+            display:'flex',
+
+            alignItems:'center',
+
+            justifyContent:'center',
+
+            flexShrink:0
+
           }}>
-            {i+1}
+
+            {i + 1}
+
           </span>
 
           <div style={{
+
             fontSize:'0.78rem',
+
             lineHeight:1.7
+
           }}>
-            {m.hintsArr?.[i]||'힌트 로딩중...'}
+
+            {m.hintsArr?.[i] || '힌트 로딩중...'}
+
           </div>
+
         </div>
+
       </div>
+
     </div>
+
   )
+
 })}
 
 
@@ -1647,7 +1928,7 @@ if(screen==='result'){
   <div style={{
     padding:'20px',
     display:'flex',
-    flexDirection:'column',
+    flexDirection:'row',
     gap:10
   }}>
 
@@ -1657,6 +1938,7 @@ if(screen==='result'){
         {selGrade !== 'hard' && (
           <button
             style={{
+              flex:1,
               height:54,
               borderRadius:14,
               background:'#1a1814',
@@ -1683,7 +1965,8 @@ if(screen==='result'){
 
         <button
           style={{
-            height:44,
+            flex:1,
+            height:54,
             borderRadius:12,
             background:'transparent',
             color:'#9a9490',
@@ -1701,6 +1984,7 @@ if(screen==='result'){
         {/* 🔥 기존 흐름 */}
         <button
           style={{
+            flex:1,
             height:54,
             borderRadius:14,
             background:'#1a1814',
@@ -1716,7 +2000,8 @@ if(screen==='result'){
 
         <button
           style={{
-            height:44,
+            flex:1,
+            height:54,
             borderRadius:12,
             background:'transparent',
             color:'#9a9490',
