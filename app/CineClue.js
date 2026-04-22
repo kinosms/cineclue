@@ -1852,6 +1852,7 @@ if(screen==='result'){
 
   const r = ranking[i] || null
   const char = r ? CHARS.find(c => c.id === r.character_id) : null
+  const isDead = r && !users.find(u => u.charId === r.character_id)
 
   return (
     <div key={i} style={{
@@ -1886,7 +1887,11 @@ if(screen==='result'){
 
       {/* 캐릭터 */}
       {r ? (
-        <CharAvatar charId={r.character_id} size={28} />
+        <CharAvatar charId={r.character_id} size={28} style={{
+
+  opacity: isDead ? 0.4 : 1
+
+}}/>
       ) : (
         <div style={{
           width:28,
@@ -1901,9 +1906,27 @@ if(screen==='result'){
         <div style={{
           fontSize:'0.8rem',
           fontWeight:700,
-          color: r ? '#1a1814' : '#c0bbb4'
+          color: r
+
+  ? isDead
+
+    ? '#b0aaa3'
+
+    : '#1a1814'
+
+  : '#c0bbb4'
         }}>
-          {r ? (r.nickname || char?.name || 'USER') : '-'}
+          {r
+
+  ? isDead
+
+    ? ` ${r.nickname || char?.name || 'UNKNOWN'} 💀`
+
+    : (r.nickname || char?.name || 'USER')
+
+  : '-'
+
+}
         </div>
       </div>
 
