@@ -666,7 +666,7 @@ async function submit(){
       supabase,
       userId: String(currentUser?.userId),
       charId: selChar,
-      nickname: currentUser?.nickname
+      nickname: currentUser?.nickname,
       movie: m,
       grade: selGrade,
       hintUsed: sh,
