@@ -33,7 +33,7 @@ body {
   background: var(--bg);
   font-family: 'Pretendard', 'Apple SD Gothic Neo', system-ui, sans-serif;
   color: var(--text);
-  min-height: 100dvh;
+  min-height: 100%;
   -webkit-font-smoothing: antialiased;
 }
 
