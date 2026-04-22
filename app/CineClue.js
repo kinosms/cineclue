@@ -272,7 +272,7 @@ export default function CineClue() {
       isCorrect: true,
       isSkip: true,
 
-      nickname: safeNickname
+      nickname: safeNickname,
       
 
     })
@@ -635,6 +635,7 @@ async function submit(){
         return updated
       })
 
+      // ⭐ 정답 로그 추가
       await saveLog({
         supabase,
         userId: String(currentUser?.userId),
