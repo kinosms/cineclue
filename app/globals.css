@@ -25,8 +25,9 @@
 html { font-size: 16px; }
 
 html, body {
-    height: 100%;
-  overflow: hidden;
+  height: 100%;
+  overflow-x: hidden;
+  verflow-y: auto;
   overscroll-behavior: none;
 }
 body {
