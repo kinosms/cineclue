@@ -710,6 +710,7 @@ async function doSkip(){
     comboMode: mode,
     isCorrect: false,
     isSkip: true,
+    nickname: currentUser?.nickname,
   })
 
   // ✅ 결과
