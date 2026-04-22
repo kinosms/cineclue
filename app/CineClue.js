@@ -660,6 +660,22 @@ async function submit(){
       setComboStreak(0)
       setMode(null)
 
+      // ⭐ 오답 로그 추가
+      await saveLog({
+
+      supabase,
+      userId: String(currentUser?.userId),
+      charId: selChar,
+      nickname: currentUser?.nickname
+      movie: m,
+      grade: selGrade,
+      hintUsed: sh,
+      score: 0,
+      comboMode: null,
+      isCorrect: false,
+      isSkip: false 
+      })
+
       setFb(rFB(sh))
       setFbt('ng')
     }
@@ -691,6 +707,7 @@ async function doSkip(){
     score: 0,
     comboMode: mode,
     isCorrect: false,
+    isSkip: true,
   })
 
   // ✅ 결과
