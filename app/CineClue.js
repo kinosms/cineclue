@@ -680,7 +680,7 @@ async function submit(){
       score: 0,
       comboMode: null,
       isCorrect: false,
-      isSkip: false
+      isSkip: false,
       userInput: input?.trim() || null 
       })
 
