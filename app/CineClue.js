@@ -359,7 +359,7 @@ useEffect(()=>{
   if(results.length === 0) return
   if(!users || users.length === 0) return
   setResultView('score') 
-  setVisibleResults(0)
+  setVisibleResults(1)
 
 const roundScore = score - roundStartScore
 const startScore = roundStartScore        // 👈 핵심
@@ -1868,6 +1868,7 @@ if(screen==='result'){
   results.slice(0, visibleResults).map((r,i)=>{
 
     const rg = GRADES.find(x=>x.id===r.grade)
+    const isCorrect = r.correct === true
 
     return(
       <div key={i} style={{
@@ -1883,15 +1884,24 @@ if(screen==='result'){
 
         {/* Q 번호 */}
         <div style={{
-          width:28,
-          height:28,
-          borderRadius:'50%',
-          background:r.correct ? `${rg?.color}15` : '#f5f3ef',
-          display:'flex',
-          alignItems:'center',
-          justifyContent:'center',
-          border:`1.5px solid ${r.correct ? rg?.color : '#e8e4dd'}`
-        }}>
+
+  width:28,
+
+  height:28,
+
+  borderRadius:'50%',
+
+  background: isCorrect ? `${rg?.color || '#ccc'}15` : '#f5f3ef',
+
+  display:'flex',
+
+  alignItems:'center',
+
+  justifyContent:'center',
+
+  border:`1.5px solid ${isCorrect ? (rg?.color || '#ccc') : '#e8e4dd'}`
+
+}}>
           <span style={{
             fontSize:'0.6rem',
             fontWeight:800,
