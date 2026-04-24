@@ -1345,89 +1345,103 @@ if(screen==='quiz' && pool[qi]){
 </div>
   </div>
 
-  {/* 2️⃣ 버블힌트 */}
-  <div style={{
+{/* 2️⃣ 버블힌트 */}
+
+<div style={{
+
   display:'flex',
+
   alignItems:'center',
+
   gap:6,
-  paddingBottom:12,
-  flexWrap:'wrap'
+
+  paddingBottom:12
+
 }}>
 
-  {/* 문제 번호 */}
-  <span style={{
-    fontSize:'0.62rem',
-    fontWeight:700,
-    padding:'3px 9px',
-    borderRadius:20,
-    background:'#f5f3ef',
-    color:'#6b6560',
-    border:'1px solid #e8e4dd',
-    width:42,            // 🔥 고정 너비
-    textAlign:'center',  // 🔥 가운데 정렬
-    flexShrink:0         // 🔥 줄어들지 않음
+  {/* 👇 버블 묶음 영역 */}
+
+  <div style={{
+
+    display:'flex',
+
+    alignItems:'center',
+
+    gap:6,
+
+    flex:1,              // 🔥 남은 공간만 사용
+
+    overflow:'hidden',   // 🔥 넘치는 버블 컷
+
+    whiteSpace:'nowrap'
+
   }}>
-    {qi+1}/5
-  </span>
 
-  {/* 연도 🔥 */}
-  {m.year && (
+    {/* 문제 번호 */}
+
     <span style={{
+
       fontSize:'0.62rem',
+
       fontWeight:700,
-      padding:'3px 0',
+
+      padding:'3px 9px',
+
       borderRadius:20,
-      background:'#f5a3a3',
-      color:'#fff',
-      width:48,           // 🔥 고정 (4자리 기준)
+
+      background:'#f5f3ef',
+
+      color:'#6b6560',
+
+      border:'1px solid #e8e4dd',
+
+      width:42,
+
       textAlign:'center',
+
       flexShrink:0
+
     }}>
-      {m.year}
+
+      {qi+1}/5
+
     </span>
-  )}
 
-  {/* 국가 */}
-  {m.country && (
-    <span style={{
-      fontSize:'0.62rem',
-      fontWeight:700,
-      padding:'3px 10px',
-      borderRadius:20,
-      background:'#e8f0fc',
-      color:'#3a6abf',
-      border:'1px solid #c0d4f8'
-    }}>
-      {m.country}
-    </span>
-  )}
+    {/* 연도 */}
 
-  {/* 장르 🔥 핵심 */}
-  {m.genre && m.genre.split(',').map((g,i)=>(
-    <span key={i} style={{
-      fontSize:'0.62rem',
-      fontWeight:700,
-      padding:'3px 10px',
-      borderRadius:20,
-      background:'#e8f5ee',
-      color:'#2e8a52',
-      border:'1px solid #a8dfc0'
-    }}>
-      {g.trim()}
-    </span>
-  ))}
+    {m.year && (
 
-  {/* awards */}
+      <span style={{
 
-{m.awards && (() => {
+        fontSize:'0.62rem',
 
-  try {
+        fontWeight:700,
 
-    const arr = JSON.parse(m.awards)
+        padding:'3px 0',
 
-    if (!arr.length) return null
+        borderRadius:20,
 
-    return (
+        background:'#f5a3a3',
+
+        color:'#fff',
+
+        width:48,
+
+        textAlign:'center',
+
+        flexShrink:0
+
+      }}>
+
+        {m.year}
+
+      </span>
+
+    )}
+
+    {/* 국가 */}
+
+    {m.country && (
 
       <span style={{
 
@@ -1439,40 +1453,126 @@ if(screen==='quiz' && pool[qi]){
 
         borderRadius:20,
 
-        background:'#fff3e0',
+        background:'#e8f0fc',
 
-        color:'#cc7a00',
+        color:'#3a6abf',
 
-        border:'1px solid #ffd8a8'
+        border:'1px solid #c0d4f8',
+
+        flexShrink:0   // 🔥 추가
 
       }}>
 
-        {arr[0]}
+        {m.country}
 
       </span>
 
-    )
+    )}
 
-  } catch {
+    {/* 장르 */}
 
-    return null
+    {m.genre && m.genre.split(',').map((g,i)=>(
 
-  }
+      <span key={i} style={{
 
-})()}
+        fontSize:'0.62rem',
 
-  {/* 점수 */}
+        fontWeight:700,
+
+        padding:'3px 10px',
+
+        borderRadius:20,
+
+        background:'#e8f5ee',
+
+        color:'#2e8a52',
+
+        border:'1px solid #a8dfc0',
+
+        flexShrink:0   // 🔥 추가
+
+      }}>
+
+        {g.trim()}
+
+      </span>
+
+    ))}
+
+    {/* awards */}
+
+    {m.awards && (() => {
+
+      try {
+
+        const arr = JSON.parse(m.awards)
+
+        if (!arr.length) return null
+
+        return (
+
+          <span style={{
+
+            fontSize:'0.62rem',
+
+            fontWeight:700,
+
+            padding:'3px 10px',
+
+            borderRadius:20,
+
+            background:'#fff3e0',
+
+            color:'#cc7a00',
+
+            border:'1px solid #ffd8a8',
+
+            flexShrink:0   // 🔥 추가
+
+          }}>
+
+            {arr[0]}
+
+          </span>
+
+        )
+
+      } catch {
+
+        return null
+
+      }
+
+    })()}
+
+  </div>
+
+  {/* 👇 점수 (고정 영역) */}
+
   <span style={{
+
     fontSize:'0.62rem',
+
     fontWeight:700,
+
     padding:'3px 9px',
+
     borderRadius:20,
+
     background:`${g?.color||'#e8808c'}15`,
+
     color:g?.color||'#e8808c',
+
     border:`1px solid ${g?.color||'#e8808c'}30`,
-    marginLeft:'auto'
+
+    flexShrink:0,        // 🔥 추가
+
+    marginLeft:8         // 🔥 gap 대신 이걸로 띄움
+
   }}>
+
     {getPts()}pt
+
   </span>
 
 </div>
