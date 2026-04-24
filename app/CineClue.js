@@ -726,7 +726,6 @@ async function submit(){
         correct:true,
         hintUsed:sh,
         score:gained,
-        grade:selGrade,
         country:m.country,
         genre:m.side?.genre||''
       }])
@@ -799,7 +798,6 @@ async function doSkip(){
     correct:false,
     hintUsed:0,
     score:0,
-    grade:selGrade,
     country:m.country,
     genre:m.side?.genre||''
   }])
