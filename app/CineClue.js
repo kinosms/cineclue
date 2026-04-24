@@ -1686,226 +1686,188 @@ if(screen==='quiz' && pool[qi]){
         </div>
       )}
 
-      {/* ── 스크롤 영역 ── */}
-      <div style={{
-        flex:1,
-minHeight:0,
-        overflowY:'auto',
-        WebkitOverflowScrolling:'touch',
-        padding:'12px 16px 24px'
-      }}>
-
-        {/* 👉 여기 힌트 리스트 들어가면 됨 */}
-
-{Array.from({ length: 5 }).map((_, i) => {
-
-  if (i >= sh) return null
-
-  const isCurrent = i === sh - 1
-
-  return (
-
-    <div key={i}>
-
-
-      <div style={{
-
-        borderRadius:13,
-
-        border: `1.5px solid ${isCurrent ? (g?.color || '#e8808c') : '#ece8e2'}`,
-
-        background: isCurrent ? (g?.bg || '#fff5f6') : '#fff',
-
-        padding:'13px 15px',
-
-        marginBottom:8
-
-      }}>
-
-        <div style={{ display:'flex', alignItems:'center', gap:8 }}>
-
-          <span style={{
-
-            width:28,
-
-            height:28,
-
-            borderRadius:'50%',
-
-            background: g?.color || '#e8808c',
-
-            color:'#fff',
-
-            fontSize:'0.6rem',
-
-            fontWeight:800,
-
-            display:'flex',
-
-            alignItems:'center',
-
-            justifyContent:'center',
-
-            flexShrink:0
-
-          }}>
-
-            {i + 1}
-
-          </span>
-
-          <div style={{
-
-            fontSize:'0.78rem',
-
-            lineHeight:1.7
-
-          }}>
-
-            {m.hintsArr?.[i] || '힌트 로딩중...'}
-
-          </div>
-
-        </div>
-
-      </div>
-
-    </div>
-
-  )
-
-})}
-
-
-
-
-        {/* ── 입력 & 버튼 ── */}
-        <div style={{
-  marginTop:16,
-  paddingBottom: 'calc(20px + env(safe-area-inset-bottom))'
+{/* ── 스크롤 영역 ── */}
+<div style={{
+  flex:1,
+  minHeight:0,
+  overflowY:'auto',
+  WebkitOverflowScrolling:'touch',
+  padding:'12px 16px 24px',
+  overflowAnchor:'none'
 }}>
 
-          {fb && (
+  {/* 힌트 리스트 */}
+  {Array.from({ length: 5 }).map((_, i) => {
+    if (i >= sh) return null
+
+    const isCurrent = i === sh - 1
+
+    return (
+      <div key={i}>
+        <div style={{
+          borderRadius:13,
+          border:`1.5px solid ${isCurrent ? (g?.color || '#e8808c') : '#ece8e2'}`,
+          background:isCurrent ? (g?.bg || '#fff5f6') : '#fff',
+          padding:'13px 15px',
+          marginBottom:8
+        }}>
+          <div style={{display:'flex', alignItems:'center', gap:8}}>
+            <span style={{
+              width:28,
+              height:28,
+              borderRadius:'50%',
+              background:g?.color || '#e8808c',
+              color:'#fff',
+              fontSize:'0.6rem',
+              fontWeight:800,
+              display:'flex',
+              alignItems:'center',
+              justifyContent:'center',
+              flexShrink:0
+            }}>
+              {i + 1}
+            </span>
+
             <div style={{
               fontSize:'0.78rem',
-              fontWeight:700,
-              marginBottom:8,
-              color:fbt==='ok' ? '#4a9c6d' : '#d45c5c'
+              lineHeight:1.7
             }}>
-              {fb}
+              {m.hintsArr?.[i] || '힌트 로딩중...'}
             </div>
-          )}
-
-          {!answered ? (
-            <>
-              <div style={{
-                display:'flex',
-                gap:8,
-                marginBottom:8
-              }}>
-                <input
-                  ref={inputRef}
-                  value={input}
-                  onChange={e=>setInput(e.target.value)}
-                  onKeyDown={e=>{
-                    if(e.key==='Enter'){
-                      e.preventDefault()
-                      submit()
-                    }
-                  }}
-                  placeholder="영화 제목 입력"
-                  style={{
-                    flex:1,
-                    height:46,
-                    borderRadius:11,
-                    border:`1.5px solid ${input?'#1a1814':'#e8e4dd'}`,
-                    background:'#faf9f7',
-                    padding:'0 14px'
-                  }}
-                />
-
-                <button
-                  onClick={submit}
-                  style={{
-                    width:72,
-                    height:46,
-                    borderRadius:11,
-                    background:'#1a1814',
-                    color:'#fff',
-                    fontWeight:700,
-                    border:'none'
-                  }}
-                >
-                  정답
-                </button>
-              </div>
-
-              <div style={{display:'flex',gap:8}}>
-                <button
-                  onClick={nextH}
-                  disabled={sh>=5}
-                  style={{
-                    flex:1,
-                    height:40,
-                    borderRadius:10,
-                    background:'#f5f3ef'
-                  }}
-                >
-                  다음 힌트 ({sh}/5)
-                </button>
-
-                <button
-                  onClick={doSkip}
-                  style={{
-                    flex:1,
-                    height:40,
-                    borderRadius:10,
-                    background:'#fff5f6'
-                  }}
-                >
-                  넘기기
-                </button>
-              </div>
-            </>
-          ) : (
-            <>
-              {fbt==='ok' && (
-                <div style={{
-                  fontSize:'1.1rem',
-                  fontWeight:900,
-                  color:'#c8a84a',
-                  marginBottom:12,
-                  textAlign:'center'
-                }}>
-                  {m.title}
-                </div>
-              )}
-
-              <button
-                onClick={nextQ}
-                style={{
-                  width:'100%',
-                  height:46,
-                  borderRadius:12,
-                  background:'#1a1814',
-                  color:'#fff',
-                  fontWeight:800,
-                  border:'none'
-                }}
-              >
-                {qi+1<pool.length ? '다음 문제 →' : '결과 보기 →'}
-              </button>
-            </>
-          )}
-
+          </div>
         </div>
       </div>
+    )
+  })}
 
-    </div>
-  )
-}  
+  {/* ── 입력 & 버튼 ── */}
+  <div style={{
+    marginTop:16,
+    paddingBottom:'calc(20px + env(safe-area-inset-bottom))',
+    flexShrink:0
+  }}>
 
+    {fb && (
+      <div style={{
+        fontSize:'0.78rem',
+        fontWeight:700,
+        marginBottom:8,
+        color:fbt==='ok' ? '#4a9c6d' : '#d45c5c'
+      }}>
+        {fb}
+      </div>
+    )}
+
+    {!answered ? (
+      <>
+        <div style={{
+          display:'flex',
+          gap:8,
+          marginBottom:8
+        }}>
+          <input
+            ref={inputRef}
+            value={input}
+            onChange={e=>setInput(e.target.value)}
+            onKeyDown={e=>{
+              if(e.key==='Enter'){
+                e.preventDefault()
+                submit()
+              }
+            }}
+            placeholder="영화 제목 입력"
+            style={{
+              flex:1,
+              height:46,
+              borderRadius:11,
+              border:`1.5px solid ${input?'#1a1814':'#e8e4dd'}`,
+              background:'#faf9f7',
+              padding:'0 14px'
+            }}
+          />
+
+          <button
+            onClick={submit}
+            style={{
+              width:72,
+              height:46,
+              borderRadius:11,
+              background:'#1a1814',
+              color:'#fff',
+              fontWeight:700,
+              border:'none'
+            }}
+          >
+            정답
+          </button>
+        </div>
+
+        <div style={{display:'flex', gap:8}}>
+          <button
+            onClick={nextH}
+            disabled={sh>=5}
+            style={{
+              flex:1,
+              height:40,
+              borderRadius:10,
+              background:'#f5f3ef'
+            }}
+          >
+            다음 힌트 ({sh}/5)
+          </button>
+
+          <button
+            onClick={doSkip}
+            style={{
+              flex:1,
+              height:40,
+              borderRadius:10,
+              background:'#fff5f6'
+            }}
+          >
+            넘기기
+          </button>
+        </div>
+      </>
+    ) : (
+      <>
+        {fbt==='ok' && (
+          <div style={{
+            fontSize:'1.1rem',
+            fontWeight:900,
+            color:'#c8a84a',
+            marginBottom:12,
+            textAlign:'center'
+          }}>
+            {m.title}
+          </div>
+        )}
+
+        <button
+          onClick={nextQ}
+          style={{
+            width:'100%',
+            height:46,
+            borderRadius:12,
+            background:'#1a1814',
+            color:'#fff',
+            fontWeight:800,
+            border:'none'
+          }}
+        >
+          {qi+1<pool.length ? '다음 문제 →' : '결과 보기 →'}
+        </button>
+      </>
       
+    )}
+
+  </div>
+</div>
+</div>
+)
+}
+
+
  // ══════════════════════════════════════════
 // 화면 4: 결과
 if(screen==='result'){
@@ -2279,7 +2241,7 @@ if(screen==='result'){
             fontWeight:700,
             border:'none'
           }}
-          onClick={()=>loadMovies(selGrade, true)}
+          onClick={()=>loadMovies(selGrades, true)}
         >
           계속하기
         </button>
