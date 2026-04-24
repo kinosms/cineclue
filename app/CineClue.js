@@ -145,7 +145,6 @@ async function saveLog({
     user_id: userId,
     character_id: charId,
     movie_id: movie?.id,
-    grade: grade,
     hint_used: hintUsed,
     score_earned: score,
     combo_mode: comboMode,
@@ -308,8 +307,6 @@ export default function CineClue() {
       charId: selChar,
 
       movie: { id: null },
-
-      grade: selGrade,
 
       hintUsed: 0,
 
