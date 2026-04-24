@@ -1700,49 +1700,54 @@ style={{
   overscrollBehavior:'contain'
 }}>
 
-  {/* 힌트 리스트 */}
-  {Array.from({ length: 5 }).map((_, i) => {
-    if (i >= sh) return null
+{/* 힌트 리스트 */}
+{Array.from({ length: 5 }).map((_, i) => {
+  if (i >= sh) return null
 
-    const isCurrent = i === sh - 1
+  const isCurrent = i === sh - 1
 
-    return (
-      <div key={i}>
-        <div style={{
-          borderRadius:13,
-          border:`1.5px solid ${isCurrent ? (g?.color || '#e8808c') : '#ece8e2'}`,
-          background:isCurrent ? (g?.bg || '#fff5f6') : '#fff',
-          padding:'13px 15px',
-          marginBottom:8
-        }}>
-          <div style={{display:'flex', alignItems:'center', gap:8}}>
-            <span style={{
-              width:28,
-              height:28,
-              borderRadius:'50%',
-              background:g?.color || '#e8808c',
-              color:'#fff',
-              fontSize:'0.6rem',
-              fontWeight:800,
-              display:'flex',
-              alignItems:'center',
-              justifyContent:'center',
-              flexShrink:0
-            }}>
-              {i + 1}
-            </span>
+  return (
+    <div
+      key={i}
+      style={{
+        animation:'hintSlideDown 0.22s ease-out'
+      }}
+    >
+      <div style={{
+        borderRadius:13,
+        border:`1.5px solid ${isCurrent ? (g?.color || '#e8808c') : '#ece8e2'}`,
+        background:isCurrent ? (g?.bg || '#fff5f6') : '#fff',
+        padding:'13px 15px',
+        marginBottom:8
+      }}>
+        <div style={{display:'flex', alignItems:'center', gap:8}}>
+          <span style={{
+            width:28,
+            height:28,
+            borderRadius:'50%',
+            background:g?.color || '#e8808c',
+            color:'#fff',
+            fontSize:'0.6rem',
+            fontWeight:800,
+            display:'flex',
+            alignItems:'center',
+            justifyContent:'center',
+            flexShrink:0
+          }}>
+            {i + 1}
+          </span>
 
-            <div style={{
-              fontSize:'0.78rem',
-              lineHeight:1.7
-            }}>
-              {m.hintsArr?.[i] || '힌트 로딩중...'}
-            </div>
+          <div style={{
+            fontSize:'0.78rem',
+            lineHeight:1.7
+          }}>
+            {m.hintsArr?.[i] || '힌트 로딩중...'}
           </div>
         </div>
       </div>
-    )
-  })}
+    </div>
+  )
+})}
 
   {/* ── 입력 & 버튼 ── */}
   <div style={{
@@ -1881,6 +1886,29 @@ style={{
 
   </div>
 </div>
+<style jsx>{`
+
+  @keyframes hintSlideDown {
+
+    from {
+
+      opacity: 0;
+
+      transform: translateY(-10px);
+
+    }
+
+    to {
+
+      opacity: 1;
+
+      transform: translateY(0);
+
+    }
+
+  }
+
+`}</style>
 </div>
 )
 }
