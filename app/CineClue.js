@@ -784,7 +784,6 @@ async function doSkip(){
     userId: String(currentUser?.userId),
     charId: selChar,
     movie: m,
-    grade: selGrade,
     hintUsed: sh,
     score: 0,
     comboMode: mode,
