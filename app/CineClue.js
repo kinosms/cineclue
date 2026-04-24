@@ -262,6 +262,58 @@ export default function CineClue() {
   const [hitEffect, setHitEffect] = useState(null)
   const primaryGrade = selGrades[0]
   const scrollRef = useRef(null)
+  const [genreStats, setGenreStats] = useState([])
+  useEffect(()=>{
+
+  if(screen === 'result' && currentUser?.userId && selChar){
+
+    fetchGenreStats(
+
+      currentUser.userId,
+
+      selChar
+
+    ).then(setGenreStats)
+
+  }
+
+}, [screen, currentUser?.userId, selChar])
+
+useEffect(()=>{
+
+  console.log('genreStats:', genreStats)
+
+}, [genreStats])
+
+async function fetchGenreStats(user_id, character_id){
+
+  console.log('호출값 👉', user_id, character_id)
+
+  const { data, error } = await supabase
+
+    .from('user_genre_stats')
+
+    .select('genre, attempt_count, correct_count, total_score')
+
+    .eq('user_id', user_id)
+
+    .eq('character_id', character_id)
+
+  console.log('SELECT data 👉', data)
+
+  console.log('SELECT error 👉', error)
+
+  if(error){
+
+    console.error('genreStats error 👉', error)
+
+    return []
+
+  }
+
+  return data
+
+}
 
   function toggleGrade(id){
 
@@ -722,6 +774,36 @@ async function submit(){
         genre: m.genre || null
       })
 
+      const genreValue = m.genre?.split(',')[0]?.trim() || '기타'
+
+      console.log('RPC payload 👉', {
+
+  user_id: String(currentUser?.userId),
+
+  character_id: selChar,
+
+  genre: genreValue,
+
+  is_correct: false,   // 상황에 맞게
+
+  score: Number(gained || 0)
+
+})
+
+      await supabase.rpc('update_genre_stats', {
+
+    p_user_id: String(currentUser?.userId),
+
+  p_character_id: selChar,
+
+  p_genre: genreValue,
+
+  p_is_correct: true,
+
+  p_score: Number(gained)
+
+})
+
       setResults(r=>[...r,{
         title:m.title,
         correct:true,
@@ -741,22 +823,70 @@ async function submit(){
       setMode(null)
 
       // ⭐ 오답 로그 추가
-      await saveLog({
 
-      supabase,
-      userId: String(currentUser?.userId),
-      charId: selChar,
-      nickname: currentUser?.nickname,
-      userInput: input,
-      movie: m,
-      hintUsed: sh,
-      score: 0,
-      comboMode: null,
-      isCorrect: false,
-      isSkip: false,
-      userInput: input?.trim() || null,
-      genre: m.genre || null 
-      })
+await saveLog({
+
+  supabase,
+
+  userId: String(currentUser?.userId),
+
+  charId: selChar,
+
+  nickname: currentUser?.nickname,
+
+  userInput: input,
+
+  movie: m,
+
+  hintUsed: sh,
+
+  score: 0,
+
+  comboMode: null,
+
+  isCorrect: false,
+
+  isSkip: false,
+
+  userInput: input?.trim() || null,
+
+  genre: m.genre || null 
+
+})
+
+// 🔥 추가 (이 줄!)
+
+const genreValue = m.genre?.split(',')[0]?.trim() || '기타'
+
+console.log('RPC payload 👉', {
+
+  user_id: String(currentUser?.userId),
+
+  character_id: selChar,
+
+  genre: genreValue,
+
+  is_correct: false,   // 상황에 맞게
+
+  score: 0
+
+})
+
+// 🔥 RPC 수정
+
+await supabase.rpc('update_genre_stats', {
+
+  p_user_id: String(currentUser?.userId),
+
+  p_character_id: selChar,
+
+  p_genre: genreValue,
+
+  p_is_correct: false,
+
+  p_score: 0
+
+})
 
       setFb(rFB(sh))
       setFbt('ng')
@@ -792,6 +922,36 @@ async function doSkip(){
     nickname: currentUser?.nickname,
     genre: m.genre || null
   })
+
+  const genreValue = m.genre?.split(',')[0]?.trim() || '기타'
+
+  console.log('RPC payload 👉', {
+
+  user_id: String(currentUser?.userId),
+
+  character_id: selChar,
+
+  genre: genreValue,
+
+  is_correct: false,   // 상황에 맞게
+
+  score: 0
+
+})
+
+  await supabase.rpc('update_genre_stats', {
+
+  p_user_id: String(currentUser?.userId),
+
+  p_character_id: selChar,
+
+  p_genre: genreValue,
+
+  p_is_correct: false,
+
+  p_score: 0
+
+})
 
   // ✅ 결과
   setResults(r=>[...r,{
