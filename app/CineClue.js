@@ -68,14 +68,44 @@ function lev(a,b){
   for(let i=1;i<=m;i++) for(let j=1;j<=n;j++) dp[i][j]=a[i-1]===b[j-1]?dp[i-1][j-1]:1+Math.min(dp[i-1][j],dp[i][j-1],dp[i-1][j-1])
   return dp[m][n]
 }
-function isCorrect(inp,title,answers=[]){
-  const a=normalize(inp)
-  for(const c of [title,...answers]){
-    const b=normalize(c)
-    if(a===b) return true
-    if(b.length>=4&&a.length===b.length&&lev(a,b)<=1) return true
+function isCorrect(inp, title, answers = []) {
+
+  const a = normalize(inp)
+
+  for (const c of [title, ...answers]) {
+
+    const b = normalize(c)
+
+     // 🔥 1️⃣ 숫자 4자리면 완전 일치만 허용
+
+    if (/^\d{4}$/.test(b)) {
+
+      if (a === b) return true
+
+      continue
+
+    }
+
+    // 1️⃣ 완전 일치
+
+    if (a === b) return true
+
+    // 2️⃣ 짧은 단어 보호
+
+    if (b.length < 4) continue
+
+    // 3️⃣ 오타 1개 허용
+
+    if (a.length === b.length && lev(a, b) <= 1) {
+
+      return true
+
+    }
+
   }
+
   return false
+
 }
 function buildSidePool(side){
   if(!side) return []
@@ -272,8 +302,6 @@ export default function CineClue() {
       isSkip: true,
 
       nickname: safeNickname,
-
-      genre
       
 
     })
@@ -372,6 +400,26 @@ const interval = setInterval(()=>{
   return () => clearInterval(interval)
 
 }, [screen, results, users])
+
+// 🔥🔥🔥 여기 추가하면 된다 🔥🔥🔥
+
+useEffect(()=>{
+
+  if(screen !== 'result' || resultView !== 'ranking') return
+
+  if(!supabase) return
+
+  const run = async () => {
+
+    const data = await loadRanking({ supabase })
+
+    setRanking(data)
+
+  }
+
+  run()
+
+}, [screen, resultView, supabase])
 
 useEffect(()=>{
   const saved = localStorage.getItem('cineclue_users')
@@ -648,7 +696,7 @@ async function submit(){
         isCorrect: true,
         nickname: currentUser?.nickname,
         userInput: input?.trim() || null,
-        genre: m.side?.genre || null
+        genre: m.genre || null
       })
 
       setResults(r=>[...r,{
@@ -686,7 +734,7 @@ async function submit(){
       isCorrect: false,
       isSkip: false,
       userInput: input?.trim() || null,
-      genre: m.side?.genre || null 
+      genre: m.genre || null 
       })
 
       setFb(rFB(sh))
@@ -722,7 +770,7 @@ async function doSkip(){
     isCorrect: false,
     isSkip: true,
     nickname: currentUser?.nickname,
-    genre: m.side?.genre || null
+    genre: m.genre || null
   })
 
   // ✅ 결과
@@ -1238,27 +1286,63 @@ if(screen==='quiz' && pool[qi]){
 
     <div style={{display:'flex',alignItems:'center',gap:8}}>
 
-      {!answered && (
-        <div style={{
-          width:36,
-          height:36,
-          borderRadius:'50%',
-          background:`${timerCol}15`,
-          border:`2.5px solid ${timerCol}`,
-          display:'flex',
-          alignItems:'center',
-          justifyContent:'center'
-        }}>
-          <span style={{
-            fontSize:'0.8rem',
-            fontWeight:800,
-            color:timerCol
-          }}>
-            {tc}
-          </span>
-        </div>
-      )}
+  {/* 🔥 항상 존재하는 wrapper */}
+
+  <div style={{
+
+    width:36,
+
+    height:36,
+
+    flexShrink:0
+
+  }}>
+
+    {/* 🔥 안쪽만 숨김 */}
+
+    <div style={{
+
+      width:36,
+
+      height:36,
+
+      borderRadius:'50%',
+
+      background:`${timerCol}15`,
+
+      border:`2.5px solid ${timerCol}`,
+
+      display:'flex',
+
+      alignItems:'center',
+
+      justifyContent:'center',
+
+      opacity: answered ? 0 : 1,
+
+      transition:'opacity 0.2s ease'
+
+    }}>
+
+      <span style={{
+
+        fontSize:'0.8rem',
+
+        fontWeight:800,
+
+        color:timerCol
+
+      }}>
+
+        {tc}
+
+      </span>
+
     </div>
+
+  </div>
+
+</div>
   </div>
 
   {/* 2️⃣ 버블힌트 */}
