@@ -29,26 +29,28 @@ const CHARS = [
 ]
 
 const GRADE_CHARS = {
-  easy: <svg viewBox="0 0 60 60" fill="none"><circle cx="30" cy="30" r="24" fill="#ffe8a0"/><circle cx="22" cy="26" r="4" fill="#1a1a1a"/><circle cx="38" cy="26" r="4" fill="#1a1a1a"/><circle cx="21" cy="25" r="1.5" fill="#fff"/><circle cx="37" cy="25" r="1.5" fill="#fff"/><path d="M20 36 Q30 44 40 36" stroke="#c07020" strokeWidth="2.5" fill="none" strokeLinecap="round"/><ellipse cx="18" cy="32" rx="4" ry="3" fill="#ffaa80" opacity=".6"/><ellipse cx="42" cy="32" rx="4" ry="3" fill="#ffaa80" opacity=".6"/></svg>,
-  normal: <svg viewBox="0 0 60 60" fill="none"><rect x="10" y="36" width="40" height="20" rx="4" fill="#2a2a4a"/><ellipse cx="30" cy="28" rx="16" ry="17" fill="#c8906a"/><ellipse cx="30" cy="18" rx="16" ry="8" fill="#1a1a1a"/><rect x="12" y="16" width="36" height="5" rx="2" fill="#111"/><ellipse cx="22" cy="26" rx="4" ry="3.5" fill="#1a1a1a" opacity=".7"/><ellipse cx="38" cy="26" rx="4" ry="3.5" fill="#1a1a1a" opacity=".7"/><path d="M23 36 Q30 39 37 36" stroke="#8a6040" strokeWidth="1.5" fill="none"/></svg>,
-  hard: <svg viewBox="0 0 60 60" fill="none"><rect x="12" y="38" width="36" height="18" rx="4" fill="#3a1a2a"/><ellipse cx="30" cy="28" rx="16" ry="17" fill="#b08060"/><ellipse cx="30" cy="18" rx="16" ry="8" fill="#1a0a0a"/><path d="M14 18 Q30 10 46 18" fill="#1a0a0a"/><ellipse cx="22" cy="27" rx="5" ry="4" fill="#cc2222" opacity=".8"/><ellipse cx="38" cy="27" rx="5" ry="4" fill="#cc2222" opacity=".8"/><ellipse cx="22" cy="27" rx="2.5" ry="2.5" fill="#1a1a1a"/><ellipse cx="38" cy="27" rx="2.5" ry="2.5" fill="#1a1a1a"/><path d="M20 38 Q25 34 30 36 Q35 34 40 38" stroke="#220000" strokeWidth="2" fill="none"/></svg>,
-  expert: <svg viewBox="0 0 60 60" fill="none"><rect x="10" y="38" width="40" height="18" rx="4" fill="#0a0a1a"/><ellipse cx="30" cy="28" rx="17" ry="18" fill="#f0eeea"/><ellipse cx="30" cy="18" rx="17" ry="9" fill="#0a0a1a"/><path d="M13 28 Q30 22 47 28 Q47 38 30 42 Q13 38 13 28" fill="#111" opacity=".85"/><ellipse cx="22" cy="30" rx="5" ry="3.5" fill="#cc4400"/><ellipse cx="38" cy="30" rx="5" ry="3.5" fill="#cc4400"/><ellipse cx="22" cy="30" rx="3" ry="2" fill="#ff6600"/><ellipse cx="38" cy="30" rx="3" ry="2" fill="#ff6600"/></svg>,
+  // 2020년대: 퓨리오사 (매드맥스)
+  "2020s": <svg viewBox="0 0 60 60" fill="none"><rect x="8" y="44" width="44" height="12" rx="2" fill="#2e1f14"/><ellipse cx="30" cy="30" rx="15" ry="16" fill="#c89a7a"/><path d="M15 20 Q30 14 45 20 L45 25 Q30 23 15 25 Z" fill="#5a3820" opacity="0.6"/><path d="M17 18 Q30 14 43 18 L43 24 Q30 28 17 24 Z" fill="#0a0a0a"/><path d="M22 26 L20 36" stroke="#0a0a0a" strokeWidth="2" strokeLinecap="round"/><path d="M30 27 L30 38" stroke="#0a0a0a" strokeWidth="2" strokeLinecap="round"/><path d="M38 26 L40 36" stroke="#0a0a0a" strokeWidth="2" strokeLinecap="round"/><ellipse cx="22" cy="29" rx="2.5" ry="1.8" fill="#fff"/><ellipse cx="38" cy="29" rx="2.5" ry="1.8" fill="#fff"/><circle cx="22" cy="29" r="1.2" fill="#4a3020"/><circle cx="38" cy="29" r="1.2" fill="#4a3020"/><path d="M26 39 L34 39" stroke="#6a2818" strokeWidth="1.8" strokeLinecap="round"/><rect x="4" y="44" width="6" height="12" rx="1" fill="#8a9098"/><circle cx="7" cy="48" r="0.8" fill="#333"/><circle cx="7" cy="52" r="0.8" fill="#333"/></svg>,
+
+  // 2010년대: 아이언맨
+  "2010s": <svg viewBox="0 0 60 60" fill="none"><rect x="18" y="48" width="24" height="8" fill="#a00018"/><ellipse cx="30" cy="26" rx="17" ry="18" fill="#c8181a"/><path d="M14 24 Q20 12 30 10 Q40 12 46 24" fill="none" stroke="#e8302a" strokeWidth="2"/><path d="M14 30 Q30 28 46 30 Q46 44 30 46 Q14 44 14 30 Z" fill="#e8c440"/><path d="M18 32 Q30 30 42 32 L42 34 Q30 32 18 34 Z" fill="#c8a030"/><path d="M30 30 L30 46" stroke="#a88020" strokeWidth="0.8"/><path d="M18 32 L26 30 L24 36 Z" fill="#b8e8ff"/><path d="M42 32 L34 30 L36 36 Z" fill="#b8e8ff"/><path d="M19 32.5 L24 31 L23 34.5 Z" fill="#ffffff"/><path d="M41 32.5 L36 31 L37 34.5 Z" fill="#ffffff"/><rect x="27" y="41" width="6" height="1.5" fill="#a08020"/><path d="M14 30 L18 38 L14 42 Z" fill="#c8181a"/><path d="M46 30 L42 38 L46 42 Z" fill="#c8181a"/></svg>,
+
+  // 2000년대: 네오 (매트릭스)
+  "2000s": <svg viewBox="0 0 60 60" fill="none"><path d="M6 56 L14 42 L30 50 L46 42 L54 56 Z" fill="#0a0a0a"/><path d="M20 44 L30 54 L40 44 L40 56 L20 56 Z" fill="#1a1a1a"/><ellipse cx="30" cy="28" rx="15" ry="16" fill="#e0b896"/><path d="M14 20 Q30 10 46 20 Q44 24 30 22 Q16 24 14 20 Z" fill="#1a1a1a"/><path d="M14 18 Q20 14 30 14 Q40 14 46 18 L46 16 Q30 8 14 16 Z" fill="#0a0a0a"/><circle cx="22" cy="28" r="5" fill="#0a0a0a"/><circle cx="38" cy="28" r="5" fill="#0a0a0a"/><circle cx="22" cy="28" r="4" fill="#151520"/><circle cx="38" cy="28" r="4" fill="#151520"/><ellipse cx="20" cy="26" rx="1.2" ry="0.8" fill="#4a8aa8" opacity="0.7"/><ellipse cx="36" cy="26" rx="1.2" ry="0.8" fill="#4a8aa8" opacity="0.7"/><rect x="27" y="27.5" width="6" height="1.5" fill="#0a0a0a"/><path d="M26 40 L34 40" stroke="#7a4030" strokeWidth="1.5" strokeLinecap="round"/></svg>,
+
+  // 1990년대: 우마 서먼 (킬빌의 신부)
+  "1990s": <svg viewBox="0 0 60 60" fill="none"><rect x="10" y="42" width="40" height="14" rx="2" fill="#f5dc1a"/><rect x="10" y="42" width="4" height="14" fill="#0a0a0a"/><rect x="46" y="42" width="4" height="14" fill="#0a0a0a"/><path d="M30 42 L30 56" stroke="#0a0a0a" strokeWidth="1"/><ellipse cx="30" cy="28" rx="15" ry="16" fill="#f0d4b2"/><path d="M8 20 Q10 12 20 12 L22 28 Q16 36 12 42 L8 40 Z" fill="#f0d880"/><path d="M52 20 Q50 12 40 12 L38 28 Q44 36 48 42 L52 40 Z" fill="#f0d880"/><path d="M14 16 Q20 10 30 10 Q40 10 46 16 Q44 22 30 20 Q16 22 14 16 Z" fill="#f0d880"/><path d="M30 10 L30 18" stroke="#c8b050" strokeWidth="0.8"/><ellipse cx="22" cy="28" rx="2.5" ry="1.8" fill="#fff"/><ellipse cx="38" cy="28" rx="2.5" ry="1.8" fill="#fff"/><circle cx="22" cy="28" r="1.3" fill="#4a78a0"/><circle cx="38" cy="28" r="1.3" fill="#4a78a0"/><path d="M26 38 Q30 36 34 38" stroke="#a02020" strokeWidth="1.8" fill="none" strokeLinecap="round"/><path d="M15 26 L18 34" stroke="#a00018" strokeWidth="1.2" strokeLinecap="round"/></svg>,
+
+  // 오래전 영화: 찰리 채플린
+  "old": <svg viewBox="0 0 60 60" fill="none"><rect x="12" y="44" width="36" height="12" fill="#1a1a1a"/><path d="M24 44 L30 52 L36 44 L36 50 L24 50 Z" fill="#fafafa"/><path d="M28 48 L32 48 L34 52 L26 52 Z" fill="#0a0a0a"/><ellipse cx="30" cy="28" rx="14" ry="15" fill="#f2d8b8"/><ellipse cx="30" cy="18" rx="16" ry="2.5" fill="#0a0a0a"/><ellipse cx="30" cy="14" rx="12" ry="7" fill="#0a0a0a"/><ellipse cx="30" cy="13" rx="10" ry="5" fill="#1f1f1f"/><rect x="20" y="17" width="20" height="1" fill="#2a2a2a"/><ellipse cx="24" cy="28" rx="2" ry="2.5" fill="#fff"/><ellipse cx="36" cy="28" rx="2" ry="2.5" fill="#fff"/><circle cx="24" cy="29" r="1.3" fill="#1a1a1a"/><circle cx="36" cy="29" r="1.3" fill="#1a1a1a"/><rect x="27" y="34" width="6" height="2.5" rx="0.5" fill="#0a0a0a"/><path d="M25 40 Q30 43 35 40" stroke="#8a4020" strokeWidth="1.3" fill="none" strokeLinecap="round"/><circle cx="30" cy="49" r="0.8" fill="#2a2a2a"/><circle cx="30" cy="53" r="0.8" fill="#2a2a2a"/></svg>,
 }
 
 const GRADES = [
-
-  {
-    id:'easy', name:'2000+', desc:'2000년 이후 영화', subDesc:'최근 인기 영화'
-  },
-
-  {
-    id:'normal',name:'1990+',desc:'1990년 이후 영화',subDesc:'라떼 인기 영화'
-  },
-
-  {
-    id:'hard', name:'ALL', desc:'모든 기간 영화', subDesc:'연도 제한 없음'
-  }
-
+  { id:'2020s', name:'2020년대', desc:'매드맥스·기생충·범죄도시… 요즘 거 맞춰보자' },
+  { id:'2010s', name:'2010년대', desc:'인터스텔라·어벤져스·곡성… 기억나지?' },
+  { id:'2000s', name:'2000년대', desc:'올드보이·괴물·매트릭스… 추억 소환' },
+  { id:'1990s', name:'1990년대', desc:'타이타닉·더록·킬빌… 이젠 클래식' },
+  { id:'old',  name:'오래전 영화', desc:'대부·시민 케인,채플린… 진짜 영화 덕후 영역' }
 ]
 
 const BP = 1000
@@ -229,7 +231,7 @@ export default function CineClue() {
 
   const [screen,   setScreen]   = useState('char')
   const [selChar,  setSelChar]  = useState(null)
-  const [selGrade, setSelGrade] = useState(null)
+  const [selGrades, setSelGrades] = useState([])
   const [pool,     setPool]     = useState([])
   const [qi,       setQi]       = useState(0)
   const [sh,       setSh]       = useState(1)
@@ -259,6 +261,23 @@ export default function CineClue() {
   const [ranking, setRanking] = useState([])
   const resultSavedRef = useRef(false)
   const [hitEffect, setHitEffect] = useState(null)
+  const primaryGrade = selGrades[0]
+
+  function toggleGrade(id){
+
+  setSelGrades(prev=>{
+
+    if(prev.includes(id)){
+
+      return prev.filter(g=>g !== id)
+
+    }
+
+    return [...prev, id]
+
+  })
+
+}
   useEffect(()=>{
 
   if(screen !== 'result'){
@@ -316,13 +335,13 @@ export default function CineClue() {
 
   run()
 
-}, [screen, supabase, users, selChar, selGrade, nickname, roundStartScore, results])
+}, [screen, supabase, users, selChar, selGrades, nickname, roundStartScore, results])
 
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isLevelCompleted, setIsLevelCompleted] = useState(false)
   const inputRef = useRef(null)
   const char = CHARS.find(c=>c.id===selChar)
-  const g    = GRADES.find(x=>x.id===selGrade)
+  const g    = GRADES.find(x=>x.id===selGrades[0])
 
   // ✅ supabase 생성 (여기로 이동)
   useEffect(()=>{
@@ -495,25 +514,32 @@ if(!movies || movies.length===0){
 
 const filtered = movies.filter(m => {
 
-  // 1️⃣ 기간 필터
-
-  if(selGrade === 'easy'){
-
-    if(!m.year || m.year < 2000) return false
-
-  }
-
-  if(selGrade === 'normal'){
-
-    if(!m.year || m.year < 1990) return false
-
-  }
-
-  // 2️⃣ 🔥 캐릭터 기준 중복 제거 (핵심)
-
+  if(!m.year) return false
   if(playedIds.includes(m.id)) return false
 
-  return true
+  const y = m.year
+
+  // 🔥 멀티 선택 매칭
+
+  const match = selGrades.some(g => {
+
+    if(g === '2020s') return y >= 2020
+
+    if(g === '2010s') return y >= 2010 && y < 2020
+
+    if(g === '2000s') return y >= 2000 && y < 2010
+
+    if(g === '1990s') return y >= 1990 && y < 2000
+
+    if(g === 'old')   return y < 1990
+
+    return false
+
+  })
+
+  // 🔥 하나라도 해당되면 포함
+
+  return match
 
 })
 
@@ -1100,11 +1126,11 @@ if(screen==='char') return(
         textTransform:'uppercase',
         marginBottom:14
       }}>
-        난이도를 선택하세요
+        도전할 시대를 골라보세요 *여러 개 선택 OK
       </div>
 
       {GRADES.map(gr=>{
-        const sel = selGrade===gr.id
+        const sel = selGrades.includes(gr.id)
 
         const color = gr.color || '#e8808c'
         const border = gr.border || '#e8e4dd'
@@ -1113,7 +1139,7 @@ if(screen==='char') return(
         return(
           <div
             key={gr.id}
-            onClick={()=>setSelGrade(gr.id)}
+            onClick={()=>toggleGrade(gr.id)}
             style={{
               borderRadius:16,
               border:`2px solid ${sel ? color : border}`,
@@ -1212,20 +1238,34 @@ if(screen==='char') return(
       gap:10
     }}>
       <button
-        style={{
-          height:54,
-          borderRadius:14,
-          background: selGrade && !loading ? '#1a1814' : '#d4d0cc',
-          color:'#fff',
-          fontSize:'0.9rem',
-          fontWeight:700,
-          border:'none',
-          cursor: selGrade && !loading ? 'pointer' : 'default',
-          transition:'background .2s'
-        }}
-        disabled={!selGrade || loading}
-        onClick={()=>loadMovies(selGrade, true)}
-      >
+
+  style={{
+
+    height:54,
+
+    borderRadius:14,
+
+    background: selGrades.length > 0 && !loading ? '#1a1814' : '#d4d0cc',
+
+    color:'#fff',
+
+    fontSize:'0.9rem',
+
+    fontWeight:700,
+
+    border:'none',
+
+    cursor: selGrades.length > 0 && !loading ? 'pointer' : 'default',
+
+    transition:'background .2s'
+
+  }}
+
+  disabled={selGrades.length === 0 || loading}
+
+  onClick={()=>loadMovies(selGrades, true)}
+
+>
         {loading ? '로딩 중...' : '퀴즈시작'}
       </button>
 
