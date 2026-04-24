@@ -1363,6 +1363,9 @@ if(screen==='quiz' && pool[qi]){
     background:'#f5f3ef',
     color:'#6b6560',
     border:'1px solid #e8e4dd'
+    width:42,            // 🔥 고정 너비
+    textAlign:'center',  // 🔥 가운데 정렬
+    flexShrink:0         // 🔥 줄어들지 않음
   }}>
     {qi+1}/5
   </span>
@@ -1372,10 +1375,13 @@ if(screen==='quiz' && pool[qi]){
     <span style={{
       fontSize:'0.62rem',
       fontWeight:700,
-      padding:'3px 10px',
+      padding:'3px 0',
       borderRadius:20,
       background:'#f5a3a3',
-      color:'#fff'
+      color:'#fff',
+      width:48,           // 🔥 고정 (4자리 기준)
+      textAlign:'center',
+      flexShrink:0
     }}>
       {m.year}
     </span>
@@ -1410,6 +1416,50 @@ if(screen==='quiz' && pool[qi]){
       {g.trim()}
     </span>
   ))}
+
+  {/* awards */}
+
+{m.awards && (() => {
+
+  try {
+
+    const arr = JSON.parse(m.awards)
+
+    if (!arr.length) return null
+
+    return (
+
+      <span style={{
+
+        fontSize:'0.62rem',
+
+        fontWeight:700,
+
+        padding:'3px 10px',
+
+        borderRadius:20,
+
+        background:'#fff3e0',
+
+        color:'#cc7a00',
+
+        border:'1px solid #ffd8a8'
+
+      }}>
+
+        {arr[0]}
+
+      </span>
+
+    )
+
+  } catch {
+
+    return null
+
+  }
+
+})()}
 
   {/* 점수 */}
   <span style={{
