@@ -916,7 +916,7 @@ if(screen==='char') return(
         캐릭터를 선택하세요
       </div>
 
-      <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:10,marginBottom:36}}>
+      <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:10,marginBottom:20}}>
        {CHARS.map((c) => {
   const sel = selChar===c.id
   const u = users.find(x=>x.charId===c.id)
@@ -1107,7 +1107,7 @@ if(screen==='char') return(
   // ══════════════════════════════════════════
   if(screen==='grade') return(
   <div style={{background:'#fff',display:'flex',flexDirection:'column',padding:'28px 0 40px'}}>
-    <div style={{padding:'0 20px',display:'flex',alignItems:'center',gap:12,marginBottom:32}}>
+    <div style={{padding:'0 20px',display:'flex',alignItems:'center',gap:12,marginBottom:25}}>
       <CharAvatar charId={selChar} size={44}/>
       <div>
         <div style={{fontSize:'0.65rem',color:'#b0aaa3',fontWeight:500}}>플레이어</div>
@@ -1143,7 +1143,7 @@ if(screen==='char') return(
               borderRadius:16,
               border:`2px solid ${sel ? color : border}`,
               background: sel ? bg : '#fff',
-              padding:'14px 16px',
+              padding:'12px 16px',
               marginBottom:10,
               cursor:'pointer',
               display:'flex',
@@ -1231,7 +1231,7 @@ if(screen==='char') return(
 
 {/* 버튼 영역 */}
 <div style={{
-  padding:'20px 20px 0',
+  padding:'12px 20px 0',
   display:'flex',
   flexDirection:'row',
   gap:10
