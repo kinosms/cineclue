@@ -1362,7 +1362,7 @@ if(screen==='quiz' && pool[qi]){
     borderRadius:20,
     background:'#f5f3ef',
     color:'#6b6560',
-    border:'1px solid #e8e4dd'
+    border:'1px solid #e8e4dd',
     width:42,            // 🔥 고정 너비
     textAlign:'center',  // 🔥 가운데 정렬
     flexShrink:0         // 🔥 줄어들지 않음
