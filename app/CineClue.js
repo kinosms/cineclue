@@ -1131,7 +1131,6 @@ if(screen==='char') return(
 
       {GRADES.map(gr=>{
         const sel = selGrades.includes(gr.id)
-
         const color = gr.color || '#e8808c'
         const border = gr.border || '#e8e4dd'
         const bg = gr.bg || '#fff5f6'
@@ -1220,7 +1219,7 @@ if(screen==='char') return(
                   width:8,
                   height:8,
                   borderRadius:'50%',
-                  background:'#1a1814', // ✅ 수정됨 (# 추가)
+                  background:'#1a1814', 
                   boxShadow:'0 0 0 2px rgba(0,0,0,0.2)'
                 }}/>
               )}
@@ -1230,62 +1229,54 @@ if(screen==='char') return(
       })}
     </div>
 
-    {/* 버튼 영역 */}
-    <div style={{
-      padding:'20px 20px 0',
-      display:'flex',
-      flexDirection:'column',
-      gap:10
-    }}>
-      <button
+{/* 버튼 영역 */}
+<div style={{
+  padding:'20px 20px 0',
+  display:'flex',
+  flexDirection:'row',
+  gap:10
+}}>
 
-  style={{
+  {/* 퀴즈 시작 */}
+  <button
+    style={{
+      flex:1,
+      height:54,
+      borderRadius:14,
+      background: selGrades.length > 0 && !loading ? '#1a1814' : '#d4d0cc',
+      color:'#fff',
+      fontSize:'0.9rem',
+      fontWeight:700,
+      border:'none',
+      cursor: selGrades.length > 0 && !loading ? 'pointer' : 'default'
+    }}
+    disabled={selGrades.length === 0 || loading}
+    onClick={()=>loadMovies(selGrades, true)}
+  >
+    {loading ? '로딩 중...' : '퀴즈시작'}
+  </button>   {/* 🔥 반드시 닫아야 함 */}
 
-    height:54,
+  {/* 뒤로가기 */}
+  <button
+    style={{
+      flex:1,
+      height:54,
+      borderRadius:12,
+      background:'transparent',
+      color:'#9a9490',
+      fontSize:'0.8rem',
+      fontWeight:500,
+      border:'1.5px solid #e8e4dd',
+      cursor:'pointer'
+    }}
+    onClick={()=>setScreen('char')}
+  >
+    캐릭터 선택
+  </button>
 
-    borderRadius:14,
+</div>
+</div>
 
-    background: selGrades.length > 0 && !loading ? '#1a1814' : '#d4d0cc',
-
-    color:'#fff',
-
-    fontSize:'0.9rem',
-
-    fontWeight:700,
-
-    border:'none',
-
-    cursor: selGrades.length > 0 && !loading ? 'pointer' : 'default',
-
-    transition:'background .2s'
-
-  }}
-
-  disabled={selGrades.length === 0 || loading}
-
-  onClick={()=>loadMovies(selGrades, true)}
-
->
-        {loading ? '로딩 중...' : '퀴즈시작'}
-      </button>
-
-      <button
-        style={{
-          height:54,
-          borderRadius:12,
-          background:'transparent',
-          color:'#9a9490',
-          fontSize:'0.8rem',
-          fontWeight:500,
-          border:'1.5px solid #e8e4dd',
-          cursor:'pointer'
-        }}
-        onClick={()=>setScreen('char')}
-      >
-        캐릭터 다시 선택
-      </button>
-    </div>
-  </div>
 )
 
 // ══════════════════════════════════════════
