@@ -261,6 +261,7 @@ export default function CineClue() {
   const resultSavedRef = useRef(false)
   const [hitEffect, setHitEffect] = useState(null)
   const primaryGrade = selGrades[0]
+  const scrollRef = useRef(null)
 
   function toggleGrade(id){
 
@@ -1687,13 +1688,16 @@ if(screen==='quiz' && pool[qi]){
       )}
 
 {/* ── 스크롤 영역 ── */}
-<div style={{
+<div
+ref={scrollRef} 
+style={{
   flex:1,
   minHeight:0,
   overflowY:'auto',
   WebkitOverflowScrolling:'touch',
   padding:'12px 16px 24px',
-  overflowAnchor:'none'
+  overflowAnchor:'none',
+  overscrollBehavior:'contain'
 }}>
 
   {/* 힌트 리스트 */}
@@ -1804,7 +1808,21 @@ if(screen==='quiz' && pool[qi]){
 
         <div style={{display:'flex', gap:8}}>
           <button
-            onClick={nextH}
+            onClick={()=>{
+
+    const el = scrollRef.current
+
+    const prev = el.scrollHeight
+
+    nextH()
+
+    requestAnimationFrame(()=>{
+
+      el.scrollTop += el.scrollHeight - prev
+
+    })
+
+  }}
             disabled={sh>=5}
             style={{
               flex:1,
