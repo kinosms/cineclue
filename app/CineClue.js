@@ -214,7 +214,6 @@ export default function CineClue() {
   const [roundStartScore, setRoundStartScore] = useState(0)
   const [td,       setTd]       = useState(false)
   const [tc,       setTc]       = useState(10)
-  const [sidePool, setSidePool] = useState([])
   const [results,  setResults]  = useState([])
   const [loading,  setLoading]  = useState(false)
   const [visibleResults, setVisibleResults] = useState(0)
@@ -511,7 +510,6 @@ const sel = shuffled.slice(0,5).map(m=>({
     setCrazyStreak(0)
     setTd(false)
     setTc(10)
-    setSidePool(buildSidePool(sel[0]?.side))
     setRoundStartScore(score) 
     setScreen('quiz')
 
@@ -766,7 +764,6 @@ async function doSkip(){
   setInput('')
   setTd(false)
   setTc(10)
-  setSidePool(buildSidePool(pool[nqi]?.side))
 
   setTimeout(()=>inputRef.current?.focus(),100)
 }
@@ -1264,78 +1261,87 @@ if(screen==='quiz' && pool[qi]){
     </div>
   </div>
 
-  {/* 2️⃣ 👇 여기 추가 */}
+  {/* 2️⃣ 버블힌트 */}
   <div style={{
-    display:'flex',
-    alignItems:'center',
-    gap:6,
-    paddingBottom:12,
-    flexWrap:'wrap'
-  }}>
-    <span style={{
-      fontSize:'0.62rem',
-      fontWeight:700,
-      padding:'3px 9px',
-      borderRadius:20,
-      background:'#f5f3ef',
-      color:'#6b6560',
-      border:'1px solid #e8e4dd'
-    }}>
-      {qi+1}/5
-    </span>
+  display:'flex',
+  alignItems:'center',
+  gap:6,
+  paddingBottom:12,
+  flexWrap:'wrap'
+}}>
 
+  {/* 문제 번호 */}
+  <span style={{
+    fontSize:'0.62rem',
+    fontWeight:700,
+    padding:'3px 9px',
+    borderRadius:20,
+    background:'#f5f3ef',
+    color:'#6b6560',
+    border:'1px solid #e8e4dd'
+  }}>
+    {qi+1}/5
+  </span>
+
+  {/* 연도 🔥 */}
+  {m.year && (
     <span style={{
       fontSize:'0.62rem',
       fontWeight:700,
       padding:'3px 10px',
       borderRadius:20,
-      background:g?.color||'#e8808c',
+      background:'#f5a3a3',
       color:'#fff'
     }}>
-      {g?.name}
+      {m.year}
     </span>
+  )}
 
-    {m.country && (
-      <span style={{
-        fontSize:'0.62rem',
-        fontWeight:700,
-        padding:'3px 10px',
-        borderRadius:20,
-        background:'#e8f0fc',
-        color:'#3a6abf',
-        border:'1px solid #c0d4f8'
-      }}>
-        {m.country}
-      </span>
-    )}
-
-    {m.side?.genre && (
-      <span style={{
-        fontSize:'0.62rem',
-        fontWeight:700,
-        padding:'3px 10px',
-        borderRadius:20,
-        background:'#e8f5ee',
-        color:'#2e8a52',
-        border:'1px solid #a8dfc0'
-      }}>
-        {m.side.genre}
-      </span>
-    )}
-
+  {/* 국가 */}
+  {m.country && (
     <span style={{
       fontSize:'0.62rem',
       fontWeight:700,
-      padding:'3px 9px',
+      padding:'3px 10px',
       borderRadius:20,
-      background:`${g?.color||'#e8808c'}15`,
-      color:g?.color||'#e8808c',
-      border:`1px solid ${g?.color||'#e8808c'}30`,
-      marginLeft:'auto'
+      background:'#e8f0fc',
+      color:'#3a6abf',
+      border:'1px solid #c0d4f8'
     }}>
-      {getPts()}pt
+      {m.country}
     </span>
-  </div>
+  )}
+
+  {/* 장르 🔥 핵심 */}
+  {m.genre && m.genre.split(',').map((g,i)=>(
+    <span key={i} style={{
+      fontSize:'0.62rem',
+      fontWeight:700,
+      padding:'3px 10px',
+      borderRadius:20,
+      background:'#e8f5ee',
+      color:'#2e8a52',
+      border:'1px solid #a8dfc0'
+    }}>
+      {g.trim()}
+    </span>
+  ))}
+
+  {/* 점수 */}
+  <span style={{
+    fontSize:'0.62rem',
+    fontWeight:700,
+    padding:'3px 9px',
+    borderRadius:20,
+    background:`${g?.color||'#e8808c'}15`,
+    color:g?.color||'#e8808c',
+    border:`1px solid ${g?.color||'#e8808c'}30`,
+    marginLeft:'auto'
+  }}>
+    {getPts()}pt
+  </span>
+
+</div>
 
 </div>
 
@@ -1440,55 +1446,10 @@ minHeight:0,
 
   const isCurrent = i === sh - 1
 
-  const sideItem = i >= 1 ? sidePool[i - 1] : null
-
   return (
 
     <div key={i}>
 
-      {sideItem && (
-
-        <div style={{
-
-          borderRadius:10,
-
-          background:'#faf9f7',
-
-          border:'1px dashed #e0dcd4',
-
-          padding:'8px 12px',
-
-          marginBottom:6,
-
-          display:'flex',
-
-          alignItems:'center',
-
-          gap:10
-
-        }}>
-
-          <div style={{
-
-            width:6,
-
-            height:6,
-
-            borderRadius:'50%',
-
-            background: g?.color || '#e8808c'
-
-          }} />
-
-          <div style={{ fontSize:'0.68rem', color:'#9a9490' }}>
-
-            {sideItem.v}
-
-          </div>
-
-        </div>
-
-      )}
 
       <div style={{
 
