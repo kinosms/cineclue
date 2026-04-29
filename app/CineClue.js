@@ -227,6 +227,37 @@ function CharAvatar({charId,size=40}){
 }
 
 export default function CineClue() {
+  const infoBox = {
+
+  background:'rgba(255,255,255,0.05)',
+
+  border:'1px solid rgba(255,255,255,0.1)',
+
+  borderRadius:12,
+
+  padding:'10px 12px'
+
+}
+
+const label = {
+
+  fontSize:'0.65rem',
+
+  color:'#aaa',
+
+  marginBottom:4
+
+}
+
+const value = {
+
+  fontSize:'0.9rem',
+
+  fontWeight:700,
+
+  color:'#fff'
+
+}
 
   const [screen,   setScreen]   = useState('char')
   const [selChar,  setSelChar]  = useState(null)
@@ -267,6 +298,7 @@ export default function CineClue() {
   const [quizMode, setQuizMode] = useState('subjective') // or 'objective'
   const [choices, setChoices] = useState([])
   const [genreStats, setGenreStats] = useState([])
+  const [showProfile, setShowProfile] = useState(false)
   const primaryGrade = selGrades[0] || null
   // 🔥 객관식 선택지 동기화
 
@@ -299,6 +331,16 @@ useEffect(()=>{
   }
 
 }, [screen, currentUser?.userId, selChar])
+
+useEffect(()=>{
+
+  if(screen === 'result'){
+
+    setShowProfile(false)   // 🔥 무조건 초기화
+
+  }
+
+},[screen])
 
 useEffect(()=>{
 
@@ -1523,12 +1565,22 @@ if(screen==='quiz' && pool[qi]){
   background:'#fff',
   borderBottom:'1px solid #f0ece6',
   padding:'14px 20px 0',
-  flexShrink:0
+  flexShrink:0,
+  position:'relative',
+  zIndex:20 
 }}>
 
   {/* 1️⃣ 캐릭터 / 점수 라인 */}
   <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:10}}>
+  <div onClick={()=>
+  setShowProfile(true)} 
+  style={{
+    cursor:'pointer',
+    position:'relative',   // 🔥 추가
+    zIndex:50  
+  }}>
     <CharAvatar charId={selChar} size={34}/>
+  </div>
 
     <span style={{
       fontSize:'0.75rem',
@@ -1925,6 +1977,7 @@ style={{
   flex:1,
   minHeight:0,
   overflowY:'auto',
+  pointerEvents:'auto',
   WebkitOverflowScrolling:'touch',
   padding:'12px 16px 24px',
   overflowAnchor:'none',
@@ -2159,6 +2212,391 @@ style={{
 
   </div>
 </div>
+
+{/* 🔥 퀴즈화면용 프로필 팝업 */}
+
+{showProfile && (
+  <div style={{
+    position:'fixed',
+    inset:0,
+    background:'rgba(0,0,0,0.7)',
+    display:'flex',
+    alignItems:'center',
+    justifyContent:'center',
+    zIndex:9999
+  }}>
+
+
+    <div style={{
+      width:'92vw',
+      maxWidth:420,
+      background:'linear-gradient(135deg, #18171a, #242126)',
+      borderRadius:20,
+      border:'1.5px solid rgba(255,107,122,0.8)',
+      padding:'20px 16px',
+      boxShadow:'0 0 60px rgba(255,107,122,0.25)',
+      position:'relative'
+    }}>
+
+      {/* ❌ X 버튼 */}
+      <div
+        onClick={()=>setShowProfile(false)}
+        style={{
+          position:'absolute',
+          top:12,
+          right:12,
+          width:30,
+          height:30,
+          borderRadius:'50%',
+          background:'rgba(255,255,255,0.08)',
+          display:'flex',
+          alignItems:'center',
+          justifyContent:'center',
+          cursor:'pointer',
+          border:'1px solid rgba(255,255,255,0.15)'
+        }}
+      >
+        <span style={{color:'#fff',fontSize:16,fontWeight:700}}>×</span>
+      </div>
+
+      {/* 🔥 상단 텍스트 (우선순위 변경) */}
+      <div style={{textAlign:'center', marginBottom:14}}>
+
+        <div style={{
+          fontSize:'0.9rem',
+          
+          color:'#ff6b7a'
+        }}>
+          SF액션
+        </div>
+
+        <div style={{
+          fontSize:'1.4rem',
+          fontWeight:900,
+          color:'#bbb',
+          marginTop:4
+        }}>
+          총소리 놀람이
+        </div>
+
+        <div style={{
+          fontSize:'0.7rem',
+          color:'#888',
+          marginTop:6
+        }}>
+          나나나
+        </div>
+
+      </div>
+
+      {/* 🔥 캐릭터 이미지 (핵심) */}
+      <div style={{
+
+  width:'100%',
+
+  display:'flex',
+
+  justifyContent:'center',
+
+  marginBottom:14
+
+}}>
+
+  <div style={{
+
+    width:'100%',
+
+    maxWidth:320   // 🔥 핵심 (Lv 영역과 맞춤)
+
+  }}>
+
+    <img
+
+      src="/sadako_full.png"
+
+      alt="character"
+
+      style={{
+
+        width:'100%',
+
+        height:140,
+
+        objectFit:'contain'
+
+      }}
+
+    />
+
+  </div>
+
+</div>
+
+      {/* 🔥 레벨 */}
+      <div style={{marginBottom:14}}>
+
+        <div style={{
+          fontSize:'1.2rem',
+          fontWeight:800,
+          color:'#fff'
+        }}>
+          Lv. 20
+        </div>
+
+        <div style={{
+          height:6,
+          background:'#333',
+          borderRadius:10,
+          marginTop:6
+        }}>
+          <div style={{
+            width:'80%',
+            height:'100%',
+            background:'#ff6b7a'
+          }}/>
+        </div>
+
+        <div style={{
+          fontSize:'0.65rem',
+          color:'#aaa',
+          textAlign:'right',
+          marginTop:4
+        }}>
+          2,450 / 3,000 EXP
+        </div>
+
+      </div>
+
+      {/* 🔥 그래프 */}
+      <div style={{
+        display:'flex',
+        justifyContent:'center',
+        margin:'14px 0'
+      }}>
+
+      {(() => {
+
+  const genres = [
+    {name:'애니', value:50},
+    {name:'SF', value:60},
+    {name:'SF액션', value:85},
+    {name:'SF공포', value:70},
+    {name:'판타지', value:55},
+    {name:'판타지액션', value:65},
+    {name:'공포', value:90},
+    {name:'미스터리', value:65},
+    {name:'액션', value:70},
+    {name:'코미디', value:30},
+    {name:'로맨스', value:40},
+    {name:'드라마', value:45}
+  ]
+
+  const cx = 100
+  const cy = 100
+  const radius = 70
+
+  const points = genres.map((g,i)=>{
+
+  const angle = (Math.PI*2/genres.length)*i - Math.PI/2
+
+  const cos = Math.cos(angle)
+
+  const sin = Math.sin(angle)
+
+  const r = (g.value/100) * radius
+
+  // 🔥 각도별 거리 보정 (핵심)
+
+  let labelRadius = radius + 26
+
+  // 👉 좌우(가로) 쪽은 더 멀리
+
+  if(Math.abs(cos) > 0.7){
+
+    labelRadius = radius + 34
+
+  }
+
+  // 👉 대각선은 조금 더
+
+  if(Math.abs(cos) > 0.3 && Math.abs(cos) < 0.7){
+
+    labelRadius = radius + 30
+
+  }
+
+  return {
+
+    x: cx + cos*r,
+
+    y: cy + sin*r,
+
+    labelX: cx + cos*labelRadius,
+
+    labelY: cy + sin*labelRadius,
+
+    valueX: cx + cos*(radius+10),
+
+    valueY: cy + sin*(radius+10),
+
+    anchor:
+
+      cos > 0.3 ? 'start' :
+
+      cos < -0.3 ? 'end' :
+
+      'middle',
+
+    dy:
+
+      sin > 0.6 ? '1em' :
+
+      sin < -0.6 ? '-0.4em' :
+
+      '0.35em',
+
+    name:g.name,
+
+    value:g.value
+
+  }
+
+})
+
+  const polygonPoints = points.map(p=>`${p.x},${p.y}`).join(' ')
+
+  return (
+    <svg width="220" height="220">
+
+      <defs>
+        <filter id="glow">
+          <feGaussianBlur stdDeviation="2"/>
+        </filter>
+      </defs>
+
+      {/* 🔥 원형 grid */}
+      {[0.25,0.5,0.75,1].map((r,i)=>(
+        <circle
+          key={i}
+          cx={cx}
+          cy={cy}
+          r={radius*r}
+          stroke="rgba(255,255,255,0.08)"
+          fill="none"
+        />
+      ))}
+
+      {/* 🔥 축 */}
+      {points.map((p,i)=>(
+        <line
+          key={i}
+          x1={cx}
+          y1={cy}
+          x2={p.labelX}
+          y2={p.labelY}
+          stroke="rgba(255,255,255,0.08)"
+        />
+      ))}
+
+      {/* 🔥 데이터 영역 */}
+      <polygon
+        points={polygonPoints}
+        fill="rgba(255,107,122,0.35)"
+        stroke="#ff6b7a"
+        strokeWidth="2"
+        filter="url(#glow)"
+      />
+
+      {/* 🔥 점 */}
+      {points.map((p,i)=>(
+        <circle
+          key={i}
+          cx={p.x}
+          cy={p.y}
+          r="3"
+          fill="#ff6b7a"
+        />
+      ))}
+
+      {/* 🔥 장르명 */}
+      {points.map((p,i)=>(
+        <text
+          key={i}
+          x={p.labelX}
+          y={p.labelY}
+          fill="#ddd"
+          fontSize="9"
+          textAnchor="middle"
+          alignmentBaseline="middle"
+        >
+          {p.name}
+        </text>
+      ))}
+
+      {/* 🔥 수치 */}
+      {points.map((p,i)=>(
+        <text
+          key={i}
+          x={p.valueX}
+          y={p.valueY}
+          fill="#ff6b7a"
+          fontSize="10"
+          fontWeight="700"
+          textAnchor="middle"
+        >
+          {p.value}
+        </text>
+      ))}
+
+    </svg>
+  )
+
+})()}
+
+      </div>
+
+      {/* 🔥 하단 */}
+      <div style={{
+        display:'grid',
+        gridTemplateColumns:'1fr 1fr',
+        gap:8,
+        marginTop:10
+      }}>
+
+        {[
+          ['총 점수','12,450'],
+          ['플레이 시간','48h 30m'],
+          ['선호 장르','SF액션, 공포'],
+          ['최근 플레이','2024.05.20']
+        ].map(([k,v],i)=>(
+          <div key={i} style={{
+            background:'rgba(255,255,255,0.05)',
+            border:'1px solid rgba(255,255,255,0.1)',
+            borderRadius:10,
+            padding:'8px'
+          }}>
+            <div style={{
+              fontSize:'0.6rem',
+              color:'#aaa',
+              marginBottom:2
+            }}>
+              {k}
+            </div>
+            <div style={{
+              fontSize:'0.8rem',
+              fontWeight:700,
+              color:'#fff'
+            }}>
+              {v}
+            </div>
+          </div>
+        ))}
+
+      </div>
+
+    </div>
+  </div>
+)}
 <style jsx>{`
 
   @keyframes hintSlideDown {
@@ -2224,9 +2662,15 @@ if(screen==='result'){
           justifyContent:'center',
           marginBottom:10
         }}>
-          <svg viewBox="0 0 80 80" style={{width:80,height:80}}>
-            {char?.svg?.props?.children}
-          </svg>
+        <div onClick={()=>setShowProfile(true)} style={{cursor:'pointer'}}>
+
+  <svg viewBox="0 0 80 80" style={{width:80,height:80}}>
+
+  {char?.svg?.props?.children}
+
+</svg>
+
+</div>
         </div>
 
         <div style={{
@@ -2498,6 +2942,390 @@ if(screen==='result'){
     flexDirection:'row',
     gap:10
   }}>
+
+    {/* 🔥 프로필 팝업 */}
+{showProfile && (
+  <div style={{
+    position:'fixed',
+    inset:0,
+    background:'rgba(0,0,0,0.7)',
+    display:'flex',
+    alignItems:'center',
+    justifyContent:'center',
+    zIndex:9999
+  }}>
+
+
+    <div style={{
+      width:'92vw',
+      maxWidth:420,
+      background:'linear-gradient(135deg, #18171a, #242126)',
+      borderRadius:20,
+      border:'1.5px solid rgba(255,107,122,0.8)',
+      padding:'20px 16px',
+      boxShadow:'0 0 60px rgba(255,107,122,0.25)',
+      position:'relative'
+    }}>
+
+      {/* ❌ X 버튼 */}
+      <div
+        onClick={()=>setShowProfile(false)}
+        style={{
+          position:'absolute',
+          top:12,
+          right:12,
+          width:30,
+          height:30,
+          borderRadius:'50%',
+          background:'rgba(255,255,255,0.08)',
+          display:'flex',
+          alignItems:'center',
+          justifyContent:'center',
+          cursor:'pointer',
+          border:'1px solid rgba(255,255,255,0.15)'
+        }}
+      >
+        <span style={{color:'#fff',fontSize:16,fontWeight:700}}>×</span>
+      </div>
+
+      {/* 🔥 상단 텍스트 (우선순위 변경) */}
+      <div style={{textAlign:'center', marginBottom:14}}>
+
+        <div style={{
+          fontSize:'0.9rem',
+          
+          color:'#ff6b7a'
+        }}>
+          SF액션
+        </div>
+
+        <div style={{
+          fontSize:'1.4rem',
+          fontWeight:900,
+          color:'#bbb',
+          marginTop:4
+        }}>
+          총소리 놀람이
+        </div>
+
+        <div style={{
+          fontSize:'0.7rem',
+          color:'#888',
+          marginTop:6
+        }}>
+          나나나
+        </div>
+
+      </div>
+
+      {/* 🔥 캐릭터 이미지 (핵심) */}
+      <div style={{
+
+  width:'100%',
+
+  display:'flex',
+
+  justifyContent:'center',
+
+  marginBottom:14
+
+}}>
+
+  <div style={{
+
+    width:'100%',
+
+    maxWidth:320   // 🔥 핵심 (Lv 영역과 맞춤)
+
+  }}>
+
+    <img
+
+      src="/sadako_full.png"
+
+      alt="character"
+
+      style={{
+
+        width:'100%',
+
+        height:140,
+
+        objectFit:'contain'
+
+      }}
+
+    />
+
+  </div>
+
+</div>
+
+      {/* 🔥 레벨 */}
+      <div style={{marginBottom:14}}>
+
+        <div style={{
+          fontSize:'1.2rem',
+          fontWeight:800,
+          color:'#fff'
+        }}>
+          Lv. 20
+        </div>
+
+        <div style={{
+          height:6,
+          background:'#333',
+          borderRadius:10,
+          marginTop:6
+        }}>
+          <div style={{
+            width:'80%',
+            height:'100%',
+            background:'#ff6b7a'
+          }}/>
+        </div>
+
+        <div style={{
+          fontSize:'0.65rem',
+          color:'#aaa',
+          textAlign:'right',
+          marginTop:4
+        }}>
+          2,450 / 3,000 EXP
+        </div>
+
+      </div>
+
+      {/* 🔥 그래프 */}
+      <div style={{
+        display:'flex',
+        justifyContent:'center',
+        margin:'14px 0'
+      }}>
+
+      {(() => {
+
+  const genres = [
+    {name:'애니', value:50},
+    {name:'SF', value:60},
+    {name:'SF액션', value:85},
+    {name:'SF공포', value:70},
+    {name:'판타지', value:55},
+    {name:'판타지액션', value:65},
+    {name:'공포', value:90},
+    {name:'미스터리', value:65},
+    {name:'액션', value:70},
+    {name:'코미디', value:30},
+    {name:'로맨스', value:40},
+    {name:'드라마', value:45}
+  ]
+
+  const cx = 100
+  const cy = 100
+  const radius = 70
+
+  const points = genres.map((g,i)=>{
+
+  const angle = (Math.PI*2/genres.length)*i - Math.PI/2
+
+  const cos = Math.cos(angle)
+
+  const sin = Math.sin(angle)
+
+  const r = (g.value/100) * radius
+
+  // 🔥 각도별 거리 보정 (핵심)
+
+  let labelRadius = radius + 26
+
+  // 👉 좌우(가로) 쪽은 더 멀리
+
+  if(Math.abs(cos) > 0.7){
+
+    labelRadius = radius + 34
+
+  }
+
+  // 👉 대각선은 조금 더
+
+  if(Math.abs(cos) > 0.3 && Math.abs(cos) < 0.7){
+
+    labelRadius = radius + 30
+
+  }
+
+  return {
+
+    x: cx + cos*r,
+
+    y: cy + sin*r,
+
+    labelX: cx + cos*labelRadius,
+
+    labelY: cy + sin*labelRadius,
+
+    valueX: cx + cos*(radius+10),
+
+    valueY: cy + sin*(radius+10),
+
+    anchor:
+
+      cos > 0.3 ? 'start' :
+
+      cos < -0.3 ? 'end' :
+
+      'middle',
+
+    dy:
+
+      sin > 0.6 ? '1em' :
+
+      sin < -0.6 ? '-0.4em' :
+
+      '0.35em',
+
+    name:g.name,
+
+    value:g.value
+
+  }
+
+})
+
+  const polygonPoints = points.map(p=>`${p.x},${p.y}`).join(' ')
+
+  return (
+    <svg width="220" height="220">
+
+      <defs>
+        <filter id="glow">
+          <feGaussianBlur stdDeviation="2"/>
+        </filter>
+      </defs>
+
+      {/* 🔥 원형 grid */}
+      {[0.25,0.5,0.75,1].map((r,i)=>(
+        <circle
+          key={i}
+          cx={cx}
+          cy={cy}
+          r={radius*r}
+          stroke="rgba(255,255,255,0.08)"
+          fill="none"
+        />
+      ))}
+
+      {/* 🔥 축 */}
+      {points.map((p,i)=>(
+        <line
+          key={i}
+          x1={cx}
+          y1={cy}
+          x2={p.labelX}
+          y2={p.labelY}
+          stroke="rgba(255,255,255,0.08)"
+        />
+      ))}
+
+      {/* 🔥 데이터 영역 */}
+      <polygon
+        points={polygonPoints}
+        fill="rgba(255,107,122,0.35)"
+        stroke="#ff6b7a"
+        strokeWidth="2"
+        filter="url(#glow)"
+      />
+
+      {/* 🔥 점 */}
+      {points.map((p,i)=>(
+        <circle
+          key={i}
+          cx={p.x}
+          cy={p.y}
+          r="3"
+          fill="#ff6b7a"
+        />
+      ))}
+
+      {/* 🔥 장르명 */}
+      {points.map((p,i)=>(
+        <text
+          key={i}
+          x={p.labelX}
+          y={p.labelY}
+          fill="#ddd"
+          fontSize="9"
+          textAnchor="middle"
+          alignmentBaseline="middle"
+        >
+          {p.name}
+        </text>
+      ))}
+
+      {/* 🔥 수치 */}
+      {points.map((p,i)=>(
+        <text
+          key={i}
+          x={p.valueX}
+          y={p.valueY}
+          fill="#ff6b7a"
+          fontSize="10"
+          fontWeight="700"
+          textAnchor="middle"
+        >
+          {p.value}
+        </text>
+      ))}
+
+    </svg>
+  )
+
+})()}
+
+      </div>
+
+      {/* 🔥 하단 */}
+      <div style={{
+        display:'grid',
+        gridTemplateColumns:'1fr 1fr',
+        gap:8,
+        marginTop:10
+      }}>
+
+        {[
+          ['총 점수','12,450'],
+          ['플레이 시간','48h 30m'],
+          ['선호 장르','SF액션, 공포'],
+          ['최근 플레이','2024.05.20']
+        ].map(([k,v],i)=>(
+          <div key={i} style={{
+            background:'rgba(255,255,255,0.05)',
+            border:'1px solid rgba(255,255,255,0.1)',
+            borderRadius:10,
+            padding:'8px'
+          }}>
+            <div style={{
+              fontSize:'0.6rem',
+              color:'#aaa',
+              marginBottom:2
+            }}>
+              {k}
+            </div>
+            <div style={{
+              fontSize:'0.8rem',
+              fontWeight:700,
+              color:'#fff'
+            }}>
+              {v}
+            </div>
+          </div>
+        ))}
+
+      </div>
+
+    </div>
+  </div>
+)}
 
     {/* 🔥 레벨 완료 상태 */}
     {isLevelCompleted ? (
