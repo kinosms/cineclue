@@ -2054,6 +2054,7 @@ style={{
           <button
             key={i}
             onClick={()=>{
+              if(selectedChoice === c) return
               setSelectedChoice(c)
               submit(c)
             }}
