@@ -260,10 +260,31 @@ export default function CineClue() {
   const [ranking, setRanking] = useState([])
   const resultSavedRef = useRef(false)
   const [hitEffect, setHitEffect] = useState(null)
-  const primaryGrade = selGrades[0]
   const scrollRef = useRef(null)
+  const [wrongCount, setWrongCount] = useState(0)
+  const [lockChoice, setLockChoice] = useState(false)
+  const [selectedChoice, setSelectedChoice] = useState(null)
+  const [quizMode, setQuizMode] = useState('subjective') // or 'objective'
+  const [choices, setChoices] = useState([])
   const [genreStats, setGenreStats] = useState([])
-  useEffect(()=>{
+  const primaryGrade = selGrades[0] || null
+  // 🔥 객관식 선택지 동기화
+
+// 화면이 퀴즈로 바뀌거나, 문제 번호(qi)가 바뀔 때
+
+// 현재 문제(pool[qi])에 들어있는 choices를 화면용 choices state에 넣는다.
+
+useEffect(()=>{
+
+  if(screen === 'quiz' && pool[qi] && quizMode === 'objective'){
+
+    setChoices(pool[qi].choices || [])
+
+  }
+
+}, [screen, qi, quizMode, pool])
+
+useEffect(()=>{
 
   if(screen === 'result' && currentUser?.userId && selChar){
 
@@ -278,6 +299,16 @@ export default function CineClue() {
   }
 
 }, [screen, currentUser?.userId, selChar])
+
+useEffect(()=>{
+
+  setWrongCount(0)
+
+  setLockChoice(false)
+
+  setSelectedChoice(null)
+
+}, [qi])
 
 useEffect(()=>{
 
@@ -313,6 +344,19 @@ async function fetchGenreStats(user_id, character_id){
 
   return data
 
+}
+//객관식 선택지 생성 함수
+function buildChoices(correctMovie, allMovies){
+  const wrong = allMovies
+    .filter(m => m.id !== correctMovie.id)
+    .sort(()=>Math.random()-0.5)
+    .slice(0,3)
+
+  const options = [...wrong, correctMovie]
+    .sort(()=>Math.random()-0.5)
+    .map(m => m.title)
+
+  return options
 }
 
   function toggleGrade(id){
@@ -414,7 +458,7 @@ useEffect(()=>{
 
   // 타이머
   useEffect(()=>{
-    if(screen!=='quiz'||answered||td) return
+    if(screen!=='quiz' || answered || td || quizMode === 'objective') return
     if(tc<=0){setTd(true);return}
     const t=setTimeout(()=>setTc(v=>v-1),1000)
     return ()=>clearTimeout(t)
@@ -508,7 +552,7 @@ function handleCharClick(charId){
   }
 }
 
-  async function loadMovies(grade, keepProgress=false){
+  async function loadMovies(){
   setLoading(true)
 
   try{
@@ -619,7 +663,8 @@ const sel = shuffled.slice(0,5).map(m=>({
     ? m.hints
         .sort((a,b)=>a.hint_level - b.hint_level)
         .map(h=>h.hint_text)
-    : []
+    : [],
+  choices: buildChoices(m, movies)
 }))
 
 
@@ -663,20 +708,19 @@ const sel = shuffled.slice(0,5).map(m=>({
 
   let base = BP * (ratioMap[sh] || 0)
 
-  // 타임아웃 반점
+  // 🔥 객관식이면 그냥 여기서 끝
+  if(quizMode === 'objective'){
+    return Math.round(base * 0.1)
+  }
 
+  // ⬇️ 주관식만 적용됨
   if(td) base = base / 2
 
-  // 콤보
-
   if(modeParam === 'good') base *= 3
-
   if(modeParam === 'wow') base *= 4
-
   if(modeParam === 'crazy') base *= 5
 
   return Math.round(base)
-
 }
 
 
@@ -719,21 +763,31 @@ function updateCombo(correct){
 }
 
  // ── 원본 버튼 로직 ──
-async function submit(){
+async function submit(answerValue){
 
-  if(answered || !input.trim() || isSubmitting) return
+  if(answered || isSubmitting) return
+  if(quizMode === 'subjective' && !input.trim()) return
+
   setIsSubmitting(true)
 
   const m = pool[qi]
   const currentUser = users.find(u=>u.charId===selChar)
 
+  const inputValue = quizMode === 'objective' ? answerValue : input
+
+  const correct = quizMode === 'objective'
+    ? normalize(inputValue) === normalize(m.title)
+    : isCorrect(inputValue, m.title, Array.isArray(m.answers)?m.answers:[])
+
   try {
 
-    if(isCorrect(input, m.title, Array.isArray(m.answers)?m.answers:[])){
+    let nextMode = null
+    let gained = 0
 
+    if(correct){
+
+      // ✅ 콤보
       const ns = comboStreak + 1
-
-      let nextMode = null
       if(ns >= 5) nextMode = 'crazy'
       else if(ns === 4) nextMode = 'wow'
       else if(ns === 3) nextMode = 'good'
@@ -741,17 +795,15 @@ async function submit(){
       setComboStreak(ns)
       setMode(nextMode)
 
-      const gained = getPts(nextMode)
+      // ✅ 점수
+      gained = getPts(nextMode)
 
       setScore(v=>v + gained)
 
       setUsers(prev => {
         const updated = prev.map(u=>{
           if(u.charId===selChar){
-            return {
-              ...u,
-              score: (u.score || 0) + gained
-            }
+            return {...u, score: (u.score || 0) + gained}
           }
           return u
         })
@@ -759,7 +811,7 @@ async function submit(){
         return updated
       })
 
-      // ⭐ 정답 로그 추가
+      // ✅ 로그
       await saveLog({
         supabase,
         userId: String(currentUser?.userId),
@@ -770,47 +822,28 @@ async function submit(){
         comboMode: nextMode,
         isCorrect: true,
         nickname: currentUser?.nickname,
-        userInput: input?.trim() || null,
-        genre: m.genre || null
+        userInput: inputValue?.trim() || null,
+        genre: m.final_genre || null
       })
 
-      const genreValue = m.genre?.split(',')[0]?.trim() || '기타'
-
-      console.log('RPC payload 👉', {
-
-  user_id: String(currentUser?.userId),
-
-  character_id: selChar,
-
-  genre: genreValue,
-
-  is_correct: false,   // 상황에 맞게
-
-  score: Number(gained || 0)
-
-})
-
+      // ✅ RPC
       await supabase.rpc('update_genre_stats', {
+        p_user_id: String(currentUser?.userId),
+        p_character_id: selChar,
+        p_genre: m.final_genre || '기타',
+        p_is_correct: true,
+        p_score: gained
+      })
 
-    p_user_id: String(currentUser?.userId),
-
-  p_character_id: selChar,
-
-  p_genre: genreValue,
-
-  p_is_correct: true,
-
-  p_score: Number(gained)
-
-})
-
+      // ✅ 결과
       setResults(r=>[...r,{
         title:m.title,
         correct:true,
         hintUsed:sh,
         score:gained,
         country:m.country,
-        genre:m.side?.genre||''
+        genre:m.side?.genre||'',
+        grade: primaryGrade
       }])
 
       setFb(`정답! +${gained}점`)
@@ -819,82 +852,64 @@ async function submit(){
 
     } else {
 
+      // ❌ 오답
+
       setComboStreak(0)
       setMode(null)
 
-      // ⭐ 오답 로그 추가
+      if(quizMode === 'objective'){
 
-await saveLog({
+        if(sh >= 5){
+          doSkip()
+          return
+        }
 
-  supabase,
+        if(wrongCount === 0){
+          setWrongCount(1)
+          nextH()
+          setFb('다시 생각해봐')
+          setFbt('ng')
+          return
+        }
 
-  userId: String(currentUser?.userId),
+        if(wrongCount === 1){
+          setWrongCount(2)
+          setLockChoice(true)
+          setFb('기회를 더 줄수가 없다네...')
+          setFbt('ng')
+          return
+        }
+      }
 
-  charId: selChar,
+      // ❌ 로그
+      await saveLog({
+        supabase,
+        userId: String(currentUser?.userId),
+        charId: selChar,
+        movie: m,
+        hintUsed: sh,
+        score: 0,
+        comboMode: null,
+        isCorrect: false,
+        isSkip: false,
+        nickname: currentUser?.nickname,
+        userInput: inputValue?.trim() || null,
+        genre: m.final_genre || null
+      })
 
-  nickname: currentUser?.nickname,
-
-  userInput: input,
-
-  movie: m,
-
-  hintUsed: sh,
-
-  score: 0,
-
-  comboMode: null,
-
-  isCorrect: false,
-
-  isSkip: false,
-
-  userInput: input?.trim() || null,
-
-  genre: m.genre || null 
-
-})
-
-// 🔥 추가 (이 줄!)
-
-const genreValue = m.genre?.split(',')[0]?.trim() || '기타'
-
-console.log('RPC payload 👉', {
-
-  user_id: String(currentUser?.userId),
-
-  character_id: selChar,
-
-  genre: genreValue,
-
-  is_correct: false,   // 상황에 맞게
-
-  score: 0
-
-})
-
-// 🔥 RPC 수정
-
-await supabase.rpc('update_genre_stats', {
-
-  p_user_id: String(currentUser?.userId),
-
-  p_character_id: selChar,
-
-  p_genre: genreValue,
-
-  p_is_correct: false,
-
-  p_score: 0
-
-})
+      await supabase.rpc('update_genre_stats', {
+        p_user_id: String(currentUser?.userId),
+        p_character_id: selChar,
+        p_genre: m.final_genre || '기타',
+        p_is_correct: false,
+        p_score: 0
+      })
 
       setFb(rFB(sh))
       setFbt('ng')
     }
 
   } finally {
-
-    // 🔥 무조건 실행됨 (핵심)
     setIsSubmitting(false)
   }
 }
@@ -923,7 +938,7 @@ async function doSkip(){
     genre: m.genre || null
   })
 
-  const genreValue = m.genre?.split(',')[0]?.trim() || '기타'
+  const genreValue = m.final_genre || '기타'
 
   console.log('RPC payload 👉', {
 
@@ -960,7 +975,8 @@ async function doSkip(){
     hintUsed:0,
     score:0,
     country:m.country,
-    genre:m.side?.genre||''
+    genre:m.side?.genre||'',
+    grade:primaryGrade
   }])
 
   setFb('다음번엔 꼭 맞추길...')
@@ -1281,6 +1297,61 @@ if(screen==='char') return(
       }}>
         도전할 시대를 골라보세요 *여러 개 선택 OK
       </div>
+      <div style={{display:'flex', gap:8, marginBottom:16}}>
+
+  <button
+
+    onClick={()=>setQuizMode('subjective')}
+
+    style={{
+
+      flex:1,
+
+      height:40,
+
+      borderRadius:10,
+
+      background:quizMode==='subjective'?'#1a1814':'#eee',
+
+      color:quizMode==='subjective'?'#fff':'#000',
+
+      fontWeight:700
+
+    }}
+
+  >
+
+    주관식
+
+  </button>
+
+  <button
+
+    onClick={()=>setQuizMode('objective')}
+
+    style={{
+
+      flex:1,
+
+      height:40,
+
+      borderRadius:10,
+
+      background:quizMode==='objective'?'#1a1814':'#eee',
+
+      color:quizMode==='objective'?'#fff':'#000',
+
+      fontWeight:700
+
+    }}
+
+  >
+
+    객관식
+
+  </button>
+
+</div>
 
       {GRADES.map(gr=>{
         const sel = selGrades.includes(gr.id)
@@ -1404,7 +1475,7 @@ if(screen==='char') return(
       cursor: selGrades.length > 0 && !loading ? 'pointer' : 'default'
     }}
     disabled={selGrades.length === 0 || loading}
-    onClick={()=>loadMovies(selGrades, true)}
+    onClick={()=>loadMovies()}
   >
     {loading ? '로딩 중...' : '퀴즈시작'}
   </button>   {/* 🔥 반드시 닫아야 함 */}
@@ -1502,7 +1573,7 @@ if(screen==='quiz' && pool[qi]){
 
       justifyContent:'center',
 
-      opacity: answered ? 0 : 1,
+      opacity: (answered || quizMode === 'objective') ? 0 : 1,
 
       transition:'opacity 0.2s ease'
 
@@ -1655,33 +1726,33 @@ if(screen==='quiz' && pool[qi]){
 
     {/* 장르 */}
 
-    {m.genre && m.genre.split(',').map((g,i)=>(
+    {m.final_genre && (
 
-      <span key={i} style={{
+  <span style={{
 
-        fontSize:'0.62rem',
+    fontSize:'0.62rem',
 
-        fontWeight:700,
+    fontWeight:700,
 
-        padding:'3px 10px',
+    padding:'3px 10px',
 
-        borderRadius:20,
+    borderRadius:20,
 
-        background:'#e8f5ee',
+    background:'#e8f5ee',
 
-        color:'#2e8a52',
+    color:'#2e8a52',
 
-        border:'1px solid #a8dfc0',
+    border:'1px solid #a8dfc0',
 
-        flexShrink:0   // 🔥 추가
+    flexShrink:0
 
-      }}>
+  }}>
 
-        {g.trim()}
+    {m.final_genre}
 
-      </span>
+  </span>
 
-    ))}
+)}
 
     {/* awards */}
 
@@ -1928,6 +1999,84 @@ style={{
     )}
 
     {!answered ? (
+
+  <>
+    {/* 🔥 힌트 / 넘기기 (공통) */}
+<div style={{display:'flex', gap:8, marginBottom:16}}>
+
+  <button
+    onClick={()=>{
+      const el = scrollRef.current
+      const prev = el.scrollHeight
+      nextH()
+      requestAnimationFrame(()=>{
+        el.scrollTop += el.scrollHeight - prev
+      })
+    }}
+    disabled={sh>=5 || lockChoice}   // 🔥 힌트만 막음
+    style={{
+      flex:1,
+      height:40,
+      borderRadius:10,
+      background:'#f5f3ef',
+
+      opacity: (sh>=5 || lockChoice) ? 0.4 : 1,
+      pointerEvents: (sh>=5 || lockChoice) ? 'none' : 'auto'
+    }}
+  >
+    다음 힌트 ({sh}/5)
+  </button>
+
+  <button
+    onClick={doSkip}
+    style={{
+      flex:1,
+      height:40,
+      borderRadius:10,
+      background:'#fff5f6'
+    }}
+  >
+    넘기기
+  </button>
+
+</div>
+
+    {/* 🔥 모드 분기 딱 1번만 */}
+    {quizMode === 'objective' ? (
+
+      <div style={{
+        display:'grid',
+        gridTemplateColumns:'1fr 1fr',
+        gap:8,
+        marginBottom:8
+      }}>
+        {choices.map((c,i)=>(
+          <button
+            key={i}
+            onClick={()=>{
+              setSelectedChoice(c)
+              submit(c)
+            }}
+            disabled={lockChoice}
+            style={{
+              height:44,
+              borderRadius:10,
+              border:'1px solid #ddd',
+              background: selectedChoice === c ? '#1a1814' : '#fff',
+              color: selectedChoice === c ? '#fff' : '#000',
+              fontWeight:600,
+              opacity: lockChoice ? 0.4 : 1,
+              pointerEvents: lockChoice ? 'none' : 'auto',
+              transition:'opacity 0.2s ease'
+            }}
+          >
+            {c}
+          </button>
+        ))}
+      </div>
+
+    ) : (
+
       <>
         <div style={{
           display:'flex',
@@ -1956,7 +2105,7 @@ style={{
           />
 
           <button
-            onClick={submit}
+            onClick={()=>submit()}
             style={{
               width:72,
               height:46,
@@ -1970,79 +2119,42 @@ style={{
             정답
           </button>
         </div>
-
-        <div style={{display:'flex', gap:8}}>
-          <button
-            onClick={()=>{
-
-    const el = scrollRef.current
-
-    const prev = el.scrollHeight
-
-    nextH()
-
-    requestAnimationFrame(()=>{
-
-      el.scrollTop += el.scrollHeight - prev
-
-    })
-
-  }}
-            disabled={sh>=5}
-            style={{
-              flex:1,
-              height:40,
-              borderRadius:10,
-              background:'#f5f3ef'
-            }}
-          >
-            다음 힌트 ({sh}/5)
-          </button>
-
-          <button
-            onClick={doSkip}
-            style={{
-              flex:1,
-              height:40,
-              borderRadius:10,
-              background:'#fff5f6'
-            }}
-          >
-            넘기기
-          </button>
-        </div>
       </>
-    ) : (
-      <>
-        {fbt==='ok' && (
-          <div style={{
-            fontSize:'1.1rem',
-            fontWeight:900,
-            color:'#c8a84a',
-            marginBottom:12,
-            textAlign:'center'
-          }}>
-            {m.title}
-          </div>
-        )}
 
-        <button
-          onClick={nextQ}
-          style={{
-            width:'100%',
-            height:46,
-            borderRadius:12,
-            background:'#1a1814',
-            color:'#fff',
-            fontWeight:800,
-            border:'none'
-          }}
-        >
-          {qi+1<pool.length ? '다음 문제 →' : '결과 보기 →'}
-        </button>
-      </>
-      
     )}
+  </>
+
+) : (
+
+  <>
+    {fbt==='ok' && (
+      <div style={{
+        fontSize:'1.1rem',
+        fontWeight:900,
+        color:'#c8a84a',
+        marginBottom:12,
+        textAlign:'center'
+      }}>
+        {m.title}
+      </div>
+    )}
+
+    <button
+      onClick={nextQ}
+      style={{
+        width:'100%',
+        height:46,
+        borderRadius:12,
+        background:'#1a1814',
+        color:'#fff',
+        fontWeight:800,
+        border:'none'
+      }}
+    >
+      {qi+1<pool.length ? '다음 문제 →' : '결과 보기 →'}
+    </button>
+  </>
+)}
 
   </div>
 </div>
@@ -2447,7 +2559,7 @@ if(screen==='result'){
             fontWeight:700,
             border:'none'
           }}
-          onClick={()=>loadMovies(selGrades, true)}
+          onClick={()=>loadMovies()}
         >
           계속하기
         </button>
