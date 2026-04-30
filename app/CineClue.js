@@ -137,6 +137,9 @@ function CharacterSpinner(){
       position:'fixed',
 
       inset:0,
+      zIndex:9999999,
+
+      pointerEvents:'none',
 
       backdropFilter:'blur(6px)',         // 🔥 핵심: 배경 블러
 
