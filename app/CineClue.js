@@ -2806,16 +2806,153 @@ if(screen==='result'){
       )
 
     })
+) : (
 
-  ) : (
+  <>
 
-    <>
+    {(() => {
 
-       const safeRanking
+      const safeRanking = Array.isArray(ranking) ? ranking : []
+      const safeUsers = Array.isArray(users) ? users : []
+      const TOP_LIMIT = 15
 
-    </>
+      const myRankIndex = safeRanking.findIndex(
+        r => r.character_id === selChar
+      )
 
-  )}
+      const myRank = myRankIndex >= 0 ? myRankIndex + 1 : null
+      const myRankData = safeRanking[myRankIndex]
+
+      return (
+        <>
+
+          {Array.from({ length: rankingRevealDone ? TOP_LIMIT : 5 }).map((_, i) => {
+
+            const r = safeRanking[i] || null
+            const char = r ? CHARS.find(c => c.id === r.character_id) : null
+            const isDead = r && !safeUsers.find(u => u.charId === r.character_id)
+            const isAnimated = i < 5
+
+            return (
+              <div
+                key={i}
+                style={{
+                  borderRadius:13,
+                  border:'1.5px solid #ece8e2',
+                  background:'#fff',
+                  padding:'12px 16px',
+                  marginBottom:8,
+                  display:'flex',
+                  alignItems:'center',
+                  gap:12,
+                  animation: isAnimated ? 'fadeUp 0.3s ease forwards' : 'none',
+                  opacity: isAnimated ? 0 : 1,
+                  animationDelay: `${i * 0.08}s`
+                }}
+              >
+
+                <div style={{
+                  width:28,
+                  height:28,
+                  borderRadius:'50%',
+                  background:'#f5f3ef',
+                  display:'flex',
+                  alignItems:'center',
+                  justifyContent:'center',
+                  border:'1.5px solid #e8e4dd'
+                }}>
+                  <span style={{
+                    fontSize:'0.65rem',
+                    fontWeight:800
+                  }}>
+                    {i+1}위
+                  </span>
+                </div>
+
+                {r ? (
+                  <CharAvatar charId={r.character_id} size={28}/>
+                ) : (
+                  <div style={{
+                    width:28,
+                    height:28,
+                    borderRadius:'50%',
+                    background:'#f0eeea'
+                  }}/>
+                )}
+
+                <div style={{flex:1}}>
+                  <div style={{
+                    fontSize:'0.8rem',
+                    fontWeight:700,
+                    color: r
+                      ? isDead ? '#b0aaa3' : '#1a1814'
+                      : '#c0bbb4'
+                  }}>
+                    {r
+                      ? isDead
+                        ? `${r.nickname || char?.name || 'UNKNOWN'} 💀`
+                        : (r.nickname || char?.name || 'USER')
+                      : '-'
+                    }
+                  </div>
+                </div>
+
+                <div style={{
+                  fontSize:'0.85rem',
+                  fontWeight:800,
+                  color: r ? '#1a1814' : '#c0bbb4'
+                }}>
+                  {r ? r.score : 0}
+                </div>
+
+              </div>
+            )
+          })}
+
+          {myRank && myRank > 5 && (
+            <div style={{
+              marginTop:12,
+              padding:'10px 12px',
+              borderRadius:12,
+              background:'#fff8e8',
+              border:'1.5px solid #f0d9a0',
+              display:'flex',
+              alignItems:'center',
+              gap:10
+            }}>
+              <div style={{
+                fontSize:'0.75rem',
+                fontWeight:800
+              }}>
+                내 순위
+              </div>
+
+              <div style={{
+                fontSize:'0.9rem',
+                fontWeight:900,
+                color:'#c8a84a'
+              }}>
+                {myRank}위
+              </div>
+
+              <div style={{flex:1}}/>
+
+              <div style={{
+                fontSize:'0.8rem',
+                fontWeight:700
+              }}>
+                {myRankData?.score || 0}
+              </div>
+            </div>
+          )}
+
+        </>
+      )
+    })()}
+
+  </>
+
+)}
 
 </div>
 
