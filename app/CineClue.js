@@ -2610,7 +2610,9 @@ if(screen==='result'){
       background:'#fff',
       display:'flex',
       flexDirection:'column',
-      padding:'24px 0 20px'
+      padding:'24px 0 20px',
+      overflowY:'auto',
+      WebkitOverflowScrolling:'touch'
     }}>
 
       {/* 상단 */}
@@ -2697,10 +2699,11 @@ if(screen==='result'){
       {/* 결과 리스트 */}
 
       <div style={{
-        padding:'0 20px 100px',
-        maxHeight: resultView === 'ranking' ? 520 : 'none',
+        padding:'0 20px',
+        maxHeight: resultView === 'ranking' ? '48dvh' : 'none',
         overflowY: resultView === 'ranking' ? 'auto' : 'visible',
-        WebkitOverflowScrolling:'touch'
+        WebkitOverflowScrolling:'touch',
+        overscrollBehavior:'contain'
         }}>
 
   {resultView === 'score' ? (
@@ -2961,13 +2964,7 @@ if(screen==='result'){
 
   <div style={{
 
-    position:'fixed',
-
-    left:0,
-
-    right:0,
-
-    bottom:0,
+    flexShrink:0,
 
     padding:'16px 20px calc(24px + env(safe-area-inset-bottom))',
 
@@ -2977,9 +2974,7 @@ if(screen==='result'){
 
     background:'#fff',
 
-    borderTop:'1px solid #f0ece6',
-
-    zIndex:100
+    borderTop:'1px solid #f0ece6'
 
   }}>
 
