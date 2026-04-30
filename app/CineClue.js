@@ -8,23 +8,23 @@ const SUPABASE_KEY = process.env.NEXT_PUBLIC_SUPABASE_KEY || ''
 
 
 const CHARS = [
-  { id:'yoda', name:'요다', movie:'스타워즈', color:'#5a9660',
+  { id:'yoda', name:'스승님', movie:'스타워즈', color:'#5a9660',
     svg: <svg viewBox="0 0 80 80" fill="none"><ellipse cx="40" cy="52" rx="14" ry="11" fill="#4a7c4e"/><ellipse cx="40" cy="36" rx="16" ry="15" fill="#6aaa6e"/><ellipse cx="8" cy="34" rx="10" ry="5" fill="#5a9660" transform="rotate(-20 8 34)"/><ellipse cx="72" cy="34" rx="10" ry="5" fill="#5a9660" transform="rotate(20 72 34)"/><ellipse cx="34" cy="34" rx="4" ry="4.5" fill="#1a2a1a"/><ellipse cx="46" cy="34" rx="4" ry="4.5" fill="#1a2a1a"/><circle cx="33" cy="33" r="1.5" fill="#fff" opacity=".8"/><circle cx="45" cy="33" r="1.5" fill="#fff" opacity=".8"/><path d="M32 42 Q40 45 48 42" stroke="#3a6040" strokeWidth="1.5" fill="none"/><path d="M28 30 Q30 27 34 29" stroke="#3a6040" strokeWidth="1" fill="none"/><path d="M46 29 Q50 27 52 30" stroke="#3a6040" strokeWidth="1" fill="none"/></svg>},
-  { id:'immortan', name:'임모탄', movie:'매드맥스', color:'#4a90e8',
+  { id:'immortan', name:'사막의독재자', movie:'매드맥스', color:'#4a90e8',
     svg: <svg viewBox="0 0 80 80" fill="none"><rect x="20" y="50" width="40" height="22" rx="4" fill="#c8c0b0"/><ellipse cx="40" cy="36" rx="18" ry="17" fill="#d4cabb"/><rect x="24" y="38" width="32" height="18" rx="8" fill="#e8e8e8" stroke="#bbb" strokeWidth="1"/><rect x="27" y="41" width="26" height="12" rx="5" fill="#d0d0d0"/>{[30,34,38,42,46].map(x=><line key={x} x1={x} y1="41" x2={x} y2="53" stroke="#bbb" strokeWidth="1"/>)}<ellipse cx="32" cy="31" rx="5" ry="3.5" fill="#5588dd" opacity=".9"/><ellipse cx="48" cy="31" rx="5" ry="3.5" fill="#5588dd" opacity=".9"/><ellipse cx="32" cy="31" rx="3" ry="2.5" fill="#2255aa"/><ellipse cx="48" cy="31" rx="3" ry="2.5" fill="#2255aa"/><ellipse cx="40" cy="20" rx="16" ry="10" fill="#e8e4dc"/></svg>},
-  { id:'leon', name:'레옹', movie:'레옹', color:'#888',
+  { id:'leon', name:'킬러', movie:'레옹', color:'#888',
     svg: <svg viewBox="0 0 80 80" fill="none"><rect x="18" y="52" width="44" height="22" rx="4" fill="#2a2a2a"/><ellipse cx="40" cy="36" rx="17" ry="18" fill="#c8956a"/><rect x="22" y="24" width="36" height="7" rx="3" fill="#111"/><circle cx="31" cy="27" r="6" fill="#0a0a0a" stroke="#444" strokeWidth="1.5"/><circle cx="49" cy="27" r="6" fill="#0a0a0a" stroke="#444" strokeWidth="1.5"/><line x1="37" y1="27" x2="43" y2="27" stroke="#444" strokeWidth="1.5"/><path d="M33 44 Q40 47 47 44" stroke="#8a6040" strokeWidth="1.5" fill="none"/><ellipse cx="40" cy="20" rx="17" ry="8" fill="#1a1a1a"/></svg>},
-  { id:'morpheus', name:'모피어스', movie:'매트릭스', color:'#8866cc',
+  { id:'morpheus', name:'네오찾는남자', movie:'매트릭스', color:'#8866cc',
     svg: <svg viewBox="0 0 80 80" fill="none"><rect x="15" y="52" width="50" height="22" rx="4" fill="#111"/><ellipse cx="40" cy="36" rx="16" ry="17" fill="#7a5a3a"/><ellipse cx="31" cy="33" rx="7" ry="4.5" fill="#0a0a0a" stroke="#888" strokeWidth="1.5"/><ellipse cx="49" cy="33" rx="7" ry="4.5" fill="#0a0a0a" stroke="#888" strokeWidth="1.5"/><line x1="38" y1="33" x2="42" y2="33" stroke="#888" strokeWidth="1.5"/><path d="M33 45 Q40 49 47 45" stroke="#4a3020" strokeWidth="2" fill="none"/><ellipse cx="40" cy="21" rx="16" ry="9" fill="#5a3a1a"/><ellipse cx="28" cy="64" rx="4" ry="2.5" fill="#dd2222"/><ellipse cx="52" cy="64" rx="4" ry="2.5" fill="#2244cc"/></svg>},
-  { id:'pennywise', name:'페니와이즈', movie:'그것', color:'#e07020',
+  { id:'pennywise', name:'풍선광대', movie:'그것', color:'#e07020',
     svg: <svg viewBox="0 0 80 80" fill="none"><ellipse cx="40" cy="68" rx="22" ry="10" fill="#f0f0f0"/><circle cx="28" cy="64" r="4" fill="#dd4444"/><circle cx="40" cy="66" r="4" fill="#dd4444"/><circle cx="52" cy="64" r="4" fill="#dd4444"/><ellipse cx="40" cy="36" rx="18" ry="19" fill="#f5f0e8"/><ellipse cx="12" cy="26" rx="7" ry="10" fill="#dd6600" transform="rotate(-20 12 26)"/><ellipse cx="68" cy="26" rx="7" ry="10" fill="#dd6600" transform="rotate(20 68 26)"/><ellipse cx="31" cy="31" rx="5.5" ry="5.5" fill="#f5dd44"/><ellipse cx="49" cy="31" rx="5.5" ry="5.5" fill="#f5dd44"/><ellipse cx="31" cy="31" rx="3" ry="3.5" fill="#1a1a1a"/><ellipse cx="49" cy="31" rx="3" ry="3.5" fill="#1a1a1a"/><ellipse cx="40" cy="39" rx="4.5" ry="3.5" fill="#dd2222"/><path d="M24 46 Q28 51 40 53 Q52 51 56 46" stroke="#cc1111" strokeWidth="2.5" fill="none"/></svg>},
-  { id:'predator', name:'프레데터', movie:'프레데터', color:'#6a9a3a',
+  { id:'predator', name:'외계포식자', movie:'프레데터', color:'#6a9a3a',
     svg: <svg viewBox="0 0 80 80" fill="none"><rect x="16" y="52" width="48" height="22" rx="4" fill="#5a7a3a"/><ellipse cx="40" cy="36" rx="17" ry="18" fill="#6a8a4a"/>{[-16,-8,0,8,16].map((dx,i)=>(<line key={i} x1={40+dx} y1="20" x2={40+dx*1.5} y2="8" stroke="#4a6a2a" strokeWidth="3" strokeLinecap="round"/>))}<ellipse cx="32" cy="32" rx="4" ry="3" fill="#aadd00"/><ellipse cx="48" cy="32" rx="4" ry="3" fill="#aadd00"/><ellipse cx="32" cy="32" rx="2" ry="2" fill="#88bb00"/><ellipse cx="48" cy="32" rx="2" ry="2" fill="#88bb00"/><path d="M30 43 L33 50 L36 43 L40 50 L44 43 L47 50 L50 43" stroke="#3a5a1a" strokeWidth="1.5" fill="none"/></svg>},
-  { id:'sparrow', name:'잭 스패로우', movie:'캐리비안의 해적', color:'#8a5a2a',
+  { id:'sparrow', name:'조니선장', movie:'캐리비안의 해적', color:'#8a5a2a',
     svg: <svg viewBox="0 0 80 80" fill="none"><rect x="18" y="52" width="44" height="22" rx="4" fill="#3a2a1a"/><ellipse cx="40" cy="37" rx="16" ry="17" fill="#c8906a"/><path d="M16 26 L40 8 L64 26 Z" fill="#1a1a1a"/><rect x="14" y="24" width="52" height="5" rx="2" fill="#2a2a2a"/><ellipse cx="32" cy="34" rx="4.5" ry="3.5" fill="#1a1a1a"/><ellipse cx="48" cy="34" rx="4.5" ry="3.5" fill="#1a1a1a"/><path d="M27 32 Q32 29 37 32" stroke="#1a1a1a" strokeWidth="1.5" fill="none"/><path d="M43 32 Q48 29 53 32" stroke="#1a1a1a" strokeWidth="1.5" fill="none"/><path d="M34 42 Q40 44 46 42" stroke="#5a3a1a" strokeWidth="2" fill="none"/><line x1="38" y1="43" x2="38" y2="48" stroke="#5a3a1a" strokeWidth="1.5"/><line x1="42" y1="43" x2="42" y2="48" stroke="#5a3a1a" strokeWidth="1.5"/><path d="M24 26 Q40 22 56 26 Q56 30 40 32 Q24 30 24 26" fill="#cc3322"/></svg>},
-  { id:'joker', name:'조커', movie:'다크나이트', color:'#5533aa',
+  { id:'joker', name:'사이코패스', movie:'다크나이트', color:'#5533aa',
     svg: <svg viewBox="0 0 80 80" fill="none"><rect x="16" y="52" width="48" height="22" rx="4" fill="#5533aa"/><ellipse cx="40" cy="36" rx="17" ry="18" fill="#f0eeea"/><ellipse cx="31" cy="32" rx="5" ry="4" fill="#1a1a1a" opacity=".8"/><ellipse cx="49" cy="32" rx="5" ry="4" fill="#1a1a1a" opacity=".8"/><path d="M28 35 Q30 40 29 43" stroke="#1a1a1a" strokeWidth="1.5" fill="none" opacity=".6"/><path d="M52 35 Q50 40 51 43" stroke="#1a1a1a" strokeWidth="1.5" fill="none" opacity=".6"/><path d="M22 44 Q27 40 31 44 Q35 48 40 46 Q45 48 49 44 Q53 40 58 44" stroke="#dd2222" strokeWidth="2.5" fill="none"/><ellipse cx="40" cy="20" rx="17" ry="10" fill="#446622"/>{[28,33,38,43,48,53].map((x,i)=>(<line key={i} x1={x} y1="20" x2={x+(i%2===0?-2:2)} y2="10" stroke="#335511" strokeWidth="2.5" strokeLinecap="round"/>))}</svg>},
-  { id:'sadako', name:'사다코', movie:'링', color:'#444',
+  { id:'sadako', name:'물귀신', movie:'링', color:'#444',
     svg: <svg viewBox="0 0 80 80" fill="none"><rect x="18" y="48" width="44" height="28" rx="4" fill="#f0f0f0"/><ellipse cx="40" cy="36" rx="16" ry="17" fill="#f5f0e8"/><path d="M24 20 Q20 36 18 56" stroke="#1a1a1a" strokeWidth="8" fill="none" strokeLinecap="round"/><path d="M28 18 Q24 34 22 52" stroke="#1a1a1a" strokeWidth="7" fill="none" strokeLinecap="round"/><path d="M34 17 Q30 32 28 50" stroke="#1a1a1a" strokeWidth="6" fill="none" strokeLinecap="round"/><path d="M40 16 Q38 30 36 50" stroke="#1a1a1a" strokeWidth="5" fill="none" strokeLinecap="round"/><path d="M56 20 Q60 36 62 56" stroke="#1a1a1a" strokeWidth="8" fill="none" strokeLinecap="round"/><path d="M52 18 Q56 34 58 52" stroke="#1a1a1a" strokeWidth="7" fill="none" strokeLinecap="round"/><path d="M46 17 Q50 32 52 50" stroke="#1a1a1a" strokeWidth="6" fill="none" strokeLinecap="round"/><ellipse cx="40" cy="20" rx="17" ry="11" fill="#1a1a1a"/><ellipse cx="47" cy="35" rx="3" ry="3.5" fill="#0a0a0a"/><circle cx="48" cy="34" r="1" fill="#fff" opacity=".6"/></svg>},
 ]
 
@@ -171,7 +171,157 @@ function CharacterSpinner({ fadeOut }){
 
 }
 
+function IntroScreen({ onEnter }) {
+  return (
+    <div style={{
+      position:'fixed',
+      inset:0,
+      background:'#0a0a0a',
+      overflow:'hidden',
+      display:'flex',
+      alignItems:'center',
+      justifyContent:'center',
+      flexDirection:'column'
+    }}>
 
+      {/* 🔥 실루엣 레이어 */}
+      <div style={{
+        position:'absolute',
+        inset:0,
+        pointerEvents:'none'
+      }}>
+
+        {/* 레이어 1 */}
+        <div style={{
+          position:'absolute',
+          top:'20%',
+          left:'10%',
+          width:120,
+          opacity:0.08,
+          filter:'blur(6px)',
+          animation:'float1 12s linear infinite'
+        }}>
+          <svg viewBox="0 0 80 80" fill="#fff">
+            <circle cx="40" cy="40" r="30"/>
+          </svg>
+        </div>
+
+        {/* 레이어 2 */}
+        <div style={{
+          position:'absolute',
+          bottom:'15%',
+          right:'15%',
+          width:140,
+          opacity:0.06,
+          filter:'blur(8px)',
+          animation:'float2 16s linear infinite'
+        }}>
+          <svg viewBox="0 0 80 80" fill="#fff">
+            <rect x="10" y="10" width="60" height="60"/>
+          </svg>
+        </div>
+
+        {/* 레이어 3 */}
+        <div style={{
+          position:'absolute',
+          top:'50%',
+          left:'70%',
+          width:100,
+          opacity:0.07,
+          filter:'blur(5px)',
+          animation:'fadeFloat 10s ease-in-out infinite'
+        }}>
+          <svg viewBox="0 0 80 80" fill="#fff">
+            <ellipse cx="40" cy="40" rx="28" ry="20"/>
+          </svg>
+        </div>
+      </div>
+
+      {/* 🔥 텍스트 */}
+      <div style={{
+        color:'#fff',
+        textAlign:'center',
+        zIndex:10,
+        animation:'fadeUp 1s ease'
+      }}>
+        <div style={{
+          fontSize:'1rem',
+          opacity:0.7,
+          marginBottom:12
+        }}>
+          Hasta la vista
+        </div>
+
+        <div style={{
+          fontSize:'1.2rem',
+          fontWeight:700,
+          marginBottom:16
+        }}>
+          I see dead people
+        </div>
+
+        <div style={{
+          fontSize:'0.9rem',
+          opacity:0.6,
+          marginBottom:40
+        }}>
+          Houston, we have a problem
+        </div>
+
+        <div style={{
+          fontSize:'2.2rem',
+          fontWeight:900,
+          letterSpacing:'-1px',
+          marginBottom:30
+        }}>
+          Cine <span style={{color:'#e8808c'}}>CLUE</span>
+        </div>
+
+        <button
+          onClick={onEnter}
+          style={{
+            height:48,
+            padding:'0 28px',
+            borderRadius:12,
+            background:'#fff',
+            color:'#000',
+            fontWeight:700,
+            border:'none',
+            cursor:'pointer',
+            transition:'all 0.2s'
+          }}
+        >
+          Good Luck
+        </button>
+      </div>
+
+      {/* 🔥 애니메이션 */}
+      <style jsx>{`
+        @keyframes fadeUp {
+          from { opacity:0; transform:translateY(10px); }
+          to { opacity:1; transform:translateY(0); }
+        }
+
+        @keyframes float1 {
+          0% { transform:translateX(0); }
+          100% { transform:translateX(40px); }
+        }
+
+        @keyframes float2 {
+          0% { transform:translateY(0); }
+          100% { transform:translateY(-40px); }
+        }
+
+        @keyframes fadeFloat {
+          0% { opacity:0.05; }
+          50% { opacity:0.12; }
+          100% { opacity:0.05; }
+        }
+      `}</style>
+
+    </div>
+  )
+}
 
 function buildSidePool(side){
   if(!side) return []
@@ -320,7 +470,7 @@ const value = {
 
 }
 
-  const [screen,   setScreen]   = useState('char')
+  const [screen,   setScreen]   = useState('intro')
   const [selChar,  setSelChar]  = useState(null)
   const [selGrades, setSelGrades] = useState([])
   const [pool,     setPool]     = useState([])
@@ -358,7 +508,7 @@ const value = {
   const [wrongCount, setWrongCount] = useState(0)
   const [lockChoice, setLockChoice] = useState(false)
   const [selectedChoice, setSelectedChoice] = useState(null)
-  const [quizMode, setQuizMode] = useState('subjective') // or 'objective'
+  const [quizMode, setQuizMode] = useState('objective') 
   const [choices, setChoices] = useState([])
   const [genreStats, setGenreStats] = useState([])
   const [showProfile, setShowProfile] = useState(false)
@@ -1201,7 +1351,11 @@ function deleteUser(charId){
     setSelChar(null)
   }
 }
+if(screen === 'intro'){
 
+  return <IntroScreen onEnter={()=>setScreen('char')} />
+
+}
   // ══════════════════════════════════════════
 // 화면 1: 캐릭터 선택
 // ══════════════════════════════════════════
