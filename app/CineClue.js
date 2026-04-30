@@ -1546,7 +1546,8 @@ if(screen==='quiz' && pool[qi])
     const timerCol = tc>6 ? '#4a9c6d' : tc>3 ? '#c8a84a' : '#d45c5c'
     return (
       <div style={{
-        height:'100dvh',
+        height:'100%',
+        minHeight:'100vh',
         background:'#fff',
         display:'flex',
         flexDirection:'column',
@@ -1925,7 +1926,9 @@ style={{
   WebkitOverflowScrolling:'touch',
   padding:'12px 16px 24px',
   overflowAnchor:'none',
-  overscrollBehavior:'contain'
+  overscrollBehavior:'contain',
+  scrollBehavior:'auto',
+  touchAction:'pan-y'
 }}>
 
 {/* 힌트 리스트 */}
@@ -1979,6 +1982,9 @@ style={{
 
   {/* ── 입력 & 버튼 ── */}
   <div style={{
+    position:'sticky',   // 🔥 핵심
+    bottom:0,            // 🔥 핵심
+    background:'#fff',
     marginTop:16,
     paddingBottom:'calc(20px + env(safe-area-inset-bottom))',
     flexShrink:0
