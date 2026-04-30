@@ -112,8 +112,16 @@ input { font-family: inherit; outline: none; }
   to   { opacity: 1; transform: translateX(0); }
 }
 
-@keyframes fadeIn {
+@keyframes typing {
 
-  to { opacity: 1; }
+  from { width: 0 }
+
+  to { width: 30ch }
+
+}
+
+@keyframes blink {
+
+  50% { border-color: transparent }
 
 }
