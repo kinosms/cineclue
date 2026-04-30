@@ -688,7 +688,7 @@ function handleCharClick(charId){
 
   async function loadMovies(){
   setLoading(true)
-
+  await new Promise(r => setTimeout(r, 1000))
   try{
     if(!supabase){
       alert('DB 연결 안됨')
