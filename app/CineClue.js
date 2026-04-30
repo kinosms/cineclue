@@ -229,12 +229,9 @@ function CharAvatar({charId,size=40}){
 export default function CineClue() {
   const infoBox = {
 
-  background:'rgba(255,255,255,0.05)',
-
-  border:'1px solid rgba(255,255,255,0.1)',
-
+  background:'#fff',
+  border:'1px solid #e8e4dd',
   borderRadius:12,
-
   padding:'10px 12px'
 
 }
@@ -302,6 +299,14 @@ const value = {
   const [showProfile, setShowProfile] = useState(false)
   const [rankingRevealDone, setRankingRevealDone] = useState(false)
   const primaryGrade = selGrades[0] || null
+  const UI = {
+  surface: '#ffffff',
+  border: '#e8e4dd',
+  textMain: '#1a1814',
+  textSub: '#888',
+  textWeak: '#b0aaa3',
+  accent: '#ff6b7a'
+}
   // 🔥 객관식 선택지 동기화
 
 // 화면이 퀴즈로 바뀌거나, 문제 번호(qi)가 바뀔 때
@@ -2166,7 +2171,7 @@ style={{
 
     inset:0,
 
-    background:'rgba(0,0,0,0.7)',
+    background:'rgba(0,0,0,0.3)',
 
     display:'flex',
 
@@ -2196,15 +2201,15 @@ style={{
 
         maxWidth:420,
 
-        background:'linear-gradient(135deg, #18171a, #242126)',
+        background:'#faf9f7',
 
         borderRadius:20,
 
-        border:'1.5px solid rgba(255,107,122,0.8)',
+        border:'1.5px solid #e8e4dd',
 
         padding:'20px 16px',
 
-        boxShadow:'0 0 60px rgba(255,107,122,0.25)',
+        boxShadow:'0 10px 30px rgba(0,0,0,0.1)',
 
         position:'relative'
 
@@ -2220,15 +2225,15 @@ style={{
           width:30,
           height:30,
           borderRadius:'50%',
-          background:'rgba(255,255,255,0.08)',
+          background:'#f5f3ef',
+          border:'1px solid #e8e4dd',
           display:'flex',
           alignItems:'center',
           justifyContent:'center',
-          cursor:'pointer',
-          border:'1px solid rgba(255,255,255,0.15)'
+          cursor:'pointer'
         }}
       >
-        <span style={{color:'#fff',fontSize:16,fontWeight:700}}>×</span>
+        <span style={{color:'#1a1814',fontSize:16,fontWeight:700}}>×</span>
       </div>
 
       {/* 🔥 상단 텍스트 (우선순위 변경) */}
@@ -2245,7 +2250,7 @@ style={{
         <div style={{
           fontSize:'1.4rem',
           fontWeight:900,
-          color:'#bbb',
+          color:'#1a1814',
           marginTop:4
         }}>
           총소리 놀람이
@@ -2310,14 +2315,14 @@ style={{
         <div style={{
           fontSize:'1.2rem',
           fontWeight:800,
-          color:'#fff'
+          color:'#1a1814'
         }}>
           Lv. 20
         </div>
 
         <div style={{
           height:6,
-          background:'#333',
+          background:'#eee',
           borderRadius:10,
           marginTop:6
         }}>
@@ -2330,7 +2335,7 @@ style={{
 
         <div style={{
           fontSize:'0.65rem',
-          color:'#aaa',
+          color:'#888',
           textAlign:'right',
           marginTop:4
         }}>
@@ -2453,8 +2458,8 @@ style={{
           cx={cx}
           cy={cy}
           r={radius*r}
-          stroke="rgba(255,255,255,0.08)"
-          fill="none"
+          stroke="rgba(0,0,0,0.08)"
+          fill="rgba(232,128,140,0.25)"
         />
       ))}
 
@@ -2466,7 +2471,7 @@ style={{
           y1={cy}
           x2={p.labelX}
           y2={p.labelY}
-          stroke="rgba(255,255,255,0.08)"
+          stroke="rgba(0,0,0,0.08)"
         />
       ))}
 
@@ -2496,7 +2501,7 @@ style={{
           key={i}
           x={p.labelX}
           y={p.labelY}
-          fill="#ddd"
+          fill="#555"
           fontSize="9"
           textAnchor="middle"
           alignmentBaseline="middle"
@@ -2549,7 +2554,7 @@ style={{
           }}>
             <div style={{
               fontSize:'0.6rem',
-              color:'#aaa',
+              color:'#888',
               marginBottom:2
             }}>
               {k}
@@ -2557,7 +2562,7 @@ style={{
             <div style={{
               fontSize:'0.8rem',
               fontWeight:700,
-              color:'#fff'
+              color:'#1a1814'
             }}>
               {v}
             </div>
@@ -2606,13 +2611,12 @@ if(screen==='result'){
 
   return(
     <div style={{
-      minHeight:'100dvh',
+      height:'100dvh',
+      overflow:'hidden',
       background:'#fff',
       display:'flex',
       flexDirection:'column',
       padding:'24px 0 20px',
-      overflowY:'auto',
-      WebkitOverflowScrolling:'touch'
     }}>
 
       {/* 상단 */}
@@ -2700,8 +2704,9 @@ if(screen==='result'){
 
       <div style={{
         padding:'0 20px',
-        maxHeight: resultView === 'ranking' ? '48dvh' : 'none',
-        overflowY: resultView === 'ranking' ? 'auto' : 'visible',
+        height: results.length > 0 ? `${results.length * 72}px` : '360px',
+        // 🔥 핵심: Q1~Q5 높이 기준
+        overflowY: resultView === 'ranking' ? 'auto' : 'hidden',
         WebkitOverflowScrolling:'touch',
         overscrollBehavior:'contain'
         }}>
@@ -2834,6 +2839,7 @@ if(screen==='result'){
             const r = safeRanking[i] || null
             const char = r ? CHARS.find(c => c.id === r.character_id) : null
             const isDead = r && !safeUsers.find(u => u.charId === r.character_id)
+            const isMe = r && r.character_id === selChar
             const isAnimated = i < 5
 
             return (
@@ -2841,6 +2847,13 @@ if(screen==='result'){
                 key={i}
                 style={{
                   borderRadius:13,
+                 border: isMe
+                  ? '2px solid #e8808c'
+                  : '1.5px solid #ece8e2',
+                background: isMe
+                  ? '#fff5f6'
+                  : '#fff',
+                  color: isMe ? '#e8808c' : '#1a1814',
                   border:'1.5px solid #ece8e2',
                   background:'#fff',
                   padding:'12px 16px',
@@ -2912,41 +2925,84 @@ if(screen==='result'){
             )
           })}
 
-          {myRank && myRank > 5 && (
+          {myRank && myRank > TOP_LIMIT && (
             <div style={{
-              marginTop:12,
-              padding:'10px 12px',
-              borderRadius:12,
-              background:'#fff8e8',
-              border:'1.5px solid #f0d9a0',
-              display:'flex',
-              alignItems:'center',
-              gap:10
-            }}>
-              <div style={{
-                fontSize:'0.75rem',
-                fontWeight:800
-              }}>
-                내 순위
-              </div>
 
-              <div style={{
-                fontSize:'0.9rem',
-                fontWeight:900,
-                color:'#c8a84a'
-              }}>
-                {myRank}위
-              </div>
+  marginTop:12,
 
-              <div style={{flex:1}}/>
+  padding:'12px 14px',
 
-              <div style={{
-                fontSize:'0.8rem',
-                fontWeight:700
-              }}>
-                {myRankData?.score || 0}
-              </div>
-            </div>
+  borderRadius:14,
+
+  background:'#fff5f6',
+
+  border:'2px solid #e8808c',
+
+  display:'flex',
+
+  alignItems:'center',
+
+  gap:10
+
+}}>
+
+  <div style={{
+
+    fontSize:'0.75rem',
+
+    fontWeight:800,
+
+    color:'#e8808c'
+
+  }}>
+
+    내 순위
+
+  </div>
+
+  <div style={{
+
+    fontSize:'1rem',
+
+    fontWeight:900,
+
+    color:'#e8808c'
+
+  }}>
+
+    {myRank}위
+
+  </div>
+
+  <CharAvatar charId={selChar} size={28}/>
+
+  <div style={{
+
+    fontSize:'0.85rem',
+
+    fontWeight:700,
+
+    flex:1
+
+  }}>
+
+    {myRankData?.nickname || 'USER'}
+
+  </div>
+
+  <div style={{
+
+    fontSize:'0.9rem',
+
+    fontWeight:900
+
+  }}>
+
+    {myRankData?.score || 0}
+
+  </div>
+
+</div>
           )}
 
         </>
@@ -3054,7 +3110,7 @@ if(screen==='result'){
         <div style={{
           position:'fixed',
           inset:0,
-          background:'rgba(0,0,0,0.7)',
+          background:'rgba(0,0,0,0.3)',
           display:'flex',
           alignItems:'center',
           justifyContent:'center',
@@ -3069,11 +3125,11 @@ if(screen==='result'){
             <div style={{
               width:'92vw',
               maxWidth:420,
-              background:'linear-gradient(135deg, #18171a, #242126)',
+              background:'#faf9f7',
               borderRadius:20,
-              border:'1.5px solid rgba(255,107,122,0.8)',
+              border:'1.5px solid #e8e4dd',
               padding:'20px 16px',
-              boxShadow:'0 0 60px rgba(255,107,122,0.25)',
+              boxShadow:'0 10px 30px rgba(0,0,0,0.1)',
               position:'relative'
             }}>
 
@@ -3086,15 +3142,15 @@ if(screen==='result'){
                   width:30,
                   height:30,
                   borderRadius:'50%',
-                  background:'rgba(255,255,255,0.08)',
+                  background:'#f5f3ef',
+                  border:'1px solid #e8e4dd',
                   display:'flex',
                   alignItems:'center',
                   justifyContent:'center',
-                  cursor:'pointer',
-                  border:'1px solid rgba(255,255,255,0.15)'
+                  cursor:'pointer'
                 }}
               >
-                <span style={{color:'#fff',fontSize:16,fontWeight:700}}>×</span>
+                <span style={{color:'#1a1814',fontSize:16,fontWeight:700}}>×</span>
               </div>
 
               <div style={{textAlign:'center', marginBottom:14}}>
@@ -3105,7 +3161,7 @@ if(screen==='result'){
                 <div style={{
                   fontSize:'1.4rem',
                   fontWeight:900,
-                  color:'#bbb',
+                  color:'#1a1814',
                   marginTop:4
                 }}>
                   총소리 놀람이
@@ -3146,14 +3202,14 @@ if(screen==='result'){
                 <div style={{
                   fontSize:'1.2rem',
                   fontWeight:800,
-                  color:'#fff'
+                  color:'#1a1814'
                 }}>
                   Lv. 20
                 </div>
 
                 <div style={{
                   height:6,
-                  background:'#333',
+                  background:'#eee',
                   borderRadius:10,
                   marginTop:6
                 }}>
@@ -3166,7 +3222,7 @@ if(screen==='result'){
 
                 <div style={{
                   fontSize:'0.65rem',
-                  color:'#aaa',
+                  color:'#888',
                   textAlign:'right',
                   marginTop:4
                 }}>
@@ -3244,7 +3300,7 @@ if(screen==='result'){
                           cx={cx}
                           cy={cy}
                           r={radius*r}
-                          stroke="rgba(255,255,255,0.08)"
+                          stroke="rgba(0,0,0,0.08)"
                           fill="none"
                         />
                       ))}
@@ -3256,7 +3312,7 @@ if(screen==='result'){
                           y1={cy}
                           x2={p.labelX}
                           y2={p.labelY}
-                          stroke="rgba(255,255,255,0.08)"
+                          stroke="rgba(0,0,0,0.08)"
                         />
                       ))}
 
@@ -3283,7 +3339,7 @@ if(screen==='result'){
                           key={i}
                           x={p.labelX}
                           y={p.labelY}
-                          fill="#ddd"
+                          fill="#555"
                           fontSize="9"
                           textAnchor="middle"
                           alignmentBaseline="middle"
@@ -3325,14 +3381,14 @@ if(screen==='result'){
                   ['최근 플레이','2024.05.20']
                 ].map(([k,v],i)=>(
                   <div key={i} style={{
-                    background:'rgba(255,255,255,0.05)',
-                    border:'1px solid rgba(255,255,255,0.1)',
+                    background:'#fff',
+                    border:'1px solid #e8e4dd',
                     borderRadius:10,
                     padding:'8px'
                   }}>
                     <div style={{
                       fontSize:'0.6rem',
-                      color:'#aaa',
+                      color:'#888',
                       marginBottom:2
                     }}>
                       {k}
@@ -3340,7 +3396,7 @@ if(screen==='result'){
                     <div style={{
                       fontSize:'0.8rem',
                       fontWeight:700,
-                      color:'#fff'
+                      color:'#1a1814'
                     }}>
                       {v}
                     </div>
