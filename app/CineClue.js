@@ -109,6 +109,87 @@ function isCorrect(inp, title, answers = []) {
   return false
 
 }
+
+//스피너//
+
+function CharacterSpinner(){
+
+  const [idx, setIdx] = useState(0)
+
+  useEffect(()=>{
+
+    const t = setInterval(()=>{
+
+      setIdx(prev => (prev + 1) % CHARS.length)
+
+    }, 120) // 🔥 속도 조절 (120~180 추천)
+
+    return () => clearInterval(t)
+
+  },[])
+
+  const char = CHARS[idx]
+
+  return(
+
+    <div style={{
+
+      position:'fixed',
+
+      inset:0,
+
+      backdropFilter:'blur(6px)',         // 🔥 핵심: 배경 블러
+
+      background:'rgba(255,255,255,0.55)', // 🔥 살짝 밝힘
+
+      display:'flex',
+
+      alignItems:'center',
+
+      justifyContent:'center',
+
+      zIndex:999999
+
+    }}>
+
+      <div style={{
+
+        width:110,
+
+        height:110,
+
+        borderRadius:'50%',
+
+        background:'#fff',
+
+        border:'2px solid #e8e4dd',
+
+        display:'flex',
+
+        alignItems:'center',
+
+        justifyContent:'center',
+
+        boxShadow:'0 10px 30px rgba(0,0,0,0.08)'
+
+      }}>
+
+        <svg viewBox="0 0 80 80" style={{width:90,height:90}}>
+
+          {char.svg.props.children}
+
+        </svg>
+
+      </div>
+
+    </div>
+
+  )
+
+}
+
+
+
 function buildSidePool(side){
   if(!side) return []
   const p=[]
@@ -1541,14 +1622,19 @@ if(screen==='quiz' && pool[qi])
   {
     const m = pool[qi]
     const timerCol = tc>6 ? '#4a9c6d' : tc>3 ? '#c8a84a' : '#d45c5c'
+    
     return (
+      
       <div style={{
+        
         height:'100%',
         minHeight:'100vh',
         background:'#fff',
         display:'flex',
         flexDirection:'column',
       }}>
+
+        {loading && <CharacterSpinner />}
         
       {/* ── 고정 헤더 ── */}
       <div style={{
