@@ -2594,15 +2594,17 @@ style={{
 
 
 
- // ══════════════════════════════════════════
+// ══════════════════════════════════════════
 // 화면 4: 결과
+// ══════════════════════════════════════════
 if(screen==='result'){
-  
+
   const user = users?.find(u => u.charId === selChar)
   const baseScore = user?.score ?? 0
   const roundScore = (results ?? []).reduce((s,r)=>s+r.score,0)
   const tot = baseScore + roundScore
   const nickname = user?.nickname || 'USER'
+  const currentGrade = selGrades?.[0]
 
   return(
     <div style={{
@@ -2612,7 +2614,7 @@ if(screen==='result'){
       flexDirection:'column',
       padding:'24px 0 20px'
     }}>
-      
+
       {/* 상단 */}
       <div style={{
         display:'flex',
@@ -2631,15 +2633,11 @@ if(screen==='result'){
           justifyContent:'center',
           marginBottom:10
         }}>
-        <div onClick={()=>setShowProfile(true)} style={{cursor:'pointer'}}>
-
-  <svg viewBox="0 0 80 80" style={{width:80,height:80}}>
-
-  {char?.svg?.props?.children}
-
-</svg>
-
-</div>
+          <div onClick={()=>setShowProfile(true)} style={{cursor:'pointer'}}>
+            <svg viewBox="0 0 80 80" style={{width:80,height:80}}>
+              {char?.svg?.props?.children}
+            </svg>
+          </div>
         </div>
 
         <div style={{
@@ -2650,751 +2648,565 @@ if(screen==='result'){
         }}>
           {nickname}
         </div>
+
         <div style={{
-  fontSize:'2.8rem',
-  fontWeight:900,
-  color:'#1a1814'
-}}>
-  {displayScore.toLocaleString()}점
-</div>
-
-{/* 🔥 토글 버튼 */}
-
-<div style={{
-
-  marginTop:10,
-
-  display:'flex',
-
-  justifyContent:'center'
-
-}}>
-
-  <button
-
-    onClick={()=>{
-
-      setResultView(prev => prev === 'score' ? 'ranking' : 'score')
-
-    }}
-
-    style={{
-
-      padding:'6px 12px',
-
-      borderRadius:20,
-
-      border:'1px solid #ddd',
-
-      background:'#fff',
-
-      fontSize:'0.7rem',
-
-      cursor:'pointer'
-
-    }}
-
-  >
-
-    {resultView === 'score' ? '랭킹 보기' : '점수 보기'}
-
-  </button>
-
-</div>
-
-{isLevelCompleted && (
-
-  <div style={{
-
-    fontSize:'0.8rem',
-
-    color:'#888',
-
-    marginTop:6
-
-  }}>
-
-    {selGrade === 'easy' && '2000+ 레벨을 완료하였습니다'}
-
-    {selGrade === 'normal' && '1990+ 레벨을 완료하였습니다'}
-
-    {selGrade === 'hard' && 'ALL 레벨을 완료하였습니다'}
-
-  </div>
-
-)}
+          fontSize:'2.8rem',
+          fontWeight:900,
+          color:'#1a1814'
+        }}>
+          {displayScore.toLocaleString()}점
         </div>
+
+        <div style={{
+          marginTop:10,
+          display:'flex',
+          justifyContent:'center'
+        }}>
+          <button
+            onClick={()=>{
+              setResultView(prev => prev === 'score' ? 'ranking' : 'score')
+            }}
+            style={{
+              padding:'6px 12px',
+              borderRadius:20,
+              border:'1px solid #ddd',
+              background:'#fff',
+              fontSize:'0.7rem',
+              cursor:'pointer'
+            }}
+          >
+            {resultView === 'score' ? '랭킹 보기' : '점수 보기'}
+          </button>
+        </div>
+
+        {isLevelCompleted && (
+          <div style={{
+            fontSize:'0.8rem',
+            color:'#888',
+            marginTop:6
+          }}>
+            {currentGrade === '2020s' && '2020년대 레벨을 완료하였습니다'}
+            {currentGrade === '2010s' && '2010년대 레벨을 완료하였습니다'}
+            {currentGrade === '2000s' && '2000년대 레벨을 완료하였습니다'}
+            {currentGrade === '1990s' && '1990년대 레벨을 완료하였습니다'}
+            {currentGrade === 'old' && '오래전 영화 레벨을 완료하였습니다'}
+          </div>
+        )}
+      </div>
 
       {/* 결과 리스트 */}
       <div style={{padding:'0 20px'}}>
 
-  {resultView === 'score' ? (
+        {resultView === 'score' ? (
 
+          results.slice(0, visibleResults).map((r,i)=>{
+            const rg = GRADES.find(x=>x.id===r.grade)
+            const isCorrect = r.correct === true
 
-  // ✅ 기존 결과
-  results.slice(0, visibleResults).map((r,i)=>{
+            return(
+              <div key={i} style={{
+                borderRadius:13,
+                border:'1.5px solid #ece8e2',
+                background:'#fff',
+                padding:'12px 16px',
+                marginBottom:8,
+                display:'flex',
+                alignItems:'center',
+                gap:12
+              }}>
 
-    const rg = GRADES.find(x=>x.id===r.grade)
-    const isCorrect = r.correct === true
+                <div style={{
+                  width:28,
+                  height:28,
+                  borderRadius:'50%',
+                  background: isCorrect ? `${rg?.color || '#ccc'}15` : '#f5f3ef',
+                  display:'flex',
+                  alignItems:'center',
+                  justifyContent:'center',
+                  border:`1.5px solid ${isCorrect ? (rg?.color || '#ccc') : '#e8e4dd'}`
+                }}>
+                  <span style={{
+                    fontSize:'0.6rem',
+                    fontWeight:800,
+                    color:r.correct ? rg?.color : '#b0aaa3'
+                  }}>
+                    Q{i+1}
+                  </span>
+                </div>
 
-    return(
-      <div key={i} style={{
-        borderRadius:13,
-        border:'1.5px solid #ece8e2',
-        background:'#fff',
-        padding:'12px 16px',
-        marginBottom:8,
-        display:'flex',
-        alignItems:'center',
-        gap:12
-      }}>
+                <div style={{flex:1}}>
+                  <div style={{
+                    fontSize:'0.8rem',
+                    fontWeight:700,
+                    color:r.correct ? '#1a1814' : '#c0bbb4'
+                  }}>
+                    {r.correct ? r.title : '실패'}
+                  </div>
+                </div>
 
-        {/* Q 번호 */}
-        <div style={{
+                <div style={{
+                  fontSize:'0.85rem',
+                  fontWeight:800,
+                  color:r.correct ? '#4a9c6d' : '#d45c5c'
+                }}>
+                  {r.correct ? `+${r.score}` : '-'}
+                </div>
 
-  width:28,
+              </div>
+            )
+          })
 
-  height:28,
+        ) : (
 
-  borderRadius:'50%',
+          Array.from({ length: 5 }).map((_, i) => {
+            const r = ranking[i] || null
+            const char = r ? CHARS.find(c => c.id === r.character_id) : null
+            const isDead = r && !users.find(u => u.charId === r.character_id)
 
-  background: isCorrect ? `${rg?.color || '#ccc'}15` : '#f5f3ef',
+            return (
+              <div key={i} style={{
+                borderRadius:13,
+                border:'1.5px solid #ece8e2',
+                background:'#fff',
+                padding:'12px 16px',
+                marginBottom:8,
+                display:'flex',
+                alignItems:'center',
+                gap:12
+              }}>
 
-  display:'flex',
+                <div style={{
+                  width:28,
+                  height:28,
+                  borderRadius:'50%',
+                  background:'#f5f3ef',
+                  display:'flex',
+                  alignItems:'center',
+                  justifyContent:'center',
+                  border:'1.5px solid #e8e4dd'
+                }}>
+                  <span style={{
+                    fontSize:'0.65rem',
+                    fontWeight:800
+                  }}>
+                    {i+1}위
+                  </span>
+                </div>
 
-  alignItems:'center',
+                {r ? (
+                  <CharAvatar charId={r.character_id} size={28}/>
+                ) : (
+                  <div style={{
+                    width:28,
+                    height:28,
+                    borderRadius:'50%',
+                    background:'#f0eeea'
+                  }}/>
+                )}
 
-  justifyContent:'center',
+                <div style={{flex:1}}>
+                  <div style={{
+                    fontSize:'0.8rem',
+                    fontWeight:700,
+                    color: r ? (isDead ? '#b0aaa3' : '#1a1814') : '#c0bbb4'
+                  }}>
+                    {r
+                      ? isDead
+                        ? `${r.nickname || char?.name || 'UNKNOWN'} 💀`
+                        : (r.nickname || char?.name || 'USER')
+                      : '-'
+                    }
+                  </div>
+                </div>
 
-  border:`1.5px solid ${isCorrect ? (rg?.color || '#ccc') : '#e8e4dd'}`
+                <div style={{
+                  fontSize:'0.85rem',
+                  fontWeight:800,
+                  color: r ? '#1a1814' : '#c0bbb4'
+                }}>
+                  {r ? r.score : 0}
+                </div>
 
-}}>
-          <span style={{
-            fontSize:'0.6rem',
-            fontWeight:800,
-            color:r.correct ? rg?.color : '#b0aaa3'
-          }}>
-            Q{i+1}
-          </span>
-        </div>
+              </div>
+            )
+          })
 
-        {/* 제목 */}
-        <div style={{flex:1}}>
-          <div style={{
-            fontSize:'0.8rem',
-            fontWeight:700,
-            color:r.correct ? '#1a1814' : '#c0bbb4'
-          }}>
-            {r.correct ? r.title : '실패'}
-          </div>
-        </div>
-
-        {/* 점수 */}
-        <div style={{
-          fontSize:'0.85rem',
-          fontWeight:800,
-          color:r.correct ? '#4a9c6d' : '#d45c5c'
-        }}>
-          {r.correct ? `+${r.score}` : '-'}
-        </div>
+        )}
 
       </div>
-    )
-  })
 
-) : (
-
-  // 🔥 랭킹 TOP 5
-  Array.from({ length: 5 }).map((_, i) => {
-
-  const r = ranking[i] || null
-  const char = r ? CHARS.find(c => c.id === r.character_id) : null
-  const isDead = r && !users.find(u => u.charId === r.character_id)
-
-  return (
-    <div key={i} style={{
-      borderRadius:13,
-      border:'1.5px solid #ece8e2',
-      background:'#fff',
-      padding:'12px 16px',
-      marginBottom:8,
-      display:'flex',
-      alignItems:'center',
-      gap:12
-    }}>
-
-      {/* 순위 */}
-      <div style={{
-        width:28,
-        height:28,
-        borderRadius:'50%',
-        background:'#f5f3ef',
-        display:'flex',
-        alignItems:'center',
-        justifyContent:'center',
-        border:'1.5px solid #e8e4dd'
-      }}>
-        <span style={{
-          fontSize:'0.65rem',
-          fontWeight:800
-        }}>
-          {i+1}위
-        </span>
-      </div>
-
-      {/* 캐릭터 */}
-      {r ? (
-        <CharAvatar charId={r.character_id} size={28} style={{
-
-  opacity: isDead ? 0.4 : 1
-
-}}/>
-      ) : (
+      {/* 하단 버튼 */}
+      {visibleResults > results.length && (
         <div style={{
-          width:28,
-          height:28,
-          borderRadius:'50%',
-          background:'#f0eeea'
-        }}/>
+          padding:'20px',
+          display:'flex',
+          flexDirection:'row',
+          gap:10
+        }}>
+
+          {isLevelCompleted ? (
+            <>
+              <button
+                style={{
+                  flex:1,
+                  height:54,
+                  borderRadius:12,
+                  background:'transparent',
+                  color:'#9a9490',
+                  fontSize:'0.8rem',
+                  fontWeight:500,
+                  border:'1.5px solid #e8e4dd'
+                }}
+                onClick={()=>setScreen('char')}
+              >
+                홈으로
+              </button>
+            </>
+          ) : (
+            <>
+              <button
+                style={{
+                  flex:1,
+                  height:54,
+                  borderRadius:14,
+                  background:'#1a1814',
+                  color:'#fff',
+                  fontSize:'0.9rem',
+                  fontWeight:700,
+                  border:'none'
+                }}
+                onClick={()=>loadMovies()}
+              >
+                계속하기
+              </button>
+
+              <button
+                style={{
+                  flex:1,
+                  height:54,
+                  borderRadius:12,
+                  background:'transparent',
+                  color:'#9a9490',
+                  fontSize:'0.8rem',
+                  fontWeight:500,
+                  border:'1.5px solid #e8e4dd'
+                }}
+                onClick={()=>setScreen('char')}
+              >
+                홈으로
+              </button>
+            </>
+          )}
+        </div>
       )}
 
-      {/* 이름 */}
-      <div style={{flex:1}}>
+      {/* 🔥 프로필 팝업: 결과 UI 밖, root 마지막 */}
+      {showProfile && (
         <div style={{
-          fontSize:'0.8rem',
-          fontWeight:700,
-          color: r
-
-  ? isDead
-
-    ? '#b0aaa3'
-
-    : '#1a1814'
-
-  : '#c0bbb4'
-        }}>
-          {r
-
-  ? isDead
-
-    ? ` ${r.nickname || char?.name || 'UNKNOWN'} 💀`
-
-    : (r.nickname || char?.name || 'USER')
-
-  : '-'
-
-}
-        </div>
-      </div>
-
-      {/* 점수 */}
-      <div style={{
-        fontSize:'0.85rem',
-        fontWeight:800,
-        color: r ? '#1a1814' : '#c0bbb4'
-      }}>
-        {r ? r.score : 0}
-      </div>
-
-    </div>
-  )
-})
-
-)}
-
-</div>
-
-{visibleResults > results.length && (
-  <div style={{
-    padding:'20px',
-    display:'flex',
-    flexDirection:'row',
-    gap:10
-  }}>
-
-    {/* 🔥 프로필 팝업 */}
-{showProfile && (
-  <div style={{
-    position:'fixed',
-    inset:0,
-    background:'rgba(0,0,0,0.7)',
-    display:'flex',
-    alignItems:'center',
-    justifyContent:'center',
-    zIndex:9999
-  }}>
-
- {/* 🔥 이거 반드시 있어야 함 */}
-
-    <div style={{
-
-      transform:'scale(0.88)',
-
-      transformOrigin:'center center'
-
-    }}>
-      
-    <div style={{
-      width:'92vw',
-      maxWidth:420,
-      background:'linear-gradient(135deg, #18171a, #242126)',
-      borderRadius:20,
-      border:'1.5px solid rgba(255,107,122,0.8)',
-      padding:'20px 16px',
-      boxShadow:'0 0 60px rgba(255,107,122,0.25)',
-      position:'relative'
-    }}>
-
-      {/* ❌ X 버튼 */}
-      <div
-        onClick={()=>setShowProfile(false)}
-        style={{
-          position:'absolute',
-          top:12,
-          right:12,
-          width:30,
-          height:30,
-          borderRadius:'50%',
-          background:'rgba(255,255,255,0.08)',
+          position:'fixed',
+          inset:0,
+          background:'rgba(0,0,0,0.7)',
           display:'flex',
           alignItems:'center',
           justifyContent:'center',
-          cursor:'pointer',
-          border:'1px solid rgba(255,255,255,0.15)'
-        }}
-      >
-        <span style={{color:'#fff',fontSize:16,fontWeight:700}}>×</span>
-      </div>
-
-      {/* 🔥 상단 텍스트 (우선순위 변경) */}
-      <div style={{textAlign:'center', marginBottom:14}}>
-
-        <div style={{
-          fontSize:'0.9rem',
-          
-          color:'#ff6b7a'
+          zIndex:999999
         }}>
-          SF액션
-        </div>
 
-        <div style={{
-          fontSize:'1.4rem',
-          fontWeight:900,
-          color:'#bbb',
-          marginTop:4
-        }}>
-          총소리 놀람이
-        </div>
-
-        <div style={{
-          fontSize:'0.7rem',
-          color:'#888',
-          marginTop:6
-        }}>
-          나나나
-        </div>
-
-      </div>
-
-      {/* 🔥 캐릭터 이미지 (핵심) */}
-      <div style={{
-
-  width:'100%',
-
-  display:'flex',
-
-  justifyContent:'center',
-
-  marginBottom:14
-
-}}>
-
-  <div style={{
-
-    width:'100%',
-
-    maxWidth:320   // 🔥 핵심 (Lv 영역과 맞춤)
-
-  }}>
-
-    <img
-
-      src="/sadako_full.png"
-
-      alt="character"
-
-      style={{
-
-        width:'100%',
-
-        height:140,
-
-        objectFit:'contain'
-
-      }}
-
-    />
-
-  </div>
-
-</div>
-
-      {/* 🔥 레벨 */}
-      <div style={{marginBottom:14}}>
-
-        <div style={{
-          fontSize:'1.2rem',
-          fontWeight:800,
-          color:'#fff'
-        }}>
-          Lv. 20
-        </div>
-
-        <div style={{
-          height:6,
-          background:'#333',
-          borderRadius:10,
-          marginTop:6
-        }}>
           <div style={{
-            width:'80%',
-            height:'100%',
-            background:'#ff6b7a'
-          }}/>
-        </div>
-
-        <div style={{
-          fontSize:'0.65rem',
-          color:'#aaa',
-          textAlign:'right',
-          marginTop:4
-        }}>
-          2,450 / 3,000 EXP
-        </div>
-
-      </div>
-
-      {/* 🔥 그래프 */}
-      <div style={{
-        display:'flex',
-        justifyContent:'center',
-        margin:'14px 0'
-      }}>
-
-      {(() => {
-
-  const genres = [
-    {name:'애니', value:50},
-    {name:'SF', value:60},
-    {name:'SF액션', value:85},
-    {name:'SF공포', value:70},
-    {name:'판타지', value:55},
-    {name:'판타지액션', value:65},
-    {name:'공포', value:90},
-    {name:'미스터리', value:65},
-    {name:'액션', value:70},
-    {name:'코미디', value:30},
-    {name:'로맨스', value:40},
-    {name:'드라마', value:45}
-  ]
-
-  const cx = 100
-  const cy = 100
-  const radius = 70
-
-  const points = genres.map((g,i)=>{
-
-  const angle = (Math.PI*2/genres.length)*i - Math.PI/2
-
-  const cos = Math.cos(angle)
-
-  const sin = Math.sin(angle)
-
-  const r = (g.value/100) * radius
-
-  // 🔥 각도별 거리 보정 (핵심)
-
-  let labelRadius = radius + 26
-
-  // 👉 좌우(가로) 쪽은 더 멀리
-
-  if(Math.abs(cos) > 0.7){
-
-    labelRadius = radius + 34
-
-  }
-
-  // 👉 대각선은 조금 더
-
-  if(Math.abs(cos) > 0.3 && Math.abs(cos) < 0.7){
-
-    labelRadius = radius + 30
-
-  }
-
-  return {
-
-    x: cx + cos*r,
-
-    y: cy + sin*r,
-
-    labelX: cx + cos*labelRadius,
-
-    labelY: cy + sin*labelRadius,
-
-    valueX: cx + cos*(radius+10),
-
-    valueY: cy + sin*(radius+10),
-
-    anchor:
-
-      cos > 0.3 ? 'start' :
-
-      cos < -0.3 ? 'end' :
-
-      'middle',
-
-    dy:
-
-      sin > 0.6 ? '1em' :
-
-      sin < -0.6 ? '-0.4em' :
-
-      '0.35em',
-
-    name:g.name,
-
-    value:g.value
-
-  }
-
-})
-
-  const polygonPoints = points.map(p=>`${p.x},${p.y}`).join(' ')
-
-  return (
-    <svg width="220" height="220">
-
-      <defs>
-        <filter id="glow">
-          <feGaussianBlur stdDeviation="2"/>
-        </filter>
-      </defs>
-
-      {/* 🔥 원형 grid */}
-      {[0.25,0.5,0.75,1].map((r,i)=>(
-        <circle
-          key={i}
-          cx={cx}
-          cy={cy}
-          r={radius*r}
-          stroke="rgba(255,255,255,0.08)"
-          fill="none"
-        />
-      ))}
-
-      {/* 🔥 축 */}
-      {points.map((p,i)=>(
-        <line
-          key={i}
-          x1={cx}
-          y1={cy}
-          x2={p.labelX}
-          y2={p.labelY}
-          stroke="rgba(255,255,255,0.08)"
-        />
-      ))}
-
-      {/* 🔥 데이터 영역 */}
-      <polygon
-        points={polygonPoints}
-        fill="rgba(255,107,122,0.35)"
-        stroke="#ff6b7a"
-        strokeWidth="2"
-        filter="url(#glow)"
-      />
-
-      {/* 🔥 점 */}
-      {points.map((p,i)=>(
-        <circle
-          key={i}
-          cx={p.x}
-          cy={p.y}
-          r="3"
-          fill="#ff6b7a"
-        />
-      ))}
-
-      {/* 🔥 장르명 */}
-      {points.map((p,i)=>(
-        <text
-          key={i}
-          x={p.labelX}
-          y={p.labelY}
-          fill="#ddd"
-          fontSize="9"
-          textAnchor="middle"
-          alignmentBaseline="middle"
-        >
-          {p.name}
-        </text>
-      ))}
-
-      {/* 🔥 수치 */}
-      {points.map((p,i)=>(
-        <text
-          key={i}
-          x={p.valueX}
-          y={p.valueY}
-          fill="#ff6b7a"
-          fontSize="10"
-          fontWeight="700"
-          textAnchor="middle"
-        >
-          {p.value}
-        </text>
-      ))}
-
-    </svg>
-  )
-
-})()}
-
-      </div>
-
-      {/* 🔥 하단 */}
-      <div style={{
-        display:'grid',
-        gridTemplateColumns:'1fr 1fr',
-        gap:8,
-        marginTop:10
-      }}>
-
-        {[
-          ['총 점수','12,450'],
-          ['플레이 시간','48h 30m'],
-          ['선호 장르','SF액션, 공포'],
-          ['최근 플레이','2024.05.20']
-        ].map(([k,v],i)=>(
-          <div key={i} style={{
-            background:'rgba(255,255,255,0.05)',
-            border:'1px solid rgba(255,255,255,0.1)',
-            borderRadius:10,
-            padding:'8px'
+            transform:'scale(0.88)',
+            transformOrigin:'center center'
           }}>
+
             <div style={{
-              fontSize:'0.6rem',
-              color:'#aaa',
-              marginBottom:2
+              width:'92vw',
+              maxWidth:420,
+              background:'linear-gradient(135deg, #18171a, #242126)',
+              borderRadius:20,
+              border:'1.5px solid rgba(255,107,122,0.8)',
+              padding:'20px 16px',
+              boxShadow:'0 0 60px rgba(255,107,122,0.25)',
+              position:'relative'
             }}>
-              {k}
-            </div>
-            <div style={{
-              fontSize:'0.8rem',
-              fontWeight:700,
-              color:'#fff'
-            }}>
-              {v}
+
+              <div
+                onClick={()=>setShowProfile(false)}
+                style={{
+                  position:'absolute',
+                  top:12,
+                  right:12,
+                  width:30,
+                  height:30,
+                  borderRadius:'50%',
+                  background:'rgba(255,255,255,0.08)',
+                  display:'flex',
+                  alignItems:'center',
+                  justifyContent:'center',
+                  cursor:'pointer',
+                  border:'1px solid rgba(255,255,255,0.15)'
+                }}
+              >
+                <span style={{color:'#fff',fontSize:16,fontWeight:700}}>×</span>
+              </div>
+
+              <div style={{textAlign:'center', marginBottom:14}}>
+                <div style={{fontSize:'0.9rem', color:'#ff6b7a'}}>
+                  SF액션
+                </div>
+
+                <div style={{
+                  fontSize:'1.4rem',
+                  fontWeight:900,
+                  color:'#bbb',
+                  marginTop:4
+                }}>
+                  총소리 놀람이
+                </div>
+
+                <div style={{
+                  fontSize:'0.7rem',
+                  color:'#888',
+                  marginTop:6
+                }}>
+                  나나나
+                </div>
+              </div>
+
+              <div style={{
+                width:'100%',
+                display:'flex',
+                justifyContent:'center',
+                marginBottom:14
+              }}>
+                <div style={{
+                  width:'100%',
+                  maxWidth:320
+                }}>
+                  <img
+                    src="/sadako_full.png"
+                    alt="character"
+                    style={{
+                      width:'100%',
+                      height:140,
+                      objectFit:'contain'
+                    }}
+                  />
+                </div>
+              </div>
+
+              <div style={{marginBottom:14}}>
+                <div style={{
+                  fontSize:'1.2rem',
+                  fontWeight:800,
+                  color:'#fff'
+                }}>
+                  Lv. 20
+                </div>
+
+                <div style={{
+                  height:6,
+                  background:'#333',
+                  borderRadius:10,
+                  marginTop:6
+                }}>
+                  <div style={{
+                    width:'80%',
+                    height:'100%',
+                    background:'#ff6b7a'
+                  }}/>
+                </div>
+
+                <div style={{
+                  fontSize:'0.65rem',
+                  color:'#aaa',
+                  textAlign:'right',
+                  marginTop:4
+                }}>
+                  2,450 / 3,000 EXP
+                </div>
+              </div>
+
+              <div style={{
+                display:'flex',
+                justifyContent:'center',
+                margin:'14px 0'
+              }}>
+
+                {(() => {
+                  const genres = [
+                    {name:'애니', value:50},
+                    {name:'SF', value:60},
+                    {name:'SF액션', value:85},
+                    {name:'SF공포', value:70},
+                    {name:'판타지', value:55},
+                    {name:'판타지액션', value:65},
+                    {name:'공포', value:90},
+                    {name:'미스터리', value:65},
+                    {name:'액션', value:70},
+                    {name:'코미디', value:30},
+                    {name:'로맨스', value:40},
+                    {name:'드라마', value:45}
+                  ]
+
+                  const cx = 100
+                  const cy = 100
+                  const radius = 70
+
+                  const points = genres.map((g,i)=>{
+                    const angle = (Math.PI*2/genres.length)*i - Math.PI/2
+                    const cos = Math.cos(angle)
+                    const sin = Math.sin(angle)
+                    const r = (g.value/100) * radius
+
+                    let labelRadius = radius + 26
+
+                    if(Math.abs(cos) > 0.7){
+                      labelRadius = radius + 34
+                    }
+
+                    if(Math.abs(cos) > 0.3 && Math.abs(cos) < 0.7){
+                      labelRadius = radius + 30
+                    }
+
+                    return {
+                      x: cx + cos*r,
+                      y: cy + sin*r,
+                      labelX: cx + cos*labelRadius,
+                      labelY: cy + sin*labelRadius,
+                      valueX: cx + cos*(radius+10),
+                      valueY: cy + sin*(radius+10),
+                      name:g.name,
+                      value:g.value
+                    }
+                  })
+
+                  const polygonPoints = points.map(p=>`${p.x},${p.y}`).join(' ')
+
+                  return (
+                    <svg width="220" height="220">
+                      <defs>
+                        <filter id="glow-result">
+                          <feGaussianBlur stdDeviation="2"/>
+                        </filter>
+                      </defs>
+
+                      {[0.25,0.5,0.75,1].map((r,i)=>(
+                        <circle
+                          key={i}
+                          cx={cx}
+                          cy={cy}
+                          r={radius*r}
+                          stroke="rgba(255,255,255,0.08)"
+                          fill="none"
+                        />
+                      ))}
+
+                      {points.map((p,i)=>(
+                        <line
+                          key={i}
+                          x1={cx}
+                          y1={cy}
+                          x2={p.labelX}
+                          y2={p.labelY}
+                          stroke="rgba(255,255,255,0.08)"
+                        />
+                      ))}
+
+                      <polygon
+                        points={polygonPoints}
+                        fill="rgba(255,107,122,0.35)"
+                        stroke="#ff6b7a"
+                        strokeWidth="2"
+                        filter="url(#glow-result)"
+                      />
+
+                      {points.map((p,i)=>(
+                        <circle
+                          key={i}
+                          cx={p.x}
+                          cy={p.y}
+                          r="3"
+                          fill="#ff6b7a"
+                        />
+                      ))}
+
+                      {points.map((p,i)=>(
+                        <text
+                          key={i}
+                          x={p.labelX}
+                          y={p.labelY}
+                          fill="#ddd"
+                          fontSize="9"
+                          textAnchor="middle"
+                          alignmentBaseline="middle"
+                        >
+                          {p.name}
+                        </text>
+                      ))}
+
+                      {points.map((p,i)=>(
+                        <text
+                          key={i}
+                          x={p.valueX}
+                          y={p.valueY}
+                          fill="#ff6b7a"
+                          fontSize="10"
+                          fontWeight="700"
+                          textAnchor="middle"
+                        >
+                          {p.value}
+                        </text>
+                      ))}
+                    </svg>
+                  )
+                })()}
+
+              </div>
+
+              <div style={{
+                display:'grid',
+                gridTemplateColumns:'1fr 1fr',
+                gap:8,
+                marginTop:10
+              }}>
+
+                {[
+                  ['총 점수','12,450'],
+                  ['플레이 시간','48h 30m'],
+                  ['선호 장르','SF액션, 공포'],
+                  ['최근 플레이','2024.05.20']
+                ].map(([k,v],i)=>(
+                  <div key={i} style={{
+                    background:'rgba(255,255,255,0.05)',
+                    border:'1px solid rgba(255,255,255,0.1)',
+                    borderRadius:10,
+                    padding:'8px'
+                  }}>
+                    <div style={{
+                      fontSize:'0.6rem',
+                      color:'#aaa',
+                      marginBottom:2
+                    }}>
+                      {k}
+                    </div>
+                    <div style={{
+                      fontSize:'0.8rem',
+                      fontWeight:700,
+                      color:'#fff'
+                    }}>
+                      {v}
+                    </div>
+                  </div>
+                ))}
+
+              </div>
+
             </div>
           </div>
-        ))}
-
-      </div>
+        </div>
+      )}
 
     </div>
-  </div>
-)}
-
-    {/* 🔥 레벨 완료 상태 */}
-    {isLevelCompleted ? (
-      <>
-        {selGrade !== 'hard' && (
-          <button
-            style={{
-              flex:1,
-              height:54,
-              borderRadius:14,
-              background:'#1a1814',
-              color:'#fff',
-              fontSize:'0.9rem',
-              fontWeight:700,
-              border:'none'
-            }}
-            onClick={()=>{
-              const next =
-                selGrade === 'easy' ? 'normal' :
-                selGrade === 'normal' ? 'hard' : null
-
-              if(next){
-                setIsLevelCompleted(false)
-                setSelGrade(next)
-                loadMovies(next, true)
-              }
-            }}
-          >
-            다음 난이도로 시작
-          </button>
-        )}
-
-        <button
-          style={{
-            flex:1,
-            height:54,
-            borderRadius:12,
-            background:'transparent',
-            color:'#9a9490',
-            fontSize:'0.8rem',
-            fontWeight:500,
-            border:'1.5px solid #e8e4dd'
-          }}
-          onClick={()=>setScreen('char')}
-        >
-          홈으로
-        </button>
-      </>
-    ) : (
-      <>
-        {/* 🔥 기존 흐름 */}
-        <button
-          style={{
-            flex:1,
-            height:54,
-            borderRadius:14,
-            background:'#1a1814',
-            color:'#fff',
-            fontSize:'0.9rem',
-            fontWeight:700,
-            border:'none'
-          }}
-          onClick={()=>loadMovies()}
-        >
-          계속하기
-        </button>
-
-        <button
-          style={{
-            flex:1,
-            height:54,
-            borderRadius:12,
-            background:'transparent',
-            color:'#9a9490',
-            fontSize:'0.8rem',
-            fontWeight:500,
-            border:'1.5px solid #e8e4dd'
-          }}
-          onClick={()=>setScreen('char')}
-        >
-          홈으로
-        </button>
-      </>
-    )}
-  </div>
-)}
-</div> 
-
   )
-
 }
 
-  return null
-}
+return null
