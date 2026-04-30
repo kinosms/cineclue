@@ -2207,6 +2207,7 @@ style={{
 
 {/* 🔥 퀴즈화면용 프로필 팝업 */}
 
+
 {showProfile && (
 
   <div style={{
@@ -2617,33 +2618,9 @@ style={{
 
     </div>
   </div>
+  </div>
 )}
-<style jsx>{`
 
-  @keyframes hintSlideDown {
-
-    from {
-
-      opacity: 0;
-
-      transform: translateY(-10px);
-
-    }
-
-    to {
-
-      opacity: 1;
-
-      transform: translateY(0);
-
-    }
-
-  }
-
-`}</style>
-</div>
-)
-}
 
 
  // ══════════════════════════════════════════
