@@ -2697,7 +2697,7 @@ if(screen==='result'){
       {/* 결과 리스트 */}
 
       <div style={{
-        padding:'0 20px',
+        padding:'0 20px 100px',
         maxHeight: resultView === 'ranking' ? 520 : 'none',
         overflowY: resultView === 'ranking' ? 'auto' : 'visible',
         WebkitOverflowScrolling:'touch'
@@ -2958,14 +2958,30 @@ if(screen==='result'){
 
       {/* 하단 버튼 */}
       {visibleResults > results.length && (
-        <div style={{
-        flexShrink:0,
-        padding:'16px 20px 24px',
-        display:'flex',
-        gap:10,
-        background:'#fff',
-        borderTop:'1px solid #f0ece6'
-      }}>
+
+  <div style={{
+
+    position:'fixed',
+
+    left:0,
+
+    right:0,
+
+    bottom:0,
+
+    padding:'16px 20px calc(24px + env(safe-area-inset-bottom))',
+
+    display:'flex',
+
+    gap:10,
+
+    background:'#fff',
+
+    borderTop:'1px solid #f0ece6',
+
+    zIndex:100
+
+  }}>
 
   {/* 🔥 조건 버튼 */}
 
