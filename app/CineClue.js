@@ -1540,167 +1540,119 @@ if(screen==='char') return(
 // ══════════════════════════════════════════
 // 화면 3: 퀴즈
 // ══════════════════════════════════════════
-if(screen==='quiz' && pool[qi]){
-  const m = pool[qi]
-  const timerCol = tc>6 ? '#4a9c6d' : tc>3 ? '#c8a84a' : '#d45c5c'
-
-  return(
-    <div style={{
-      height:'100dvh',
-      background:'#fff',
-      display:'flex',
-      flexDirection:'column',
-    }}>
-
-{/* ── 고정 헤더 ── */}
-<div style={{
-  background:'#fff',
-  borderBottom:'1px solid #f0ece6',
-  padding:'14px 20px 0',
-  flexShrink:0,
-  position:'relative',
-  zIndex:20 
-}}>
-
-  {/* 1️⃣ 캐릭터 / 점수 라인 */}
-  <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:10}}>
-  <div onClick={()=>
-  setShowProfile(true)} 
-  style={{
-    cursor:'pointer',
-    position:'relative',   // 🔥 추가
-    zIndex:50  
-  }}>
-    <CharAvatar charId={selChar} size={34}/>
-  </div>
-
-    <span style={{
-      fontSize:'0.75rem',
-      fontWeight:700,
-      color:'#1a1814',
-      flex:1
-    }}>
-      {users.find(u=>u.charId===selChar)?.nickname || 'USER'}
-    </span>
-
-    <div style={{display:'flex',alignItems:'center',gap:8}}>
-
-  {/* 🔥 항상 존재하는 wrapper */}
-
-  <div style={{
-
-    width:36,
-
-    height:36,
-
-    flexShrink:0
-
-  }}>
-
-    {/* 🔥 안쪽만 숨김 */}
-
-    <div style={{
-
-      width:36,
-
-      height:36,
-
-      borderRadius:'50%',
-
-      background:`${timerCol}15`,
-
-      border:`2.5px solid ${timerCol}`,
-
-      display:'flex',
-
-      alignItems:'center',
-
-      justifyContent:'center',
-
-      opacity: (answered || quizMode === 'objective') ? 0 : 1,
-
-      transition:'opacity 0.2s ease'
-
-    }}>
-
-      <span style={{
-
-        fontSize:'0.8rem',
-
-        fontWeight:800,
-
-        color:timerCol
-
+if(screen==='quiz' && pool[qi])
+  {
+    const m = pool[qi]
+    const timerCol = tc>6 ? '#4a9c6d' : tc>3 ? '#c8a84a' : '#d45c5c'
+    return (
+      <div style={{
+        height:'100dvh',
+        background:'#fff',
+        display:'flex',
+        flexDirection:'column',
+      }}>
+        
+      {/* ── 고정 헤더 ── */}
+      <div style={{
+        background:'#fff',
+        borderBottom:'1px solid #f0ece6',
+        padding:'14px 20px 0',
+        flexShrink:0,
+        position:'relative',
+        zIndex:20 
       }}>
 
-        {tc}
+      {/* 1️⃣ 캐릭터 / 점수 라인 */}
+      <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:10}}>
+        <div onClick={()=>
+          setShowProfile(true)} 
+          style={{
+            cursor:'pointer',
+            position:'relative',   // 🔥 추가
+            zIndex:50  
+          }}>
 
-      </span>
+        <CharAvatar charId={selChar} size={34}/>
+        </div>
 
-    </div>
+        <span style={{
+          fontSize:'0.75rem',
+          fontWeight:700,
+          color:'#1a1814',
+          flex:1
+        }}>
+          {users.find(u=>u.charId===selChar)?.nickname || 'USER'}
+        </span>
 
+        <div style={{display:'flex',alignItems:'center',gap:8}}>
+
+          {/* 🔥 항상 존재하는 wrapper */}
+
+          <div style={{
+            width:36,
+            height:36,
+            flexShrink:0
+          }}>
+            {/* 🔥 안쪽만 숨김 */}
+            <div style={{
+              width:36,
+              height:36,
+              borderRadius:'50%',
+              background:`${timerCol}15`,
+              border:`2.5px solid ${timerCol}`,
+              display:'flex',
+              alignItems:'center',
+              justifyContent:'center',
+              opacity: (answered || quizMode === 'objective') ? 0 : 1,
+              transition:'opacity 0.2s ease'
+            }}>
+              <span style={{
+                fontSize:'0.8rem',
+                fontWeight:800,
+                color:timerCol
+              }}>
+              {tc}
+              </span>
+          </div>
+          </div>
+      </div>
   </div>
 
-</div>
-  </div>
 
-{/* 2️⃣ 버블힌트 */}
+  {/* 2️⃣ 버블힌트 */}
 
-<div style={{
-
-  display:'flex',
-
-  alignItems:'center',
-
-  gap:6,
-
-  paddingBottom:12
-
-}}>
+  <div style={{
+    display:'flex',
+    alignItems:'center',
+    gap:6,
+    paddingBottom:12
+  }}>
 
   {/* 👇 버블 묶음 영역 */}
 
   <div style={{
-
     display:'flex',
-
     alignItems:'center',
-
     gap:6,
-
-    flex:1,              // 🔥 남은 공간만 사용
-
-    overflow:'hidden',   // 🔥 넘치는 버블 컷
-
+    flex:1,              
+    overflow:'hidden',   
     whiteSpace:'nowrap'
-
   }}>
 
-    {/* 문제 번호 */}
+  {/* 문제 번호 */}
 
-    <span style={{
-
-      fontSize:'0.62rem',
-
-      fontWeight:700,
-
-      padding:'3px 9px',
-
-      borderRadius:20,
-
-      background:'#f5f3ef',
-
-      color:'#6b6560',
-
-      border:'1px solid #e8e4dd',
-
-      width:42,
-
-      textAlign:'center',
-
-      flexShrink:0
-
-    }}>
+  <span style={{
+    fontSize:'0.62rem',
+    fontWeight:700,
+    padding:'3px 9px',
+    borderRadius:20,
+    background:'#f5f3ef',
+    color:'#6b6560',
+    border:'1px solid #e8e4dd',
+    width:42,
+    textAlign:'center',
+    flexShrink:0
+  }}>
 
       {qi+1}/5
 
@@ -2620,6 +2572,25 @@ style={{
   </div>
   </div>
 )}
+
+</div>
+)
+}
+
+<style jsx>{`
+
+  @keyframes hintSlideDown {
+    from {
+      opacity: 0;
+      transform: translateY(-10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+`}</style>
+
 
 
 
