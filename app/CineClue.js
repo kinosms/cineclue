@@ -319,6 +319,7 @@ function IntroScreen({ onEnter }) {
           marginBottom:70,
           whiteSpace: 'nowrap'
 }}>
+  
 
   <div className="typing">
 
@@ -328,6 +329,39 @@ function IntroScreen({ onEnter }) {
 
 </div>
 
+<style jsx>{`
+
+        .typing {
+
+          overflow: hidden;
+
+          white-space: nowrap;
+
+          border-right: 2px solid #9ef7c0;
+
+          width: 0;
+
+          animation: typing 3s steps(30, end) forwards,
+
+                     blink 0.7s infinite;
+
+        }
+
+        @keyframes typing {
+
+          from { width: 0 }
+
+          to { width: 100% }
+
+        }
+
+        @keyframes blink {
+
+          50% { border-color: transparent }
+
+        }
+
+      `}</style>
 
 <div style={{
 
@@ -641,6 +675,7 @@ const value = {
   const [showProfile, setShowProfile] = useState(false)
   const [rankingRevealDone, setRankingRevealDone] = useState(false)
   const primaryGrade = selGrades[0] || null
+  const [mounted, setMounted] = useState(false)
   const UI = {
   surface: '#ffffff',
   border: '#e8e4dd',
