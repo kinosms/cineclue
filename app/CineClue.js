@@ -299,6 +299,7 @@ const value = {
   const [choices, setChoices] = useState([])
   const [genreStats, setGenreStats] = useState([])
   const [showProfile, setShowProfile] = useState(false)
+  const [rankingRevealDone, setRankingRevealDone] = useState(false)
   const primaryGrade = selGrades[0] || null
   // 🔥 객관식 선택지 동기화
 
@@ -329,6 +330,24 @@ useEffect(()=>{
     ).then(setGenreStats)
 
   }
+
+  useEffect(()=>{
+
+  if(screen === 'result' && resultView === 'ranking'){
+
+    setRankingRevealDone(false)
+
+    const t = setTimeout(()=>{
+
+      setRankingRevealDone(true)
+
+    }, 650)
+
+    return () => clearTimeout(t)
+
+  }
+
+}, [screen, resultView])
 
 }, [screen, currentUser?.userId, selChar])
 
@@ -2670,6 +2689,7 @@ if(screen==='result'){
 
         <div style={{
           marginTop:10,
+          marginBottom:18,
           display:'flex',
           justifyContent:'center'
         }}>
@@ -2708,11 +2728,11 @@ if(screen==='result'){
       {/* 결과 리스트 */}
 
       <div style={{
-        flex:1,
-        overflowY:'auto',
         padding:'0 20px',
-        minHeight:0
-      }}>
+        maxHeight: resultView === 'ranking' ? 520 : 'none',
+        overflowY: resultView === 'ranking' ? 'auto' : 'visible',
+        WebkitOverflowScrolling:'touch'
+        }}>
 
   {resultView === 'score' ? (
 
@@ -2842,7 +2862,7 @@ if(screen==='result'){
 
           <>
 
-            {Array.from({ length: TOP_LIMIT }).map((_, i) => {
+            {Array.from({ length: rankingRevealDone ? TOP_LIMIT : 5 }).map((_, i) => {
 
               const r = ranking[i] || null
 
@@ -2850,7 +2870,7 @@ if(screen==='result'){
 
               const isDead = r && !users.find(u => u.charId === r.character_id)
 
-              const isAnimated = i < animatedLimit
+              const isAnimated = i < 5
 
               return (
 
@@ -3094,11 +3114,11 @@ if(screen==='result'){
       {visibleResults > results.length && (
         <div style={{
         flexShrink:0,
-        padding:'20px',
+        padding:'16px 20px 24px',
         display:'flex',
-        flexDirection:'row',
-        gap:10
-
+        gap:10,
+        background:'#fff',
+        borderTop:'1px solid #f0ece6'
       }}>
 
   {/* 🔥 조건 버튼 */}
