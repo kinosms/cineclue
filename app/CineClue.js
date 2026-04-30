@@ -2705,209 +2705,478 @@ if(screen==='result'){
       </div>
 
       {/* 결과 리스트 */}
-      <div style={{padding:'0 20px'}}>
 
-        {resultView === 'score' ? (
+<div style={{
 
-          results.slice(0, visibleResults).map((r,i)=>{
-            const rg = GRADES.find(x=>x.id===r.grade)
-            const isCorrect = r.correct === true
+  flex:1,
 
-            return(
-              <div key={i} style={{
-                borderRadius:13,
-                border:'1.5px solid #ece8e2',
-                background:'#fff',
-                padding:'12px 16px',
-                marginBottom:8,
-                display:'flex',
-                alignItems:'center',
-                gap:12
-              }}>
+  overflowY:'auto',
 
-                <div style={{
-                  width:28,
-                  height:28,
-                  borderRadius:'50%',
-                  background: isCorrect ? `${rg?.color || '#ccc'}15` : '#f5f3ef',
-                  display:'flex',
-                  alignItems:'center',
-                  justifyContent:'center',
-                  border:`1.5px solid ${isCorrect ? (rg?.color || '#ccc') : '#e8e4dd'}`
-                }}>
-                  <span style={{
-                    fontSize:'0.6rem',
-                    fontWeight:800,
-                    color:r.correct ? rg?.color : '#b0aaa3'
-                  }}>
-                    Q{i+1}
-                  </span>
-                </div>
+  padding:'0 20px',
 
-                <div style={{flex:1}}>
+  minHeight:0
+
+}}>
+
+  {resultView === 'score' ? (
+
+    results.slice(0, visibleResults).map((r,i)=>{
+
+      const rg = GRADES.find(x=>x.id===r.grade)
+
+      const isCorrect = r.correct === true
+
+      return(
+
+        <div key={i} style={{
+
+          borderRadius:13,
+
+          border:'1.5px solid #ece8e2',
+
+          background:'#fff',
+
+          padding:'12px 16px',
+
+          marginBottom:8,
+
+          display:'flex',
+
+          alignItems:'center',
+
+          gap:12
+
+        }}>
+
+          <div style={{
+
+            width:28,
+
+            height:28,
+
+            borderRadius:'50%',
+
+            background: isCorrect ? `${rg?.color || '#ccc'}15` : '#f5f3ef',
+
+            display:'flex',
+
+            alignItems:'center',
+
+            justifyContent:'center',
+
+            border:`1.5px solid ${isCorrect ? (rg?.color || '#ccc') : '#e8e4dd'}`
+
+          }}>
+
+            <span style={{
+
+              fontSize:'0.6rem',
+
+              fontWeight:800,
+
+              color:r.correct ? rg?.color : '#b0aaa3'
+
+            }}>
+
+              Q{i+1}
+
+            </span>
+
+          </div>
+
+          <div style={{flex:1}}>
+
+            <div style={{
+
+              fontSize:'0.8rem',
+
+              fontWeight:700,
+
+              color:r.correct ? '#1a1814' : '#c0bbb4'
+
+            }}>
+
+              {r.correct ? r.title : '실패'}
+
+            </div>
+
+          </div>
+
+          <div style={{
+
+            fontSize:'0.85rem',
+
+            fontWeight:800,
+
+            color:r.correct ? '#4a9c6d' : '#d45c5c'
+
+          }}>
+
+            {r.correct ? `+${r.score}` : '-'}
+
+          </div>
+
+        </div>
+
+      )
+
+    })
+
+  ) : (
+
+    <>
+
+      {(() => {
+
+        const TOP_LIMIT = 15
+
+        const animatedLimit = 5
+
+        const myRankIndex = ranking.findIndex(
+
+          r => r.character_id === selChar
+
+        )
+
+        const myRank = myRankIndex >= 0 ? myRankIndex + 1 : null
+
+        const myRankData = ranking[myRankIndex]
+
+        return (
+
+          <>
+
+            {Array.from({ length: TOP_LIMIT }).map((_, i) => {
+
+              const r = ranking[i] || null
+
+              const char = r ? CHARS.find(c => c.id === r.character_id) : null
+
+              const isDead = r && !users.find(u => u.charId === r.character_id)
+
+              const isAnimated = i < animatedLimit
+
+              return (
+
+                <div
+
+                  key={i}
+
+                  style={{
+
+                    borderRadius:13,
+
+                    border:'1.5px solid #ece8e2',
+
+                    background:'#fff',
+
+                    padding:'12px 16px',
+
+                    marginBottom:8,
+
+                    display:'flex',
+
+                    alignItems:'center',
+
+                    gap:12,
+
+                    // 🔥 애니메이션
+
+                    animation: isAnimated ? 'fadeUp 0.3s ease forwards' : 'none',
+
+                    opacity: isAnimated ? 0 : 1,
+
+                    animationDelay: `${i * 0.08}s`
+
+                  }}
+
+                >
+
+                  {/* 순위 */}
+
                   <div style={{
-                    fontSize:'0.8rem',
-                    fontWeight:700,
-                    color:r.correct ? '#1a1814' : '#c0bbb4'
-                  }}>
-                    {r.correct ? r.title : '실패'}
-                  </div>
-                </div>
 
-                <div style={{
-                  fontSize:'0.85rem',
-                  fontWeight:800,
-                  color:r.correct ? '#4a9c6d' : '#d45c5c'
-                }}>
-                  {r.correct ? `+${r.score}` : '-'}
-                </div>
-
-              </div>
-            )
-          })
-
-        ) : (
-
-          Array.from({ length: 5 }).map((_, i) => {
-            const r = ranking[i] || null
-            const char = r ? CHARS.find(c => c.id === r.character_id) : null
-            const isDead = r && !users.find(u => u.charId === r.character_id)
-
-            return (
-              <div key={i} style={{
-                borderRadius:13,
-                border:'1.5px solid #ece8e2',
-                background:'#fff',
-                padding:'12px 16px',
-                marginBottom:8,
-                display:'flex',
-                alignItems:'center',
-                gap:12
-              }}>
-
-                <div style={{
-                  width:28,
-                  height:28,
-                  borderRadius:'50%',
-                  background:'#f5f3ef',
-                  display:'flex',
-                  alignItems:'center',
-                  justifyContent:'center',
-                  border:'1.5px solid #e8e4dd'
-                }}>
-                  <span style={{
-                    fontSize:'0.65rem',
-                    fontWeight:800
-                  }}>
-                    {i+1}위
-                  </span>
-                </div>
-
-                {r ? (
-                  <CharAvatar charId={r.character_id} size={28}/>
-                ) : (
-                  <div style={{
                     width:28,
-                    height:28,
-                    borderRadius:'50%',
-                    background:'#f0eeea'
-                  }}/>
-                )}
 
-                <div style={{flex:1}}>
-                  <div style={{
-                    fontSize:'0.8rem',
-                    fontWeight:700,
-                    color: r ? (isDead ? '#b0aaa3' : '#1a1814') : '#c0bbb4'
+                    height:28,
+
+                    borderRadius:'50%',
+
+                    background:'#f5f3ef',
+
+                    display:'flex',
+
+                    alignItems:'center',
+
+                    justifyContent:'center',
+
+                    border:'1.5px solid #e8e4dd'
+
                   }}>
-                    {r
-                      ? isDead
-                        ? `${r.nickname || char?.name || 'UNKNOWN'} 💀`
-                        : (r.nickname || char?.name || 'USER')
-                      : '-'
-                    }
+
+                    <span style={{
+
+                      fontSize:'0.65rem',
+
+                      fontWeight:800
+
+                    }}>
+
+                      {i+1}위
+
+                    </span>
+
                   </div>
+
+                  {/* 캐릭터 */}
+
+                  {r ? (
+
+                    <CharAvatar
+
+                      charId={r.character_id}
+
+                      size={28}
+
+                      style={{opacity: isDead ? 0.4 : 1}}
+
+                    />
+
+                  ) : (
+
+                    <div style={{
+
+                      width:28,
+
+                      height:28,
+
+                      borderRadius:'50%',
+
+                      background:'#f0eeea'
+
+                    }}/>
+
+                  )}
+
+                  {/* 이름 */}
+
+                  <div style={{flex:1}}>
+
+                    <div style={{
+
+                      fontSize:'0.8rem',
+
+                      fontWeight:700,
+
+                      color: r
+
+                        ? isDead ? '#b0aaa3' : '#1a1814'
+
+                        : '#c0bbb4'
+
+                    }}>
+
+                      {r
+
+                        ? isDead
+
+                          ? `${r.nickname || char?.name || 'UNKNOWN'} 💀`
+
+                          : (r.nickname || char?.name || 'USER')
+
+                        : '-'
+
+                      }
+
+                    </div>
+
+                  </div>
+
+                  {/* 점수 */}
+
+                  <div style={{
+
+                    fontSize:'0.85rem',
+
+                    fontWeight:800,
+
+                    color: r ? '#1a1814' : '#c0bbb4'
+
+                  }}>
+
+                    {r ? r.score : 0}
+
+                  </div>
+
+                </div>
+
+              )
+
+            })}
+
+            {/* 🔥 내 랭킹 표시 */}
+
+            {myRank && myRank > 5 && (
+
+              <div style={{
+
+                marginTop:12,
+
+                padding:'10px 12px',
+
+                borderRadius:12,
+
+                background:'#fff8e8',
+
+                border:'1.5px solid #f0d9a0',
+
+                display:'flex',
+
+                alignItems:'center',
+
+                gap:10
+
+              }}>
+
+                <div style={{
+
+                  fontSize:'0.75rem',
+
+                  fontWeight:800
+
+                }}>
+
+                  내 순위
+
                 </div>
 
                 <div style={{
-                  fontSize:'0.85rem',
-                  fontWeight:800,
-                  color: r ? '#1a1814' : '#c0bbb4'
+
+                  fontSize:'0.9rem',
+
+                  fontWeight:900,
+
+                  color:'#c8a84a'
+
                 }}>
-                  {r ? r.score : 0}
+
+                  {myRank}위
+
+                </div>
+
+                <div style={{flex:1}}/>
+
+                <div style={{
+
+                  fontSize:'0.8rem',
+
+                  fontWeight:700
+
+                }}>
+
+                  {myRankData?.score || 0}
+
                 </div>
 
               </div>
-            )
-          })
 
-        )}
+            )}
 
-      </div>
+          </>
+
+        )
+
+      })()}
+
+    </>
+
+  )}
+
+</div>
 
       {/* 하단 버튼 */}
       {visibleResults > results.length && (
         <div style={{
-          padding:'20px',
-          display:'flex',
-          flexDirection:'row',
-          gap:10
-        }}>
 
-          {isLevelCompleted ? (
-            <>
-              <button
-                style={{
-                  flex:1,
-                  height:54,
-                  borderRadius:12,
-                  background:'transparent',
-                  color:'#9a9490',
-                  fontSize:'0.8rem',
-                  fontWeight:500,
-                  border:'1.5px solid #e8e4dd'
-                }}
-                onClick={()=>setScreen('char')}
-              >
-                홈으로
-              </button>
-            </>
-          ) : (
-            <>
-              <button
-                style={{
-                  flex:1,
-                  height:54,
-                  borderRadius:14,
-                  background:'#1a1814',
-                  color:'#fff',
-                  fontSize:'0.9rem',
-                  fontWeight:700,
-                  border:'none'
-                }}
-                onClick={()=>loadMovies()}
-              >
-                계속하기
-              </button>
+  padding:'20px',
 
-              <button
-                style={{
-                  flex:1,
-                  height:54,
-                  borderRadius:12,
-                  background:'transparent',
-                  color:'#9a9490',
-                  fontSize:'0.8rem',
-                  fontWeight:500,
-                  border:'1.5px solid #e8e4dd'
-                }}
-                onClick={()=>setScreen('char')}
-              >
-                홈으로
-              </button>
-            </>
-          )}
-        </div>
+  display:'flex',
+
+  flexDirection:'row',
+
+  gap:10
+
+}}>
+
+  {/* 🔥 조건 버튼 */}
+
+  {!isLevelCompleted && (
+
+    <button
+
+      style={{
+
+        flex:1,
+
+        height:54,
+
+        borderRadius:14,
+
+        background:'#1a1814',
+
+        color:'#fff',
+
+        fontSize:'0.9rem',
+
+        fontWeight:700,
+
+        border:'none'
+
+      }}
+
+      onClick={()=>loadMovies()}
+
+    >
+
+      계속하기
+
+    </button>
+
+  )}
+
+  {/* 🔥 공통 버튼 (홈은 무조건 하나만) */}
+
+  <button
+
+    style={{
+
+      flex:1,
+
+      height:54,
+
+      borderRadius:12,
+
+      background:'transparent',
+
+      color:'#9a9490',
+
+      fontSize:'0.8rem',
+
+      fontWeight:500,
+
+      border:'1.5px solid #e8e4dd'
+
+    }}
+
+    onClick={()=>setScreen('char')}
+
+  >
+
+    홈으로
+
+  </button>
+
+</div>
       )}
 
       {/* 🔥 프로필 팝업: 결과 UI 밖, root 마지막 */}
@@ -3214,6 +3483,30 @@ if(screen==='result'){
           </div>
         </div>
       )}
+
+      <style jsx>{`
+
+  @keyframes fadeUp {
+
+    from {
+
+      transform: translateY(10px);
+
+      opacity: 0;
+
+    }
+
+    to {
+
+      transform: translateY(0);
+
+      opacity: 1;
+
+    }
+
+  }
+
+`}</style>
 
     </div>
   )
