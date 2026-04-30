@@ -3162,13 +3162,11 @@ if(screen==='result'){
 
   padding:'0 20px',
 
-  // 🔥 핵심 1: score 기준 높이 고정
+  // 🔥 ranking일 때만 스크롤
 
-  height: `${Math.min(results.length, 5) * 65}px`,
+  maxHeight: resultView === 'ranking' ? '50vh' : 'auto',
 
-  // 🔥 핵심 2: ranking은 스크롤만
-
-  overflowY: resultView === 'ranking' ? 'auto' : 'hidden',
+  overflowY: resultView === 'ranking' ? 'auto' : 'visible',
 
   WebkitOverflowScrolling:'touch',
 
@@ -3480,97 +3478,7 @@ if(screen==='result'){
 
 </div>
 
-      {/* 하단 버튼 */}
-      {visibleResults > results.length && (
-
-    <div style={{
-
-  flexShrink:0,
-
-  // 🔥 핵심 3: 위쪽 패딩 줄임 (여기 간격 원인)
-
-  padding:'8px 20px calc(10px + env(safe-area-inset-bottom))',
-
-  display:'flex',
-
-  gap:10,
-
-  background:'#fff',
-
-  borderTop:'1px solid #f0ece6'
-
-}}>
-
-  {/* 🔥 조건 버튼 */}
-
-  {!isLevelCompleted && (
-
-    <button
-
-      style={{
-
-        flex:1,
-
-        height:54,
-
-        borderRadius:14,
-
-        background:'#1a1814',
-
-        color:'#fff',
-
-        fontSize:'0.9rem',
-
-        fontWeight:700,
-
-        border:'none'
-
-      }}
-
-      onClick={()=>loadMovies()}
-
-    >
-
-      계속하기
-
-    </button>
-
-  )}
-
-  {/* 🔥 공통 버튼 (홈은 무조건 하나만) */}
-
-  <button
-
-    style={{
-
-      flex:1,
-
-      height:54,
-
-      borderRadius:12,
-
-      background:'transparent',
-
-      color:'#9a9490',
-
-      fontSize:'0.8rem',
-
-      fontWeight:500,
-
-      border:'1.5px solid #e8e4dd'
-
-    }}
-
-    onClick={()=>setScreen('char')}
-
-  >
-
-    홈으로
-
-  </button>
-
-</div>
-      )}
+     
 
       {/* 🔥 프로필 팝업: 결과 UI 밖, root 마지막 */}
       {showProfile && (
