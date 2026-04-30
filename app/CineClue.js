@@ -282,7 +282,8 @@ const value = {
   const [displayScore,   setDisplayScore]   = useState(0)
   const [users, setUsers] = useState([]) 
   const [authUser, setAuthUser] = useState(null)
-  const currentUser = users.find(u => u.charId === selChar) || null
+  const safeUsers = Array.isArray(users) ? users : []
+  const currentUser = safeUsers.find(u => u.charId === selChar) || null
   const [showNameModal, setShowNameModal] = useState(false)
   const [resultView, setResultView] = useState('score') 
   const [tempChar, setTempChar] = useState(null)
@@ -318,64 +319,49 @@ useEffect(()=>{
 }, [screen, qi, quizMode, pool])
 
 useEffect(()=>{
-
   if(screen === 'result' && currentUser?.userId && selChar){
-
     fetchGenreStats(
-
       currentUser.userId,
-
       selChar
-
     ).then(setGenreStats)
-
   }
+  }, [screen, currentUser?.userId, selChar])
 
-  useEffect(()=>{
 
-  if(screen === 'result' && resultView === 'ranking'){
 
-    setRankingRevealDone(false)
-
-    const t = setTimeout(()=>{
-
-      setRankingRevealDone(true)
-
-    }, 650)
-
-    return () => clearTimeout(t)
-
-  }
-
+useEffect(()=>{
+if(screen === 'result' && resultView === 'ranking'){
+  setRankingRevealDone(false)
+  const t = setTimeout(()=>{
+    setRankingRevealDone(true)
+  }, 650)
+  return () => clearTimeout(t)
+}
 }, [screen, resultView])
 
-}, [screen, currentUser?.userId, selChar])
+
 
 useEffect(()=>{
-
   if(screen === 'result'){
-
     setShowProfile(false)   // 🔥 무조건 초기화
-
   }
-
 },[screen])
 
+
+
 useEffect(()=>{
-
   setWrongCount(0)
-
   setLockChoice(false)
-
   setSelectedChoice(null)
-
 }, [qi])
 
+
+
 useEffect(()=>{
-
   console.log('genreStats:', genreStats)
-
 }, [genreStats])
+
+
 
 async function fetchGenreStats(user_id, character_id){
 
@@ -447,6 +433,7 @@ function buildChoices(correctMovie, allMovies){
 
   if(!supabase || !results?.length) return
   if(resultSavedRef.current) return
+  if(!currentUser?.userId) return
 
   resultSavedRef.current = true
 
@@ -827,12 +814,17 @@ function updateCombo(correct){
 async function submit(answerValue){
 
   if(answered || isSubmitting) return
+
+  const currentUser = users.find(u=>u.charId===selChar)
+
+  // 🔥 추가 (크래시 방지 핵심)
+  if(!currentUser?.userId) return
+
   if(quizMode === 'subjective' && !input.trim()) return
 
   setIsSubmitting(true)
 
   const m = pool[qi]
-  const currentUser = users.find(u=>u.charId===selChar)
 
   const inputValue = quizMode === 'objective' ? answerValue : input
 
@@ -847,7 +839,6 @@ async function submit(answerValue){
 
     if(correct){
 
-      // ✅ 콤보
       const ns = comboStreak + 1
       if(ns >= 5) nextMode = 'crazy'
       else if(ns === 4) nextMode = 'wow'
@@ -856,7 +847,6 @@ async function submit(answerValue){
       setComboStreak(ns)
       setMode(nextMode)
 
-      // ✅ 점수
       gained = getPts(nextMode)
 
       setScore(v=>v + gained)
@@ -872,31 +862,28 @@ async function submit(answerValue){
         return updated
       })
 
-      // ✅ 로그
       await saveLog({
         supabase,
-        userId: String(currentUser?.userId),
+        userId: String(currentUser.userId),
         charId: selChar,
         movie: m,
         hintUsed: sh,
         score: gained,
         comboMode: nextMode,
         isCorrect: true,
-        nickname: currentUser?.nickname,
+        nickname: currentUser.nickname,
         userInput: inputValue?.trim() || null,
         genre: m.final_genre || null
       })
 
-      // ✅ RPC
       await supabase.rpc('update_genre_stats', {
-        p_user_id: String(currentUser?.userId),
+        p_user_id: String(currentUser.userId),
         p_character_id: selChar,
         p_genre: m.final_genre || '기타',
         p_is_correct: true,
         p_score: gained
       })
 
-      // ✅ 결과
       setResults(r=>[...r,{
         title:m.title,
         correct:true,
@@ -912,8 +899,6 @@ async function submit(answerValue){
       setAnswered(true)
 
     } else {
-
-      // ❌ 오답
 
       setComboStreak(0)
       setMode(null)
@@ -942,10 +927,9 @@ async function submit(answerValue){
         }
       }
 
-      // ❌ 로그
       await saveLog({
         supabase,
-        userId: String(currentUser?.userId),
+        userId: String(currentUser.userId),
         charId: selChar,
         movie: m,
         hintUsed: sh,
@@ -953,13 +937,13 @@ async function submit(answerValue){
         comboMode: null,
         isCorrect: false,
         isSkip: false,
-        nickname: currentUser?.nickname,
+        nickname: currentUser.nickname,
         userInput: inputValue?.trim() || null,
         genre: m.final_genre || null
       })
 
       await supabase.rpc('update_genre_stats', {
-        p_user_id: String(currentUser?.userId),
+        p_user_id: String(currentUser.userId),
         p_character_id: selChar,
         p_genre: m.final_genre || '기타',
         p_is_correct: false,
@@ -976,18 +960,24 @@ async function submit(answerValue){
 }
 
 async function doSkip(){
-  if (answered || isSubmitting) return   // 🔥 추가
-  setIsSubmitting(true) 
+
+  if (answered || isSubmitting) return
+
+  const currentUser = users.find(u=>u.charId===selChar)
+
+  // 🔥 추가
+  if(!currentUser?.userId) return
+
+  setIsSubmitting(true)
+
   setComboStreak(0)
   setMode(null)
 
   const m = pool[qi]
-  const currentUser = users.find(u=>u.charId===selChar)
 
-  // ✅ 스킵로그 (userId 수정)
   await saveLog({
     supabase,
-    userId: String(currentUser?.userId),
+    userId: String(currentUser.userId),
     charId: selChar,
     movie: m,
     hintUsed: sh,
@@ -995,41 +985,20 @@ async function doSkip(){
     comboMode: mode,
     isCorrect: false,
     isSkip: true,
-    nickname: currentUser?.nickname,
+    nickname: currentUser.nickname,
     genre: m.genre || null
   })
 
   const genreValue = m.final_genre || '기타'
 
-  console.log('RPC payload 👉', {
-
-  user_id: String(currentUser?.userId),
-
-  character_id: selChar,
-
-  genre: genreValue,
-
-  is_correct: false,   // 상황에 맞게
-
-  score: 0
-
-})
-
   await supabase.rpc('update_genre_stats', {
+    p_user_id: String(currentUser.userId),
+    p_character_id: selChar,
+    p_genre: genreValue,
+    p_is_correct: false,
+    p_score: 0
+  })
 
-  p_user_id: String(currentUser?.userId),
-
-  p_character_id: selChar,
-
-  p_genre: genreValue,
-
-  p_is_correct: false,
-
-  p_score: 0
-
-})
-
-  // ✅ 결과
   setResults(r=>[...r,{
     title:m.title,
     correct:false,
@@ -2627,8 +2596,8 @@ style={{
 // 화면 4: 결과
 // ══════════════════════════════════════════
 if(screen==='result'){
-
-  const user = users?.find(u => u.charId === selChar)
+  const safeUsers = Array.isArray(users) ? users : []
+  const user = safeUsers.find(u => u.charId === selChar)
   const baseScore = user?.score ?? 0
   const roundScore = (results ?? []).reduce((s,r)=>s+r.score,0)
   const tot = baseScore + roundScore
@@ -2684,7 +2653,7 @@ if(screen==='result'){
           fontWeight:900,
           color:'#1a1814'
         }}>
-          {displayScore.toLocaleString()}점
+          {(displayScore || 0).toLocaleString()}점
         </div>
 
         <div style={{
@@ -2842,267 +2811,7 @@ if(screen==='result'){
 
     <>
 
-      {(() => {
-
-        const TOP_LIMIT = 15
-
-        const animatedLimit = 5
-
-        const myRankIndex = ranking.findIndex(
-
-          r => r.character_id === selChar
-
-        )
-
-        const myRank = myRankIndex >= 0 ? myRankIndex + 1 : null
-
-        const myRankData = ranking[myRankIndex]
-
-        return (
-
-          <>
-
-            {Array.from({ length: rankingRevealDone ? TOP_LIMIT : 5 }).map((_, i) => {
-
-              const r = ranking[i] || null
-
-              const char = r ? CHARS.find(c => c.id === r.character_id) : null
-
-              const isDead = r && !users.find(u => u.charId === r.character_id)
-
-              const isAnimated = i < 5
-
-              return (
-
-                <div
-
-                  key={i}
-
-                  style={{
-
-                    borderRadius:13,
-
-                    border:'1.5px solid #ece8e2',
-
-                    background:'#fff',
-
-                    padding:'12px 16px',
-
-                    marginBottom:8,
-
-                    display:'flex',
-
-                    alignItems:'center',
-
-                    gap:12,
-
-                    // 🔥 애니메이션
-
-                    animation: isAnimated ? 'fadeUp 0.3s ease forwards' : 'none',
-
-                    opacity: isAnimated ? 0 : 1,
-
-                    animationDelay: `${i * 0.08}s`
-
-                  }}
-
-                >
-
-                  {/* 순위 */}
-
-                  <div style={{
-
-                    width:28,
-
-                    height:28,
-
-                    borderRadius:'50%',
-
-                    background:'#f5f3ef',
-
-                    display:'flex',
-
-                    alignItems:'center',
-
-                    justifyContent:'center',
-
-                    border:'1.5px solid #e8e4dd'
-
-                  }}>
-
-                    <span style={{
-
-                      fontSize:'0.65rem',
-
-                      fontWeight:800
-
-                    }}>
-
-                      {i+1}위
-
-                    </span>
-
-                  </div>
-
-                  {/* 캐릭터 */}
-
-                  {r ? (
-
-                    <CharAvatar
-
-                      charId={r.character_id}
-
-                      size={28}
-
-                      style={{opacity: isDead ? 0.4 : 1}}
-
-                    />
-
-                  ) : (
-
-                    <div style={{
-
-                      width:28,
-
-                      height:28,
-
-                      borderRadius:'50%',
-
-                      background:'#f0eeea'
-
-                    }}/>
-
-                  )}
-
-                  {/* 이름 */}
-
-                  <div style={{flex:1}}>
-
-                    <div style={{
-
-                      fontSize:'0.8rem',
-
-                      fontWeight:700,
-
-                      color: r
-
-                        ? isDead ? '#b0aaa3' : '#1a1814'
-
-                        : '#c0bbb4'
-
-                    }}>
-
-                      {r
-
-                        ? isDead
-
-                          ? `${r.nickname || char?.name || 'UNKNOWN'} 💀`
-
-                          : (r.nickname || char?.name || 'USER')
-
-                        : '-'
-
-                      }
-
-                    </div>
-
-                  </div>
-
-                  {/* 점수 */}
-
-                  <div style={{
-
-                    fontSize:'0.85rem',
-
-                    fontWeight:800,
-
-                    color: r ? '#1a1814' : '#c0bbb4'
-
-                  }}>
-
-                    {r ? r.score : 0}
-
-                  </div>
-
-                </div>
-
-              )
-
-            })}
-
-            {/* 🔥 내 랭킹 표시 */}
-
-            {myRank && myRank > 5 && (
-
-              <div style={{
-
-                marginTop:12,
-
-                padding:'10px 12px',
-
-                borderRadius:12,
-
-                background:'#fff8e8',
-
-                border:'1.5px solid #f0d9a0',
-
-                display:'flex',
-
-                alignItems:'center',
-
-                gap:10
-
-              }}>
-
-                <div style={{
-
-                  fontSize:'0.75rem',
-
-                  fontWeight:800
-
-                }}>
-
-                  내 순위
-
-                </div>
-
-                <div style={{
-
-                  fontSize:'0.9rem',
-
-                  fontWeight:900,
-
-                  color:'#c8a84a'
-
-                }}>
-
-                  {myRank}위
-
-                </div>
-
-                <div style={{flex:1}}/>
-
-                <div style={{
-
-                  fontSize:'0.8rem',
-
-                  fontWeight:700
-
-                }}>
-
-                  {myRankData?.score || 0}
-
-                </div>
-
-              </div>
-
-            )}
-
-          </>
-
-        )
-
-      })()}
+       const safeRanking
 
     </>
 
