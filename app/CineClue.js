@@ -112,7 +112,7 @@ function isCorrect(inp, title, answers = []) {
 
 //스피너//
 
-function CharacterSpinner(){
+function CharacterSpinner({ fadeOut }){
 
   const [idx, setIdx] = useState(0)
 
@@ -122,7 +122,7 @@ function CharacterSpinner(){
 
       setIdx(prev => (prev + 1) % CHARS.length)
 
-    }, 120) // 🔥 속도 조절 (120~180 추천)
+    }, 180) // 🔥 속도 조절 (120~180 추천)
 
     return () => clearInterval(t)
 
@@ -133,48 +133,28 @@ function CharacterSpinner(){
   return(
 
     <div style={{
-
       position:'fixed',
-
       inset:0,
-      zIndex:9999999,
-
-      pointerEvents:'none',
-
-      backdropFilter:'blur(6px)',         // 🔥 핵심: 배경 블러
-
-      background:'rgba(255,255,255,0.55)', // 🔥 살짝 밝힘
-
+      background:'rgba(255,255,255,0.6)',
+      backdropFilter:'blur(1.5px)',
       display:'flex',
-
       alignItems:'center',
-
       justifyContent:'center',
-
-      zIndex:999999
-
-    }}>
+      zIndex:9999,
+      opacity: fadeOut ? 0 : 1,
+      transition:'opacity 0.5s ease'
+}}>
 
       <div style={{
-
         width:110,
-
         height:110,
-
         borderRadius:'50%',
-
         background:'#fff',
-
         border:'2px solid #e8e4dd',
-
         display:'flex',
-
         alignItems:'center',
-
         justifyContent:'center',
-
         boxShadow:'0 10px 30px rgba(0,0,0,0.08)'
-
       }}>
 
         <svg viewBox="0 0 80 80" style={{width:90,height:90}}>
@@ -361,6 +341,7 @@ const value = {
   const [loading,  setLoading]  = useState(false)
   const [visibleResults, setVisibleResults] = useState(0)
   const [displayScore,   setDisplayScore]   = useState(0)
+  const [showSpinner, setShowSpinner] = useState(false)
   const [users, setUsers] = useState([]) 
   const [authUser, setAuthUser] = useState(null)
   const safeUsers = Array.isArray(users) ? users : []
@@ -691,11 +672,12 @@ function handleCharClick(charId){
 
   async function loadMovies(){
   setLoading(true)
-  await new Promise(r => setTimeout(r, 1000))
+  setShowSpinner(true)
+  setScreen('quiz')
+  
   try{
     if(!supabase){
       alert('DB 연결 안됨')
-      setLoading(false)
       return
     }
 
@@ -721,12 +703,27 @@ const { data: logs } = await supabase
 const playedIds = (logs || []).map(l => l.movie_id)
 
 // 3️⃣ 영화 가져오기 (🔥 필터 제거)
-const { data: movies, error } = await supabase
+const loadPromise = supabase
+
   .from('movies')
+
   .select(`
+
     *,
+
     hints(*)
+
   `)
+
+const delayPromise = new Promise(r => setTimeout(r, 500))
+
+const [{ data: movies, error }] = await Promise.all([
+
+  loadPromise,
+
+  delayPromise
+
+])
 
 if(error){
   console.error(error)
@@ -804,7 +801,6 @@ const sel = shuffled.slice(0,5).map(m=>({
   choices: buildChoices(m, movies)
 }))
 
-
     setPool(sel)
     setQi(0)
     setSh(1)
@@ -817,14 +813,24 @@ const sel = shuffled.slice(0,5).map(m=>({
     setTd(false)
     setTc(10)
     setRoundStartScore(score) 
-    setScreen('quiz')
+    
 
   }catch(e){
     console.error(e)
     alert('오류 발생')
-  }
+  }finally{
 
   setLoading(false)
+
+  // 🔥 페이드 시간 확보
+
+  setTimeout(()=>{
+
+    setShowSpinner(false)
+
+  }, 150)
+
+}
 }
 
   function getPts(modeParam){
@@ -1044,7 +1050,14 @@ async function submit(answerValue){
     }
 
   } finally {
-    setIsSubmitting(false)
+
+  setLoading(false)
+
+  setTimeout(()=>{
+
+    setShowSpinner(false)
+
+  }, 180)
   }
 }
 
@@ -1621,19 +1634,23 @@ if(screen==='char') return(
 // ══════════════════════════════════════════
 // 화면 3: 퀴즈
 // ══════════════════════════════════════════
-if(screen==='quiz')
+if(screen === 'quiz'){
 
-{
+  // 🔥 하나로 통합 (이게 핵심)
 
-  // 🔥 로딩 중 or pool 없으면 스피너 먼저
-
-  if(!pool[qi]){
+  if(loading || !pool || pool.length === 0 || !pool[qi]){
 
     return (
 
       <div style={{
 
         height:'100vh',
+
+        display:'flex',
+
+        alignItems:'center',
+
+        justifyContent:'center',
 
         background:'#fff'
 
@@ -1647,28 +1664,24 @@ if(screen==='quiz')
 
   }
 
+  // 3️⃣ 여기부터 진짜 퀴즈
   const m = pool[qi]
   const timerCol = tc>6 ? '#4a9c6d' : tc>3 ? '#c8a84a' : '#d45c5c'
 
-  
-
   return (
-
     <div style={{
-
       height:'100%',
-
       minHeight:'100vh',
-
       background:'#fff',
-
       display:'flex',
-
       flexDirection:'column',
-
     }}>
-    
-   {loading && <CharacterSpinner />}   
+
+      {showSpinner && (
+
+      <CharacterSpinner fadeOut={!loading} />
+
+    )}
         
       {/* ── 고정 헤더 ── */}
       <div style={{
