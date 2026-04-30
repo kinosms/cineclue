@@ -2618,7 +2618,7 @@ if(screen==='result'){
 
   return(
     <div style={{
-      minHeight:'100vh',
+      minHeight:'100dvh',
       background:'#fff',
       display:'flex',
       flexDirection:'column',
@@ -2627,11 +2627,12 @@ if(screen==='result'){
 
       {/* 상단 */}
       <div style={{
-        display:'flex',
-        flexDirection:'column',
-        alignItems:'center',
-        marginBottom:20
-      }}>
+      flexShrink:0,
+      paddingTop:24,
+      display:'flex',            // 🔥 추가
+      flexDirection:'column',    // 🔥 추가
+      alignItems:'center' 
+    }}>
         <div style={{
           width:80,
           height:80,
@@ -2706,17 +2707,12 @@ if(screen==='result'){
 
       {/* 결과 리스트 */}
 
-<div style={{
-
-  flex:1,
-
-  overflowY:'auto',
-
-  padding:'0 20px',
-
-  minHeight:0
-
-}}>
+      <div style={{
+        flex:1,
+        overflowY:'auto',
+        padding:'0 20px',
+        minHeight:0
+      }}>
 
   {resultView === 'score' ? (
 
@@ -3097,16 +3093,13 @@ if(screen==='result'){
       {/* 하단 버튼 */}
       {visibleResults > results.length && (
         <div style={{
+        flexShrink:0,
+        padding:'20px',
+        display:'flex',
+        flexDirection:'row',
+        gap:10
 
-  padding:'20px',
-
-  display:'flex',
-
-  flexDirection:'row',
-
-  gap:10
-
-}}>
+      }}>
 
   {/* 🔥 조건 버튼 */}
 
