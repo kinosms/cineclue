@@ -2704,7 +2704,7 @@ if(screen==='result'){
 
       <div style={{
         padding:'0 20px',
-        height: results.length > 0 ? `${results.length * 72}px` : '360px',
+        height: `${Math.min(results.length, 5) * 68}px`,
         // 🔥 핵심: Q1~Q5 높이 기준
         overflowY: resultView === 'ranking' ? 'auto' : 'hidden',
         WebkitOverflowScrolling:'touch',
