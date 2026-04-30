@@ -2616,13 +2616,13 @@ if(screen==='result'){
       background:'#fff',
       display:'flex',
       flexDirection:'column',
-      padding:'8px 0 4px',
+      padding:'12px 0 8px',
     }}>
 
       {/* 상단 */}
       <div style={{
       flexShrink:0,
-      paddingTop:8,
+      paddingTop:12,
       display:'flex',            // 🔥 추가
       flexDirection:'column',    // 🔥 추가
       alignItems:'center' 
@@ -2703,13 +2703,22 @@ if(screen==='result'){
       {/* 결과 리스트 */}
 
       <div style={{
-        padding:'0 20px',
-        height: `${Math.min(results.length, 5) * 68}px`,
-        // 🔥 핵심: Q1~Q5 높이 기준
-        overflowY: resultView === 'ranking' ? 'auto' : 'hidden',
-        WebkitOverflowScrolling:'touch',
-        overscrollBehavior:'contain'
-        }}>
+
+  padding:'0 20px',
+
+  // 🔥 핵심 1: score 기준 높이 고정
+
+  height: `${Math.min(results.length, 5) * 65}px`,
+
+  // 🔥 핵심 2: ranking은 스크롤만
+
+  overflowY: resultView === 'ranking' ? 'auto' : 'hidden',
+
+  WebkitOverflowScrolling:'touch',
+
+  overscrollBehavior:'contain'
+
+}}>
 
   {resultView === 'score' ? (
 
@@ -2928,7 +2937,7 @@ if(screen==='result'){
           {myRank && myRank > TOP_LIMIT && (
             <div style={{
 
-  marginTop:12,
+  marginTop:8,
 
   padding:'12px 14px',
 
@@ -3018,15 +3027,23 @@ if(screen==='result'){
       {/* 하단 버튼 */}
       {visibleResults > results.length && (
 
-      <div style={{
+    <div style={{
 
-        flexShrink:0,
-        padding:'16px 20px calc(12px + env(safe-area-inset-bottom))',
-        display:'flex',
-        gap:10,
-        background:'#fff',
-        borderTop:'1px solid #f0ece6'
-      }}>
+  flexShrink:0,
+
+  // 🔥 핵심 3: 위쪽 패딩 줄임 (여기 간격 원인)
+
+  padding:'8px 20px calc(10px + env(safe-area-inset-bottom))',
+
+  display:'flex',
+
+  gap:10,
+
+  background:'#fff',
+
+  borderTop:'1px solid #f0ece6'
+
+}}>
 
   {/* 🔥 조건 버튼 */}
 
