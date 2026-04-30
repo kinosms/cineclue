@@ -2439,7 +2439,7 @@ style={{
     bottom:0,            // 🔥 핵심
     background:'#fff',
     marginTop:16,
-    paddingBottom:'calc(20px + env(safe-area-inset-bottom))',
+    paddingBottom: '20px',
     flexShrink:0
   }}>
 
