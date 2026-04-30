@@ -1028,9 +1028,14 @@ async function doSkip(){
 }
 
   function nextH(){
-    if(sh<5){setSh(v=>v+1);setFb('');setFbt('');setTimeout(()=>inputRef.current?.focus(),50)}
-    else doSkip()
+  if(sh < 5){
+    setSh(v => v + 1)
+    setFb('')
+    setFbt('')
+  } else {
+    doSkip()
   }
+}
 
  function nextQ(){
   inputRef.current?.blur()
@@ -1050,7 +1055,6 @@ async function doSkip(){
   setTd(false)
   setTc(10)
 
-  setTimeout(()=>inputRef.current?.focus(),100)
 }
 
 function enterGame(){
