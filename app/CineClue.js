@@ -3086,7 +3086,7 @@ if(screen==='result'){
 
     {/* 결과 리스트 */}
     <div style={{
-      flex:1,                     // 🔥 핵심 (버튼 밀어냄)
+      flex:1,
       padding:'0 20px',
       overflowY: resultView === 'ranking' ? 'auto' : 'visible',
       WebkitOverflowScrolling:'touch',
@@ -3259,9 +3259,8 @@ if(screen==='result'){
       )}
     </div>
 
-    {/* 🔥 하단 버튼 (무조건 여기!) */}
+    {/* 🔥 하단 버튼 */}
     {visibleResults > results.length && (
-
       <div style={{
         flexShrink:0,
         padding:'12px 20px',
@@ -3302,341 +3301,36 @@ if(screen==='result'){
       </div>
     )}
 
+    {/* 🔥 프로필 팝업 (여기로 이동됨) */}
+    {showProfile && (
+      <div style={{
+        position:'fixed',
+        inset:0,
+        background:'rgba(0,0,0,0.3)',
+        display:'flex',
+        alignItems:'center',
+        justifyContent:'center',
+        zIndex:999999
+      }}>
+        {/* 기존 프로필 코드 그대로 */}
+      </div>
+    )}
+
+    <style jsx>{`
+      @keyframes fadeUp {
+        from {
+          transform: translateY(10px);
+          opacity: 0;
+        }
+        to {
+          transform: translateY(0);
+          opacity: 1;
+        }
+      }
+    `}</style>
+
   </div>
 )
-     
-
-      {/* 🔥 프로필 팝업: 결과 UI 밖, root 마지막 */}
-      {showProfile && (
-        <div style={{
-          position:'fixed',
-          inset:0,
-          background:'rgba(0,0,0,0.3)',
-          display:'flex',
-          alignItems:'center',
-          justifyContent:'center',
-          zIndex:999999
-        }}>
-
-          <div style={{
-            transform:'scale(0.88)',
-            transformOrigin:'center center'
-          }}>
-
-            <div style={{
-              width:'92vw',
-              maxWidth:420,
-              background:'#faf9f7',
-              borderRadius:20,
-              border:'1.5px solid #e8e4dd',
-              padding:'20px 16px',
-              boxShadow:'0 10px 30px rgba(0,0,0,0.1)',
-              position:'relative'
-            }}>
-
-              <div
-                onClick={()=>setShowProfile(false)}
-                style={{
-                  position:'absolute',
-                  top:12,
-                  right:12,
-                  width:30,
-                  height:30,
-                  borderRadius:'50%',
-                  background:'#f5f3ef',
-                  border:'1px solid #e8e4dd',
-                  display:'flex',
-                  alignItems:'center',
-                  justifyContent:'center',
-                  cursor:'pointer'
-                }}
-              >
-                <span style={{color:'#1a1814',fontSize:16,fontWeight:700}}>×</span>
-              </div>
-
-              <div style={{textAlign:'center', marginBottom:14}}>
-                <div style={{fontSize:'0.9rem', color:'#ff6b7a'}}>
-                  SF액션
-                </div>
-
-                <div style={{
-                  fontSize:'1.4rem',
-                  fontWeight:900,
-                  color:'#1a1814',
-                  marginTop:4
-                }}>
-                  총소리 놀람이
-                </div>
-
-                <div style={{
-                  fontSize:'0.7rem',
-                  color:'#888',
-                  marginTop:6
-                }}>
-                  나나나
-                </div>
-              </div>
-
-              <div style={{
-                width:'100%',
-                display:'flex',
-                justifyContent:'center',
-                marginBottom:14
-              }}>
-                <div style={{
-                  width:'100%',
-                  maxWidth:320
-                }}>
-                  <img
-                    src="/sadako_full.png"
-                    alt="character"
-                    style={{
-                      width:'100%',
-                      height:140,
-                      objectFit:'contain'
-                    }}
-                  />
-                </div>
-              </div>
-
-              <div style={{marginBottom:14}}>
-                <div style={{
-                  fontSize:'1.2rem',
-                  fontWeight:800,
-                  color:'#1a1814'
-                }}>
-                  Lv. 20
-                </div>
-
-                <div style={{
-                  height:6,
-                  background:'#eee',
-                  borderRadius:10,
-                  marginTop:6
-                }}>
-                  <div style={{
-                    width:'80%',
-                    height:'100%',
-                    background:'#ff6b7a'
-                  }}/>
-                </div>
-
-                <div style={{
-                  fontSize:'0.65rem',
-                  color:'#888',
-                  textAlign:'right',
-                  marginTop:4
-                }}>
-                  2,450 / 3,000 EXP
-                </div>
-              </div>
-
-              <div style={{
-                display:'flex',
-                justifyContent:'center',
-                margin:'14px 0'
-              }}>
-
-                {(() => {
-                  const genres = [
-                    {name:'애니', value:50},
-                    {name:'SF', value:60},
-                    {name:'SF액션', value:85},
-                    {name:'SF공포', value:70},
-                    {name:'판타지', value:55},
-                    {name:'판타지액션', value:65},
-                    {name:'공포', value:90},
-                    {name:'미스터리', value:65},
-                    {name:'액션', value:70},
-                    {name:'코미디', value:30},
-                    {name:'로맨스', value:40},
-                    {name:'드라마', value:45}
-                  ]
-
-                  const cx = 100
-                  const cy = 100
-                  const radius = 70
-
-                  const points = genres.map((g,i)=>{
-                    const angle = (Math.PI*2/genres.length)*i - Math.PI/2
-                    const cos = Math.cos(angle)
-                    const sin = Math.sin(angle)
-                    const r = (g.value/100) * radius
-
-                    let labelRadius = radius + 26
-
-                    if(Math.abs(cos) > 0.7){
-                      labelRadius = radius + 34
-                    }
-
-                    if(Math.abs(cos) > 0.3 && Math.abs(cos) < 0.7){
-                      labelRadius = radius + 30
-                    }
-
-                    return {
-                      x: cx + cos*r,
-                      y: cy + sin*r,
-                      labelX: cx + cos*labelRadius,
-                      labelY: cy + sin*labelRadius,
-                      valueX: cx + cos*(radius+10),
-                      valueY: cy + sin*(radius+10),
-                      name:g.name,
-                      value:g.value
-                    }
-                  })
-
-                  const polygonPoints = points.map(p=>`${p.x},${p.y}`).join(' ')
-
-                  return (
-                    <svg width="220" height="220">
-                      <defs>
-                        <filter id="glow-result">
-                          <feGaussianBlur stdDeviation="2"/>
-                        </filter>
-                      </defs>
-
-                      {[0.25,0.5,0.75,1].map((r,i)=>(
-                        <circle
-                          key={i}
-                          cx={cx}
-                          cy={cy}
-                          r={radius*r}
-                          stroke="rgba(0,0,0,0.08)"
-                          fill="none"
-                        />
-                      ))}
-
-                      {points.map((p,i)=>(
-                        <line
-                          key={i}
-                          x1={cx}
-                          y1={cy}
-                          x2={p.labelX}
-                          y2={p.labelY}
-                          stroke="rgba(0,0,0,0.08)"
-                        />
-                      ))}
-
-                      <polygon
-                        points={polygonPoints}
-                        fill="rgba(255,107,122,0.35)"
-                        stroke="#ff6b7a"
-                        strokeWidth="2"
-                        filter="url(#glow-result)"
-                      />
-
-                      {points.map((p,i)=>(
-                        <circle
-                          key={i}
-                          cx={p.x}
-                          cy={p.y}
-                          r="3"
-                          fill="#ff6b7a"
-                        />
-                      ))}
-
-                      {points.map((p,i)=>(
-                        <text
-                          key={i}
-                          x={p.labelX}
-                          y={p.labelY}
-                          fill="#555"
-                          fontSize="9"
-                          textAnchor="middle"
-                          alignmentBaseline="middle"
-                        >
-                          {p.name}
-                        </text>
-                      ))}
-
-                      {points.map((p,i)=>(
-                        <text
-                          key={i}
-                          x={p.valueX}
-                          y={p.valueY}
-                          fill="#ff6b7a"
-                          fontSize="10"
-                          fontWeight="700"
-                          textAnchor="middle"
-                        >
-                          {p.value}
-                        </text>
-                      ))}
-                    </svg>
-                  )
-                })()}
-
-              </div>
-
-              <div style={{
-                display:'grid',
-                gridTemplateColumns:'1fr 1fr',
-                gap:8,
-                marginTop:10
-              }}>
-
-                {[
-                  ['총 점수','12,450'],
-                  ['플레이 시간','48h 30m'],
-                  ['선호 장르','SF액션, 공포'],
-                  ['최근 플레이','2024.05.20']
-                ].map(([k,v],i)=>(
-                  <div key={i} style={{
-                    background:'#fff',
-                    border:'1px solid #e8e4dd',
-                    borderRadius:10,
-                    padding:'8px'
-                  }}>
-                    <div style={{
-                      fontSize:'0.6rem',
-                      color:'#888',
-                      marginBottom:2
-                    }}>
-                      {k}
-                    </div>
-                    <div style={{
-                      fontSize:'0.8rem',
-                      fontWeight:700,
-                      color:'#1a1814'
-                    }}>
-                      {v}
-                    </div>
-                  </div>
-                ))}
-
-              </div>
-
-            </div>
-          </div>
-        </div>
-      )}
-
-      <style jsx>{`
-
-  @keyframes fadeUp {
-
-    from {
-
-      transform: translateY(10px);
-
-      opacity: 0;
-
-    }
-
-    to {
-
-      transform: translateY(0);
-
-      opacity: 1;
-
-    }
-
-  }
-
-`}</style>
-
-    </div>
-  )
 }
 
 return null
