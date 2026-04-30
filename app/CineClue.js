@@ -174,6 +174,14 @@ function CharacterSpinner({ fadeOut }){
 //인트로//
 
 function IntroScreen({ onEnter }) {
+  
+  const [mounted, setMounted] = useState(false)
+
+useEffect(() => {
+
+  setMounted(true)
+
+}, [])
 
   return (
 
@@ -321,47 +329,23 @@ function IntroScreen({ onEnter }) {
 }}>
   
 
-  <div className="typing">
+  <div
+
+  className="typing"
+
+  style={{
+
+    visibility: mounted ? 'visible' : 'hidden'
+
+  }}
+
+>
 
   Houston... we have a problem.
 
 </div>
 
 </div>
-
-<style jsx>{`
-
-        .typing {
-
-          overflow: hidden;
-
-          white-space: nowrap;
-
-          border-right: 2px solid #9ef7c0;
-
-          width: 0;
-
-          animation: typing 3s steps(30, end) forwards,
-
-                     blink 0.7s infinite;
-
-        }
-
-        @keyframes typing {
-
-          from { width: 0 }
-
-          to { width: 100% }
-
-        }
-
-        @keyframes blink {
-
-          50% { border-color: transparent }
-
-        }
-
-      `}</style>
 
 <div style={{
 
