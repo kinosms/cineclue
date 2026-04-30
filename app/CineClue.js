@@ -2924,7 +2924,16 @@ if(screen==='result'){
     zIndex:9999
   }}>
 
+ {/* 🔥 이거 반드시 있어야 함 */}
 
+    <div style={{
+
+      transform:'scale(0.88)',
+
+      transformOrigin:'center center'
+
+    }}>
+      
     <div style={{
       width:'92vw',
       maxWidth:420,
