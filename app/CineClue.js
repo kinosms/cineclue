@@ -2616,13 +2616,13 @@ if(screen==='result'){
       background:'#fff',
       display:'flex',
       flexDirection:'column',
-      padding:'24px 0 20px',
+      padding:'8px 0 4px',
     }}>
 
       {/* 상단 */}
       <div style={{
       flexShrink:0,
-      paddingTop:24,
+      paddingTop:8,
       display:'flex',            // 🔥 추가
       flexDirection:'column',    // 🔥 추가
       alignItems:'center' 
@@ -3018,21 +3018,15 @@ if(screen==='result'){
       {/* 하단 버튼 */}
       {visibleResults > results.length && (
 
-  <div style={{
+      <div style={{
 
-    flexShrink:0,
-
-    padding:'16px 20px calc(24px + env(safe-area-inset-bottom))',
-
-    display:'flex',
-
-    gap:10,
-
-    background:'#fff',
-
-    borderTop:'1px solid #f0ece6'
-
-  }}>
+        flexShrink:0,
+        padding:'16px 20px calc(12px + env(safe-area-inset-bottom))',
+        display:'flex',
+        gap:10,
+        background:'#fff',
+        borderTop:'1px solid #f0ece6'
+      }}>
 
   {/* 🔥 조건 버튼 */}
 
