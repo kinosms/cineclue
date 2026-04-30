@@ -1621,23 +1621,54 @@ if(screen==='char') return(
 // ══════════════════════════════════════════
 // 화면 3: 퀴즈
 // ══════════════════════════════════════════
-if(screen==='quiz' && pool[qi])
-  {
-    const m = pool[qi]
-    const timerCol = tc>6 ? '#4a9c6d' : tc>3 ? '#c8a84a' : '#d45c5c'
-    
+if(screen==='quiz')
+
+{
+
+  // 🔥 로딩 중 or pool 없으면 스피너 먼저
+
+  if(!pool[qi]){
+
     return (
-      
+
       <div style={{
-        
-        height:'100%',
-        minHeight:'100vh',
-        background:'#fff',
-        display:'flex',
-        flexDirection:'column',
+
+        height:'100vh',
+
+        background:'#fff'
+
       }}>
 
-        {loading && <CharacterSpinner />}
+        <CharacterSpinner />
+
+      </div>
+
+    )
+
+  }
+
+  const m = pool[qi]
+  const timerCol = tc>6 ? '#4a9c6d' : tc>3 ? '#c8a84a' : '#d45c5c'
+
+  
+
+  return (
+
+    <div style={{
+
+      height:'100%',
+
+      minHeight:'100vh',
+
+      background:'#fff',
+
+      display:'flex',
+
+      flexDirection:'column',
+
+    }}>
+    
+   {loading && <CharacterSpinner />}   
         
       {/* ── 고정 헤더 ── */}
       <div style={{
