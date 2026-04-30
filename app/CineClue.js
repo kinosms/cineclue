@@ -784,11 +784,19 @@ function buildChoices(correctMovie, allMovies){
 
   const wrong = shuffled.slice(0, Math.min(3, pool.length))
 
-  const options = [...wrong, correctMovie]
+  // 👉 여기까지 먼저 만들고
 
-    .map(m => m.title)
+  const options = [...wrong, correctMovie].map(m => m.title)
 
-    .sort(()=>Math.random()-0.5)
+  // 👉 그 다음 셔플
+
+  for (let i = options.length - 1; i > 0; i--) {
+
+    const j = Math.floor(Math.random() * (i + 1))
+
+    ;[options[i], options[j]] = [options[j], options[i]]
+
+  }
 
   return options
 
