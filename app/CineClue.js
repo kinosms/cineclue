@@ -1317,16 +1317,8 @@ if(screen==='char') return(
   // 화면 2: 난이도 선택
   // ══════════════════════════════════════════
   if(screen==='grade') return(
-  <div style={{background:'#fff',display:'flex',flexDirection:'column',padding:'28px 0 40px'}}>
-    <div style={{padding:'0 20px',display:'flex',alignItems:'center',gap:12,marginBottom:25}}>
-      <CharAvatar charId={selChar} size={44}/>
-      <div>
-        <div style={{fontSize:'0.65rem',color:'#b0aaa3',fontWeight:500}}>플레이어</div>
-        <div style={{fontSize:'0.85rem',fontWeight:700,color:'#1a1814'}}>
-          {currentUser?.nickname || 'USER ID'}
-        </div>
-      </div>
-    </div>
+  <div style={{background:'#fff',display:'flex',flexDirection:'column',padding:'40px 0 40px'}}>
+    
 
     <div style={{padding:'0 20px'}}>
       <div style={{
@@ -2230,6 +2222,10 @@ style={{
     <div style={{
       width:'92vw',
       maxWidth:420,
+      maxHeight:'85vh',
+      overflow:'hidden',
+      transform:'scale(0.9)',
+      transformOrigin:'center top',
       background:'linear-gradient(135deg, #18171a, #242126)',
       borderRadius:20,
       border:'1.5px solid rgba(255,107,122,0.8)',
