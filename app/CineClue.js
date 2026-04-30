@@ -2208,31 +2208,56 @@ style={{
 {/* 🔥 퀴즈화면용 프로필 팝업 */}
 
 {showProfile && (
+
   <div style={{
+
     position:'fixed',
+
     inset:0,
+
     background:'rgba(0,0,0,0.7)',
+
     display:'flex',
+
     alignItems:'center',
+
     justifyContent:'center',
-    zIndex:9999
+
+    zIndex:999999
+
   }}>
 
+    {/* 🔥 스케일 전용 wrapper */}
 
     <div style={{
-      width:'92vw',
-      maxWidth:420,
-      maxHeight:'85vh',
-      overflow:'hidden',
-      transform:'scale(0.9)',
-      transformOrigin:'center top',
-      background:'linear-gradient(135deg, #18171a, #242126)',
-      borderRadius:20,
-      border:'1.5px solid rgba(255,107,122,0.8)',
-      padding:'20px 16px',
-      boxShadow:'0 0 60px rgba(255,107,122,0.25)',
-      position:'relative'
+
+      transform:'scale(0.88)',
+
+      transformOrigin:'center center'
+
     }}>
+
+      {/* 🔥 기존 카드 그대로 */}
+
+      <div style={{
+
+        width:'92vw',
+
+        maxWidth:420,
+
+        background:'linear-gradient(135deg, #18171a, #242126)',
+
+        borderRadius:20,
+
+        border:'1.5px solid rgba(255,107,122,0.8)',
+
+        padding:'20px 16px',
+
+        boxShadow:'0 0 60px rgba(255,107,122,0.25)',
+
+        position:'relative'
+
+      }}>
 
       {/* ❌ X 버튼 */}
       <div
