@@ -704,6 +704,8 @@ const value = {
   const duration = quizMode === 'objective' ? 15 : 30; // 총 30초
   const skipTime = 30; // 30초에 자동 실행
   const [buttonActive, setButtonActive] = useState(false);
+  const [scoreFlash, setScoreFlash] = useState(false)
+  const [scorePop, setScorePop] = useState(false)
   const [mounted, setMounted] = useState(false)
   const UI = {
   surface: '#ffffff',
@@ -1370,6 +1372,20 @@ async function submit(answerValue){
       setFb(`정답! +${gained}점`)
       setFbt('ok')
       setAnswered(true)
+
+      //점수 플래쉬 효과
+      setScoreFlash(true)
+        setTimeout(()=>{
+      setScoreFlash(false)
+
+        }, 300)
+
+        // 🔥 핵심: 반드시 false → true → false 흐름
+
+        setScorePop(true)
+        setTimeout(()=>{
+          setScorePop(false)
+        }, 500)
 
     } else {
 
@@ -2299,7 +2315,10 @@ if(screen === 'quiz'){
 
     flexShrink:0,        // 🔥 추가
 
-    marginLeft:8         // 🔥 gap 대신 이걸로 띄움
+    marginLeft:8,         // 🔥 gap 대신 이걸로 띄움
+    transform: scorePop ? 'scale(1.6)' : 'scale(1)',
+
+  transition:'transform 0.4s ease'
 
   }}>
 
@@ -2324,6 +2343,8 @@ if(screen === 'quiz'){
             mode==='good'  ? '#fff7e6' :
             mode==='wow'   ? '#fff0f0' :
             mode==='crazy' ? '#f3e8ff' : '#fff',
+          
+          animation: 'comboPulse 1.6s ease-in-out infinite',
 
           border: `1px solid ${
 
@@ -2353,11 +2374,11 @@ if(screen === 'quiz'){
 
   {
 
-    mode==='good' ? '✨ GOOD' :
+    mode==='good' ? '👍 어? 좀 치는데? 이제 시작이다 그대~로 달리자 !!':
 
-    mode==='wow' ? '🔥 WOW' :
+    mode==='wow' ? '🔥🔥 미친 상승감!!! 제니퍼 로페즈 아나콘다 !! 스스메 !! 🔥🔥' :
 
-    mode==='crazy' ? '💀 CRAZY' :
+    mode==='crazy' ? '💀💀💀 뇌야 돌아라!!! 손아 날아라!!! 이건 끝까지 간다!!! 💀💀💀' :
 
     ''
 
@@ -2371,11 +2392,11 @@ if(screen === 'quiz'){
 
   color:
 
-    mode==='good' ? '#c8a84a' :
+    mode==='good' ? '#4e3d0b' :
 
-    mode==='wow' ? '#d45c5c' :
+    mode==='wow' ? '#630c0c' :
 
-    mode==='crazy' ? '#9b5cff' :
+    mode==='crazy' ? '#3b1678' :
 
     '#aaa'
 
@@ -3110,6 +3131,20 @@ style={{
 )}
 
 </div>
+
+<style jsx>{`
+
+@keyframes comboPulse {
+
+  0%   { transform: scale(1) }
+
+  50%  { transform: scale(1.06) }  /* 👉 살짝만 키우는게 중요 */
+
+  100% { transform: scale(1) }
+
+}
+
+`}</style>
 </AppLayout>
 )
 }
