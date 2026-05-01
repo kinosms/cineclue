@@ -124,19 +124,21 @@ input { font-family: inherit; outline: none; }
 
 .flash-letter {
   position: fixed;
-  inset: 0;
-  top: 18%; 
+
+  top: 35%;
+
   left: 50%;
 
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  transform: translateX(-50%);
 
   font-size: 72px;
+
   font-weight: 900;
+
   color: #1a1814;
 
   z-index: 9999;
+
   pointer-events: none;
 
   text-shadow: 0 4px 20px rgba(0,0,0,0.15);
