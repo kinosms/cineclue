@@ -125,11 +125,11 @@ input { font-family: inherit; outline: none; }
 .flash-letter {
   position: fixed;
 
-  top: 35%;
+  top: 40%;
 
   left: 50%;
 
-  transform: translateX(-50%);
+  transform: translate(-50%, -50%);
 
   font-size: 72px;
 
@@ -147,23 +147,37 @@ input { font-family: inherit; outline: none; }
 }
 
 @keyframes flashPop {
+
   0% {
+
     opacity: 0;
-    transform: scale(0.6);
+
+    transform: translate(-50%, -50%) scale(0.6);
+
   }
 
   20% {
+
     opacity: 1;
-    transform: scale(1.1);
+
+    transform: translate(-50%, -50%) scale(1.1);
+
   }
 
   60% {
+
     opacity: 1;
-    transform: scale(1);
+
+    transform: translate(-50%, -50%) scale(1);
+
   }
 
   100% {
+
     opacity: 0;
-    transform: scale(0.9);
+
+    transform: translate(-50%, -50%) scale(0.9);
+
   }
+
 }
