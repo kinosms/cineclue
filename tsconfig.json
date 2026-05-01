@@ -48,7 +48,6 @@
     "noEmit": true,
     "incremental": true,
     "esModuleInterop": true,
-    "moduleResolution": "node",
     "resolveJsonModule": true,
     "plugins": [
       {
