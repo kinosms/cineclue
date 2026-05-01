@@ -117,3 +117,49 @@ input { font-family: inherit; outline: none; }
   to { opacity: 1; }
 
 }
+
+
+
+
+
+.flash-letter {
+  position: fixed;
+  inset: 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  font-size: 64px;
+  font-weight: 900;
+  color: #1a1814;
+
+  z-index: 9999;
+  pointer-events: none;
+
+  text-shadow: 0 4px 20px rgba(0,0,0,0.15);
+
+  animation: flashPop 0.9s ease forwards;
+}
+
+@keyframes flashPop {
+  0% {
+    opacity: 0;
+    transform: scale(0.6);
+  }
+
+  20% {
+    opacity: 1;
+    transform: scale(1.1);
+  }
+
+  60% {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  100% {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+}

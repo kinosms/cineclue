@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react'
 import { createClient } from '@supabase/supabase-js'
+import FlashLetterHint from './FlashLetterHint'
 
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || ''
 const SUPABASE_KEY = process.env.NEXT_PUBLIC_SUPABASE_KEY || ''
@@ -612,7 +613,7 @@ const value = {
   color:'#fff'
 
 }
-
+  const [isFlashing, setIsFlashing] = useState(false)
   const [screen,   setScreen]   = useState('intro')
   const [selChar,  setSelChar]  = useState(null)
   const [selGrades, setSelGrades] = useState([])
@@ -2393,6 +2394,20 @@ style={{
 }}>
 
 {/* 힌트 리스트 */}
+
+{quizMode === 'subjective' && (
+
+  <FlashLetterHint
+
+    title={m.title}
+
+    hintLevel={sh}
+
+    onFlash={setIsFlashing}
+
+  />
+
+)}
 {Array.from({ length: 5 }).map((_, i) => {
   if (i >= sh) return null
 
@@ -2477,15 +2492,15 @@ style={{
         el.scrollTop += el.scrollHeight - prev
       })
     }}
-    disabled={sh>=5 || lockChoice}   // 🔥 힌트만 막음
+    disabled={sh>=5 || lockChoice || isFlashing}   // 🔥 힌트만 막음
     style={{
       flex:1,
       height:40,
       borderRadius:10,
       background:'#f5f3ef',
 
-      opacity: (sh>=5 || lockChoice) ? 0.4 : 1,
-      pointerEvents: (sh>=5 || lockChoice) ? 'none' : 'auto'
+      opacity: (sh>=5 || lockChoice || isFlashing) ? 0.4 : 1,
+      pointerEvents: (sh>=5 || lockChoice || isFlashing) ? 'none' : 'auto'
     }}
   >
     다음 힌트 ({sh}/5)
