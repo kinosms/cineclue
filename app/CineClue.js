@@ -881,32 +881,7 @@ function buildChoices(correctMovie, allMovies){
   const tot = currentUser?.score || 0
 
   const run = async () => {
-
-    await saveLog({
-
-      supabase,
-
-      userId,
-
-      charId: selChar,
-
-      movie: { id: null },
-
-      hintUsed: 0,
-
-      score: tot,
-
-      comboMode: null,
-
-      isCorrect: true,
-      isSkip: true,
-
-      nickname: safeNickname,
-      
-
-    })
-
-    const data = await loadRanking({ supabase })
+  const data = await loadRanking({ supabase })
 
     
 
@@ -1432,7 +1407,9 @@ async function submit(answerValue){
 
 async function doSkip(){
 
+  if(screen !== 'quiz') return
   if (answered || isSubmitting) return
+  if(!currentUser?.userId) return
 
 
 
