@@ -50,6 +50,7 @@ body {
 .app-inner {
   width: 100%;
   max-width: 430px;
+  margin: 0 auto;   
   min-height: 100dvh;
   background: var(--surface);
   position: relative;
@@ -61,11 +62,15 @@ body {
 }
 
 /* PC에서는 배경만 확장 */
-@media (min-width: 640px) {
-  .app-inner {
-    box-shadow: var(--shadow-md);
-    min-height: 100vh;
-    min-height: 100dvh;
+@media (min-width: 768px) {
+  .app-container {
+    max-width: 600px;   /* 🔥 아이패드 */
+  }
+}
+
+@media (min-width: 1024px) {
+  .app-container {
+    max-width: 720px;   /* 🔥 PC */
   }
 }
 

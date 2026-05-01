@@ -510,7 +510,7 @@ async function saveLog({
     is_skip: isSkip || false,
     nickname: nickname, 
     user_input: userInput,
-    genre: genre
+    genre: m.final_genre
   })
 
   if(error){
@@ -584,6 +584,48 @@ function CharAvatar({charId,size=40}){
   )
 }
 
+function AppLayout({ children }) {
+
+  return (
+
+    <div style={{
+
+      minHeight: '100dvh',
+
+      background: '#f5f3ef',
+
+      display: 'flex',
+
+      justifyContent: 'center'
+
+    }}>
+
+      <div style={{
+
+        width: '100%',
+
+        maxWidth: 480,
+
+        background: '#fff',
+
+        minHeight: '100dvh',
+
+        display: 'flex',
+
+        flexDirection: 'column'
+
+      }}>
+
+        {children}
+
+      </div>
+
+    </div>
+
+  )
+
+}
+
 export default function CineClue() {
   const infoBox = {
 
@@ -654,7 +696,7 @@ const value = {
   const [wrongCount, setWrongCount] = useState(0)
   const [lockChoice, setLockChoice] = useState(false)
   const [selectedChoice, setSelectedChoice] = useState(null)
-  const [quizMode, setQuizMode] = useState('objective') // 객관식 주관식 바꾸기
+  const [quizMode, setQuizMode] = useState('subjective') // 객관식 주관식 바꾸기
   const [choices, setChoices] = useState([])
   const [genreStats, setGenreStats] = useState([])
   const [showProfile, setShowProfile] = useState(false)
@@ -1312,7 +1354,7 @@ async function submit(answerValue){
         hintUsed:sh,
         score:gained,
         country:m.country,
-        genre:m.side?.genre||'',
+        genre:m.final_genre||'',
         grade: primaryGrade
       }])
 
@@ -1415,7 +1457,7 @@ async function doSkip(){
     isCorrect: false,
     isSkip: true,
     nickname: currentUser.nickname,
-    genre: m.genre || null
+    genre: m.final_genre || null
   })
 
   const genreValue = m.final_genre || '기타'
@@ -1434,7 +1476,7 @@ async function doSkip(){
     hintUsed:0,
     score:0,
     country:m.country,
-    genre:m.side?.genre||'',
+    genre:m.final_genre||'',
     grade:primaryGrade
   }])
 
@@ -1538,7 +1580,8 @@ if(screen === 'intro'){
 
   }
 if(screen==='char') return(
-  <div style={{minHeight:'100vh',background:'#fff',display:'flex',flexDirection:'column',padding:'48px 0 40px'}}>
+  <AppLayout>
+  <div style={{width:'100%',minHeight:'100vh',background:'#fff',display:'flex',flexDirection:'column',padding:'48px 0 40px'}}>
     <div style={{textAlign:'center',marginBottom:40}}>
       <div style={{fontSize:'2.6rem',fontWeight:900,letterSpacing:'-1px',lineHeight:1,color:'#1a1814'}}>
         Cine <span style={{color:'#e8808c'}}>CLUE</span>
@@ -1736,7 +1779,7 @@ if(screen==='char') return(
         </div>
       </div>
     )}
-  </div>
+  </div></AppLayout>
 )
 
   // ══════════════════════════════════════════
@@ -2001,12 +2044,21 @@ if(screen === 'quiz'){
   const timerCol = tc>6 ? '#4a9c6d' : tc>3 ? '#c8a84a' : '#d45c5c'
 
   return (
+    <AppLayout>
+
     <div style={{
-      height:'100%',
-      minHeight:'100vh',
+      width:'100%',
+
       background:'#fff',
+
       display:'flex',
+
       flexDirection:'column',
+
+      flex:1,
+
+      minHeight:0
+
     }}>
 
       {showSpinner && (
@@ -3056,6 +3108,7 @@ style={{
 )}
 
 </div>
+</AppLayout>
 )
 }
 
@@ -3089,6 +3142,7 @@ if(screen==='result'){
   const currentGrade = selGrades?.[0]
 
   return(
+    <AppLayout>
     <div style={{
       height:'100dvh',
       overflow:'hidden',
@@ -3924,7 +3978,7 @@ if(screen==='result'){
 
 `}</style>
 
-    </div>
+    </div></AppLayout>
   )
 }
 
