@@ -8,6 +8,7 @@
     // See also https://aka.ms/tsconfig/module
     "module": "nodenext",
     "target": "esnext",
+    "ignoreDeprecations": "6.0",
     "types": [
       "node"
     ],
