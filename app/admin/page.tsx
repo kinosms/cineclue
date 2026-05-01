@@ -59,10 +59,16 @@ export default function AdminPage() {
   }
 
   function updateText(index: number, value: string) {
-    const copy = [...rows]
-    copy[index].hint_text = value
-    setRows(copy)
-  }
+
+  const copy = [...rows]
+
+  if (!copy[index]) return   // 🔥 이거 추가
+
+  copy[index].hint_text = value
+
+  setRows(copy)
+
+}
 
   async function save(row: Row) {
 
