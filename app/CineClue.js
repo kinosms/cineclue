@@ -671,8 +671,6 @@ const value = {
   const [comboStreak,  setComboStreak]  = useState(0)
   const [crazyStreak,  setCrazyStreak]  = useState(0)
   const [roundStartScore, setRoundStartScore] = useState(0)
-  const [td,       setTd]       = useState(false)
-  const [tc,       setTc]       = useState(10)
   const [results,  setResults]  = useState([])
   const [loading,  setLoading]  = useState(false)
   const [visibleResults, setVisibleResults] = useState(0)
@@ -702,6 +700,10 @@ const value = {
   const [showProfile, setShowProfile] = useState(false)
   const [rankingRevealDone, setRankingRevealDone] = useState(false)
   const primaryGrade = selGrades[0] || null
+  const [progress, setProgress] = useState(0); // 0 ~ 100
+  const duration = quizMode === 'objective' ? 15 : 30; // 총 30초
+  const skipTime = 30; // 30초에 자동 실행
+  const [buttonActive, setButtonActive] = useState(false);
   const [mounted, setMounted] = useState(false)
   const UI = {
   surface: '#ffffff',
@@ -730,6 +732,8 @@ useEffect(()=>{
 
 }, [screen, qi, quizMode, pool])
 
+
+
 useEffect(()=>{
 
   const t = setTimeout(()=>{
@@ -741,6 +745,8 @@ useEffect(()=>{
   return ()=>clearTimeout(t)
 
 },[])
+
+
 
 useEffect(()=>{
   if(screen !== 'result') return
@@ -777,6 +783,8 @@ useEffect(()=>{
   setWrongCount(0)
   setLockChoice(false)
   setSelectedChoice(null)
+  setProgress(0)        
+  setButtonActive(false)
 }, [qi])
 
 
@@ -786,6 +794,43 @@ useEffect(()=>{
 }, [genreStats])
 
 
+
+
+useEffect(() => {
+
+  if(screen !== 'quiz') return  // 🔥 중요
+
+  const start = Date.now();
+
+  const timer = setInterval(() => {
+
+    const elapsed = (Date.now() - start) / 1000;
+
+    const percent = Math.min((elapsed / duration) * 100, 100);
+
+    setProgress(percent);
+
+    if (elapsed >= duration) {
+
+      setButtonActive(true);
+
+      // 🔥 중요: 강제 실행
+
+      if (!answered) {
+
+        doSkip();
+
+      }
+
+      clearInterval(timer);
+
+    }
+
+  }, 100);
+
+  return () => clearInterval(timer);
+
+}, [qi, screen, quizMode, answered]);
 
 
 
@@ -917,14 +962,6 @@ useEffect(()=>{
 
   getUser()
 }, [supabase])
-
-  // 타이머
-  useEffect(()=>{
-    if(screen!=='quiz' || answered || td || quizMode === 'objective') return
-    if(tc<=0){setTd(true);return}
-    const t=setTimeout(()=>setTc(v=>v-1),1000)
-    return ()=>clearTimeout(t)
-  },[screen,answered,td,tc])
 
 
 
@@ -1154,8 +1191,6 @@ const sel = shuffled.slice(0,5).map(m=>({
     setFbt('')
     setInput('')
     setCrazyStreak(0)
-    setTd(false)
-    setTc(10)
     setRoundStartScore(score) 
     
 
@@ -1201,7 +1236,6 @@ const sel = shuffled.slice(0,5).map(m=>({
   }
 
   // ⬇️ 주관식만 적용됨
-  if(td) base = base / 2
 
   if(modeParam === 'good') base *= 3
   if(modeParam === 'wow') base *= 4
@@ -1476,6 +1510,9 @@ async function doSkip(){
  function nextQ(){
   inputRef.current?.blur()
 
+  setProgress(0)
+  setButtonActive(false)
+
   if(qi+1>=pool.length){
     setScreen('result')   // 👈 이것만 남김
     return
@@ -1488,8 +1525,6 @@ async function doSkip(){
   setFb('')
   setFbt('')
   setInput('')
-  setTd(false)
-  setTc(10)
 
 }
 
@@ -1905,29 +1940,6 @@ if(screen==='char') return(
                 {gr.subDesc}
               </div>
             </div>
-
-            {/* 선택 원 */}
-            <div style={{
-              width:22,
-              height:22,
-              borderRadius:'50%',
-              border:`2px solid ${sel ? color : '#ddd'}`,
-              background: sel ? color : 'transparent',
-              flexShrink:0,
-              display:'flex',
-              alignItems:'center',
-              justifyContent:'center'
-            }}>
-              {sel && (
-                <div style={{
-                  width:8,
-                  height:8,
-                  borderRadius:'50%',
-                  background:'#1a1814', 
-                  boxShadow:'0 0 0 2px rgba(0,0,0,0.2)'
-                }}/>
-              )}
-            </div>
           </div>
         )
       })}
@@ -2018,7 +2030,6 @@ if(screen === 'quiz'){
 
   // 3️⃣ 여기부터 진짜 퀴즈
   const m = pool[qi]
-  const timerCol = tc>6 ? '#4a9c6d' : tc>3 ? '#c8a84a' : '#d45c5c'
 
   return (
     <AppLayout>
@@ -2081,32 +2092,10 @@ if(screen === 'quiz'){
           {/* 🔥 항상 존재하는 wrapper */}
 
           <div style={{
-            width:36,
-            height:36,
-            flexShrink:0
-          }}>
-            {/* 🔥 안쪽만 숨김 */}
-            <div style={{
-              width:36,
-              height:36,
-              borderRadius:'50%',
-              background:`${timerCol}15`,
-              border:`2.5px solid ${timerCol}`,
-              display:'flex',
-              alignItems:'center',
-              justifyContent:'center',
-              opacity: (answered || quizMode === 'objective') ? 0 : 1,
-              transition:'opacity 0.2s ease'
+            width:36
+
             }}>
-              <span style={{
-                fontSize:'0.8rem',
-                fontWeight:800,
-                color:timerCol
-              }}>
-              {tc}
-              </span>
-          </div>
-          </div>
+  </div>
       </div>
   </div>
 
@@ -2532,19 +2521,55 @@ style={{
       pointerEvents: (sh>=5 || lockChoice || isFlashing) ? 'none' : 'auto'
     }}
   >
-    다음 힌트 ({sh}/5)
+    다음 힌트
   </button>
 
   <button
+
     onClick={doSkip}
+
     style={{
       flex:1,
       height:40,
-      borderRadius:10,
-      background:'#fff5f6'
+      position: 'relative',
+      overflow: 'hidden',
+      padding: '12px 20px',
+      background: '#f5f3ef',
+      border: 'none',
+      borderRadius: '8px',
+      padding:0, 
+      transform: buttonActive ? 'scale(0.95)' : 'scale(1)',
+      transition: 'transform 0.1s ease'
+
     }}
+
   >
-    넘기기
+
+    <div
+
+      style={{
+
+        position: 'absolute',
+
+        top: 0,
+
+        left: 0,
+
+        height: '100%',
+
+        width: `${progress}%`,
+
+        background: 'rgba(167, 48, 48, 0.61)',
+
+        transition: answered ? 'none' : 'width 0.1s linear',
+
+        zIndex: 0
+
+      }}
+
+    />
+    <span style={{ position: 'relative', zIndex: 1 }}>넘기기</span>
+    
   </button>
 
 </div>
