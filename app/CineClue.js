@@ -510,7 +510,7 @@ async function saveLog({
     is_skip: isSkip || false,
     nickname: nickname, 
     user_input: userInput,
-    genre: m.final_genre
+    genre: genre
   })
 
   if(error){
