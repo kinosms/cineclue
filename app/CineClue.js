@@ -542,10 +542,11 @@ async function saveLog({
 
 async function loadRanking({ supabase }){
 
+  
   const { data, error } = await supabase
 
     .from('game_logs')
-    .select('id, character_id, score_earned, nickname') 
+    .select('id, user_id, character_id, score_earned, nickname')
     .eq('log_type', 'result')  
     .not('score_earned', 'is', null)
 
@@ -562,8 +563,10 @@ async function loadRanking({ supabase }){
 
 data.forEach(d => {
 
-  if(!map[d.character_id]){
-    map[d.character_id] = {
+  const key = `${d.user_id}_${d.character_id}`
+
+  if(!map[key]){
+    map[key] = {
       character_id: d.character_id,
       score: d.score_earned,
       nickname: d.nickname || null,
@@ -571,8 +574,8 @@ data.forEach(d => {
     }
   } else {
 
-    if(d.id > map[d.character_id].id){
-      map[d.character_id] = {
+    if(d.id > map[key].id){
+      map[key] = {
         character_id: d.character_id,
         score: d.score_earned,
         nickname: d.nickname || map[d.character_id].nickname,
