@@ -567,6 +567,7 @@ data.forEach(d => {
 
   if(!map[key]){
     map[key] = {
+      user_id: d.user_id,  
       character_id: d.character_id,
       score: d.score_earned,
       nickname: d.nickname || null,
@@ -576,6 +577,7 @@ data.forEach(d => {
 
     if(d.id > map[key].id){
       map[key] = {
+        user_id: d.user_id,  
         character_id: d.character_id,
         score: d.score_earned,
         nickname: d.nickname || map[d.character_id].nickname,
@@ -589,6 +591,7 @@ data.forEach(d => {
 
 return Object.values(map)
   .map(d => ({
+    user_id: d.user_id,
     character_id: d.character_id,
     score: d.score,
     nickname: d.nickname
