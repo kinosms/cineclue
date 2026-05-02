@@ -2549,7 +2549,19 @@ if(screen === 'quiz'){
 
 
 
+{quizMode === 'subjective' && (
 
+  <FlashLetterHint
+
+    title={m.title}
+
+    hintLevel={sh}
+
+    onFlash={setIsFlashing}
+
+  />
+
+)}
 
 {/* ── 스크롤 영역 ── */}
 <div
@@ -2569,19 +2581,6 @@ style={{
 
 {/* 힌트 리스트 */}
 
-{quizMode === 'subjective' && (
-
-  <FlashLetterHint
-
-    title={m.title}
-
-    hintLevel={sh}
-
-    onFlash={setIsFlashing}
-
-  />
-
-)}
 {Array.from({ length: 5 }).map((_, i) => {
   if (i >= sh) return null
 
