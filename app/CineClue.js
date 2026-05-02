@@ -508,19 +508,21 @@ async function saveLog({
   isSkip,
   userInput,  
   nickname,
-  genre
+  genre,
+  log_type = 'play'
 }){
 
-  if(!movie?.id) return
   if(!supabase) {
     alert('❌ supabase 없음')
     return
   }
 
+  const movieId = movie?.id ?? null
+
   const { error } = await supabase.from('game_logs').insert({
     user_id: userId,
     character_id: charId,
-    movie_id: movie?.id,
+    movie_id: movieId,
     hint_used: hintUsed,
     score_earned: score,
     combo_mode: comboMode,
@@ -528,7 +530,8 @@ async function saveLog({
     is_skip: isSkip || false,
     nickname: nickname, 
     user_input: userInput,
-    genre: genre
+    genre: genre,
+    log_type: log_type
   })
 
   if(error){
@@ -543,7 +546,7 @@ async function loadRanking({ supabase }){
 
     .from('game_logs')
     .select('id, character_id, score_earned, nickname') 
-    .is('movie_id', null)
+    .eq('log_type', 'result')  
     .not('score_earned', 'is', null)
 
 
@@ -944,16 +947,28 @@ function buildChoices(correctMovie, allMovies){
   const run = async () => {
 
     
-    //await saveLog({
-    //  supabase,
-    //  userId,
-    //  charId: selChar,
-    //  hintUsed: 0,
-    //  comboMode: null,
-    //  isCorrect: true,
-    //  nickname: currentUser.nickname
+    await saveLog({
 
-    //})
+  supabase,
+
+  userId,
+
+  charId: selChar,
+
+  movie: { id: null },
+
+  hintUsed: 0,
+
+  score: totalScore,   // 🔥 여기 핵심
+
+  comboMode: null,
+
+  isCorrect: true,
+
+  nickname: currentUser.nickname,
+  log_type: 'result'
+
+    })
   const data = await loadRanking({ supabase })
     setRanking(data)
 
@@ -1466,7 +1481,8 @@ async function submit(answerValue){
         isCorrect: true,
         nickname: currentUser.nickname,
         userInput: inputValue?.trim() || null,
-        genre: m.final_genre || null
+        genre: m.final_genre || null,
+        log_type: 'play'
       })
 
       await supabase.rpc('update_genre_stats', {
@@ -1553,7 +1569,8 @@ async function submit(answerValue){
           isSkip: false,
           nickname: currentUser.nickname,
           userInput: inputValue?.trim() || null,
-          genre: m.final_genre || null
+          genre: m.final_genre || null,
+          log_type: 'play'
         })
 
         await supabase.rpc('update_genre_stats', {
@@ -1611,7 +1628,8 @@ async function doSkip(){
     isCorrect: false,
     isSkip: true,
     nickname: currentUser.nickname,
-    genre: m?.final_genre || null
+    genre: m?.final_genre || null,
+    log_type: 'play'
   })
 
   const genreValue = m?.final_genre || '기타'
