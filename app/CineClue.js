@@ -510,6 +510,8 @@ async function saveLog({
   nickname,
   genre
 }){
+
+  if(!movie?.id) return
   if(!supabase) {
     alert('❌ supabase 없음')
     return
@@ -540,8 +542,10 @@ async function loadRanking({ supabase }){
   const { data, error } = await supabase
 
     .from('game_logs')
-    .select('id, character_id, score_earned, nickname')
+    .select('id, character_id, score_earned, nickname') 
     .is('movie_id', null)
+    .not('score_earned', 'is', null)
+
 
   if(error){
 
@@ -560,11 +564,10 @@ data.forEach(d => {
       character_id: d.character_id,
       score: d.score_earned,
       nickname: d.nickname || null,
-      id: d.id   // 🔥 최신 비교용
+      id: d.id
     }
   } else {
 
-    // 🔥 더 최신 데이터면 교체
     if(d.id > map[d.character_id].id){
       map[d.character_id] = {
         character_id: d.character_id,
@@ -700,6 +703,7 @@ const value = {
   const currentUserId = currentUser?.userId
   const [showNameModal, setShowNameModal] = useState(false)
   const [resultView, setResultView] = useState('score') 
+  const [forceFill, setForceFill] = useState(false)
   const [tempChar, setTempChar] = useState(null)
   const [nickname, setNickname] = useState('')
   const [supabase, setSupabase] = useState(null)
@@ -722,6 +726,7 @@ const value = {
   const [buttonActive, setButtonActive] = useState(false);
   const [scoreFlash, setScoreFlash] = useState(false)
   const [scorePop, setScorePop] = useState(false)
+  const timerRef = useRef(null)
   const [mounted, setMounted] = useState(false)
   const UI = {
   surface: '#ffffff',
@@ -813,42 +818,39 @@ useEffect(()=>{
 
 
 
-
 useEffect(() => {
 
-  if(screen !== 'quiz') return  // 🔥 중요
+  if(screen !== 'quiz') return
 
-  const start = Date.now();
+  if(answered) return   // 🔥 추가 (핵심)
 
-  const timer = setInterval(() => {
+  const start = Date.now()
 
-    const elapsed = (Date.now() - start) / 1000;
+  timerRef.current = setInterval(() => {
 
-    const percent = Math.min((elapsed / duration) * 100, 100);
+    const elapsed = (Date.now() - start) / 1000
 
-    setProgress(percent);
+    const percent = Math.min((elapsed / duration) * 100, 100)
+
+    setProgress(percent)
 
     if (elapsed >= duration) {
 
-      setButtonActive(true);
+      if(!answered){     // 🔥 추가 (이중 안전장치)
 
-      // 🔥 중요: 강제 실행
-
-      if (!answered) {
-
-        doSkip();
+        doSkip()
 
       }
 
-      clearInterval(timer);
+      clearInterval(timerRef.current)
 
     }
 
-  }, 100);
+  }, 100)
 
-  return () => clearInterval(timer);
+  return () => clearInterval(timerRef.current)
 
-}, [qi, screen, quizMode, answered]);
+}, [qi, screen, quizMode, answered])  
 
 
 
@@ -926,12 +928,9 @@ function buildChoices(correctMovie, allMovies){
   useEffect(()=>{
 
   if(screen !== 'result'){
-
     resultSavedRef.current = false
-
     return
-
-  }
+    }
 
   if(!supabase || !results?.length) return
   if(resultSavedRef.current) return
@@ -941,17 +940,25 @@ function buildChoices(correctMovie, allMovies){
 
   const safeNickname = currentUser?.nickname || nickname || 'USER'
   const userId = String(currentUser?.userId)
-  const tot = currentUser?.score || 0
-
+  const totalScore = score
   const run = async () => {
-  const data = await loadRanking({ supabase })
 
     
+    //await saveLog({
+    //  supabase,
+    //  userId,
+    //  charId: selChar,
+    //  hintUsed: 0,
+    //  comboMode: null,
+    //  isCorrect: true,
+    //  nickname: currentUser.nickname
 
+    //})
+  const data = await loadRanking({ supabase })
     setRanking(data)
 
   }
-
+  
   run()
 
 }, [screen, supabase, users, selChar, selGrades, nickname, roundStartScore, results])
@@ -1304,36 +1311,42 @@ console.log('🎯 최종 sel:', sel.map(m => ({
 }
 }
 
-  function getPts(modeParam){
+function getPts(modeParam){
 
   const ratioMap = {
 
-    1: 1.0,  // 1000
+    1: 1.0,
 
-    2: 0.8,  // 800
+    2: 0.8,
 
-    3: 0.6,  // 600
+    3: 0.6,
 
-    4: 0.4,  // 400
+    4: 0.4,
 
-    5: 0.2   // 200
+    5: 0.2
 
   }
 
   let base = BP * (ratioMap[sh] || 0)
 
-  // 🔥 객관식이면 그냥 여기서 끝
-  if(quizMode === 'objective'){
-    return Math.round(base * 0.1)
-  }
-
-  // ⬇️ 주관식만 적용됨
+  // 🔥 1. 콤보 먼저 적용
 
   if(modeParam === 'good') base *= 3
+
   if(modeParam === 'wow') base *= 4
+
   if(modeParam === 'crazy') base *= 5
 
+  // 🔥 2. 그 다음 객관식 페널티
+
+  if(quizMode === 'objective'){
+
+    base *= 0.1
+
+  }
+
   return Math.round(base)
+
 }
 
 
@@ -1375,55 +1388,69 @@ function updateCombo(correct){
 })
 }
 
- // ── 원본 버튼 로직 ──
+// ── 원본 버튼 로직 ──
 async function submit(answerValue){
 
   if(answered || isSubmitting) return
-
-
-
-  // 🔥 추가 (크래시 방지 핵심)
   if(!currentUser?.userId) return
-
   if(quizMode === 'subjective' && !input.trim()) return
 
   setIsSubmitting(true)
 
   const m = pool[qi]
-  if(!m) return
+  if(!m){
+    setIsSubmitting(false)
+    return
+  }
 
   const inputValue = quizMode === 'objective' ? answerValue : input
 
   const correct = quizMode === 'objective'
     ? normalize(inputValue) === normalize(m.title)
-    : isCorrect(inputValue, m.title, Array.isArray(m.answers)?m.answers:[])
+    : isCorrect(inputValue, m.title, Array.isArray(m.answers) ? m.answers : [])
 
   try {
 
-    let nextMode = null
+    let appliedMode = null
     let gained = 0
 
     if(correct){
 
-      const ns = comboStreak + 1
-      if(ns >= 5) nextMode = 'crazy'
-      else if(ns === 4) nextMode = 'wow'
-      else if(ns === 3) nextMode = 'good'
+      const isFirstTry = wrongCount === 0
+      const comboAllowed = quizMode === 'subjective' || isFirstTry
 
-      setComboStreak(ns)
-      setMode(nextMode)
+      if(comboAllowed){
 
-      gained = getPts(nextMode)
+        const ns = comboStreak + 1
 
-      setScore(v=>v + gained)
+        if(ns >= 5) appliedMode = 'crazy'
+        else if(ns === 4) appliedMode = 'wow'
+        else if(ns === 3) appliedMode = 'good'
+
+        setComboStreak(ns)
+        setMode(appliedMode)
+
+      } else {
+
+        // 객관식에서 두 번째 클릭으로 맞춘 경우: 콤보 인정 안 함
+        setComboStreak(0)
+        setMode(null)
+        appliedMode = null
+
+      }
+
+      gained = getPts(appliedMode)
+
+      setScore(v => v + gained)
 
       setUsers(prev => {
-        const updated = prev.map(u=>{
-          if(u.charId===selChar){
-            return {...u, score: (u.score || 0) + gained}
+        const updated = prev.map(u => {
+          if(u.charId === selChar){
+            return { ...u, score: (u.score || 0) + gained }
           }
           return u
         })
+
         localStorage.setItem('cineclue_users', JSON.stringify(updated))
         return updated
       })
@@ -1435,7 +1462,7 @@ async function submit(answerValue){
         movie: m,
         hintUsed: sh,
         score: gained,
-        comboMode: nextMode,
+        comboMode: appliedMode,
         isCorrect: true,
         nickname: currentUser.nickname,
         userInput: inputValue?.trim() || null,
@@ -1450,13 +1477,14 @@ async function submit(answerValue){
         p_score: gained
       })
 
-      setResults(r=>[...r,{
-        title:m.title,
-        correct:true,
-        hintUsed:sh,
-        score:gained,
-        country:m.country,
-        genre:m.final_genre||'',
+      setResults(r => [...r, {
+        title: m.title,
+        correct: true,
+        hintUsed: sh,
+        score: gained,
+        combo: appliedMode,
+        country: m.country,
+        genre: m.final_genre || '',
         grade: primaryGrade
       }])
 
@@ -1464,29 +1492,30 @@ async function submit(answerValue){
       setFbt('ok')
       setAnswered(true)
 
-      //점수 플래쉬 효과
       setScoreFlash(true)
-        setTimeout(()=>{
-      setScoreFlash(false)
+      setTimeout(() => {
+        setScoreFlash(false)
+      }, 300)
 
-        }, 300)
-
-        // 🔥 핵심: 반드시 false → true → false 흐름
-
-        setScorePop(true)
-        setTimeout(()=>{
-          setScorePop(false)
-        }, 500)
+      setScorePop(true)
+      setTimeout(() => {
+        setScorePop(false)
+      }, 500)
 
     } else {
 
-      setComboStreak(0)
-      setMode(null)
+      // 객관식: 첫 오답 클릭이면 콤보 해제
+      if(quizMode === 'objective' && wrongCount === 0){
+        setComboStreak(0)
+        setMode(null)
+      }
+
+      // 주관식 오답은 여기서 콤보 해제 안 함
 
       if(quizMode === 'objective'){
 
         if(sh >= 5){
-          doSkip()
+          await doSkip()
           return
         }
 
@@ -1503,67 +1532,73 @@ async function submit(answerValue){
           setLockChoice(true)
           setFb('기회를 더 줄수가 없다네...')
           setFbt('ng')
+          setTimeout(()=>{
+            doSkip()
+          }, 700)
           return
+
         }
+
       }
 
-      await saveLog({
-        supabase,
-        userId: String(currentUser.userId),
-        charId: selChar,
-        movie: m,
-        hintUsed: sh,
-        score: 0,
-        comboMode: null,
-        isCorrect: false,
-        isSkip: false,
-        nickname: currentUser.nickname,
-        userInput: inputValue?.trim() || null,
-        genre: m.final_genre || null
-      })
+        await saveLog({
+          supabase,
+          userId: String(currentUser.userId),
+          charId: selChar,
+          movie: m,
+          hintUsed: sh,
+          score: 0,
+          comboMode: null,
+          isCorrect: false,
+          isSkip: false,
+          nickname: currentUser.nickname,
+          userInput: inputValue?.trim() || null,
+          genre: m.final_genre || null
+        })
 
-      await supabase.rpc('update_genre_stats', {
-        p_user_id: String(currentUser.userId),
-        p_character_id: selChar,
-        p_genre: m.final_genre || '기타',
-        p_is_correct: false,
-        p_score: 0
-      })
+        await supabase.rpc('update_genre_stats', {
+          p_user_id: String(currentUser.userId),
+          p_character_id: selChar,
+          p_genre: m.final_genre || '기타',
+          p_is_correct: false,
+          p_score: 0
+        })
 
-      setFb(rFB(sh))
-      setFbt('ng')
+        setFb(rFB(sh))
+        setFbt('ng')
     }
 
   } finally {
+
     setIsSubmitting(false)
     setLoading(false)
 
-  setTimeout(()=>{
+    setTimeout(() => {
+      setShowSpinner(false)
+    }, 180)
 
-    setShowSpinner(false)
-
-  }, 180)
   }
 }
+
 
 async function doSkip(){
 
   if(screen !== 'quiz') return
-  if (answered || isSubmitting) return
-  if(!currentUser?.userId) return
-
-
-
-  // 🔥 추가
+  if(answered || isSubmitting) return
   if(!currentUser?.userId) return
 
   setIsSubmitting(true)
 
+  // 넘기기는 콤보 해제
   setComboStreak(0)
   setMode(null)
 
   const m = pool[qi]
-  if(!m) return
+
+  if(!m){
+    setIsSubmitting(false)
+    return
+  }
 
   await saveLog({
     supabase,
@@ -1572,7 +1607,7 @@ async function doSkip(){
     movie: m,
     hintUsed: sh,
     score: 0,
-    comboMode: mode,
+    comboMode: null,
     isCorrect: false,
     isSkip: true,
     nickname: currentUser.nickname,
@@ -1589,14 +1624,14 @@ async function doSkip(){
     p_score: 0
   })
 
-  setResults(r=>[...r,{
-    title:m.title,
-    correct:false,
-    hintUsed:0,
-    score:0,
-    country:m.country,
-    genre:m.final_genre||'',
-    grade:primaryGrade
+  setResults(r => [...r, {
+    title: m.title,
+    correct: false,
+    hintUsed: 0,
+    score: 0,
+    country: m.country,
+    genre: m.final_genre || '',
+    grade: primaryGrade
   }])
 
   setFb('다음번엔 꼭 맞추길...')
@@ -1605,7 +1640,9 @@ async function doSkip(){
   setIsSubmitting(false)
 }
 
-  function nextH(){
+
+function nextH(){
+
   if(sh < 5){
     setSh(v => v + 1)
     setFb('')
@@ -1613,26 +1650,33 @@ async function doSkip(){
   } else {
     doSkip()
   }
+
 }
 
- function nextQ(){
+
+function nextQ(){
+
   inputRef.current?.blur()
 
   setProgress(0)
   setButtonActive(false)
 
-  if(qi+1>=pool.length){
-    setScreen('result')   // 👈 이것만 남김
+  if(qi + 1 >= pool.length){
+    setScreen('result')
     return
   }
 
-  const nqi=qi+1
+  const nqi = qi + 1
+
   setQi(nqi)
   setSh(1)
   setAnswered(false)
   setFb('')
   setFbt('')
   setInput('')
+  setWrongCount(0)
+  setLockChoice(false)
+  setSelectedChoice(null)
 
 }
 
@@ -2420,94 +2464,92 @@ if(screen === 'quiz'){
   </span>
 
 </div>
-
 </div>
 
-      {/* ── 콤보 배너 ── */}
-      {mode && (
-        <div style={{
-          margin:'8px 16px 0',
-          borderRadius:10,
-          padding:'7px 14px',
-          display:'flex',
-          alignItems:'center',
-          justifyContent:'space-between',
-          background:
-            mode==='good'  ? '#fff7e6' :
-            mode==='wow'   ? '#fff0f0' :
-            mode==='crazy' ? '#f3e8ff' : '#fff',
-          
-          animation: 'comboPulse 1.6s ease-in-out infinite',
 
-          border: `1px solid ${
 
-  mode==='good'  ? '#f0c36d' :
+  {/* ── 콤보 배너 ── */}
+  {mode && (
+    <div style={{
+      margin:'8px 16px 0',
+      borderRadius:10,
+      position:'relative',
+      overflow:'hidden',
+      padding:'7px 14px',
+      display:'flex',
+      alignItems:'center',
+      justifyContent:'space-between',
+      background:
+        mode==='good'  ? '#fff7e6' :
+        mode==='wow'   ? '#fff0f0' :
+        mode==='crazy' ? '#f3e8ff' : '#fff',
 
-  mode==='wow'   ? '#f0b4b4' :
+      border: `1px solid ${
+        mode==='good'  ? '#f0c36d' :
+        mode==='wow'   ? '#f0b4b4' :
+        mode==='crazy' ? '#c8a8ff' : '#eee'
+        }`,
+      flexShrink:0
+    }}>
 
-  mode==='crazy' ? '#c8a8ff' : '#eee'
+    <div style={{
+      position:'absolute',  
+      inset:0,  
+      borderRadius:10,  
+      zIndex:0, 
+      opacity:0.6,  
+      filter:'blur(10px)',  
+      background: 
+        mode==='good'  ? '#ffe08a' :  
+        mode==='wow'   ? '#ff9e9e' :  
+        mode==='crazy' ? '#b388ff' : 'transparent', 
+      animation:  
+        mode==='good'  ? 'glowPulse 1.2s ease-in-out infinite' :  
+        mode==='wow'   ? 'glowPulse 0.8s ease-in-out infinite' :  
+        mode==='crazy' ? 'glowPulse 0.4s ease-in-out infinite' :  
+        'none'  
+    }}/>
 
-}`,
-          flexShrink:0
-        }}>
-          <span style={{
-            fontSize:'0.72rem',
-            fontWeight:800,
-            color:
+      <span style={{
+        position:'relative',
+        zIndex:1,
+        fontSize:'0.72rem',
+        fontWeight:800,
+        color:
+          mode==='good' ? '#c8a84a' :
+          mode==='wow' ? '#d45c5c' :
+          mode==='crazy' ? '#9b5cff' :
+          '#aaa'
+      }}>
+        {
+          mode==='good' ? '👍 어? 좀 치는데? 이제 시작이다 그대로 달리자 !!':
+          mode==='wow' ? '🔥 미친 상승감!!! 제니퍼 로페즈 아나콘다!! 스스메!! 🔥':
+          mode==='crazy' ? '💀 뇌야 돌아라!! 손아 날아라!! 이건 끝까지 간다!! 💀':
+          ''
+        }
+      </span>
 
-    mode==='good' ? '#c8a84a' :
+      <span style={{
+        fontSize:'0.68rem',
+        color:
+          mode==='good' ? '#342907' :
+          mode==='wow' ? '#630c0c' :
+          mode==='crazy' ? '#3b1678' :
+          '#aaa'
+      }}>
+        {comboStreak}연속 ×{
+          mode==='good' ? 3 :
+          mode==='wow' ? 4 :
+          mode==='crazy' ? 5 : 1
+        }
+      </span>
+    </div>
+  )}
 
-    mode==='wow' ? '#d45c5c' :
 
-    mode==='crazy' ? '#9b5cff' :
 
-    '#aaa'
 
-}}>
 
-  {
-
-    mode==='good' ? '👍 어? 좀 치는데? 이제 시작이다 그대로 달리자 !!':
-
-    mode==='wow' ? '🔥 미친 상승감!!! 제니퍼 로페즈 아나콘다!! 스스메!! 🔥':
-
-    mode==='crazy' ? '💀 뇌야 돌아라!! 손아 날아라!! 이건 끝까지 간다!! 💀':
-
-    ''
-
-  }
-
-</span>
-
-          <span style={{
-
-  fontSize:'0.68rem',
-
-  color:
-
-    mode==='good' ? '#342907' :
-
-    mode==='wow' ? '#630c0c' :
-
-    mode==='crazy' ? '#3b1678' :
-
-    '#aaa'
-
-}}>
-
-  {comboStreak}연속 ×{
-
-    mode==='good' ? 3 :
-
-    mode==='wow' ? 4 :
-
-    mode==='crazy' ? 5 : 1
-
-  }
-
-</span>
-        </div>
-      )}
 
 {/* ── 스크롤 영역 ── */}
 <div
@@ -2675,7 +2717,7 @@ style={{
 
         background: 'rgba(167, 48, 48, 0.61)',
 
-        transition: answered ? 'none' : 'width 0.1s linear',
+        transition: 'width 0.5s linear',
 
         zIndex: 0
 
@@ -2698,29 +2740,66 @@ style={{
         marginBottom:8
       }}>
         {choices.map((c,i)=>(
-          <button
-            key={i}
-            onClick={()=>{
-              if(selectedChoice === c) return
-              setSelectedChoice(c)
-              submit(c)
-            }}
-            disabled={lockChoice}
-            style={{
-              height:44,
-              borderRadius:10,
-              border:'1px solid #ddd',
-              background: selectedChoice === c ? '#1a1814' : '#fff',
-              color: selectedChoice === c ? '#fff' : '#000',
-              fontWeight:600,
-              opacity: lockChoice ? 0.4 : 1,
-              pointerEvents: lockChoice ? 'none' : 'auto',
-              transition:'opacity 0.2s ease'
-            }}
-          >
-            {c}
-          </button>
-        ))}
+
+  <button
+
+    key={i}
+
+    onClick={()=>{
+
+      if(selectedChoice === c) return
+
+      setSelectedChoice(c)
+
+      submit(c)
+
+    }}
+
+    disabled={lockChoice}
+
+    style={{
+
+      height:52,
+
+      borderRadius:10,
+
+      border:'1px solid #ddd',
+
+      background: selectedChoice === c ? '#1a1814' : '#fff',
+
+      color: selectedChoice === c ? '#fff' : '#000',
+
+      fontWeight:600,
+
+      opacity: lockChoice ? 0.4 : 1,
+
+      pointerEvents: lockChoice ? 'none' : 'auto',
+
+      transition:'opacity 0.2s ease'
+
+    }}
+
+  >
+
+    <div style={{
+
+      padding:'2px 6px',
+
+      textAlign:'center',
+
+      lineHeight:1.25,
+
+      wordBreak:'keep-all'
+
+    }}>
+
+      {c}
+
+    </div>
+
+  </button>
+
+))}
       </div>
 
     ) : (
@@ -3260,7 +3339,7 @@ style={{
 
 
 // ══════════════════════════════════════════
-// 화면 4: 결과
+// 화면 4: 결과 화면
 // ══════════════════════════════════════════
 if(screen==='result'){
   const safeUsers = Array.isArray(users) ? users : []
@@ -3366,22 +3445,14 @@ if(screen==='result'){
       {/* 결과 리스트 */}
 
       <div style={{
-
-  padding:'0 20px',
-
-  // 🔥 핵심 1: score 기준 높이 고정
-
-  height: `${Math.min(results.length, 5) * 65}px`,
-
-  // 🔥 핵심 2: ranking은 스크롤만
-
-  overflowY: resultView === 'ranking' ? 'auto' : 'hidden',
-
-  WebkitOverflowScrolling:'touch',
-
-  overscrollBehavior:'contain'
-
-}}>
+        padding:'0 20px',
+        // 🔥 핵심 1: score 기준 높이 고정
+        height: `${Math.min(results.length, 5) * 65}px`,
+        // 🔥 핵심 2: ranking은 스크롤만
+        overflowY: resultView === 'ranking' ? 'auto' : 'hidden',
+        WebkitOverflowScrolling:'touch',
+        overscrollBehavior:'contain'
+        }}>
 
   {resultView === 'score' ? (
 
@@ -3453,13 +3524,23 @@ if(screen==='result'){
 
             <div style={{
 
-              fontSize:'0.8rem',
+  fontSize:
 
-              fontWeight:700,
+    r.correct && r.title.length > 20 ? '0.7rem' :
 
-              color:r.correct ? '#1a1814' : '#c0bbb4'
+    r.correct && r.title.length > 14 ? '0.75rem' :
 
-            }}>
+    '0.8rem',
+
+  fontWeight:700,
+
+  color:r.correct ? '#1a1814' : '#c0bbb4',
+
+  lineHeight:1.25,
+
+  wordBreak:'keep-all'
+
+}}>
 
               {r.correct ? r.title : '실패'}
 
@@ -3468,20 +3549,63 @@ if(screen==='result'){
           </div>
 
           <div style={{
+  position:'relative',   // 🔥 핵심
+  minWidth:50,
+  display:'flex',
+  justifyContent:'flex-end'
+}}>
 
-            fontSize:'0.85rem',
+  {/* 점수 */}
+  <div style={{
+    fontSize:'0.85rem',
+    fontWeight:800,
+    color:r.correct ? '#4a9c6d' : '#d45c5c'
+  }}>
+    {r.correct ? `+${r.score}` : '-'}
+  </div>
 
-            fontWeight:800,
+  {/* 도장 */}
+  {r.combo && (
+    <div style={{
+      position:'absolute',
+      top:-17,
+      right:-28,
+      fontSize:'0.55rem',
+      fontWeight:900,
+      padding:'2px 6px',
+      borderRadius:6,
+      transform:'rotate(-10deg)',
+      zIndex:2,
 
-            color:r.correct ? '#4a9c6d' : '#d45c5c'
+      background:
+        r.combo === 'good'  ? '#fff3cd' :
+        r.combo === 'wow'   ? '#ffe0e0' :
+        r.combo === 'crazy' ? '#e6d6ff' : '#eee',
 
-          }}>
+      color:
+        r.combo === 'good'  ? '#c8a84a' :
+        r.combo === 'wow'   ? '#d45c5c' :
+        r.combo === 'crazy' ? '#7a4cff' : '#888',
 
-            {r.correct ? `+${r.score}` : '-'}
+      border:`1px solid ${
+        r.combo === 'good'  ? '#f0c36d' :
+        r.combo === 'wow'   ? '#f0b4b4' :
+        r.combo === 'crazy' ? '#c8a8ff' : '#ddd'
+      }`,
 
-          </div>
+      boxShadow:'0 2px 6px rgba(0,0,0,0.15)',
+      pointerEvents:'none'
+    }}>
+      {
+        r.combo === 'good'  ? 'GOOD' :
+        r.combo === 'wow'   ? 'WOW' :
+        r.combo === 'crazy' ? 'CRAZY' : ''
+      }
+    </div>
+  )}
 
-        </div>
+</div>
+</div>
 
       )
 

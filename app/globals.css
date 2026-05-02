@@ -125,64 +125,12 @@ input { font-family: inherit; outline: none; }
 
 
 
+@keyframes glowPulse {
 
+  0%   { opacity:0.3; transform: scale(0.95); }
 
-.flash-letter {
-  position: fixed;
+  50%  { opacity:0.8; transform: scale(1.05); }
 
-  top: 30%;
-
-  left: 50%;
-
-  transform: translate(-50%, -50%);
-
-  font-size: 72px;
-
-  font-weight: 900;
-
-  color: #1a1814;
-
-  z-index: 9999;
-
-  pointer-events: none;
-
-  text-shadow: 0 4px 20px rgba(0,0,0,0.15);
-
-  animation: flashPop 0.9s ease forwards;
-}
-
-@keyframes flashPop {
-
-  0% {
-
-    opacity: 0;
-
-    transform: translate(-50%, -50%) scale(0.6);
-
-  }
-
-  20% {
-
-    opacity: 1;
-
-    transform: translate(-50%, -50%) scale(1.1);
-
-  }
-
-  60% {
-
-    opacity: 1;
-
-    transform: translate(-50%, -50%) scale(1);
-
-  }
-
-  100% {
-
-    opacity: 0;
-
-    transform: translate(-50%, -50%) scale(0.9);
-
-  }
+  100% { opacity:0.3; transform: scale(0.95); }
 
 }
