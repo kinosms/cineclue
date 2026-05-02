@@ -3658,7 +3658,7 @@ if(screen==='result'){
             const r = safeRanking[i] || null
             const char = r ? CHARS.find(c => c.id === r.character_id) : null
             const isDead = r && !safeUsers.find(u => u.charId === r.character_id)
-            const isMe = r && r.character_id === selChar
+            const isMe = r && String(r.user_id) === String(currentUser.userId)
             const isAnimated = i < 5
 
             return (
@@ -3673,8 +3673,6 @@ if(screen==='result'){
                   ? '#fff5f6'
                   : '#fff',
                   color: isMe ? '#e8808c' : '#1a1814',
-                  border:'1.5px solid #ece8e2',
-                  background:'#fff',
                   padding:'12px 16px',
                   marginBottom:8,
                   display:'flex',
