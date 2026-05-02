@@ -54,6 +54,22 @@ const GRADES = [
   { id:'old',  name:'오래전 영화', desc:'대부·시민 케인,채플린… 진짜 영화 덕후 영역' }
 ]
 
+function shuffle(arr){
+
+  const a = [...arr]
+
+  for(let i = a.length - 1; i > 0; i--){
+
+    const j = Math.floor(Math.random() * (i + 1))
+
+    ;[a[i], a[j]] = [a[j], a[i]]
+
+  }
+
+  return a
+
+}
+
 const BP = 1000
 const FBW = {
   1:['힌트가 좀 어려웠지?','아직 힌트 4개나 남았어','처음부터 맞추면 재미없잖아'],
@@ -1083,30 +1099,94 @@ const { data: logs } = await supabase
   .not('movie_id', 'is', null)
 
 
-const playedIds = (logs || []).map(l => l.movie_id)
+const playedIds = (logs || [])
+
+  .map(l => l.movie_id)
+
+  .slice(-300)
 
 // 3️⃣ 영화 가져오기 (🔥 필터 제거)
-const loadPromise = supabase
+async function fetchMoviesByYears(){
 
-  .from('movies')
+  let query = supabase
 
-  .select(`
+    .from('movies')
 
-    *,
+    .select(`
 
-    hints(*)
+      *,
 
-  `)
+      hints(*)
+
+    `)
+
+  const g = selGrades[0]
+
+  if(g === '2020s') query = query.gte('year', 2020)
+
+  if(g === '2010s') query = query.gte('year', 2010).lt('year', 2020)
+
+  if(g === '2000s') query = query.gte('year', 2000).lt('year', 2010)
+
+  if(g === '1990s') query = query.gte('year', 1990).lt('year', 2000)
+
+  if(g === 'old')   query = query.lt('year', 1990)
+
+  const all = []
+
+  const pageSize = 1000
+
+  let from = 0
+
+  while(true){
+
+    const { data, error } = await query.range(from, from + pageSize - 1)
+
+    if(error) throw error
+
+    if(!data || data.length === 0) break
+
+    all.push(...data)
+
+    if(data.length < pageSize) break
+
+    from += pageSize
+
+  }
+
+  return all
+
+}
 
 const delayPromise = new Promise(r => setTimeout(r, 500))
 
-const [{ data: movies, error }] = await Promise.all([
+const [movies] = await Promise.all([
 
-  loadPromise,
+  fetchMoviesByYears(),
 
   delayPromise
 
 ])
+
+const error = null
+
+console.log('🎯 movies 전체 개수:', movies.length)
+
+console.log(
+
+  '🧪 year 원본 샘플:',
+
+  movies.slice(0, 30).map(m => ({
+
+    id: m.id,
+
+    title: m.title,
+
+    year: m.year
+
+  }))
+
+)
 
 if(error){
   console.error(error)
@@ -1121,68 +1201,78 @@ if(!movies || movies.length===0){
   return
 }
 
-// 4️⃣ JS에서 필터 (🔥 핵심)
+// 4️⃣ JS에서 필터
+
+console.log('🔍 year 원본 샘플:', 
+
+  movies.slice(0,30).map(m => ({
+
+    title: m.title,
+
+    year: m.year,
+
+    type: typeof m.year,
+
+    parsed: parseInt(m.year)
+
+  }))
+
+)
 
 const filtered = movies.filter(m => {
 
-  if(!m.year) return false
   if(playedIds.includes(m.id)) return false
 
-  const y = m.year
-
-  // 🔥 멀티 선택 매칭
-
-  const match = selGrades.some(g => {
-
-    if(g === '2020s') return y >= 2020
-
-    if(g === '2010s') return y >= 2010 && y < 2020
-
-    if(g === '2000s') return y >= 2000 && y < 2010
-
-    if(g === '1990s') return y >= 1990 && y < 2000
-
-    if(g === 'old')   return y < 1990
-
-    return false
-
-  })
-
-  // 🔥 하나라도 해당되면 포함
-
-  return match
+  return true
 
 })
 
-if(filtered.length === 0){
+let finalPool = filtered
 
-  
 
-  setIsLevelCompleted(true)
+// 🔥 1️⃣ 풀 부족 시 자동 리셋
 
-  setScreen('result')
+if(filtered.length < 10){
+
+  alert('해당 시대 영화가 부족합니다')
+
+  setLoading(false)
 
   return
 
 }
 
+// 🔥 1차 샘플링 (전체에서 100개)
 
-// 👉 만약 다 풀었으면 전체 리셋 (선택)
-const finalPool = filtered.length > 0 ? filtered : movies
+const sampled = shuffle(finalPool).slice(0, 50)
 
-// 5️⃣ 랜덤 섞기
-const shuffled = [...finalPool].sort(()=>Math.random()-0.5)
+// 🔥 2차 랜덤 (그 안에서 5개)
 
-// 6️⃣ 5개 선택
-const sel = shuffled.slice(0,5).map(m=>({
+const sel = shuffle(sampled).slice(0,5).map(m=>({
+
   ...m,
+
   hintsArr: m.hints
+
     ? m.hints
+
         .sort((a,b)=>a.hint_level - b.hint_level)
+
         .map(h=>h.hint_text)
+
     : [],
+
   choices: buildChoices(m, movies)
+
 }))
+
+console.log('🎯 최종 sel:', sel.map(m => ({
+
+  title: m.title,
+
+  year: m.year
+
+})))
 
     setPool(sel)
     setQi(0)
@@ -1300,6 +1390,7 @@ async function submit(answerValue){
   setIsSubmitting(true)
 
   const m = pool[qi]
+  if(!m) return
 
   const inputValue = quizMode === 'objective' ? answerValue : input
 
@@ -1472,6 +1563,7 @@ async function doSkip(){
   setMode(null)
 
   const m = pool[qi]
+  if(!m) return
 
   await saveLog({
     supabase,
@@ -1484,10 +1576,10 @@ async function doSkip(){
     isCorrect: false,
     isSkip: true,
     nickname: currentUser.nickname,
-    genre: m.final_genre || null
+    genre: m?.final_genre || null
   })
 
-  const genreValue = m.final_genre || '기타'
+  const genreValue = m?.final_genre || '기타'
 
   await supabase.rpc('update_genre_stats', {
     p_user_id: String(currentUser.userId),
@@ -2046,6 +2138,7 @@ if(screen === 'quiz'){
 
   // 3️⃣ 여기부터 진짜 퀴즈
   const m = pool[qi]
+  
 
   return (
     <AppLayout>
