@@ -1884,7 +1884,7 @@ if(screen === 'quiz'){
         display:'flex',
         flexDirection:'column',
         flex:1,
-        overflow:auto
+        minHeight:0
       }}>
         {/*퀴즈화면 시작시 스피너 사라짐*/}
         {showSpinner && (
