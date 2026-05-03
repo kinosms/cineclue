@@ -1883,6 +1883,8 @@ if(screen === 'quiz'){
         background:'#fff',
         display:'flex',
         flexDirection:'column',
+        flex:1,
+        overflow:auto
       }}>
         {/*퀴즈화면 시작시 스피너 사라짐*/}
         {showSpinner && (
