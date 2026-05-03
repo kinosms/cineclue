@@ -1595,7 +1595,7 @@ if(screen==='char') return(
             borderRadius:14,
             background:users.find(u=>u.charId===selChar)?'#ed4b5e':'#bbbbbb',
             color:'#ffffff',
-            fontSize:'0.9rem',
+            fontSize:'0.8rem',
             fontWeight:700,
             border:'none',
             cursor:users.find(u=>u.charId===selChar)?'pointer':'default'
@@ -1784,7 +1784,7 @@ if(screen==='grade') return(
                 </div>
 
                 <div style={{
-                  fontSize:'0.8rem',
+                  fontSize:'0.7rem',
                   color:'#707070',
                   lineHeight:1.2
                 }}>
@@ -1812,7 +1812,7 @@ if(screen==='grade') return(
             borderRadius:14,
             background: selGrades.length > 0 && !loading ? '#ed4b5e' : '#d4d0cc',
             color:'#fff',
-            fontSize:'0.9rem',
+            fontSize:'0.8rem',
             fontWeight:700,
             border:'none',
             cursor: selGrades.length > 0 && !loading ? 'pointer' : 'default'
@@ -2168,7 +2168,7 @@ if(screen === 'quiz'){
                     </span>
 
                     <div style={{
-                      fontSize:'0.8rem',
+                      fontSize:'0.82rem',
                       lineHeight:1.7
                     }}>
                     {m.hintsArr?.[i] || '힌트 로딩중...'}
@@ -2217,6 +2217,7 @@ if(screen === 'quiz'){
                       flex:1,
                       height:40,
                       borderRadius:10,
+                      fontSize:'0.8rem',
                       background:'#f5f3ef',
                       opacity: (sh>=5 || lockChoice || isFlashing) ? 0.4 : 1,
                       pointerEvents: (sh>=5 || lockChoice || isFlashing) ? 'none' : 'auto'
@@ -2248,6 +2249,7 @@ if(screen === 'quiz'){
                         width: `${progress}%`,
                         background: 'rgb(153, 153, 153)',
                         transition: 'width 0.5s linear',
+                        fontSize:'0.8rem',
                         zIndex: 0
                       }}/>
                     <span style={{ 
@@ -2413,7 +2415,7 @@ if(screen === 'quiz'){
               <>
                 {fbt==='ok' && (
                   <div style={{
-                    fontSize:'1.1rem',
+                    fontSize:'1.3rem',
                     fontWeight:900,
                     color:'#c8a84a',
                     marginBottom:12,
@@ -2431,6 +2433,7 @@ if(screen === 'quiz'){
                     background:'#4a4a4a',
                     color:'#fff',
                     fontWeight:800,
+                    fontSize:'0.8rem',
                     border:'none'
                   }}>
                   {qi+1<pool.length ? '다음 문제' : '결과 보기'}
@@ -2982,7 +2985,7 @@ if(screen==='result'){
 
         color:'#fff',
 
-        fontSize:'0.9rem',
+        fontSize:'0.8rem',
 
         fontWeight:700,
 
