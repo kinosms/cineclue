@@ -1533,7 +1533,7 @@ if(screen==='char') return(
                     alignItems:'center',
                     justifyContent:'center'
                   }}>
-                    <span style={{color:'#fff',fontSize:'0.6rem',fontWeight:900}}>✓</span>
+                    <span style={{color:'#fff',fontSize:'0.95rem',fontWeight:900}}>✓</span>
                   </div>
                 )}
 
@@ -1548,7 +1548,7 @@ if(screen==='char') return(
                       top:8,
                       left:8,
                       fontSize:11,
-                      background:'#000',
+                      background:'#c0bdbd',
                       color:'#fff',
                       borderRadius:6,
                       padding:'2px 6px',
@@ -1563,19 +1563,19 @@ if(screen==='char') return(
                 </svg>
 
                 <div style={{
-                  fontSize:'0.6rem',
+                  fontSize:'0.7rem',
                   fontWeight:700,
-                  color:sel?c.color:'#9a9490',
+                  color:sel?c.color:'#6f6e6e',
                   textAlign:'center',
                   lineHeight:1.3,
                 }}>
                   {u ? u.nickname : c.name}
 
                   <div style={{
-                    fontSize:'0.55rem',
+                    fontSize:'0.6rem',
                     fontWeight:500,
                     marginTop:2,
-                    color:'#b8b4b0'
+                    color:'#72685e'
                   }}>
                     {u ? (u.score || 0) : ''}
                   </div>
@@ -1593,8 +1593,8 @@ if(screen==='char') return(
             width:'100%',
             height:54,
             borderRadius:14,
-            background:users.find(u=>u.charId===selChar)?'#1a1814':'#d4d0cc',
-            color:'#fff',
+            background:users.find(u=>u.charId===selChar)?'#ed4b5e':'#bbbbbb',
+            color:'#ffffff',
             fontSize:'0.9rem',
             fontWeight:700,
             border:'none',
@@ -1692,7 +1692,7 @@ if(screen==='grade') return(
         <div style={{
           fontSize:'0.7rem',
           fontWeight:700,
-          color:'#b0aaa3',
+          color:'#6f6e6e',
           letterSpacing:'0.15em',
           textTransform:'uppercase',
           marginBottom:14
@@ -1707,8 +1707,8 @@ if(screen==='grade') return(
               flex:1,
               height:40,
               borderRadius:10,
-              background:quizMode==='subjective'?'#1a1814':'#eee',
-              color:quizMode==='subjective'?'#fff':'#000',
+              background:quizMode==='subjective'?'#414141':'#eee',
+              color:quizMode==='subjective'?'#fff':'#6f6e6e',
               fontWeight:700
             }}>
             주관식
@@ -1720,8 +1720,8 @@ if(screen==='grade') return(
               flex:1,
               height:40,
               borderRadius:10,
-              background:quizMode==='objective'?'#1a1814':'#eee',
-              color:quizMode==='objective'?'#fff':'#000',
+              background:quizMode==='objective'?'#414141':'#eee',
+              color:quizMode==='objective'?'#fff':'#6f6e6e',
               fontWeight:700
             }}>
             객관식
@@ -1778,26 +1778,17 @@ if(screen==='grade') return(
                   fontSize:'0.9rem',
                   fontWeight:800,
                   color: sel ? color : '#1a1814',
-                  marginBottom:3
+                  marginBottom:5
                 }}>
                   {gr.name}
                 </div>
 
                 <div style={{
-                  fontSize:'0.65rem',
-                  color:'#a09a93',
-                  lineHeight:1.4
+                  fontSize:'0.8rem',
+                  color:'#707070',
+                  lineHeight:1.2
                 }}>
                   {gr.desc}
-                </div>
-
-                <div style={{
-                  fontSize:'0.6rem',
-                  color: sel ? color : '#c0bab3',
-                  fontWeight:600,
-                  marginTop:3
-                }}>
-                  {gr.subDesc}
                 </div>
               </div>
             </div>
@@ -1819,7 +1810,7 @@ if(screen==='grade') return(
             flex:1,
             height:54,
             borderRadius:14,
-            background: selGrades.length > 0 && !loading ? '#1a1814' : '#d4d0cc',
+            background: selGrades.length > 0 && !loading ? '#ed4b5e' : '#d4d0cc',
             color:'#fff',
             fontSize:'0.9rem',
             fontWeight:700,
@@ -1839,7 +1830,7 @@ if(screen==='grade') return(
             height:54,
             borderRadius:12,
             background:'transparent',
-            color:'#9a9490',
+            color:'#6e6e6e',
             fontSize:'0.8rem',
             fontWeight:500,
             border:'1.5px solid #e8e4dd',
@@ -1901,7 +1892,7 @@ if(screen === 'quiz'){
         <div style={{
           background:'#fff',
           borderBottom:'1px solid #f0ece6',
-          padding:'14px 20px 0',
+          padding:'14px 20px 4px',
           flexShrink:0,
           position:'relative',
           zIndex:20 
@@ -1912,7 +1903,7 @@ if(screen === 'quiz'){
             display:'flex',
             alignItems:'center',
             gap:10,
-            marginBottom:10
+            marginBottom:8
           }}> 
             <CharAvatar charId={selChar} size={34}/>
             <span style={{
@@ -1948,7 +1939,7 @@ if(screen === 'quiz'){
 
             {/* 문제 번호 */}
             <span style={{
-              fontSize:'0.62rem',
+              fontSize:'0.7rem',
               fontWeight:700,
               padding:'3px 9px',
               borderRadius:20,
@@ -1965,7 +1956,7 @@ if(screen === 'quiz'){
             {/* 연도 */}
             {m.year && (
               <span style={{
-                fontSize:'0.62rem',
+                fontSize:'0.7rem',
                 fontWeight:700,
                 padding:'3px 0',
                 borderRadius:20,
@@ -1982,7 +1973,7 @@ if(screen === 'quiz'){
             {/* 국가 */}
             {m.country && (
               <span style={{
-                fontSize:'0.62rem',
+                fontSize:'0.7rem',
                 fontWeight:700,
                 padding:'3px 10px',
                 borderRadius:20,
@@ -1998,7 +1989,7 @@ if(screen === 'quiz'){
             {/* 장르 */}
             {m.final_genre && (
               <span style={{
-                fontSize:'0.62rem',
+                fontSize:'0.7rem',
                 fontWeight:700,
                 padding:'3px 10px',
                 borderRadius:20,
@@ -2018,7 +2009,7 @@ if(screen === 'quiz'){
                 if (!arr.length) return null
                 return (
                   <span style={{
-                    fontSize:'0.62rem',
+                    fontSize:'0.7rem',
                     fontWeight:700,
                     padding:'3px 10px',
                     borderRadius:20,
@@ -2091,8 +2082,8 @@ if(screen === 'quiz'){
               }}>
                 {
                   mode==='good' ? '👍 어? 좀 치는데? 이제 시작이다 그대로 달리자 !!':
-                  mode==='wow' ? '🔥 미친 상승감!!! 제니퍼 로페즈 아나콘다!! 스스메!! 🔥':
-                  mode==='crazy' ? '💀 뇌야 돌아라!! 손아 날아라!! 이건 끝까지 간다!! 💀':
+                  mode==='wow' ? '💀 뇌야 돌아라!! 손아 날아라!! 이건 끝까지 간다!! 💀':
+                  mode==='crazy' ? '🔥 미친 상승감!!! 제니퍼 로페즈 아나콘다!! 스스메!! 🔥':
                   ''
                 }
               </span>
@@ -2166,7 +2157,7 @@ if(screen === 'quiz'){
                       borderRadius:'50%',
                       background:g?.color || '#e8808c',
                       color:'#fff',
-                      fontSize:'0.6rem',
+                      fontSize:'0.65rem',
                       fontWeight:800,
                       display:'flex',
                       alignItems:'center',
@@ -2177,7 +2168,7 @@ if(screen === 'quiz'){
                     </span>
 
                     <div style={{
-                      fontSize:'0.78rem',
+                      fontSize:'0.8rem',
                       lineHeight:1.7
                     }}>
                     {m.hintsArr?.[i] || '힌트 로딩중...'}
@@ -2255,7 +2246,7 @@ if(screen === 'quiz'){
                         left: 0,
                         height: '100%',
                         width: `${progress}%`,
-                        background: 'rgba(167, 48, 48, 0.61)',
+                        background: 'rgb(153, 153, 153)',
                         transition: 'width 0.5s linear',
                         zIndex: 0
                       }}/>
@@ -2407,7 +2398,7 @@ if(screen === 'quiz'){
                               width:72,
                               height:46,
                               borderRadius:11,
-                              background:'#1a1814',
+                              background:'#e8808c',
                               color:'#fff',
                               fontWeight:700,
                               border:'none'
@@ -2437,12 +2428,12 @@ if(screen === 'quiz'){
                     width:'100%',
                     height:46,
                     borderRadius:12,
-                    background:'#1a1814',
+                    background:'#4a4a4a',
                     color:'#fff',
                     fontWeight:800,
                     border:'none'
                   }}>
-                  {qi+1<pool.length ? '다음 문제 →' : '결과 보기 →'}
+                  {qi+1<pool.length ? '다음 문제' : '결과 보기'}
                 </button>
               </>
             )}
@@ -2562,7 +2553,7 @@ if(screen==='result'){
               borderRadius:20,
               border:'1px solid #ddd',
               background:'#fff',
-              fontSize:'0.7rem',
+              fontSize:'0.8rem',
               cursor:'pointer'
             }}>
             {resultView === 'score' ? '랭킹 보기' : '점수 보기'}
@@ -2649,7 +2640,7 @@ if(screen==='result'){
 
             <span style={{
 
-              fontSize:'0.6rem',
+              fontSize:'0.7rem',
 
               fontWeight:800,
 
@@ -2987,7 +2978,7 @@ if(screen==='result'){
 
         borderRadius:14,
 
-        background:'#1a1814',
+        background:'#4a4a4a',
 
         color:'#fff',
 
