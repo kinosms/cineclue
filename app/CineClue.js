@@ -541,63 +541,51 @@ async function saveLog({
 
 
 async function loadRanking({ supabase }){
-
-  
   const { data, error } = await supabase
-
     .from('game_logs')
     .select('id, user_id, character_id, score_earned, nickname')
     .eq('log_type', 'result')  
     .not('score_earned', 'is', null)
 
-
   if(error){
-
     console.error('랭킹 에러:', error.message)
-
     return []
-
   }
 
   const map = {}
 
-data.forEach(d => {
-
-  const key = `${d.user_id}_${d.character_id}`
-
-  if(!map[key]){
-    map[key] = {
-      user_id: d.user_id,  
-      character_id: d.character_id,
-      score: d.score_earned,
-      nickname: d.nickname || null,
-      id: d.id
-    }
-  } else {
-
-    if(d.id > map[key].id){
+  data.forEach(d => {
+    const key = `${d.user_id}_${d.character_id}`
+    if(!map[key]){
       map[key] = {
         user_id: d.user_id,  
         character_id: d.character_id,
         score: d.score_earned,
-        nickname: d.nickname || map[d.character_id].nickname,
+        nickname: d.nickname || null,
         id: d.id
       }
+    } 
+    else {
+      if(d.id > map[key].id){
+        map[key] = {
+          user_id: d.user_id,  
+          character_id: d.character_id,
+          score: d.score_earned,
+          nickname: d.nickname || map[d.character_id].nickname,
+          id: d.id
+        }
+      }
     }
+  })
 
-  }
-
-})
-
-return Object.values(map)
-  .map(d => ({
-    user_id: d.user_id,
-    character_id: d.character_id,
-    score: d.score,
-    nickname: d.nickname
-  }))
+  return Object.values(map)
+    .map(d => ({
+      user_id: d.user_id,
+      character_id: d.character_id,
+      score: d.score,
+      nickname: d.nickname
+    }))
   .sort((a,b)=>b.score - a.score)
-
 }
 
 
@@ -612,105 +600,69 @@ function CharAvatar({charId,size=40}){
   )
 }
 
+
+
 function AppLayout({ children }) {
-
   return (
-
     <div style={{
-
       minHeight: '100dvh',
-
       background: '#f5f3ef',
-
       display: 'flex',
-
       justifyContent: 'center'
-
     }}>
-
       <div style={{
-
         width: '100%',
-
         maxWidth: 480,
-
         background: '#fff',
-
         minHeight: '100dvh',
-
         display: 'flex',
-
         flexDirection: 'column'
-
       }}>
-
         {children}
-
       </div>
-
     </div>
-
   )
-
 }
 
-export default function CineClue() {
+
+export default function CineClue()  {
   const infoBox = {
-
-  background:'#fff',
-  border:'1px solid #e8e4dd',
-  borderRadius:12,
-  padding:'10px 12px'
-
-}
-
-const label = {
-
-  fontSize:'0.65rem',
-
-  color:'#aaa',
-
-  marginBottom:4
-
-}
-
-const value = {
-
-  fontSize:'0.9rem',
-
-  fontWeight:700,
-
-  color:'#fff'
-
-}
-
-async function fetchAllMovies(){
-
-  const all = []
-  const pageSize = 1000
-  let from = 0
-
-  while(true){
-
-    const { data, error } = await supabase
-      .from('movies')
-      .select('id, title')
-      .range(from, from + pageSize - 1)
-
-    if(error) throw error
-
-    if(!data || data.length === 0) break
-
-    all.push(...data)
-
-    if(data.length < pageSize) break
-
-    from += pageSize
+    background:'#fff',
+    border:'1px solid #e8e4dd',
+    borderRadius:12,
+    padding:'10px 12px'
   }
 
-  return all
-}
+  const label = {
+    fontSize:'0.65rem',
+    color:'#aaa',
+    marginBottom:4
+    }
 
+  const value = {
+    fontSize:'0.9rem',
+    fontWeight:700,
+    color:'#fff'
+    }
+
+  async function fetchAllMovies(){
+    const all = []
+    const pageSize = 1000
+    let from = 0
+
+    while(true){
+      const { data, error } = await supabase
+        .from('movies')
+        .select('id, title')
+        .range(from, from + pageSize - 1)
+      if(error) throw error
+      if(!data || data.length === 0) break
+      all.push(...data)
+      if(data.length < pageSize) break
+      from += pageSize
+    }
+    return all
+  }   
 
   const [isFlashing, setIsFlashing] = useState(false)
   const [screen,   setScreen]   = useState('intro')
@@ -775,268 +727,165 @@ async function fetchAllMovies(){
   textSub: '#888',
   textWeak: '#b0aaa3',
   accent: '#ff6b7a'
-}
-  // 🔥 객관식 선택지 동기화
-
-// 화면이 퀴즈로 바뀌거나, 문제 번호(qi)가 바뀔 때
-
-// 현재 문제(pool[qi])에 들어있는 choices를 화면용 choices state에 넣는다.
-
-
-// 자동입력시 전체영화 로딩
-
-useEffect(()=>{
-
-  console.log('🔥 allMovies state:', allMovies.length)
-
-}, [allMovies])
-
-useEffect(()=>{
-
-  if(!supabase) return
-
-  fetchAllMovies().then(data=>{
-
-    console.log('전체 영화 로딩:', data.length)
-
-    setAllMovies(data)
-
-  })
-
-}, [supabase])
-
-
-useEffect(()=>{
-
-  if(screen !== 'quiz') return
-
-  if(quizMode !== 'objective') return
-
-  if(!pool[qi]) return
-
-  setChoices(pool[qi].choices || [])
-
-}, [screen, qi, quizMode, pool])
-
-
-
-useEffect(()=>{
-
-  const t = setTimeout(()=>{
-
-    setReady(true)
-
-  }, 1200) // 🔥 여기 숫자로 타이밍 조절
-
-  return ()=>clearTimeout(t)
-
-},[])
-
-
-
-useEffect(()=>{
-  if(screen !== 'result') return
-  if(!currentUserId || !selChar) return
-
-  fetchGenreStats(currentUserId, selChar)
-    .then(setGenreStats)
-
-}, [screen, currentUserId, selChar])
-
-
-
-useEffect(()=>{
-if(screen === 'result' && resultView === 'ranking'){
-  setRankingRevealDone(false)
-  const t = setTimeout(()=>{
-    setRankingRevealDone(true)
-  }, 650)
-  return () => clearTimeout(t)
-}
-}, [screen, resultView])
-
-
-
-useEffect(()=>{
-  if(screen === 'result'){
-    setShowProfile(false)   // 🔥 무조건 초기화
   }
-},[screen])
 
 
 
-useEffect(()=>{
-  setWrongCount(0)
-  setLockChoice(false)
-  setSelectedChoice(null)
-  setProgress(0)        
-  setButtonActive(false)
-}, [qi])
+  // 자동입력시 전체영화 로딩
+  useEffect(()=>{
+    if(!supabase) return
+    fetchAllMovies().then(data=>{
+      setAllMovies(data)
+    })
+  }, [supabase])
 
 
+  useEffect(()=>{
+    if(screen !== 'quiz') return
+    if(quizMode !== 'objective') return
+    if(!pool[qi]) return
+    setChoices(pool[qi].choices || [])
+  }, [screen, qi, quizMode, pool])
 
-useEffect(()=>{
-  console.log('genreStats:', genreStats)
-}, [genreStats])
+
+  useEffect(()=>{
+    const t = setTimeout(()=>{
+      setReady(true)
+    }, 1200) // 🔥 여기 숫자로 타이밍 조절
+    return ()=>clearTimeout(t)
+  },[])
 
 
+  useEffect(()=>{
+    if(screen !== 'result') return
+    if(!currentUserId || !selChar) return
+    fetchGenreStats(currentUserId, selChar)
+      .then(setGenreStats)
+  }, [screen, currentUserId, selChar])
 
-useEffect(() => {
 
-  if(screen !== 'quiz') return
+  useEffect(()=>{
+  if(screen === 'result' && resultView === 'ranking'){
+    setRankingRevealDone(false)
+    const t = setTimeout(()=>{
+      setRankingRevealDone(true)
+    }, 650)
+    return () => clearTimeout(t)
+  }
+  }, [screen, resultView])
 
-  if(answered) return   // 🔥 추가 (핵심)
 
-  const start = Date.now()
-
-  timerRef.current = setInterval(() => {
-
-    const elapsed = (Date.now() - start) / 1000
-
-    const percent = Math.min((elapsed / duration) * 100, 100)
-
-    setProgress(percent)
-
-    if (elapsed >= duration) {
-
-      if(!answered){     // 🔥 추가 (이중 안전장치)
-
-        doSkip()
-
-      }
-
-      clearInterval(timerRef.current)
-
+  useEffect(()=>{
+    if(screen === 'result'){
+      setShowProfile(false)   // 🔥 무조건 초기화
     }
-
-  }, 100)
-
-  return () => clearInterval(timerRef.current)
-
-}, [qi, screen, quizMode, answered])  
+  },[screen])
 
 
+  useEffect(()=>{
+    setWrongCount(0)
+    setLockChoice(false)
+    setSelectedChoice(null)
+    setProgress(0)        
+    setButtonActive(false)
+  }, [qi])
 
-async function fetchGenreStats(user_id, character_id){
+  useEffect(()=>{
+    console.log('genreStats:', genreStats)
+  }, [genreStats])
 
-  console.log('호출값 👉', user_id, character_id)
 
-  const { data, error } = await supabase
+  useEffect(() => {
+    if(screen !== 'quiz') return
+    if(answered) return   // 🔥 추가 (핵심)
+    const start = Date.now()
+    timerRef.current = setInterval(() => {
+      const elapsed = (Date.now() - start) / 1000
+      const percent = Math.min((elapsed / duration) * 100, 100)
+      setProgress(percent)
+      if (elapsed >= duration) {
+        if(!answered){     // 🔥 추가 (이중 안전장치)
+          doSkip()
+        }
+        clearInterval(timerRef.current)
+      }
+    }, 100)
+    return () => clearInterval(timerRef.current)
+  }, [qi, screen, quizMode, answered])  
 
-    .from('user_genre_stats')
 
-    .select('genre, attempt_count, correct_count, total_score')
-
-    .eq('user_id', user_id)
-
-    .eq('character_id', character_id)
-
-  console.log('SELECT data 👉', data)
-
-  console.log('SELECT error 👉', error)
-
-  if(error){
-
-    console.error('genreStats error 👉', error)
-
-    return []
-
+  async function fetchGenreStats(user_id, character_id){
+    const { data, error } = await supabase
+      .from('user_genre_stats')
+      .select('genre, attempt_count, correct_count, total_score')
+      .eq('user_id', user_id)
+      .eq('character_id', character_id)
+    if(error){
+      console.error('genreStats error 👉', error)
+      return []
+    }
+    return data
   }
 
-  return data
-
-}
-//객관식 선택지 생성 함수
-function buildChoices(correctMovie, allMovies){
-
-  const pool = allMovies.filter(m => m.id !== correctMovie.id)
-
-  const shuffled = [...pool].sort(()=>Math.random()-0.5)
-
-  const wrong = shuffled.slice(0, Math.min(3, pool.length))
-
-  // 👉 여기까지 먼저 만들고
-
-  const options = [...wrong, correctMovie].map(m => m.title)
-
-  // 👉 그 다음 셔플
-
-  for (let i = options.length - 1; i > 0; i--) {
-
-    const j = Math.floor(Math.random() * (i + 1))
-
-    ;[options[i], options[j]] = [options[j], options[i]]
-
+  //객관식 선택지 생성 함수
+  function buildChoices(correctMovie, allMovies){
+    const pool = allMovies.filter(m => m.id !== correctMovie.id)
+    const shuffled = [...pool].sort(()=>Math.random()-0.5)
+    const wrong = shuffled.slice(0, Math.min(3, pool.length))
+    // 👉 여기까지 먼저 만들고
+    const options = [...wrong, correctMovie].map(m => m.title)
+    // 👉 그 다음 셔플
+    for (let i = options.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1))
+      ;[options[i], options[j]] = [options[j], options[i]]
+    }
+    return options
   }
 
-  return options
-
-}
 
   function toggleGrade(id){
-
-  setSelGrades(prev=>{
-
-    if(prev.includes(id)){
-
-      return prev.filter(g=>g !== id)
-
-    }
-
-    return [...prev, id]
-
-  })
-
-}
-  useEffect(()=>{
-
-  if(screen !== 'result'){
-    resultSavedRef.current = false
-    return
-    }
-
-  if(!supabase || !results?.length) return
-  if(resultSavedRef.current) return
-  if(!currentUser?.userId) return
-
-  resultSavedRef.current = true
-
-  const safeNickname = currentUser?.nickname || nickname || 'USER'
-  const userId = String(currentUser?.userId)
-  const totalScore = score
-  const run = async () => {
-
-    
-    await saveLog({
-
-  supabase,
-
-  userId,
-
-  charId: selChar,
-
-  movie: { id: null },
-
-  hintUsed: 0,
-
-  score: totalScore,   // 🔥 여기 핵심
-
-  comboMode: null,
-
-  isCorrect: true,
-
-  nickname: currentUser.nickname,
-  log_type: 'result'
-
+    setSelGrades(prev=>{
+      if(prev.includes(id)){
+        return prev.filter(g=>g !== id)
+      }
+      return [...prev, id]
     })
-  const data = await loadRanking({ supabase })
-    setRanking(data)
-
   }
-  
-  run()
 
-}, [screen, supabase, users, selChar, selGrades, nickname, roundStartScore, results])
+
+  useEffect(()=>{
+    if(screen !== 'result'){
+      resultSavedRef.current = false
+      return
+    }
+    if(!supabase || !results?.length) return
+    if(resultSavedRef.current) return
+    if(!currentUser?.userId) return
+
+    resultSavedRef.current = true
+
+    const safeNickname = currentUser?.nickname || nickname || 'USER'
+    const userId = String(currentUser?.userId)
+    const totalScore = score
+
+    const run = async () => {
+      await saveLog({
+        supabase,
+        userId,
+        charId: selChar,
+        movie: { id: null },
+        hintUsed: 0,
+        score: totalScore,
+        comboMode: null,
+        isCorrect: true,
+        nickname: currentUser.nickname,
+        log_type: 'result'
+      })
+      const data = await loadRanking({ supabase })
+      setRanking(data)
+    }
+    run()
+  }, [screen, supabase, users, selChar, selGrades, nickname, roundStartScore, results])
 
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isLevelCompleted, setIsLevelCompleted] = useState(false)
@@ -1044,7 +893,7 @@ function buildChoices(correctMovie, allMovies){
   const char = CHARS.find(c=>c.id===selChar)
   const g    = GRADES.find(x=>x.id===selGrades[0])
 
-  // ✅ supabase 생성 (여기로 이동)
+  // ✅ supabase 생성
   useEffect(()=>{
     if(SUPABASE_URL){
       const client = createClient(SUPABASE_URL, SUPABASE_KEY)
@@ -1052,540 +901,299 @@ function buildChoices(correctMovie, allMovies){
     }
   },[])
 
-useEffect(()=>{
-  if(!supabase) return;
 
-  const getUser = async () => {
-    const { data } = await supabase.auth.getUser()
-    setAuthUser(data.user) 
-  }
-
-  getUser()
-}, [supabase])
+  useEffect(()=>{
+    if(!supabase) return;
+    const getUser = async () => {
+      const { data } = await supabase.auth.getUser()
+      setAuthUser(data.user) 
+    }
+    getUser()
+  }, [supabase])
 
 
 
   // 결과 화면 순차 노출 + 점수 카운트
-useEffect(()=>{
-  if(screen !== 'result') return
-  if(results.length === 0) return
-  if(!users || users.length === 0) return
-  setResultView('score') 
-  setVisibleResults(1)
+  useEffect(()=>{
+    if(screen !== 'result') return
+    if(results.length === 0) return
+    if(!users || users.length === 0) return
+    setResultView('score') 
+    setVisibleResults(1)
 
-const roundScore = score - roundStartScore
-const startScore = roundStartScore        // 👈 핵심
-const tot = startScore + roundScore  // 👈 핵심
+    const roundScore = score - roundStartScore
+    const startScore = roundStartScore  
+    const tot = startScore + roundScore
 
-  setDisplayScore(startScore)
+    setDisplayScore(startScore)
 
-  let i = 0
+    let i = 0
 
-const interval = setInterval(()=>{
-  i++
-  setVisibleResults(i)
+    const interval = setInterval(()=>{
+      i++
+      setVisibleResults(i)
 
-  if(i >= results.length){
-    clearInterval(interval)
-
-    setTimeout(()=>{
-      setVisibleResults(v => v + 1) // 버튼 등장
-
-      // 👇 버튼 이후 카운트 시작
-      setTimeout(()=>{
-        let cur = startScore
-        const step = Math.ceil((tot - startScore)/60)
-
-        const iv = setInterval(()=>{
-          cur = Math.min(cur + step, tot)
-          setDisplayScore(cur)
-          if(cur >= tot) clearInterval(iv)
-        },20)
-
-      }, 400)
-
+      if(i >= results.length){
+        clearInterval(interval)
+        setTimeout(()=>{
+          setVisibleResults(v => v + 1) // 버튼 등장
+          // 👇 버튼 이후 카운트 시작
+          setTimeout(()=>{
+            let cur = startScore
+            const step = Math.ceil((tot - startScore)/60)
+            const iv = setInterval(()=>{
+              cur = Math.min(cur + step, tot)
+              setDisplayScore(cur)
+              if(cur >= tot) clearInterval(iv)
+            },20)
+          }, 400)
+        }, 400)
+      }
     }, 400)
+    return () => clearInterval(interval)
+  }, [screen, results, users])
+
+
+  useEffect(()=>{
+    if(screen !== 'result' || resultView !== 'ranking') return
+    if(!supabase) return
+    const run = async () => {
+      const data = await loadRanking({ supabase })
+      setRanking(data)
+    }
+    run()
+  }, [screen, resultView, supabase])
+
+
+  useEffect(()=>{
+    const saved = localStorage.getItem('cineclue_users')
+    if(saved){
+      setUsers(JSON.parse(saved))
+    }
+  },[])
+
+
+  function handleCharClick(charId){
+    setSelChar(charId)
+    const exists = users.find(u=>u.charId===charId)
+    if(!exists){
+      setTempChar(charId)
+      setShowNameModal(true)
+    }
   }
 
-}, 400)
-
-  return () => clearInterval(interval)
-
-}, [screen, results, users])
-
-
-
-useEffect(()=>{
-
-  if(screen !== 'result' || resultView !== 'ranking') return
-
-  if(!supabase) return
-
-  const run = async () => {
-
-    const data = await loadRanking({ supabase })
-
-    setRanking(data)
-
-  }
-
-  run()
-
-}, [screen, resultView, supabase])
-
-useEffect(()=>{
-  const saved = localStorage.getItem('cineclue_users')
-  if(saved){
-    setUsers(JSON.parse(saved))
-  }
-},[])
-
-function handleCharClick(charId){
-  setSelChar(charId)
-
-  const exists = users.find(u=>u.charId===charId)
-
-  if(!exists){
-    setTempChar(charId)
-    setShowNameModal(true)
-  }
-}
 
   async function loadMovies(){
-  setLoading(true)
-  setShowSpinner(true)
-  setScreen('quiz')
+    setLoading(true)
+    setShowSpinner(true)
+    setScreen('quiz')
+    try{
+      if(!supabase){
+        alert('DB 연결 안됨')
+        return
+      }
+      // 1️⃣ 현재 유저
+      const userId = String(currentUser?.userId)
+      // 2️⃣ 로그 가져오기
+      const { data: logs } = await supabase
+      .from('game_logs')
+      .select('movie_id')
+      .eq('user_id', userId)
+      .not('movie_id', 'is', null)
+      const playedIds = (logs || [])
+      .map(l => l.movie_id)
+      .slice(-300)
+      // 3️⃣ 영화 가져오기 (🔥 필터 제거)
+      async function fetchMoviesByYears(){
+        let query = supabase
+          .from('movies')
+          .select(`
+            *,
+            hints(*)
+          `)
+        const g = selGrades[0]
+        if(g === '2020s') query = query.gte('year', 2020)
+        if(g === '2010s') query = query.gte('year', 2010).lt('year', 2020)
+        if(g === '2000s') query = query.gte('year', 2000).lt('year', 2010)
+        if(g === '1990s') query = query.gte('year', 1990).lt('year', 2000)
+        if(g === 'old')   query = query.lt('year', 1990)
+        const all = []
+        const pageSize = 1000
+        let from = 0
+
+        while(true){
+          const { data, error } = await query.range(from, from + pageSize - 1)
+          if(error) throw error
+          if(!data || data.length === 0) break
+          all.push(...data)
+          if(data.length < pageSize) break
+          from += pageSize
+        }
+        return all
+      }
+      const delayPromise = new Promise(r => setTimeout(r, 500))
+      const [movies] = await Promise.all([
+        fetchMoviesByYears(),
+        delayPromise
+      ])
+      const error = null
+      if(error){
+        console.error(error)
+        alert('데이터 오류')
+        setLoading(false)
+        return
+      }
+      if(!movies || movies.length===0){
+        alert('영화 없음')
+        setLoading(false)
+        return
+      }
+      // 4️⃣ JS에서 필터
+      const filtered = movies.filter(m => {
+        if(playedIds.includes(m.id)) return false
+        return true
+      })
+      let finalPool = filtered
+
+      // 🔥 1️⃣ 풀 부족 시 자동 리셋
+      if(filtered.length < 10){
+        alert('해당 시대 영화가 부족합니다')
+        setLoading(false)
+        return
+      }
+      // 🔥 1차 샘플링 (전체에서 100개)
+      const sampled = shuffle(finalPool).slice(0, 50)
+      // 🔥 2차 랜덤 (그 안에서 5개)
+      const sel = shuffle(sampled).slice(0,5).map(m=>({
+        ...m,
+        hintsArr: m.hints
+          ? m.hints
+            .sort((a,b)=>a.hint_level - b.hint_level)
+            .map(h=>h.hint_text)
+          : [],
+        choices: buildChoices(m, movies)
+      }))
+
+      setPool(sel)
+      setQi(0)
+      setSh(1)
+      setResults([])
+      setAnswered(false)
+      setFb('')
+      setFbt('')
+      setInput('')
+      setCrazyStreak(0)
+      setRoundStartScore(score) 
+    
+    }
   
-  try{
-    if(!supabase){
-      alert('DB 연결 안됨')
+    catch(e){
+      console.error(e)
+      alert('오류 발생')
+    }
+  
+    finally{
+      setLoading(false)
+      // 🔥 페이드 시간 확보
+      setTimeout(()=>{
+        setShowSpinner(false)
+      }, 150)
+    }
+  }
+
+
+  function getPts(modeParam){
+    const ratioMap = {
+      1: 1.0,
+      2: 0.8,
+      3: 0.6,
+      4: 0.4,
+      5: 0.2
+    }
+    let base = BP * (ratioMap[sh] || 0)
+    // 🔥 1. 콤보 먼저 적용
+    if(modeParam === 'good') base *= 3
+    if(modeParam === 'wow') base *= 4
+    if(modeParam === 'crazy') base *= 5
+    // 🔥 2. 그 다음 객관식 페널티
+    if(quizMode === 'objective'){
+      base *= 0.1
+    }
+    return Math.round(base)
+  }
+
+  // 콤보는 3문제 연속 맞춘 후 다음 퀴즈에 발동
+  function updateCombo(correct){
+    if(!correct){
       return
     }
-
-    
-
-// 1️⃣ 현재 유저
-
-const userId = String(currentUser?.userId)
-
-
-// 2️⃣ 로그 가져오기
-const { data: logs } = await supabase
-
-  .from('game_logs')
-
-  .select('movie_id')
-
-  .eq('user_id', userId)
-
-  .not('movie_id', 'is', null)
-
-
-const playedIds = (logs || [])
-
-  .map(l => l.movie_id)
-
-  .slice(-300)
-
-// 3️⃣ 영화 가져오기 (🔥 필터 제거)
-async function fetchMoviesByYears(){
-
-  let query = supabase
-
-    .from('movies')
-
-    .select(`
-
-      *,
-
-      hints(*)
-
-    `)
-
-  const g = selGrades[0]
-
-  if(g === '2020s') query = query.gte('year', 2020)
-
-  if(g === '2010s') query = query.gte('year', 2010).lt('year', 2020)
-
-  if(g === '2000s') query = query.gte('year', 2000).lt('year', 2010)
-
-  if(g === '1990s') query = query.gte('year', 1990).lt('year', 2000)
-
-  if(g === 'old')   query = query.lt('year', 1990)
-
-  const all = []
-
-  const pageSize = 1000
-
-  let from = 0
-
-  while(true){
-
-    const { data, error } = await query.range(from, from + pageSize - 1)
-
-    if(error) throw error
-
-    if(!data || data.length === 0) break
-
-    all.push(...data)
-
-    if(data.length < pageSize) break
-
-    from += pageSize
-
+    setComboStreak(prev => {
+      const ns = prev + 1
+      if(ns >= 5){
+        setMode('crazy')
+      } else if(ns === 4){
+        setMode('wow')
+      } else if(ns === 3){
+        setMode('good')
+      } else {
+        setMode(null)
+      }
+      return ns
+    })
   }
 
-  return all
 
-}
-
-const delayPromise = new Promise(r => setTimeout(r, 500))
-
-const [movies] = await Promise.all([
-
-  fetchMoviesByYears(),
-
-  delayPromise
-
-])
-
-const error = null
-
-console.log('🎯 movies 전체 개수:', movies.length)
-
-if(error){
-  console.error(error)
-  alert('데이터 오류')
-  setLoading(false)
-  return
-}
-
-if(!movies || movies.length===0){
-  alert('영화 없음')
-  setLoading(false)
-  return
-}
-
-// 4️⃣ JS에서 필터
-
-
-const filtered = movies.filter(m => {
-
-  if(playedIds.includes(m.id)) return false
-
-  return true
-
-})
-
-let finalPool = filtered
-
-
-// 🔥 1️⃣ 풀 부족 시 자동 리셋
-
-if(filtered.length < 10){
-
-  alert('해당 시대 영화가 부족합니다')
-
-  setLoading(false)
-
-  return
-
-}
-
-// 🔥 1차 샘플링 (전체에서 100개)
-
-const sampled = shuffle(finalPool).slice(0, 50)
-
-// 🔥 2차 랜덤 (그 안에서 5개)
-
-const sel = shuffle(sampled).slice(0,5).map(m=>({
-
-  ...m,
-
-  hintsArr: m.hints
-
-    ? m.hints
-
-        .sort((a,b)=>a.hint_level - b.hint_level)
-
-        .map(h=>h.hint_text)
-
-    : [],
-
-  choices: buildChoices(m, movies)
-
-}))
-
-console.log('🎯 최종 sel:', sel.map(m => ({
-
-  title: m.title,
-
-  year: m.year
-
-})))
-
-    setPool(sel)
-    setQi(0)
-    setSh(1)
-    setResults([])
-    setAnswered(false)
-    setFb('')
-    setFbt('')
-    setInput('')
-    setCrazyStreak(0)
-    setRoundStartScore(score) 
-    
-
-  }catch(e){
-    console.error(e)
-    alert('오류 발생')
-  }finally{
-
-  setLoading(false)
-
-  // 🔥 페이드 시간 확보
-
-  setTimeout(()=>{
-
-    setShowSpinner(false)
-
-  }, 150)
-
-}
-}
-
-function getPts(modeParam){
-
-  const ratioMap = {
-
-    1: 1.0,
-
-    2: 0.8,
-
-    3: 0.6,
-
-    4: 0.4,
-
-    5: 0.2
-
-  }
-
-  let base = BP * (ratioMap[sh] || 0)
-
-  // 🔥 1. 콤보 먼저 적용
-
-  if(modeParam === 'good') base *= 3
-
-  if(modeParam === 'wow') base *= 4
-
-  if(modeParam === 'crazy') base *= 5
-
-  // 🔥 2. 그 다음 객관식 페널티
-
-  if(quizMode === 'objective'){
-
-    base *= 0.1
-
-  }
-
-  return Math.round(base)
-
-}
-
-
-
-  // 🔥 핵심: 3번째부터 발동
-
-function updateCombo(correct){
-
-  if(!correct){
-
-    return
-
-  }
-
-  setComboStreak(prev => {
-
-  const ns = prev + 1
-
-  if(ns >= 5){
-
-    setMode('crazy')
-
-  } else if(ns === 4){
-
-    setMode('wow')
-
-  } else if(ns === 3){
-
-    setMode('good')
-
-  } else {
-
-    setMode(null)
-
-  }
-
-  return ns
-
-})
-}
-
-
-// ── 원본 버튼 로직 ──
-async function submit(answerValue){
-
-  if(answered || isSubmitting) return
-  if(!currentUser?.userId) return
-  if(quizMode === 'subjective' && !input.trim()) return
-
-  setIsSubmitting(true)
-
-  const m = pool[qi]
-  if(!m){
-    setIsSubmitting(false)
-    return
-  }
-
-  const inputValue = quizMode === 'objective' ? answerValue : input
-
-  const correct = quizMode === 'objective'
+  // ── 정답 버튼 로직 ──
+  async function submit(answerValue){
+    if(answered || isSubmitting) return
+    if(!currentUser?.userId) return
+    if(quizMode === 'subjective' && !input.trim()) return
+
+    setIsSubmitting(true)
+    const m = pool[qi]
+
+    if(!m){
+      setIsSubmitting(false)
+      return
+    }
+    const inputValue = quizMode === 'objective' ? answerValue : input
+    const correct = quizMode === 'objective'
     ? normalize(inputValue) === normalize(m.title)
     : isCorrect(inputValue, m.title, Array.isArray(m.answers) ? m.answers : [])
 
-  try {
+    try {
+      let appliedMode = null
+      let gained = 0
 
-    let appliedMode = null
-    let gained = 0
+      if(correct){
+        const isFirstTry = wrongCount === 0
+        const comboAllowed = quizMode === 'subjective' || isFirstTry
+        if(comboAllowed){
+          const ns = comboStreak + 1
+          if(ns >= 5) appliedMode = 'crazy'
+          else if(ns === 4) appliedMode = 'wow'
+          else if(ns === 3) appliedMode = 'good'
+          setComboStreak(ns)
+          setMode(appliedMode)
+        } else{
+          // 객관식에서 두 번째 클릭으로 맞춘 경우: 콤보 인정 안 함
+          setComboStreak(0)
+          setMode(null)
+          appliedMode = null
+        }
 
-    if(correct){
-
-      const isFirstTry = wrongCount === 0
-      const comboAllowed = quizMode === 'subjective' || isFirstTry
-
-      if(comboAllowed){
-
-        const ns = comboStreak + 1
-
-        if(ns >= 5) appliedMode = 'crazy'
-        else if(ns === 4) appliedMode = 'wow'
-        else if(ns === 3) appliedMode = 'good'
-
-        setComboStreak(ns)
-        setMode(appliedMode)
-
-      } else {
-
-        // 객관식에서 두 번째 클릭으로 맞춘 경우: 콤보 인정 안 함
-        setComboStreak(0)
-        setMode(null)
-        appliedMode = null
-
-      }
-      gained = getPts(appliedMode)
-
-      setScore(v => v + gained)
-
-
-      setUsers(prev => {
-        const updated = prev.map(u => {
-          if(u.charId === selChar){
-            return { ...u, score: (u.score || 0) + gained }
-          }
-          return u
+        gained = getPts(appliedMode)
+        setScore(v => v + gained)
+        setUsers(prev => {
+          const updated = prev.map(u => {
+            if(u.charId === selChar){
+              return { ...u, score: (u.score || 0) + gained }
+            }
+            return u
+          })
+          localStorage.setItem('cineclue_users', JSON.stringify(updated))
+          return updated
         })
-
-        localStorage.setItem('cineclue_users', JSON.stringify(updated))
-        return updated
-      })
-
-      await saveLog({
-        supabase,
-        userId: String(currentUser.userId),
-        charId: selChar,
-        movie: m,
-        hintUsed: sh,
-        score: gained,
-        comboMode: appliedMode,
-        isCorrect: true,
-        nickname: currentUser.nickname,
-        userInput: inputValue?.trim() || null,
-        genre: m.final_genre || null,
-        log_type: 'play'
-      })
-
-      await supabase.rpc('update_genre_stats', {
-        p_user_id: String(currentUser.userId),
-        p_character_id: selChar,
-        p_genre: m.final_genre || '기타',
-        p_is_correct: true,
-        p_score: gained
-      })
-
-      setResults(r => [...r, {
-        title: m.title,
-        correct: true,
-        hintUsed: sh,
-        score: gained,
-        combo: appliedMode,
-        country: m.country,
-        genre: m.final_genre || '',
-        grade: primaryGrade
-      }])
-
-      setFb(`정답! +${gained}점`)
-      setFbt('ok')
-      setAnswered(true)
-
-      setScoreFlash(true)
-      setTimeout(() => {
-        setScoreFlash(false)
-      }, 300)
-
-      setScorePop(true)
-      setTimeout(() => {
-        setScorePop(false)
-      }, 500)
-
-    } else {
-
-      // 객관식: 첫 오답 클릭이면 콤보 해제
-      if(quizMode === 'objective' && wrongCount === 0){
-        setComboStreak(0)
-        setMode(null)
-      }
-
-      // 주관식 오답은 여기서 콤보 해제 안 함
-
-      if(quizMode === 'objective'){
-
-        if(sh >= 5){
-          await doSkip()
-          return
-        }
-
-        if(wrongCount === 0){
-          setWrongCount(1)
-          nextH()
-          setFb('다시 생각해봐')
-          setFbt('ng')
-          return
-        }
-
-        if(wrongCount === 1){
-          setWrongCount(2)
-          setLockChoice(true)
-          setFb('기회를 더 줄수가 없다네...')
-          setFbt('ng')
-          setTimeout(()=>{
-            doSkip()
-          }, 700)
-          return
-
-        }
-
-      }
 
         await saveLog({
           supabase,
@@ -1593,29 +1201,100 @@ async function submit(answerValue){
           charId: selChar,
           movie: m,
           hintUsed: sh,
-          score: 0,
-          comboMode: null,
-          isCorrect: false,
-          isSkip: false,
+          score: gained,
+          comboMode: appliedMode,
+          isCorrect: true,
           nickname: currentUser.nickname,
           userInput: inputValue?.trim() || null,
           genre: m.final_genre || null,
           log_type: 'play'
         })
-
         await supabase.rpc('update_genre_stats', {
           p_user_id: String(currentUser.userId),
           p_character_id: selChar,
           p_genre: m.final_genre || '기타',
-          p_is_correct: false,
-          p_score: 0
+          p_is_correct: true,
+          p_score: gained
         })
+        setResults(r => [...r, {
+          title: m.title,
+          correct: true,
+          hintUsed: sh,
+          score: gained,
+          combo: appliedMode,
+          country: m.country,
+          genre: m.final_genre || '',
+          grade: primaryGrade
+        }])
+        setFb(`정답! +${gained}점`)
+        setFbt('ok')
+        setAnswered(true)
+        setScoreFlash(true)
+        setTimeout(() => {
+          setScoreFlash(false)
+        }, 300)
+        setScorePop(true)
+        setTimeout(() => {
+          setScorePop(false)
+        }, 500)
+      } else {
+        // 객관식: 첫 오답 클릭이면 콤보 해제
+        if(quizMode === 'objective' && wrongCount === 0){
+          setComboStreak(0)
+          setMode(null)
+        }
+        // 주관식 오답은 여기서 콤보 해제 안 함
+        if(quizMode === 'objective'){
+          if(sh >= 5){
+            await doSkip()
+            return
+          }
+          if(wrongCount === 0){
+            setWrongCount(1)
+            nextH()
+            setFb('다시 생각해봐')
+            setFbt('ng')
+            return
+          }
+          if(wrongCount === 1){
+            setWrongCount(2)
+            setLockChoice(true)
+            setFb('기회를 더 줄 수가 없어요')
+            setFbt('ng')
+            setTimeout(()=>{
+              doSkip()
+            }, 700)
+            return
+          }
+        }
+          await saveLog({
+            supabase,
+            userId: String(currentUser.userId),
+            charId: selChar,
+            movie: m,
+            hintUsed: sh,
+            score: 0,
+            comboMode: null,
+            isCorrect: false,
+            isSkip: false,
+            nickname: currentUser.nickname,
+            userInput: inputValue?.trim() || null,
+            genre: m.final_genre || null,
+            log_type: 'play'
+          })
 
-        setFb(rFB(sh))
-        setFbt('ng')
-    }
+          await supabase.rpc('update_genre_stats', {
+            p_user_id: String(currentUser.userId),
+            p_character_id: selChar,
+            p_genre: m.final_genre || '기타',
+            p_is_correct: false,
+            p_score: 0
+          })
 
-  } finally {
+          setFb(rFB(sh))
+          setFbt('ng')
+      }
+    } finally {
 
     setIsSubmitting(false)
     setLoading(false)
@@ -1629,14 +1308,11 @@ async function submit(answerValue){
 
 
 async function doSkip(){
-
   if(screen !== 'quiz') return
   if(answered || isSubmitting) return
   if(!currentUser?.userId) return
 
   setIsSubmitting(true)
-
-  // 넘기기는 콤보 해제
   setComboStreak(0)
   setMode(null)
 
@@ -1690,7 +1366,6 @@ async function doSkip(){
 
 
 function nextH(){
-
   if(sh < 5){
     setSh(v => v + 1)
     setFb('')
@@ -1698,7 +1373,6 @@ function nextH(){
   } else {
     doSkip()
   }
-
 }
 
 
@@ -1727,6 +1401,7 @@ function nextQ(){
   setSelectedChoice(null)
 
 }
+
 
 function enterGame(){
   if(!selChar) return
@@ -1783,423 +1458,407 @@ function deleteUser(charId){
   }
 }
 
-  // ══════════════════════════════════════════
-// 화면 1: 캐릭터 선택
-// ══════════════════════════════════════════
+
+
+
+
+
+
+// ══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
+// 화면 1: 캐릭터 선택 화면
+// ══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
+
 if(screen === 'intro'){
-
     return <IntroScreen onEnter={()=>setScreen('char')} />
-
   }
+
 if(screen==='char') return(
   <AppLayout>
-  <div style={{width:'100%',minHeight:'100vh',background:'#fff',display:'flex',flexDirection:'column',padding:'48px 0 40px'}}>
-    <div style={{textAlign:'center',marginBottom:40}}>
-      <div style={{fontSize:'2.6rem',fontWeight:900,letterSpacing:'-1px',lineHeight:1,color:'#1a1814'}}>
-        Cine <span style={{color:'#e8808c'}}>CLUE</span>
-      </div>
-      <div style={{fontSize:'0.75rem',color:'#b0aaa3',letterSpacing:'0.25em',marginTop:8,textTransform:'uppercase',fontWeight:500}}>
-        Follow the clues
-      </div>
-    </div>
-
-    <div style={{padding:'0 20px'}}>
-      <div style={{fontSize:'0.7rem',fontWeight:700,color:'#b0aaa3',letterSpacing:'0.15em',textTransform:'uppercase',marginBottom:14}}>
-        캐릭터를 선택하세요
+    <div style={{width:'100%',background:'#fff',display:'flex',height:'100dvh',flexDirection:'column',padding:'48px 0 40px',overflowY:'auto'}}>
+      <div style={{textAlign:'center',marginBottom:40}}>
+        <div style={{fontSize:'2.6rem',fontWeight:900,letterSpacing:'-1px',lineHeight:1,color:'#1a1814'}}>
+          Cine <span style={{color:'#e8808c'}}>CLUE</span>
+        </div>
+        <div style={{fontSize:'0.75rem',color:'#b0aaa3',letterSpacing:'0.25em',marginTop:8,textTransform:'uppercase',fontWeight:500}}>
+          Follow the clues
+        </div>
       </div>
 
-      <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:10,marginBottom:20}}>
-       {CHARS.map((c) => {
-  const sel = selChar===c.id
-  const u = users.find(x=>x.charId===c.id)
+      <div style={{padding:'0 20px'}}>
+        <div style={{fontSize:'0.7rem',fontWeight:700,color:'#b0aaa3',letterSpacing:'0.15em',textTransform:'uppercase',marginBottom:14}}>
+          캐릭터를 선택하세요
+        </div>
 
-  return (
-    <div
-      key={c.id}
-      onClick={()=>handleCharClick(c.id)}
-      style={{
-        borderRadius:18,
-        border:sel?`3px solid ${c.color}`:'1.5px solid #e8e4dd',
-        background:sel?`${c.color}18`:'#faf9f7',
-        padding:'16px 6px 12px',
-        display:'flex',
-        flexDirection:'column',
-        alignItems:'center',
-        gap:8,
-        cursor:'pointer',
-        transition:'all .18s cubic-bezier(.34,1.56,.64,1)',
-        boxShadow:sel?`0 6px 22px ${c.color}50`:'0 1px 4px rgba(0,0,0,0.06)',
-        transform:sel?'scale(1.06)':'scale(1)',
-        position:'relative',
-      }}
-    >
+        <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:10,marginBottom:20}}>
+          {CHARS.map((c) => {
+            const sel = selChar===c.id
+            const u = users.find(x=>x.charId===c.id)
 
-      {sel && (
+            return (
+              <div
+                key={c.id}
+                onClick={()=>handleCharClick(c.id)}
+                style={{
+                  borderRadius:18,
+                  border:sel?`3px solid ${c.color}`:'1.5px solid #e8e4dd',
+                  background:sel?`${c.color}18`:'#faf9f7',
+                  padding:'16px 6px 12px',
+                  display:'flex',
+                  flexDirection:'column',
+                  alignItems:'center',
+                  gap:8,
+                  cursor:'pointer',
+                  transition:'all .18s cubic-bezier(.34,1.56,.64,1)',
+                  boxShadow:sel?`0 6px 22px ${c.color}50`:'0 1px 4px rgba(0,0,0,0.06)',
+                  transform:sel?'scale(1.06)':'scale(1)',
+                  position:'relative',
+                }}>
+
+                {sel && (
+                  <div style={{
+                    position:'absolute',
+                    top:8,
+                    right:8,
+                    width:18,
+                    height:18,
+                    borderRadius:'50%',
+                    background:c.color,
+                    display:'flex',
+                    alignItems:'center',
+                    justifyContent:'center'
+                  }}>
+                    <span style={{color:'#fff',fontSize:'0.6rem',fontWeight:900}}>✓</span>
+                  </div>
+                )}
+
+                {u && (
+                  <div
+                    onClick={(e)=>{
+                      e.stopPropagation()
+                      deleteUser(c.id)
+                    }}
+                    style={{
+                      position:'absolute',
+                      top:8,
+                      left:8,
+                      fontSize:11,
+                      background:'#000',
+                      color:'#fff',
+                      borderRadius:6,
+                      padding:'2px 6px',
+                      cursor:'pointer'
+                    }}>
+                    ✕
+                  </div>
+                )}
+
+                <svg viewBox="0 0 80 80" fill="none" style={{width:56,height:56}}>
+                  {c.svg.props.children}
+                </svg>
+
+                <div style={{
+                  fontSize:'0.6rem',
+                  fontWeight:700,
+                  color:sel?c.color:'#9a9490',
+                  textAlign:'center',
+                  lineHeight:1.3,
+                }}>
+                  {u ? u.nickname : c.name}
+
+                  <div style={{
+                    fontSize:'0.55rem',
+                    fontWeight:500,
+                    marginTop:2,
+                    color:'#b8b4b0'
+                  }}>
+                    {u ? (u.score || 0) : ''}
+                  </div>
+                </div>
+              </div>
+            ) 
+          })}
+        </div>
+
+        {/* 입장하기 버튼 */}
+        <button
+          onClick={enterGame}
+          disabled={!users.find(u=>u.charId===selChar)}
+          style={{
+            width:'100%',
+            height:54,
+            borderRadius:14,
+            background:users.find(u=>u.charId===selChar)?'#1a1814':'#d4d0cc',
+            color:'#fff',
+            fontSize:'0.9rem',
+            fontWeight:700,
+            border:'none',
+            cursor:users.find(u=>u.charId===selChar)?'pointer':'default'
+          }}>
+          입장하기
+        </button>
+      </div>
+
+      {/* 닉네임 입력 모달 */}
+      {showNameModal && (
         <div style={{
-          position:'absolute',
-          top:8,
-          right:8,
-          width:18,
-          height:18,
-          borderRadius:'50%',
-          background:c.color,
+          position:'fixed',
+          inset:0,
+          background:'rgba(0,0,0,0.5)',
           display:'flex',
           alignItems:'center',
-          justifyContent:'center'
+          justifyContent:'center',
+          zIndex:9999
         }}>
-          <span style={{color:'#fff',fontSize:'0.6rem',fontWeight:900}}>✓</span>
+          <div style={{
+            width:300,
+            background:'#fff',
+            borderRadius:16,
+            padding:20
+          }}>
+            <div style={{fontSize:'0.9rem',fontWeight:700,marginBottom:10}}>
+              대화명 입력
+            </div>
+
+            <input
+              value={nickname}
+              onChange={(e)=>{
+                if(e.target.value.length<=11){
+                  setNickname(e.target.value)
+                }
+              }}
+              placeholder="최대 11자"
+              style={{
+                width:'100%',
+                height:44,
+                borderRadius:10,
+                border:'1.5px solid #e8e4dd',
+                padding:'0 12px',
+                marginBottom:12
+              }}/>
+
+            <div style={{display:'flex',gap:8}}>
+              <button
+                onClick={()=>setShowNameModal(false)}
+                style={{
+                  flex:1,
+                  height:40,
+                  borderRadius:10,
+                  background:'#eee',
+                  border:'none'
+                }}>
+                취소
+              </button>
+
+              <button
+                onClick={saveNickname}
+                style={{
+                  flex:1,
+                  height:40,
+                  borderRadius:10,
+                  background:'#1a1814',
+                  color:'#fff',
+                  border:'none'
+                }}>
+                완료
+              </button>
+            </div>
+          </div>
         </div>
       )}
+    </div>
+  </AppLayout>
+)
 
-      {u && (
-        <div
-          onClick={(e)=>{
-            e.stopPropagation()
-            deleteUser(c.id)
-          }}
+
+
+
+
+// ══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
+// 화면 2: 기간(grade) 선택 화면
+// ══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
+
+if(screen==='grade') return(
+  <AppLayout>
+    <div style={{background:'#fff',display:'flex',flexDirection:'column',padding:'40px 0 40px',height:'100vh',overflowY:'auto'}}>
+
+      <div style={{padding:'0 20px'}}>
+
+        <div style={{
+          fontSize:'0.7rem',
+          fontWeight:700,
+          color:'#b0aaa3',
+          letterSpacing:'0.15em',
+          textTransform:'uppercase',
+          marginBottom:14
+        }}>
+          도전할 시대를 골라보세요 *여러 개 선택 OK
+        </div>
+
+        <div style={{display:'flex', gap:8, marginBottom:16}}>
+          <button
+            onClick={()=>setQuizMode('subjective')}
+            style={{
+              flex:1,
+              height:40,
+              borderRadius:10,
+              background:quizMode==='subjective'?'#1a1814':'#eee',
+              color:quizMode==='subjective'?'#fff':'#000',
+              fontWeight:700
+            }}>
+            주관식
+          </button>
+
+          <button
+            onClick={()=>setQuizMode('objective')}
+            style={{
+              flex:1,
+              height:40,
+              borderRadius:10,
+              background:quizMode==='objective'?'#1a1814':'#eee',
+              color:quizMode==='objective'?'#fff':'#000',
+              fontWeight:700
+            }}>
+            객관식
+          </button>
+        </div>
+
+        {GRADES.map(gr=>{
+          const sel = selGrades.includes(gr.id)
+          const color = gr.color || '#e8808c'
+          const border = gr.border || '#e8e4dd'
+          const bg = gr.bg || '#fff5f6'
+
+          return(
+            <div
+              key={gr.id}
+              onClick={()=>toggleGrade(gr.id)}
+              style={{
+                borderRadius:16,
+                border:`2px solid ${sel ? color : border}`,
+                background: sel ? bg : '#fff',
+                padding:'12px 16px',
+                marginBottom:10,
+                cursor:'pointer',
+                display:'flex',
+                alignItems:'center',
+                gap:14,
+                transition:'all .2s',
+                boxShadow: sel
+                  ? `0 3px 16px ${color}20`
+                  : '0 1px 4px rgba(0,0,0,0.05)',
+              }}>
+
+              {/* 아이콘 */}
+              <div style={{
+                width:52,
+                height:52,
+                borderRadius:12,
+                background: sel ? `${color}18` : '#f5f3ef',
+                border:`1.5px solid ${sel ? color : border}`,
+                display:'flex',
+                alignItems:'center',
+                justifyContent:'center',
+                flexShrink:0,
+                overflow:'hidden'
+              }}>
+                <svg viewBox="0 0 60 60" fill="none" style={{width:52,height:52}}>
+                  {GRADE_CHARS?.[gr.id]?.props?.children}
+                </svg>
+              </div>
+
+              {/* 텍스트 */}
+              <div style={{flex:1,minWidth:0}}>
+                <div style={{
+                  fontSize:'0.9rem',
+                  fontWeight:800,
+                  color: sel ? color : '#1a1814',
+                  marginBottom:3
+                }}>
+                  {gr.name}
+                </div>
+
+                <div style={{
+                  fontSize:'0.65rem',
+                  color:'#a09a93',
+                  lineHeight:1.4
+                }}>
+                  {gr.desc}
+                </div>
+
+                <div style={{
+                  fontSize:'0.6rem',
+                  color: sel ? color : '#c0bab3',
+                  fontWeight:600,
+                  marginTop:3
+                }}>
+                  {gr.subDesc}
+                </div>
+              </div>
+            </div>
+          )
+        })}
+      </div>
+
+      {/* 버튼 영역 */}
+      <div style={{
+        padding:'12px 20px 0',
+        display:'flex',
+        flexDirection:'row',
+        gap:10
+      }}>
+
+        {/* 퀴즈시작 버튼 */}
+        <button
           style={{
-            position:'absolute',
-            top:8,
-            left:8,
-            fontSize:11,
-            background:'#000',
+            flex:1,
+            height:54,
+            borderRadius:14,
+            background: selGrades.length > 0 && !loading ? '#1a1814' : '#d4d0cc',
             color:'#fff',
-            borderRadius:6,
-            padding:'2px 6px',
+            fontSize:'0.9rem',
+            fontWeight:700,
+            border:'none',
+            cursor: selGrades.length > 0 && !loading ? 'pointer' : 'default'
+          }}
+          disabled={selGrades.length === 0 || loading}
+          onClick={()=>loadMovies()}>
+
+          {loading ? '로딩 중...' : '퀴즈시작'}
+        </button> 
+
+        {/* 뒤로가기 버튼 */}
+        <button
+          style={{
+            flex:1,
+            height:54,
+            borderRadius:12,
+            background:'transparent',
+            color:'#9a9490',
+            fontSize:'0.8rem',
+            fontWeight:500,
+            border:'1.5px solid #e8e4dd',
             cursor:'pointer'
           }}
-        >
-          ✕
-        </div>
-      )}
-
-      <svg viewBox="0 0 80 80" fill="none" style={{width:56,height:56}}>
-        {c.svg.props.children}
-      </svg>
-
-      <div style={{
-        fontSize:'0.6rem',
-        fontWeight:700,
-        color:sel?c.color:'#9a9490',
-        textAlign:'center',
-        lineHeight:1.3,
-      }}>
-        {u ? u.nickname : c.name}
-
-        <div style={{
-          fontSize:'0.55rem',
-          fontWeight:500,
-          marginTop:2,
-          color:'#b8b4b0'
-        }}>
-          {u ? (u.score || 0) : ''}
-        </div>
+          onClick={()=>setScreen('char')}>
+          캐릭터 선택
+        </button>
       </div>
-
     </div>
-  )
-})}
-</div>
-
-      {/* 입장하기 버튼 */}
-      <button
-        onClick={enterGame}
-        disabled={!users.find(u=>u.charId===selChar)}
-        style={{
-          width:'100%',
-          height:54,
-          borderRadius:14,
-          background:users.find(u=>u.charId===selChar)?'#1a1814':'#d4d0cc',
-          color:'#fff',
-          fontSize:'0.9rem',
-          fontWeight:700,
-          border:'none',
-          cursor:users.find(u=>u.charId===selChar)?'pointer':'default'
-        }}
-      >
-        입장하기
-      </button>
-    </div>
-
-    {/* 닉네임 입력 모달 */}
-    {showNameModal && (
-      <div style={{
-        position:'fixed',
-        inset:0,
-        background:'rgba(0,0,0,0.5)',
-        display:'flex',
-        alignItems:'center',
-        justifyContent:'center',
-        zIndex:9999
-      }}>
-        <div style={{
-          width:300,
-          background:'#fff',
-          borderRadius:16,
-          padding:20
-        }}>
-          <div style={{fontSize:'0.9rem',fontWeight:700,marginBottom:10}}>
-            대화명 입력
-          </div>
-
-          <input
-            value={nickname}
-            onChange={(e)=>{
-              if(e.target.value.length<=11){
-                setNickname(e.target.value)
-              }
-            }}
-            placeholder="최대 11자"
-            style={{
-              width:'100%',
-              height:44,
-              borderRadius:10,
-              border:'1.5px solid #e8e4dd',
-              padding:'0 12px',
-              marginBottom:12
-            }}
-          />
-
-          <div style={{display:'flex',gap:8}}>
-            <button
-              onClick={()=>setShowNameModal(false)}
-              style={{
-                flex:1,
-                height:40,
-                borderRadius:10,
-                background:'#eee',
-                border:'none'
-              }}
-            >
-              취소
-            </button>
-
-            <button
-              onClick={saveNickname}
-              style={{
-                flex:1,
-                height:40,
-                borderRadius:10,
-                background:'#1a1814',
-                color:'#fff',
-                border:'none'
-              }}
-            >
-              완료
-            </button>
-          </div>
-        </div>
-      </div>
-    )}
-  </div></AppLayout>
+  </AppLayout>
 )
 
-  // ══════════════════════════════════════════
-  // 화면 2: 난이도 선택
-  // ══════════════════════════════════════════
-  if(screen==='grade') return(
-  <div style={{background:'#fff',display:'flex',flexDirection:'column',padding:'40px 0 40px'}}>
-    
 
-    <div style={{padding:'0 20px'}}>
-      <div style={{
-        fontSize:'0.7rem',
-        fontWeight:700,
-        color:'#b0aaa3',
-        letterSpacing:'0.15em',
-        textTransform:'uppercase',
-        marginBottom:14
-      }}>
-        도전할 시대를 골라보세요 *여러 개 선택 OK
-      </div>
-      <div style={{display:'flex', gap:8, marginBottom:16}}>
 
-  <button
 
-    onClick={()=>setQuizMode('subjective')}
 
-    style={{
 
-      flex:1,
 
-      height:40,
-
-      borderRadius:10,
-
-      background:quizMode==='subjective'?'#1a1814':'#eee',
-
-      color:quizMode==='subjective'?'#fff':'#000',
-
-      fontWeight:700
-
-    }}
-
-  >
-
-    주관식
-
-  </button>
-
-  <button
-
-    onClick={()=>setQuizMode('objective')}
-
-    style={{
-
-      flex:1,
-
-      height:40,
-
-      borderRadius:10,
-
-      background:quizMode==='objective'?'#1a1814':'#eee',
-
-      color:quizMode==='objective'?'#fff':'#000',
-
-      fontWeight:700
-
-    }}
-
-  >
-
-    객관식
-
-  </button>
-
-</div>
-
-      {GRADES.map(gr=>{
-        const sel = selGrades.includes(gr.id)
-        const color = gr.color || '#e8808c'
-        const border = gr.border || '#e8e4dd'
-        const bg = gr.bg || '#fff5f6'
-
-        return(
-          <div
-            key={gr.id}
-            onClick={()=>toggleGrade(gr.id)}
-            style={{
-              borderRadius:16,
-              border:`2px solid ${sel ? color : border}`,
-              background: sel ? bg : '#fff',
-              padding:'12px 16px',
-              marginBottom:10,
-              cursor:'pointer',
-              display:'flex',
-              alignItems:'center',
-              gap:14,
-              transition:'all .2s',
-              boxShadow: sel
-                ? `0 3px 16px ${color}20`
-                : '0 1px 4px rgba(0,0,0,0.05)',
-            }}
-          >
-            {/* 아이콘 */}
-            <div style={{
-              width:52,
-              height:52,
-              borderRadius:12,
-              background: sel ? `${color}18` : '#f5f3ef',
-              border:`1.5px solid ${sel ? color : border}`,
-              display:'flex',
-              alignItems:'center',
-              justifyContent:'center',
-              flexShrink:0,
-              overflow:'hidden'
-            }}>
-              <svg viewBox="0 0 60 60" fill="none" style={{width:52,height:52}}>
-                {GRADE_CHARS?.[gr.id]?.props?.children}
-              </svg>
-            </div>
-
-            {/* 텍스트 */}
-            <div style={{flex:1,minWidth:0}}>
-              <div style={{
-                fontSize:'0.9rem',
-                fontWeight:800,
-                color: sel ? color : '#1a1814',
-                marginBottom:3
-              }}>
-                {gr.name}
-              </div>
-
-              <div style={{
-                fontSize:'0.65rem',
-                color:'#a09a93',
-                lineHeight:1.4
-              }}>
-                {gr.desc}
-              </div>
-
-              <div style={{
-                fontSize:'0.6rem',
-                color: sel ? color : '#c0bab3',
-                fontWeight:600,
-                marginTop:3
-              }}>
-                {gr.subDesc}
-              </div>
-            </div>
-          </div>
-        )
-      })}
-    </div>
-
-{/* 버튼 영역 */}
-<div style={{
-  padding:'12px 20px 0',
-  display:'flex',
-  flexDirection:'row',
-  gap:10
-}}>
-
-  {/* 퀴즈 시작 */}
-  <button
-    style={{
-      flex:1,
-      height:54,
-      borderRadius:14,
-      background: selGrades.length > 0 && !loading ? '#1a1814' : '#d4d0cc',
-      color:'#fff',
-      fontSize:'0.9rem',
-      fontWeight:700,
-      border:'none',
-      cursor: selGrades.length > 0 && !loading ? 'pointer' : 'default'
-    }}
-    disabled={selGrades.length === 0 || loading}
-    onClick={()=>loadMovies()}
-  >
-    {loading ? '로딩 중...' : '퀴즈시작'}
-  </button>   {/* 🔥 반드시 닫아야 함 */}
-
-  {/* 뒤로가기 */}
-  <button
-    style={{
-      flex:1,
-      height:54,
-      borderRadius:12,
-      background:'transparent',
-      color:'#9a9490',
-      fontSize:'0.8rem',
-      fontWeight:500,
-      border:'1.5px solid #e8e4dd',
-      cursor:'pointer'
-    }}
-    onClick={()=>setScreen('char')}
-  >
-    캐릭터 선택
-  </button>
-
-</div>
-</div>
-
-)
-
-// ══════════════════════════════════════════
-// 화면 3: 퀴즈
-// ══════════════════════════════════════════
+// ══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
+// 화면 3: 퀴즈 화면
+// ══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
 
 if(screen === 'quiz'){
+   // 퀴즈화면 로딩시 스피너 노출
   if(loading || !pool || pool.length === 0 || !pool[qi]){
     return (
       <div style={{
@@ -2214,182 +1873,161 @@ if(screen === 'quiz'){
     )
   }
 
-  // 3️⃣ 여기부터 진짜 퀴즈
+  // 퀴즈화면 pool 선언 후 시작
   const m = pool[qi]
 
   return (
     <AppLayout>
-
-    <div style={{
-      width:'100%',
-      background:'#fff',
-      display:'flex',
-      flexDirection:'column',
-      flex:1,
-      minHeight:0
-    }}>
-
-      {showSpinner && (
-      <CharacterSpinner fadeOut={!showSpinner} />
-    )}
-        
-      {/* ── 고정 헤더 ── */}
       <div style={{
+        width:'100%',
         background:'#fff',
-        borderBottom:'1px solid #f0ece6',
-        padding:'14px 20px 0',
-        flexShrink:0,
-        position:'relative',
-        zIndex:20 
+        display:'flex',
+        flexDirection:'column',
       }}>
-
-      {/* 1️⃣ 캐릭터 / 닉네임 영역 */}
-        <div style={{
-          display:'flex',
-          alignItems:'center',
-          gap:10,
-          marginBottom:10
-         }}> 
-
-        <CharAvatar charId={selChar} size={34}/>
-        <span style={{
-          fontSize:'0.75rem',
-          fontWeight:700,
-          color:'#1a1814',
-          flex:1
-        }}>
-          {users.find(u=>u.charId===selChar)?.nickname || 'USER'}
-        </span>
-
-      {/* 1️⃣ 점수 영역 */}
-
-        <span style={{
-
-          fontSize:'0.7rem',
-          fontWeight:800,
-          padding:'4px 10px',
-          borderRadius:20,
-          background: `${g?.color||'#e8808c'}15`,
-          color: g?.color,
-          border:`1px solid ${g?.color||'#e8808c'}30`,
-        }}>
-        {getPts()}pt
-      </span>
-      </div>
-
-
-
-        {/* 2️⃣ 버블힌트전체영역 */}
-        <div style={{
-          display:'flex',
-          alignItems:'center',
-          gap:6,
-          paddingBottom:12
-        }}>
-
-        {/* 👇 버블 묶음 영역 */}
-        <div style={{
-          display:'flex',
-          alignItems:'center',
-          gap:6,            
-          whiteSpace:'nowrap',
-          width:'100%'
-        }}>
-
-        {/* 문제 번호 */}
-          <span style={{
-            fontSize:'0.62rem',
-            fontWeight:700,
-            padding:'3px 9px',
-            borderRadius:20,
-            background:'#f5f3ef',
-            color:'#6b6560',
-            border:'1px solid #e8e4dd',
-            width:42,
-            textAlign:'center',
-            flexShrink:0
-          }}>
-            {qi+1}/5
-          </span>
-
-        {/* 연도 */}
-        {m.year && (
-          <span style={{
-            fontSize:'0.62rem',
-            fontWeight:700,
-            padding:'3px 0',
-            borderRadius:20,
-            background:'#f5a3a3',
-            color:'#fff',
-            width:48,
-            textAlign:'center',
-            flexShrink:0
-          }}>
-            {m.year}
-          </span>
+        {/*퀴즈화면 시작시 스피너 사라짐*/}
+        {showSpinner && (
+          <CharacterSpinner fadeOut={!showSpinner}/>
         )}
+          
+        {/* ── 고정 헤더 ── */}
+        <div style={{
+          background:'#fff',
+          borderBottom:'1px solid #f0ece6',
+          padding:'14px 20px 0',
+          flexShrink:0,
+          position:'relative',
+          zIndex:20 
+        }}>
 
-        {/* 국가 */}
-        {m.country && (
-          <span style={{
-            fontSize:'0.62rem',
-            fontWeight:700,
-            padding:'3px 10px',
-            borderRadius:20,
-            background:'#e8f0fc',
-            color:'#3a6abf',
-            border:'1px solid #c0d4f8',
-            flexShrink:0   // 🔥 추가
+          {/* 1️⃣ 캐릭터 / 포인트 영역 */}
+          <div style={{
+            display:'flex',
+            alignItems:'center',
+            gap:10,
+            marginBottom:10
+          }}> 
+            <CharAvatar charId={selChar} size={34}/>
+            <span style={{
+              fontSize:'0.75rem',
+              fontWeight:700,
+              color:'#1a1814',
+              flex:1
+            }}>
+              {users.find(u=>u.charId===selChar)?.nickname || 'USER'}
+            </span>
+
+            <span style={{
+              fontSize:'0.7rem',
+              fontWeight:800,
+              padding:'4px 10px',
+              borderRadius:20,
+              background: `${g?.color||'#e8808c'}15`,
+              color: g?.color,
+              border:`1px solid ${g?.color||'#e8808c'}30`,
+            }}>
+              {getPts()}pt
+            </span>
+          </div>
+
+          {/* 2️⃣ 버블영역 */}
+          <div style={{
+            display:'flex',
+            alignItems:'center',
+            gap:6,            
+            whiteSpace:'nowrap',
+            width:'100%'
           }}>
-            {m.country}
-          </span>
-        )}
 
-        {/* 장르 */}
-        {m.final_genre && (
-          <span style={{
-            fontSize:'0.62rem',
-            fontWeight:700,
-            padding:'3px 10px',
-            borderRadius:20,
-            background:'#e8f5ee',
-            color:'#2e8a52',
-            border:'1px solid #a8dfc0',
-            flexShrink:0
-          }}>
-            {m.final_genre}
-           </span>
-
-        )}
-
-        {/* awards */}
-        {m.awards && (() => {
-          try {
-            const arr = JSON.parse(m.awards)
-            if (!arr.length) return null
-            return (
+            {/* 문제 번호 */}
             <span style={{
               fontSize:'0.62rem',
               fontWeight:700,
-              padding:'3px 10px',
+              padding:'3px 9px',
               borderRadius:20,
-              background:'#fff3e0',
-              color:'#cc7a00',
-              border:'1px solid #ffd8a8',
-              flexShrink:0   // 🔥 추가
+              background:'#f5f3ef',
+              color:'#6b6560',
+              border:'1px solid #e8e4dd',
+              width:42,
+              textAlign:'center',
+              flexShrink:0
             }}>
-            {arr[0]}
+              {qi+1}/5
             </span>
-            )   
-          } catch {
-        return null
-      }
-    })()}
 
-    </div>
-    </div>
-  </div> 
+            {/* 연도 */}
+            {m.year && (
+              <span style={{
+                fontSize:'0.62rem',
+                fontWeight:700,
+                padding:'3px 0',
+                borderRadius:20,
+                background:'#f5a3a3',
+                color:'#fff',
+                width:48,
+                textAlign:'center',
+                flexShrink:0
+              }}>
+                {m.year}
+              </span>
+            )}
 
+            {/* 국가 */}
+            {m.country && (
+              <span style={{
+                fontSize:'0.62rem',
+                fontWeight:700,
+                padding:'3px 10px',
+                borderRadius:20,
+                background:'#e8f0fc',
+                color:'#3a6abf',
+                border:'1px solid #c0d4f8',
+                flexShrink:0   // 🔥 추가
+              }}>
+                {m.country}
+              </span>
+            )}
+
+            {/* 장르 */}
+            {m.final_genre && (
+              <span style={{
+                fontSize:'0.62rem',
+                fontWeight:700,
+                padding:'3px 10px',
+                borderRadius:20,
+                background:'#e8f5ee',
+                color:'#2e8a52',
+                border:'1px solid #a8dfc0',
+                flexShrink:0
+              }}>
+                {m.final_genre}
+              </span>
+            )}
+
+            {/* 수상내역 */}
+            {m.awards && (() => {
+              try {
+                const arr = JSON.parse(m.awards)
+                if (!arr.length) return null
+                return (
+                  <span style={{
+                    fontSize:'0.62rem',
+                    fontWeight:700,
+                    padding:'3px 10px',
+                    borderRadius:20,
+                    background:'#fff3e0',
+                    color:'#cc7a00',
+                    border:'1px solid #ffd8a8',
+                    flexShrink:0  
+                  }}>
+                    {arr[0]}
+                  </span>
+                )   
+              } catch {
+              return null
+              }
+            })()}
+          </div>
+        </div> 
 
         {/* ── 콤보 배너 ── */}
         {mode && (
@@ -2415,61 +2053,60 @@ if(screen === 'quiz'){
             flexShrink:0
           }}>
 
-          <div style={{
-            position:'absolute',  
-            inset:0,  
-            borderRadius:10,  
-            zIndex:0, 
-            opacity:0.6,  
-            filter:'blur(10px)',  
-            background: 
-              mode==='good'  ? '#ffe08a' :  
-              mode==='wow'   ? '#ff9e9e' :  
-              mode==='crazy' ? '#b388ff' : 'transparent', 
-            animation:  
-              mode==='good'  ? 'glowPulse 1.2s ease-in-out infinite' :  
-              mode==='wow'   ? 'glowPulse 0.8s ease-in-out infinite' :  
-              mode==='crazy' ? 'glowPulse 0.4s ease-in-out infinite' :  
-              'none'  
-          }}/>
+            <div style={{
+              position:'absolute',  
+              inset:0,  
+              borderRadius:10,  
+              zIndex:0, 
+              opacity:0.6,  
+              filter:'blur(10px)',  
+              background: 
+                mode==='good'  ? '#ffe08a' :  
+                mode==='wow'   ? '#ff9e9e' :  
+                mode==='crazy' ? '#b388ff' : 'transparent', 
+              animation:  
+                mode==='good'  ? 'glowPulse 1.2s ease-in-out infinite' :  
+                mode==='wow'   ? 'glowPulse 0.8s ease-in-out infinite' :  
+                mode==='crazy' ? 'glowPulse 0.4s ease-in-out infinite' :  
+                'none'  
+            }}/>
+              <span style={{
+                position:'relative',
+                zIndex:1,
+                fontSize:'0.72rem',
+                fontWeight:800,
+                color:
+                  mode==='good' ? '#c8a84a' :
+                  mode==='wow' ? '#d45c5c' :
+                  mode==='crazy' ? '#9b5cff' :
+                  '#aaa'
+              }}>
+                {
+                  mode==='good' ? '👍 어? 좀 치는데? 이제 시작이다 그대로 달리자 !!':
+                  mode==='wow' ? '🔥 미친 상승감!!! 제니퍼 로페즈 아나콘다!! 스스메!! 🔥':
+                  mode==='crazy' ? '💀 뇌야 돌아라!! 손아 날아라!! 이건 끝까지 간다!! 💀':
+                  ''
+                }
+              </span>
 
-            <span style={{
-              position:'relative',
-              zIndex:1,
-              fontSize:'0.72rem',
-              fontWeight:800,
-              color:
-                mode==='good' ? '#c8a84a' :
-                mode==='wow' ? '#d45c5c' :
-                mode==='crazy' ? '#9b5cff' :
-                '#aaa'
-            }}>
-              {
-                mode==='good' ? '👍 어? 좀 치는데? 이제 시작이다 그대로 달리자 !!':
-                mode==='wow' ? '🔥 미친 상승감!!! 제니퍼 로페즈 아나콘다!! 스스메!! 🔥':
-                mode==='crazy' ? '💀 뇌야 돌아라!! 손아 날아라!! 이건 끝까지 간다!! 💀':
-                ''
-              }
-            </span>
-
-            <span style={{
-              fontSize:'0.68rem',
-              color:
-                mode==='good' ? '#342907' :
-                mode==='wow' ? '#630c0c' :
-                mode==='crazy' ? '#3b1678' :
-                '#aaa'
-            }}>
-              {comboStreak}연속 ×{
-                mode==='good' ? 3 :
-                mode==='wow' ? 4 :
-                mode==='crazy' ? 5 : 1
-              }
-            </span>
-          </div>
+              <span style={{
+                fontSize:'0.68rem',
+                color:
+                  mode==='good' ? '#342907' :
+                  mode==='wow' ? '#630c0c' :
+                  mode==='crazy' ? '#3b1678' :
+                  '#aaa'
+              }}>
+                {comboStreak}연속 ×{
+                  mode==='good' ? 3 :
+                  mode==='wow' ? 4 :
+                  mode==='crazy' ? 5 : 1
+                }
+              </span>
+            </div>
         )}
-          
 
+        {/* 주관식모드에서 한글자 힌트 효과 */}
         {quizMode === 'subjective' && (
           <FlashLetterHint
             title={m.title}
@@ -2478,472 +2115,366 @@ if(screen === 'quiz'){
           />
         )}
 
+        {/* ── 스크롤 영역 ── */}
+        <div
+        ref={scrollRef}     
+        style={{
+          flex:1,
+          minHeight:0,
+          overflowY:'auto',
+          pointerEvents:'auto',
+          WebkitOverflowScrolling:'touch',
+          padding:'12px 16px 24px',
+          overflowAnchor:'none',
+          overscrollBehavior:'contain',
+          scrollBehavior:'auto',
+          touchAction:'pan-y'
+        }}>
 
-{/* ── 스크롤 영역 ── */}
-<div
-ref={scrollRef} 
-style={{
-  flex:1,
-  minHeight:0,
-  overflowY:'auto',
-  pointerEvents:'auto',
-  WebkitOverflowScrolling:'touch',
-  padding:'12px 16px 24px',
-  overflowAnchor:'none',
-  overscrollBehavior:'contain',
-  scrollBehavior:'auto',
-  touchAction:'pan-y'
-}}>
 
-{/* 힌트 리스트 */}
+          {/* 힌트 리스트 */}
+          {Array.from({ length: 5 }).map((_, i) => {
+            if (i >= sh) return null
 
-{Array.from({ length: 5 }).map((_, i) => {
-  if (i >= sh) return null
+            const isCurrent = i === sh - 1
 
-  const isCurrent = i === sh - 1
+            return (
+              <div
+                key={i}
+                style={{
+                  animation:'hintSlideDown 0.9s ease'
+              }}>
+                <div style={{
+                  borderRadius:13,
+                  border:`1.5px solid ${isCurrent ? (g?.color || '#e8808c') : '#ece8e2'}`,
+                  background:isCurrent ? (g?.bg || '#fff5f6') : '#fff',
+                  padding:'13px 15px',
+                  marginBottom:8
+                }}>
+                  <div style={{display:'flex', alignItems:'center', gap:8}}>
+                    <span style={{
+                      width:28,
+                      height:28,
+                      borderRadius:'50%',
+                      background:g?.color || '#e8808c',
+                      color:'#fff',
+                      fontSize:'0.6rem',
+                      fontWeight:800,
+                      display:'flex',
+                      alignItems:'center',
+                      justifyContent:'center',
+                      flexShrink:0
+                    }}>
+                    {i + 1}
+                    </span>
 
-  return (
-    <div
-      key={i}
-      style={{
-        animation:'hintSlideDown 0.22s ease-out'
-      }}
-    >
-      <div style={{
-        borderRadius:13,
-        border:`1.5px solid ${isCurrent ? (g?.color || '#e8808c') : '#ece8e2'}`,
-        background:isCurrent ? (g?.bg || '#fff5f6') : '#fff',
-        padding:'13px 15px',
-        marginBottom:8
-      }}>
-        <div style={{display:'flex', alignItems:'center', gap:8}}>
-          <span style={{
-            width:28,
-            height:28,
-            borderRadius:'50%',
-            background:g?.color || '#e8808c',
-            color:'#fff',
-            fontSize:'0.6rem',
-            fontWeight:800,
-            display:'flex',
-            alignItems:'center',
-            justifyContent:'center',
+                    <div style={{
+                      fontSize:'0.78rem',
+                      lineHeight:1.7
+                    }}>
+                    {m.hintsArr?.[i] || '힌트 로딩중...'}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )
+          })}
+
+          {/* ── 입력 & 버튼 ── */}
+          <div style={{
+            position:'sticky',   
+            bottom:0,            
+            background:'#fff',
+            marginTop:16,
+            paddingBottom: '20px',
             flexShrink:0
           }}>
-            {i + 1}
-          </span>
+            {fb && (
+              <div style={{
+                fontSize:'0.78rem',
+                fontWeight:700,
+                marginBottom:8,
+                color:fbt==='ok' ? '#4a9c6d' : '#d45c5c'
+              }}>
+                {fb}
+              </div>
+            )}
 
-          <div style={{
-            fontSize:'0.78rem',
-            lineHeight:1.7
-          }}>
-            {m.hintsArr?.[i] || '힌트 로딩중...'}
+            {!answered ? (
+              <>
+                {/* 힌트보기 넘기기 버튼 */}
+                <div style={{display:'flex', gap:8, marginBottom:16}}>
+                  <button
+                    onClick={()=>{
+                      const el = scrollRef.current
+                      const prev = el.scrollHeight
+                      nextH()
+                      requestAnimationFrame(()=>{
+                        el.scrollTop += el.scrollHeight - prev
+                      })
+                    }}
+                    disabled={sh>=5 || lockChoice || isFlashing}
+                    style={{
+                      flex:1,
+                      height:40,
+                      borderRadius:10,
+                      background:'#f5f3ef',
+                      opacity: (sh>=5 || lockChoice || isFlashing) ? 0.4 : 1,
+                      pointerEvents: (sh>=5 || lockChoice || isFlashing) ? 'none' : 'auto'
+                  }}>
+                  다음 힌트
+                  </button>
+
+                  <button
+                    onClick={doSkip}
+                    style={{
+                      flex:1,
+                      height:40,
+                      position: 'relative',
+                      overflow: 'hidden',
+                      padding: '12px 20px',
+                      background: '#f5f3ef',
+                      border: 'none',
+                      borderRadius: '8px',
+                      padding:0, 
+                      transform: buttonActive ? 'scale(0.95)' : 'scale(1)',
+                      transition: 'transform 0.1s ease'
+                  }}>
+                    <div
+                      style={{
+                        position: 'absolute',
+                        top: 0,
+                        left: 0,
+                        height: '100%',
+                        width: `${progress}%`,
+                        background: 'rgba(167, 48, 48, 0.61)',
+                        transition: 'width 0.5s linear',
+                        zIndex: 0
+                      }}/>
+                    <span style={{ 
+                      position: 'relative', zIndex: 1 
+                    }}>
+                      넘기기
+                    </span>
+                  </button>
+                </div>
+
+
+                {/*객관식 모드 답 선택영역 */}
+                {quizMode === 'objective' ? (
+                  <div style={{
+                    display:'grid',
+                    gridTemplateColumns:'1fr 1fr',
+                    gap:8,
+                    marginBottom:8
+                  }}>
+                    {choices.map((c,i)=>(
+                      <button
+                        key={i}
+                        onClick={()=>{
+                          if(selectedChoice === c) return
+                          setSelectedChoice(c)
+                          submit(c)
+                        }}
+                        disabled={lockChoice}
+                        style={{
+                          height:52,
+                          borderRadius:10,
+                          border:'1px solid #ddd',
+                          background: selectedChoice === c ? '#1a1814' : '#fff',
+                          color: selectedChoice === c ? '#fff' : '#000',
+                          fontWeight:600,
+                          opacity: lockChoice ? 0.4 : 1,
+                          pointerEvents: lockChoice ? 'none' : 'auto',
+                          transition:'opacity 0.2s ease'
+                        }}>
+                          <div style={{
+                            padding:'2px 6px',
+                            textAlign:'center',
+                            lineHeight:1.25,
+                            wordBreak:'keep-all'
+                          }}>
+                            {c}
+                          </div>
+                      </button>
+                    ))}
+                  </div>
+                  ) : (
+                    <>
+                      {/* 🔥 주관식 모드 답 입력 영역 */}
+                      <div style={{
+                        position:'relative',
+                        display:'flex',
+                        gap:8,
+                        marginBottom:8
+                      }}>
+                        <input
+                          ref={inputRef}
+                          value={input}
+                          onChange={e=>{
+                            const v = e.target.value
+                            setInput(v)
+
+                            // 입력 없으면 초기화
+                            if(!v.trim()){
+                              setSuggestions([])
+                            return
+                            }
+
+                            // 전체 영화 아직 로딩 안됐으면 중단
+                            if(!allMovies.length) return
+                            const keyword = normalize(v)
+                            const starts = []
+                            const includes = []
+
+                            allMovies.forEach(m => {
+                              const title = normalize(m.title)
+
+                              if(title.startsWith(keyword)){
+                                starts.push(m)
+                              } else if(title.includes(keyword)){
+                                includes.push(m)
+                              }
+                            })
+
+                            const filtered = [
+                              ...starts.sort((a,b)=>a.title.localeCompare(b.title)),
+                              ...includes.sort((a,b)=>a.title.localeCompare(b.title))
+                            ].slice(0,5)
+                            setSuggestions(filtered)
+                          }}
+                          onKeyDown={e=>{
+                            if(e.key==='Enter'){
+                            e.preventDefault()
+                            submit()
+                            }
+                          }}
+                          placeholder="영화 제목 입력"
+                          style={{
+                            flex:1,
+                            height:46,
+                            borderRadius:11,
+                            border:`1.5px solid ${input?'#1a1814':'#e8e4dd'}`,
+                            background:'#faf9f7',
+                            padding:'0 14px'
+                          }}
+                        />
+
+                        {/* 입력 자동완성 */}
+                        {suggestions.length > 0 && (
+                          <div style={{
+                            position:'absolute',
+                            left:0,
+                            right:0,
+                            top:52, 
+                            background:'#fff',
+                            border:'1px solid #ddd',
+                            borderRadius:10,
+                            overflow:'hidden',
+                            zIndex:50
+                          }}>
+                            {suggestions.map((s, i)=>(
+                              <div
+                                key={i}
+                                onClick={()=>{
+                                  setInput(s.title)
+                                  setSuggestions([])
+                                  inputRef.current?.focus()
+                                }}
+                                style={{
+                                  padding:'10px 12px',
+                                  fontSize:'0.8rem',
+                                  borderBottom:'1px solid #eee',
+                                  cursor:'pointer'
+                              }}>
+                                {s.title}
+                              </div>
+                            ))}
+                          </div>
+                        )}
+
+                          <button
+                            onClick={()=>submit()}
+                            style={{
+                              width:72,
+                              height:46,
+                              borderRadius:11,
+                              background:'#1a1814',
+                              color:'#fff',
+                              fontWeight:700,
+                              border:'none'
+                            }}>
+                              정답
+                          </button>
+                      </div>
+                    </>
+                )}
+              </>
+            ) : (
+              <>
+                {fbt==='ok' && (
+                  <div style={{
+                    fontSize:'1.1rem',
+                    fontWeight:900,
+                    color:'#c8a84a',
+                    marginBottom:12,
+                    textAlign:'center'
+                  }}>
+                    {m.title}
+                  </div>
+                )}
+                <button
+                  onClick={nextQ}
+                  style={{
+                    width:'100%',
+                    height:46,
+                    borderRadius:12,
+                    background:'#1a1814',
+                    color:'#fff',
+                    fontWeight:800,
+                    border:'none'
+                  }}>
+                  {qi+1<pool.length ? '다음 문제 →' : '결과 보기 →'}
+                </button>
+              </>
+            )}
           </div>
         </div>
       </div>
-    </div>
+      
+      <style jsx>{`
+        @keyframes comboPulse {
+          0%   { transform: scale(1) }
+          50%  { transform: scale(1.06) }
+          100% { transform: scale(1) }
+        }
+      `}</style>
+
+      <style jsx>{`
+        @keyframes hintSlideDown {
+          from {
+            opacity: 0;
+            transform: translateY(-10px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+      `}</style>
+    </AppLayout>
   )
-})}
-
-  {/* ── 입력 & 버튼 ── */}
-  <div style={{
-    position:'sticky',   // 🔥 핵심
-    bottom:0,            // 🔥 핵심
-    background:'#fff',
-    marginTop:16,
-    paddingBottom: '20px',
-    flexShrink:0
-  }}>
-
-    {fb && (
-      <div style={{
-        fontSize:'0.78rem',
-        fontWeight:700,
-        marginBottom:8,
-        color:fbt==='ok' ? '#4a9c6d' : '#d45c5c'
-      }}>
-        {fb}
-      </div>
-    )}
-
-    {!answered ? (
-
-  <>
-    {/* 🔥 힌트 / 넘기기 (공통) */}
-<div style={{display:'flex', gap:8, marginBottom:16}}>
-
-  <button
-    onClick={()=>{
-      const el = scrollRef.current
-      const prev = el.scrollHeight
-      nextH()
-      requestAnimationFrame(()=>{
-        el.scrollTop += el.scrollHeight - prev
-      })
-    }}
-    disabled={sh>=5 || lockChoice || isFlashing}   // 🔥 힌트만 막음
-    style={{
-      flex:1,
-      height:40,
-      borderRadius:10,
-      background:'#f5f3ef',
-
-      opacity: (sh>=5 || lockChoice || isFlashing) ? 0.4 : 1,
-      pointerEvents: (sh>=5 || lockChoice || isFlashing) ? 'none' : 'auto'
-    }}
-  >
-    다음 힌트
-  </button>
-
-  <button
-
-    onClick={doSkip}
-
-    style={{
-      flex:1,
-      height:40,
-      position: 'relative',
-      overflow: 'hidden',
-      padding: '12px 20px',
-      background: '#f5f3ef',
-      border: 'none',
-      borderRadius: '8px',
-      padding:0, 
-      transform: buttonActive ? 'scale(0.95)' : 'scale(1)',
-      transition: 'transform 0.1s ease'
-
-    }}
-
-  >
-
-    <div
-
-      style={{
-
-        position: 'absolute',
-
-        top: 0,
-
-        left: 0,
-
-        height: '100%',
-
-        width: `${progress}%`,
-
-        background: 'rgba(167, 48, 48, 0.61)',
-
-        transition: 'width 0.5s linear',
-
-        zIndex: 0
-
-      }}
-
-    />
-    <span style={{ position: 'relative', zIndex: 1 }}>넘기기</span>
-    
-  </button>
-
-</div>
-
-    {/* 🔥 모드 분기 딱 1번만 */}
-    {quizMode === 'objective' ? (
-
-      <div style={{
-        display:'grid',
-        gridTemplateColumns:'1fr 1fr',
-        gap:8,
-        marginBottom:8
-      }}>
-        {choices.map((c,i)=>(
-
-  <button
-
-    key={i}
-
-    onClick={()=>{
-
-      if(selectedChoice === c) return
-
-      setSelectedChoice(c)
-
-      submit(c)
-
-    }}
-
-    disabled={lockChoice}
-
-    style={{
-
-      height:52,
-
-      borderRadius:10,
-
-      border:'1px solid #ddd',
-
-      background: selectedChoice === c ? '#1a1814' : '#fff',
-
-      color: selectedChoice === c ? '#fff' : '#000',
-
-      fontWeight:600,
-
-      opacity: lockChoice ? 0.4 : 1,
-
-      pointerEvents: lockChoice ? 'none' : 'auto',
-
-      transition:'opacity 0.2s ease'
-
-    }}
-
-  >
-
-    <div style={{
-
-      padding:'2px 6px',
-
-      textAlign:'center',
-
-      lineHeight:1.25,
-
-      wordBreak:'keep-all'
-
-    }}>
-
-      {c}
-
-    </div>
-
-  </button>
-
-))}
-      </div>
-
-    ) : (
-
-      <>
-        <div style={{
-          position:'relative',
-          display:'flex',
-          gap:8,
-          marginBottom:8
-        }}>
-          <input
-            ref={inputRef}
-            value={input}
-            onChange={e=>{
-              const v = e.target.value
-              setInput(v)
-
-              console.log(
-
-  allMovies.filter(m => m.title.includes('마리오'))
-
-)
-
-              // 🔥 입력 없으면 초기화
-              if(!v.trim()){
-                setSuggestions([])
-                return
-              }
-
-              // 🔥 전체 영화 아직 로딩 안됐으면 중단
-              if(!allMovies.length) return
-              const keyword = normalize(v)
-              const starts = []
-              const includes = []
-
-              allMovies.forEach(m => {
-                const title = normalize(m.title)
-
-                if(title.startsWith(keyword)){
-                  starts.push(m)
-                } else if(title.includes(keyword)){
-                  includes.push(m)
-                }
-              })
-
-              const filtered = [
-                ...starts.sort((a,b)=>a.title.localeCompare(b.title)),
-                ...includes.sort((a,b)=>a.title.localeCompare(b.title))
-              ].slice(0,5)
-
-              setSuggestions(filtered)
-            }}
-            onKeyDown={e=>{
-              if(e.key==='Enter'){
-                e.preventDefault()
-                submit()
-              }
-            }}
-            placeholder="영화 제목 입력"
-            style={{
-              flex:1,
-              height:46,
-              borderRadius:11,
-              border:`1.5px solid ${input?'#1a1814':'#e8e4dd'}`,
-              background:'#faf9f7',
-              padding:'0 14px'
-            }}
-          />
-          {suggestions.length > 0 && (
-
-  <div style={{
-
-    position:'absolute',
-
-    left:0,
-
-    right:0,
-
-    top:52,   // input 바로 아래
-
-    background:'#fff',
-
-    border:'1px solid #ddd',
-
-    borderRadius:10,
-
-    overflow:'hidden',
-
-    zIndex:50
-
-  }}>
-
-    {suggestions.map((s, i)=>(
-
-      <div
-
-        key={i}
-
-        onClick={()=>{
-
-          setInput(s.title)
-
-          setSuggestions([])
-          inputRef.current?.focus()
-
-
-        }}
-
-        style={{
-
-          padding:'10px 12px',
-
-          fontSize:'0.8rem',
-
-          borderBottom:'1px solid #eee',
-
-          cursor:'pointer'
-
-        }}
-
-      >
-
-        {s.title}
-
-      </div>
-
-    ))}
-
-  </div>
-
-)}
-
-          <button
-            onClick={()=>submit()}
-            style={{
-              width:72,
-              height:46,
-              borderRadius:11,
-              background:'#1a1814',
-              color:'#fff',
-              fontWeight:700,
-              border:'none'
-            }}
-          >
-            정답
-          </button>
-        </div>
-      </>
-
-    )}
-  </>
-
-) : (
-
-  <>
-    {fbt==='ok' && (
-      <div style={{
-        fontSize:'1.1rem',
-        fontWeight:900,
-        color:'#c8a84a',
-        marginBottom:12,
-        textAlign:'center'
-      }}>
-        {m.title}
-      </div>
-    )}
-
-    <button
-      onClick={nextQ}
-      style={{
-        width:'100%',
-        height:46,
-        borderRadius:12,
-        background:'#1a1814',
-        color:'#fff',
-        fontWeight:800,
-        border:'none'
-      }}
-    >
-      {qi+1<pool.length ? '다음 문제 →' : '결과 보기 →'}
-    </button>
-  </>
-)}
-
-  </div>
-</div>
-
-</div>
-
-<style jsx>{`
-
-@keyframes comboPulse {
-
-  0%   { transform: scale(1) }
-
-  50%  { transform: scale(1.06) }  /* 👉 살짝만 키우는게 중요 */
-
-  100% { transform: scale(1) }
-
 }
 
-`}</style>
-
-
-</AppLayout>
-)
-}
-
-<style jsx>{`
-
-  @keyframes hintSlideDown {
-    from {
-      opacity: 0;
-      transform: translateY(-10px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-`}</style>
 
 
 
 
-// ══════════════════════════════════════════
+
+// ══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
 // 화면 4: 결과 화면
-// ══════════════════════════════════════════
+// ══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
+
 if(screen==='result'){
   const safeUsers = Array.isArray(users) ? users : []
   const user = safeUsers.find(u => u.charId === selChar)
@@ -2964,17 +2495,18 @@ if(screen==='result'){
       padding:'12px 0 8px',
     }}>
 
-      {/* 상단 */}
+
+      {/* 상단영역*/}
       <div style={{
       flexShrink:0,
       paddingTop:12,
-      display:'flex',            // 🔥 추가
-      flexDirection:'column',    // 🔥 추가
+      display:'flex',           
+      flexDirection:'column',    
       alignItems:'center' 
-    }}>
+      }}>
         <div style={{
-          width:80,
-          height:80,
+          width:75,
+          height:75,
           borderRadius:'50%',
           background:'#faf9f7',
           border:'2.5px solid #e8e4dd',
@@ -2984,7 +2516,7 @@ if(screen==='result'){
           marginBottom:10
         }}>
           <div onClick={()=>setShowProfile(true)} style={{cursor:'pointer'}}>
-            <svg viewBox="0 0 80 80" style={{width:80,height:80}}>
+            <svg viewBox="0 0 80 80" style={{width:68,height:68}}>
               {char?.svg?.props?.children}
             </svg>
           </div>
@@ -3000,7 +2532,7 @@ if(screen==='result'){
         </div>
 
         <div style={{
-          fontSize:'2.8rem',
+          fontSize:'2.5rem',
           fontWeight:900,
           color:'#1a1814'
         }}>
@@ -3024,8 +2556,7 @@ if(screen==='result'){
               background:'#fff',
               fontSize:'0.7rem',
               cursor:'pointer'
-            }}
-          >
+            }}>
             {resultView === 'score' ? '랭킹 보기' : '점수 보기'}
           </button>
         </div>
@@ -3045,17 +2576,18 @@ if(screen==='result'){
         )}
       </div>
 
-      {/* 결과 리스트 */}
+
+      {/*결과리스트 영역*/}
 
       <div style={{
         padding:'0 20px',
         // 🔥 핵심 1: score 기준 높이 고정
         height: `${Math.min(results.length, 5) * 65}px`,
         // 🔥 핵심 2: ranking은 스크롤만
-        overflowY: resultView === 'ranking' ? 'auto' : 'hidden',
+        overflowY: 'auto',
         WebkitOverflowScrolling:'touch',
         overscrollBehavior:'contain'
-        }}>
+      }}>
 
   {resultView === 'score' ? (
 
