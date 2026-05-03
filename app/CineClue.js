@@ -157,7 +157,7 @@ function CharacterSpinner({ fadeOut }){
       display:'flex',
       alignItems:'center',
       justifyContent:'center',
-      zIndex:9999,
+      zIndex:999,
       opacity: fadeOut ? 0 : 1,
       transition:'opacity 0.5s ease'
 }}>
@@ -683,6 +683,35 @@ const value = {
   color:'#fff'
 
 }
+
+async function fetchAllMovies(){
+
+  const all = []
+  const pageSize = 1000
+  let from = 0
+
+  while(true){
+
+    const { data, error } = await supabase
+      .from('movies')
+      .select('id, title')
+      .range(from, from + pageSize - 1)
+
+    if(error) throw error
+
+    if(!data || data.length === 0) break
+
+    all.push(...data)
+
+    if(data.length < pageSize) break
+
+    from += pageSize
+  }
+
+  return all
+}
+
+
   const [isFlashing, setIsFlashing] = useState(false)
   const [screen,   setScreen]   = useState('intro')
   const [selChar,  setSelChar]  = useState(null)
@@ -737,6 +766,8 @@ const value = {
   const [scorePop, setScorePop] = useState(false)
   const timerRef = useRef(null)
   const [mounted, setMounted] = useState(false)
+  const [suggestions, setSuggestions] = useState([])
+  const [allMovies, setAllMovies] = useState([])
   const UI = {
   surface: '#ffffff',
   border: '#e8e4dd',
@@ -750,6 +781,29 @@ const value = {
 // 화면이 퀴즈로 바뀌거나, 문제 번호(qi)가 바뀔 때
 
 // 현재 문제(pool[qi])에 들어있는 choices를 화면용 choices state에 넣는다.
+
+
+// 자동입력시 전체영화 로딩
+
+useEffect(()=>{
+
+  console.log('🔥 allMovies state:', allMovies.length)
+
+}, [allMovies])
+
+useEffect(()=>{
+
+  if(!supabase) return
+
+  fetchAllMovies().then(data=>{
+
+    console.log('전체 영화 로딩:', data.length)
+
+    setAllMovies(data)
+
+  })
+
+}, [supabase])
 
 
 useEffect(()=>{
@@ -1059,7 +1113,7 @@ const interval = setInterval(()=>{
 
 }, [screen, results, users])
 
-// 🔥🔥🔥 여기 추가하면 된다 🔥🔥🔥
+
 
 useEffect(()=>{
 
@@ -1200,22 +1254,6 @@ const error = null
 
 console.log('🎯 movies 전체 개수:', movies.length)
 
-console.log(
-
-  '🧪 year 원본 샘플:',
-
-  movies.slice(0, 30).map(m => ({
-
-    id: m.id,
-
-    title: m.title,
-
-    year: m.year
-
-  }))
-
-)
-
 if(error){
   console.error(error)
   alert('데이터 오류')
@@ -1231,21 +1269,6 @@ if(!movies || movies.length===0){
 
 // 4️⃣ JS에서 필터
 
-console.log('🔍 year 원본 샘플:', 
-
-  movies.slice(0,30).map(m => ({
-
-    title: m.title,
-
-    year: m.year,
-
-    type: typeof m.year,
-
-    parsed: parseInt(m.year)
-
-  }))
-
-)
 
 const filtered = movies.filter(m => {
 
@@ -1409,6 +1432,7 @@ function updateCombo(correct){
 })
 }
 
+
 // ── 원본 버튼 로직 ──
 async function submit(answerValue){
 
@@ -1459,10 +1483,10 @@ async function submit(answerValue){
         appliedMode = null
 
       }
-
       gained = getPts(appliedMode)
 
       setScore(v => v + gained)
+
 
       setUsers(prev => {
         const updated = prev.map(u => {
@@ -1906,7 +1930,7 @@ if(screen==='char') return(
         display:'flex',
         alignItems:'center',
         justifyContent:'center',
-        zIndex:999
+        zIndex:9999
       }}>
         <div style={{
           width:300,
@@ -2174,62 +2198,39 @@ if(screen==='char') return(
 // ══════════════════════════════════════════
 // 화면 3: 퀴즈
 // ══════════════════════════════════════════
+
 if(screen === 'quiz'){
-
-  // 🔥 하나로 통합 (이게 핵심)
-
   if(loading || !pool || pool.length === 0 || !pool[qi]){
-
     return (
-
       <div style={{
-
         height:'100vh',
-
         display:'flex',
-
         alignItems:'center',
-
         justifyContent:'center',
-
         background:'#fff'
-
       }}>
-
         <CharacterSpinner />
-
       </div>
-
     )
-
   }
 
   // 3️⃣ 여기부터 진짜 퀴즈
   const m = pool[qi]
-  
 
   return (
     <AppLayout>
 
     <div style={{
       width:'100%',
-
       background:'#fff',
-
       display:'flex',
-
       flexDirection:'column',
-
       flex:1,
-
       minHeight:0
-
     }}>
 
       {showSpinner && (
-
       <CharacterSpinner fadeOut={!showSpinner} />
-
     )}
         
       {/* ── 고정 헤더 ── */}
@@ -2242,19 +2243,15 @@ if(screen === 'quiz'){
         zIndex:20 
       }}>
 
-      {/* 1️⃣ 캐릭터 / 점수 라인 */}
-      <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:10}}>
-        <div onClick={()=>
-          setShowProfile(true)} 
-          style={{
-            cursor:'pointer',
-            position:'relative',   // 🔥 추가
-            zIndex:50  
-          }}>
+      {/* 1️⃣ 캐릭터 / 닉네임 영역 */}
+        <div style={{
+          display:'flex',
+          alignItems:'center',
+          gap:10,
+          marginBottom:10
+         }}> 
 
         <CharAvatar charId={selChar} size={34}/>
-        </div>
-
         <span style={{
           fontSize:'0.75rem',
           fontWeight:700,
@@ -2264,328 +2261,223 @@ if(screen === 'quiz'){
           {users.find(u=>u.charId===selChar)?.nickname || 'USER'}
         </span>
 
-        <div style={{display:'flex',alignItems:'center',gap:8}}>
+      {/* 1️⃣ 점수 영역 */}
 
-          {/* 🔥 항상 존재하는 wrapper */}
+        <span style={{
 
-          <div style={{
-            width:36
-
-            }}>
-  </div>
+          fontSize:'0.7rem',
+          fontWeight:800,
+          padding:'4px 10px',
+          borderRadius:20,
+          background: `${g?.color||'#e8808c'}15`,
+          color: g?.color,
+          border:`1px solid ${g?.color||'#e8808c'}30`,
+        }}>
+        {getPts()}pt
+      </span>
       </div>
-  </div>
 
 
-  {/* 2️⃣ 버블힌트 */}
 
-  <div style={{
-    display:'flex',
-    alignItems:'center',
-    gap:6,
-    paddingBottom:12
-  }}>
+        {/* 2️⃣ 버블힌트전체영역 */}
+        <div style={{
+          display:'flex',
+          alignItems:'center',
+          gap:6,
+          paddingBottom:12
+        }}>
 
-  {/* 👇 버블 묶음 영역 */}
+        {/* 👇 버블 묶음 영역 */}
+        <div style={{
+          display:'flex',
+          alignItems:'center',
+          gap:6,            
+          whiteSpace:'nowrap',
+          width:'100%'
+        }}>
 
-  <div style={{
-    display:'flex',
-    alignItems:'center',
-    gap:6,
-    flex:1,              
-    overflow:'hidden',   
-    whiteSpace:'nowrap'
-  }}>
-
-  {/* 문제 번호 */}
-
-  <span style={{
-    fontSize:'0.62rem',
-    fontWeight:700,
-    padding:'3px 9px',
-    borderRadius:20,
-    background:'#f5f3ef',
-    color:'#6b6560',
-    border:'1px solid #e8e4dd',
-    width:42,
-    textAlign:'center',
-    flexShrink:0
-  }}>
-
-      {qi+1}/5
-
-    </span>
-
-    {/* 연도 */}
-
-    {m.year && (
-
-      <span style={{
-
-        fontSize:'0.62rem',
-
-        fontWeight:700,
-
-        padding:'3px 0',
-
-        borderRadius:20,
-
-        background:'#f5a3a3',
-
-        color:'#fff',
-
-        width:48,
-
-        textAlign:'center',
-
-        flexShrink:0
-
-      }}>
-
-        {m.year}
-
-      </span>
-
-    )}
-
-    {/* 국가 */}
-
-    {m.country && (
-
-      <span style={{
-
-        fontSize:'0.62rem',
-
-        fontWeight:700,
-
-        padding:'3px 10px',
-
-        borderRadius:20,
-
-        background:'#e8f0fc',
-
-        color:'#3a6abf',
-
-        border:'1px solid #c0d4f8',
-
-        flexShrink:0   // 🔥 추가
-
-      }}>
-
-        {m.country}
-
-      </span>
-
-    )}
-
-    {/* 장르 */}
-
-    {m.final_genre && (
-
-  <span style={{
-
-    fontSize:'0.62rem',
-
-    fontWeight:700,
-
-    padding:'3px 10px',
-
-    borderRadius:20,
-
-    background:'#e8f5ee',
-
-    color:'#2e8a52',
-
-    border:'1px solid #a8dfc0',
-
-    flexShrink:0
-
-  }}>
-
-    {m.final_genre}
-
-  </span>
-
-)}
-
-    {/* awards */}
-
-    {m.awards && (() => {
-
-      try {
-
-        const arr = JSON.parse(m.awards)
-
-        if (!arr.length) return null
-
-        return (
-
+        {/* 문제 번호 */}
           <span style={{
-
             fontSize:'0.62rem',
-
             fontWeight:700,
-
-            padding:'3px 10px',
-
+            padding:'3px 9px',
             borderRadius:20,
-
-            background:'#fff3e0',
-
-            color:'#cc7a00',
-
-            border:'1px solid #ffd8a8',
-
-            flexShrink:0   // 🔥 추가
-
+            background:'#f5f3ef',
+            color:'#6b6560',
+            border:'1px solid #e8e4dd',
+            width:42,
+            textAlign:'center',
+            flexShrink:0
           }}>
-
-            {arr[0]}
-
+            {qi+1}/5
           </span>
 
-        )
+        {/* 연도 */}
+        {m.year && (
+          <span style={{
+            fontSize:'0.62rem',
+            fontWeight:700,
+            padding:'3px 0',
+            borderRadius:20,
+            background:'#f5a3a3',
+            color:'#fff',
+            width:48,
+            textAlign:'center',
+            flexShrink:0
+          }}>
+            {m.year}
+          </span>
+        )}
 
-      } catch {
+        {/* 국가 */}
+        {m.country && (
+          <span style={{
+            fontSize:'0.62rem',
+            fontWeight:700,
+            padding:'3px 10px',
+            borderRadius:20,
+            background:'#e8f0fc',
+            color:'#3a6abf',
+            border:'1px solid #c0d4f8',
+            flexShrink:0   // 🔥 추가
+          }}>
+            {m.country}
+          </span>
+        )}
 
+        {/* 장르 */}
+        {m.final_genre && (
+          <span style={{
+            fontSize:'0.62rem',
+            fontWeight:700,
+            padding:'3px 10px',
+            borderRadius:20,
+            background:'#e8f5ee',
+            color:'#2e8a52',
+            border:'1px solid #a8dfc0',
+            flexShrink:0
+          }}>
+            {m.final_genre}
+           </span>
+
+        )}
+
+        {/* awards */}
+        {m.awards && (() => {
+          try {
+            const arr = JSON.parse(m.awards)
+            if (!arr.length) return null
+            return (
+            <span style={{
+              fontSize:'0.62rem',
+              fontWeight:700,
+              padding:'3px 10px',
+              borderRadius:20,
+              background:'#fff3e0',
+              color:'#cc7a00',
+              border:'1px solid #ffd8a8',
+              flexShrink:0   // 🔥 추가
+            }}>
+            {arr[0]}
+            </span>
+            )   
+          } catch {
         return null
-
       }
-
     })()}
 
-  </div>
-
-  {/* 👇 점수 (고정 영역) */}
-
-  <span style={{
-
-    fontSize:'0.62rem',
-
-    fontWeight:700,
-
-    padding:'3px 9px',
-
-    borderRadius:20,
-
-    background:`${g?.color||'#e8808c'}15`,
-
-    color:g?.color||'#e8808c',
-
-    border:`1px solid ${g?.color||'#e8808c'}30`,
-
-    flexShrink:0,        // 🔥 추가
-
-    marginLeft:8,         // 🔥 gap 대신 이걸로 띄움
-    transform: scorePop ? 'scale(1.6)' : 'scale(1)',
-
-  transition:'transform 0.4s ease'
-
-  }}>
-
-    {getPts()}pt
-
-  </span>
-
-</div>
-</div>
-
-
-
-  {/* ── 콤보 배너 ── */}
-  {mode && (
-    <div style={{
-      margin:'8px 16px 0',
-      borderRadius:10,
-      position:'relative',
-      overflow:'hidden',
-      padding:'7px 14px',
-      display:'flex',
-      alignItems:'center',
-      justifyContent:'space-between',
-      background:
-        mode==='good'  ? '#fff7e6' :
-        mode==='wow'   ? '#fff0f0' :
-        mode==='crazy' ? '#f3e8ff' : '#fff',
-
-      border: `1px solid ${
-        mode==='good'  ? '#f0c36d' :
-        mode==='wow'   ? '#f0b4b4' :
-        mode==='crazy' ? '#c8a8ff' : '#eee'
-        }`,
-      flexShrink:0
-    }}>
-
-    <div style={{
-      position:'absolute',  
-      inset:0,  
-      borderRadius:10,  
-      zIndex:0, 
-      opacity:0.6,  
-      filter:'blur(10px)',  
-      background: 
-        mode==='good'  ? '#ffe08a' :  
-        mode==='wow'   ? '#ff9e9e' :  
-        mode==='crazy' ? '#b388ff' : 'transparent', 
-      animation:  
-        mode==='good'  ? 'glowPulse 1.2s ease-in-out infinite' :  
-        mode==='wow'   ? 'glowPulse 0.8s ease-in-out infinite' :  
-        mode==='crazy' ? 'glowPulse 0.4s ease-in-out infinite' :  
-        'none'  
-    }}/>
-
-      <span style={{
-        position:'relative',
-        zIndex:1,
-        fontSize:'0.72rem',
-        fontWeight:800,
-        color:
-          mode==='good' ? '#c8a84a' :
-          mode==='wow' ? '#d45c5c' :
-          mode==='crazy' ? '#9b5cff' :
-          '#aaa'
-      }}>
-        {
-          mode==='good' ? '👍 어? 좀 치는데? 이제 시작이다 그대로 달리자 !!':
-          mode==='wow' ? '🔥 미친 상승감!!! 제니퍼 로페즈 아나콘다!! 스스메!! 🔥':
-          mode==='crazy' ? '💀 뇌야 돌아라!! 손아 날아라!! 이건 끝까지 간다!! 💀':
-          ''
-        }
-      </span>
-
-      <span style={{
-        fontSize:'0.68rem',
-        color:
-          mode==='good' ? '#342907' :
-          mode==='wow' ? '#630c0c' :
-          mode==='crazy' ? '#3b1678' :
-          '#aaa'
-      }}>
-        {comboStreak}연속 ×{
-          mode==='good' ? 3 :
-          mode==='wow' ? 4 :
-          mode==='crazy' ? 5 : 1
-        }
-      </span>
     </div>
-  )}
+    </div>
+  </div> 
 
 
+        {/* ── 콤보 배너 ── */}
+        {mode && (
+          <div style={{
+            margin:'8px 16px 0',
+            borderRadius:10,
+            position:'relative',
+            overflow:'hidden',
+            padding:'7px 14px',
+            display:'flex',
+            alignItems:'center',
+            justifyContent:'space-between',
+            background:
+              mode==='good'  ? '#fff7e6' :
+              mode==='wow'   ? '#fff0f0' :
+              mode==='crazy' ? '#f3e8ff' : '#fff',
 
+            border: `1px solid ${
+              mode==='good'  ? '#f0c36d' :
+              mode==='wow'   ? '#f0b4b4' :
+              mode==='crazy' ? '#c8a8ff' : '#eee'
+              }`,
+            flexShrink:0
+          }}>
 
-{quizMode === 'subjective' && (
+          <div style={{
+            position:'absolute',  
+            inset:0,  
+            borderRadius:10,  
+            zIndex:0, 
+            opacity:0.6,  
+            filter:'blur(10px)',  
+            background: 
+              mode==='good'  ? '#ffe08a' :  
+              mode==='wow'   ? '#ff9e9e' :  
+              mode==='crazy' ? '#b388ff' : 'transparent', 
+            animation:  
+              mode==='good'  ? 'glowPulse 1.2s ease-in-out infinite' :  
+              mode==='wow'   ? 'glowPulse 0.8s ease-in-out infinite' :  
+              mode==='crazy' ? 'glowPulse 0.4s ease-in-out infinite' :  
+              'none'  
+          }}/>
 
-  <FlashLetterHint
+            <span style={{
+              position:'relative',
+              zIndex:1,
+              fontSize:'0.72rem',
+              fontWeight:800,
+              color:
+                mode==='good' ? '#c8a84a' :
+                mode==='wow' ? '#d45c5c' :
+                mode==='crazy' ? '#9b5cff' :
+                '#aaa'
+            }}>
+              {
+                mode==='good' ? '👍 어? 좀 치는데? 이제 시작이다 그대로 달리자 !!':
+                mode==='wow' ? '🔥 미친 상승감!!! 제니퍼 로페즈 아나콘다!! 스스메!! 🔥':
+                mode==='crazy' ? '💀 뇌야 돌아라!! 손아 날아라!! 이건 끝까지 간다!! 💀':
+                ''
+              }
+            </span>
 
-    title={m.title}
+            <span style={{
+              fontSize:'0.68rem',
+              color:
+                mode==='good' ? '#342907' :
+                mode==='wow' ? '#630c0c' :
+                mode==='crazy' ? '#3b1678' :
+                '#aaa'
+            }}>
+              {comboStreak}연속 ×{
+                mode==='good' ? 3 :
+                mode==='wow' ? 4 :
+                mode==='crazy' ? 5 : 1
+              }
+            </span>
+          </div>
+        )}
+          
 
-    hintLevel={sh}
+        {quizMode === 'subjective' && (
+          <FlashLetterHint
+            title={m.title}
+            hintLevel={sh}
+            onFlash={setIsFlashing}
+          />
+        )}
 
-    onFlash={setIsFlashing}
-
-  />
-
-)}
 
 {/* ── 스크롤 영역 ── */}
 <div
@@ -2829,6 +2721,7 @@ style={{
 
       <>
         <div style={{
+          position:'relative',
           display:'flex',
           gap:8,
           marginBottom:8
@@ -2836,7 +2729,45 @@ style={{
           <input
             ref={inputRef}
             value={input}
-            onChange={e=>setInput(e.target.value)}
+            onChange={e=>{
+              const v = e.target.value
+              setInput(v)
+
+              console.log(
+
+  allMovies.filter(m => m.title.includes('마리오'))
+
+)
+
+              // 🔥 입력 없으면 초기화
+              if(!v.trim()){
+                setSuggestions([])
+                return
+              }
+
+              // 🔥 전체 영화 아직 로딩 안됐으면 중단
+              if(!allMovies.length) return
+              const keyword = normalize(v)
+              const starts = []
+              const includes = []
+
+              allMovies.forEach(m => {
+                const title = normalize(m.title)
+
+                if(title.startsWith(keyword)){
+                  starts.push(m)
+                } else if(title.includes(keyword)){
+                  includes.push(m)
+                }
+              })
+
+              const filtered = [
+                ...starts.sort((a,b)=>a.title.localeCompare(b.title)),
+                ...includes.sort((a,b)=>a.title.localeCompare(b.title))
+              ].slice(0,5)
+
+              setSuggestions(filtered)
+            }}
             onKeyDown={e=>{
               if(e.key==='Enter'){
                 e.preventDefault()
@@ -2853,6 +2784,69 @@ style={{
               padding:'0 14px'
             }}
           />
+          {suggestions.length > 0 && (
+
+  <div style={{
+
+    position:'absolute',
+
+    left:0,
+
+    right:0,
+
+    top:52,   // input 바로 아래
+
+    background:'#fff',
+
+    border:'1px solid #ddd',
+
+    borderRadius:10,
+
+    overflow:'hidden',
+
+    zIndex:50
+
+  }}>
+
+    {suggestions.map((s, i)=>(
+
+      <div
+
+        key={i}
+
+        onClick={()=>{
+
+          setInput(s.title)
+
+          setSuggestions([])
+          inputRef.current?.focus()
+
+
+        }}
+
+        style={{
+
+          padding:'10px 12px',
+
+          fontSize:'0.8rem',
+
+          borderBottom:'1px solid #eee',
+
+          cursor:'pointer'
+
+        }}
+
+      >
+
+        {s.title}
+
+      </div>
+
+    ))}
+
+  </div>
+
+)}
 
           <button
             onClick={()=>submit()}
@@ -2909,422 +2903,6 @@ style={{
   </div>
 </div>
 
-{/* 🔥 퀴즈화면용 프로필 팝업 */}
-
-
-{showProfile && (
-
-  <div style={{
-
-    position:'fixed',
-
-    inset:0,
-
-    background:'rgba(0,0,0,0.3)',
-
-    display:'flex',
-
-    alignItems:'center',
-
-    justifyContent:'center',
-
-    zIndex:999999
-
-  }}>
-
-    {/* 🔥 스케일 전용 wrapper */}
-
-    <div style={{
-
-      transform:'scale(0.88)',
-
-      transformOrigin:'center center'
-
-    }}>
-
-      {/* 🔥 기존 카드 그대로 */}
-
-      <div style={{
-
-        width:'92vw',
-
-        maxWidth:420,
-
-        background:'#faf9f7',
-
-        borderRadius:20,
-
-        border:'1.5px solid #e8e4dd',
-
-        padding:'20px 16px',
-
-        boxShadow:'0 10px 30px rgba(0,0,0,0.1)',
-
-        position:'relative'
-
-      }}>
-
-      {/* ❌ X 버튼 */}
-      <div
-        onClick={()=>setShowProfile(false)}
-        style={{
-          position:'absolute',
-          top:12,
-          right:12,
-          width:30,
-          height:30,
-          borderRadius:'50%',
-          background:'#f5f3ef',
-          border:'1px solid #e8e4dd',
-          display:'flex',
-          alignItems:'center',
-          justifyContent:'center',
-          cursor:'pointer'
-        }}
-      >
-        <span style={{color:'#1a1814',fontSize:16,fontWeight:700}}>×</span>
-      </div>
-
-      {/* 🔥 상단 텍스트 (우선순위 변경) */}
-      <div style={{textAlign:'center', marginBottom:14}}>
-
-        <div style={{
-          fontSize:'0.9rem',
-          
-          color:'#ff6b7a'
-        }}>
-          SF액션
-        </div>
-
-        <div style={{
-          fontSize:'1.4rem',
-          fontWeight:900,
-          color:'#1a1814',
-          marginTop:4
-        }}>
-          총소리 놀람이
-        </div>
-
-        <div style={{
-          fontSize:'0.7rem',
-          color:'#888',
-          marginTop:6
-        }}>
-          나나나
-        </div>
-
-      </div>
-
-      {/* 🔥 캐릭터 이미지 (핵심) */}
-      <div style={{
-
-  width:'100%',
-
-  display:'flex',
-
-  justifyContent:'center',
-
-  marginBottom:14
-
-}}>
-
-  <div style={{
-
-    width:'100%',
-
-    maxWidth:320   // 🔥 핵심 (Lv 영역과 맞춤)
-
-  }}>
-
-    <img
-
-      src="/sadako_full.png"
-
-      alt="character"
-
-      style={{
-
-        width:'100%',
-
-        height:140,
-
-        objectFit:'contain'
-
-      }}
-
-    />
-
-  </div>
-
-</div>
-
-      {/* 🔥 레벨 */}
-      <div style={{marginBottom:14}}>
-
-        <div style={{
-          fontSize:'1.2rem',
-          fontWeight:800,
-          color:'#1a1814'
-        }}>
-          Lv. 20
-        </div>
-
-        <div style={{
-          height:6,
-          background:'#eee',
-          borderRadius:10,
-          marginTop:6
-        }}>
-          <div style={{
-            width:'80%',
-            height:'100%',
-            background:'#ff6b7a'
-          }}/>
-        </div>
-
-        <div style={{
-          fontSize:'0.65rem',
-          color:'#888',
-          textAlign:'right',
-          marginTop:4
-        }}>
-          2,450 / 3,000 EXP
-        </div>
-
-      </div>
-
-      {/* 🔥 그래프 */}
-      <div style={{
-        display:'flex',
-        justifyContent:'center',
-        margin:'14px 0'
-      }}>
-
-      {(() => {
-
-  const genres = [
-    {name:'애니', value:50},
-    {name:'SF', value:60},
-    {name:'SF액션', value:85},
-    {name:'SF공포', value:70},
-    {name:'판타지', value:55},
-    {name:'판타지액션', value:65},
-    {name:'공포', value:90},
-    {name:'미스터리', value:65},
-    {name:'액션', value:70},
-    {name:'코미디', value:30},
-    {name:'로맨스', value:40},
-    {name:'드라마', value:45}
-  ]
-
-  const cx = 100
-  const cy = 100
-  const radius = 70
-
-  const points = genres.map((g,i)=>{
-
-  const angle = (Math.PI*2/genres.length)*i - Math.PI/2
-
-  const cos = Math.cos(angle)
-
-  const sin = Math.sin(angle)
-
-  const r = (g.value/100) * radius
-
-  // 🔥 각도별 거리 보정 (핵심)
-
-  let labelRadius = radius + 26
-
-  // 👉 좌우(가로) 쪽은 더 멀리
-
-  if(Math.abs(cos) > 0.7){
-
-    labelRadius = radius + 34
-
-  }
-
-  // 👉 대각선은 조금 더
-
-  if(Math.abs(cos) > 0.3 && Math.abs(cos) < 0.7){
-
-    labelRadius = radius + 30
-
-  }
-
-  return {
-
-    x: cx + cos*r,
-
-    y: cy + sin*r,
-
-    labelX: cx + cos*labelRadius,
-
-    labelY: cy + sin*labelRadius,
-
-    valueX: cx + cos*(radius+10),
-
-    valueY: cy + sin*(radius+10),
-
-    anchor:
-
-      cos > 0.3 ? 'start' :
-
-      cos < -0.3 ? 'end' :
-
-      'middle',
-
-    dy:
-
-      sin > 0.6 ? '1em' :
-
-      sin < -0.6 ? '-0.4em' :
-
-      '0.35em',
-
-    name:g.name,
-
-    value:g.value
-
-  }
-
-})
-
-  const polygonPoints = points.map(p=>`${p.x},${p.y}`).join(' ')
-
-  return (
-    <svg width="220" height="220">
-
-      <defs>
-        <filter id="glow">
-          <feGaussianBlur stdDeviation="2"/>
-        </filter>
-      </defs>
-
-      {/* 🔥 원형 grid */}
-      {[0.25,0.5,0.75,1].map((r,i)=>(
-        <circle
-          key={i}
-          cx={cx}
-          cy={cy}
-          r={radius*r}
-          stroke="rgba(0,0,0,0.08)"
-          fill="rgba(232,128,140,0.25)"
-        />
-      ))}
-
-      {/* 🔥 축 */}
-      {points.map((p,i)=>(
-        <line
-          key={i}
-          x1={cx}
-          y1={cy}
-          x2={p.labelX}
-          y2={p.labelY}
-          stroke="rgba(0,0,0,0.08)"
-        />
-      ))}
-
-      {/* 🔥 데이터 영역 */}
-      <polygon
-        points={polygonPoints}
-        fill="rgba(255,107,122,0.35)"
-        stroke="#ff6b7a"
-        strokeWidth="2"
-        filter="url(#glow)"
-      />
-
-      {/* 🔥 점 */}
-      {points.map((p,i)=>(
-        <circle
-          key={i}
-          cx={p.x}
-          cy={p.y}
-          r="3"
-          fill="#ff6b7a"
-        />
-      ))}
-
-      {/* 🔥 장르명 */}
-      {points.map((p,i)=>(
-        <text
-          key={i}
-          x={p.labelX}
-          y={p.labelY}
-          fill="#555"
-          fontSize="9"
-          textAnchor="middle"
-          alignmentBaseline="middle"
-        >
-          {p.name}
-        </text>
-      ))}
-
-      {/* 🔥 수치 */}
-      {points.map((p,i)=>(
-        <text
-          key={i}
-          x={p.valueX}
-          y={p.valueY}
-          fill="#ff6b7a"
-          fontSize="10"
-          fontWeight="700"
-          textAnchor="middle"
-        >
-          {p.value}
-        </text>
-      ))}
-
-    </svg>
-  )
-
-})()}
-
-      </div>
-
-      {/* 🔥 하단 */}
-      <div style={{
-        display:'grid',
-        gridTemplateColumns:'1fr 1fr',
-        gap:8,
-        marginTop:10
-      }}>
-
-        {[
-          ['총 점수','12,450'],
-          ['플레이 시간','48h 30m'],
-          ['선호 장르','SF액션, 공포'],
-          ['최근 플레이','2024.05.20']
-        ].map(([k,v],i)=>(
-          <div key={i} style={{
-            background:'rgba(255,255,255,0.05)',
-            border:'1px solid rgba(255,255,255,0.1)',
-            borderRadius:10,
-            padding:'8px'
-          }}>
-            <div style={{
-              fontSize:'0.6rem',
-              color:'#888',
-              marginBottom:2
-            }}>
-              {k}
-            </div>
-            <div style={{
-              fontSize:'0.8rem',
-              fontWeight:700,
-              color:'#1a1814'
-            }}>
-              {v}
-            </div>
-          </div>
-        ))}
-
-      </div>
-
-    </div>
-  </div>
-  </div>
-)}
-
 </div>
 
 <style jsx>{`
@@ -3340,6 +2918,8 @@ style={{
 }
 
 `}</style>
+
+
 </AppLayout>
 )
 }
@@ -3933,7 +3513,7 @@ if(screen==='result'){
           display:'flex',
           alignItems:'center',
           justifyContent:'center',
-          zIndex:999999
+          zIndex:99
         }}>
 
           <div style={{

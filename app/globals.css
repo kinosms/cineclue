@@ -158,3 +158,37 @@ input { font-family: inherit; outline: none; }
   100% { opacity:0.3; transform: scale(0.95); }
 
 }
+
+@keyframes scoreSmoke {
+
+  0% {
+
+    opacity:0;
+
+    transform: scale(0.6);
+
+    filter: blur(6px);
+
+  }
+
+  30% {
+
+    opacity:1;
+
+    transform: scale(1.1);
+
+    filter: blur(0);
+
+  }
+
+  100% {
+
+    opacity:0;
+
+    transform: scale(1);
+
+    filter: blur(2px);
+
+  }
+
+}
