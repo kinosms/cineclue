@@ -720,6 +720,7 @@ export default function CineClue()  {
   const [mounted, setMounted] = useState(false)
   const [suggestions, setSuggestions] = useState([])
   const [allMovies, setAllMovies] = useState([])
+  const [showAnswers, setShowAnswers] = useState(false)
   const UI = {
   surface: '#ffffff',
   border: '#e8e4dd',
@@ -856,6 +857,11 @@ export default function CineClue()  {
       }
       return [...prev, id]
     })
+  }
+
+
+  function handleShowAnswers(){
+    setShowAnswers(true)
   }
 
 
@@ -1388,6 +1394,7 @@ function nextQ(){
 
   setProgress(0)
   setButtonActive(false)
+  setShowAnswers(false) 
 
   if(qi + 1 >= pool.length){
     setScreen('result')
@@ -2015,8 +2022,12 @@ if(screen === 'quiz'){
                     borderRadius:20,
                     background:'#fff3e0',
                     color:'#cc7a00',
-                    border:'1px solid #ffd8a8',
-                    flexShrink:0  
+                    border:'1px solid #ffd8a8',  
+                    whiteSpace:'nowrap',          
+                    overflow:'hidden',            
+                    textOverflow:'ellipsis',
+                    flexShrink:1,
+                    maxWidth:120
                   }}>
                     {arr[0]}
                   </span>
@@ -2403,6 +2414,7 @@ if(screen === 'quiz'){
                               background:'#e8808c',
                               color:'#fff',
                               fontWeight:700,
+                              fontSize:'0.8rem',
                               border:'none'
                             }}>
                               정답
@@ -2485,6 +2497,17 @@ if(screen==='result'){
   const tot = baseScore + roundScore
   const nickname = user?.nickname || 'USER'
   const currentGrade = selGrades?.[0]
+  const hasFail = results.some(r => !r.correct)
+  const ranked = ranking.map((r, i) => {
+    if(i === 0){
+      return { ...r, rank: 1 }
+    }
+    const prev = ranking[i-1]
+    if(r.score === prev.score){
+      return { ...r, rank: ranked[i-1].rank }
+    }
+    return { ...r, rank: i + 1 }
+  })
 
   return(
     <AppLayout>
@@ -2506,6 +2529,8 @@ if(screen==='result'){
       flexDirection:'column',    
       alignItems:'center' 
       }}>
+
+        
         <div style={{
           width:75,
           height:75,
@@ -2578,9 +2603,79 @@ if(screen==='result'){
         )}
       </div>
 
+    
+{/* 🔥 결과 전체 wrapper */}
+
+<div style={{ position:'relative' }}>
+
+  {/* 🔥 버튼 */}
+
+  {resultView === 'score' && hasFail && !showAnswers && (
+
+    <button
+
+      onClick={handleShowAnswers}
+
+      disabled={showAnswers}
+
+      style={{
+
+        position:'absolute',
+
+        top:-30,
+
+        left:20,
+
+        zIndex:20,
+
+        display:'flex',
+
+        alignItems:'center',
+
+        gap:6,
+
+        fontSize:'0.7rem',
+
+        padding:'6px 10px',
+
+        borderRadius:8,
+
+        border:'none',
+
+        background: '#e8808c',
+
+        color:'#ffffff' ,
+
+        fontWeight:700
+
+      }}
+    >
+        정답보기
+      <span style={{
+
+        fontSize:'0.35rem',
+
+        padding:'2px 5px',
+
+        borderRadius:6,
+
+        background:'#ffffff',
+
+        color:'#252525'
+
+      }}>
+
+        AD
+
+      </span>
+
+      
+
+    </button>
+
+  )}
 
       {/*결과리스트 영역*/}
-
       <div style={{
         padding:'0 20px',
         // 🔥 핵심 1: score 기준 높이 고정
@@ -2590,6 +2685,7 @@ if(screen==='result'){
         WebkitOverflowScrolling:'touch',
         overscrollBehavior:'contain'
       }}>
+
 
   {resultView === 'score' ? (
 
@@ -2671,15 +2767,24 @@ if(screen==='result'){
 
   fontWeight:700,
 
-  color:r.correct ? '#1a1814' : '#c0bbb4',
+  color: (r.correct || showAnswers) ? '#1a1814' : '#c0bbb4',
 
   lineHeight:1.25,
 
   wordBreak:'keep-all'
 
 }}>
+  {r.correct 
 
-              {r.correct ? r.title : '실패'}
+  ? r.title 
+
+  : showAnswers 
+
+    ? r.title
+
+    : '실패'
+
+}
 
             </div>
 
@@ -2753,9 +2858,9 @@ if(screen==='result'){
 
     {(() => {
 
-      const safeRanking = Array.isArray(ranking) ? ranking : []
+      const safeRanking = Array.isArray(ranked) ? ranked : []
       const safeUsers = Array.isArray(users) ? users : []
-      const TOP_LIMIT = 15
+      const TOP_LIMIT = 10
 
       const myRankIndex = safeRanking.findIndex(
         r => r.character_id === selChar
@@ -2812,7 +2917,7 @@ if(screen==='result'){
                     fontSize:'0.65rem',
                     fontWeight:800
                   }}>
-                    {i+1}위
+                    {r.rank}위
                   </span>
                 </div>
 
@@ -2827,14 +2932,32 @@ if(screen==='result'){
                   }}/>
                 )}
 
-                <div style={{flex:1}}>
+                <div style={{
+
+  flex:1,
+
+  minWidth:0   // 🔥 이거 추가 (핵심)
+
+}}>
                   <div style={{
-                    fontSize:'0.8rem',
-                    fontWeight:700,
-                    color: r
-                      ? isDead ? '#b0aaa3' : '#1a1814'
-                      : '#c0bbb4'
-                  }}>
+
+  fontSize:'0.8rem',
+
+  fontWeight:700,
+
+  color: r
+
+    ? isDead ? '#b0aaa3' : '#1a1814'
+
+    : '#c0bbb4',
+
+  overflow:'hidden',           // 🔥 추가
+
+  textOverflow:'ellipsis',     // 🔥 추가
+
+  whiteSpace:'nowrap'          // 🔥 추가
+
+}}>
                     {r
                       ? isDead
                         ? `${r.nickname || char?.name || 'UNKNOWN'} 💀`
@@ -2847,7 +2970,8 @@ if(screen==='result'){
                 <div style={{
                   fontSize:'0.85rem',
                   fontWeight:800,
-                  color: r ? '#1a1814' : '#c0bbb4'
+                  color: r ? '#1a1814' : '#c0bbb4',
+                  whiteSpace:'nowrap'
                 }}>
                   {r ? r.score : 0}
                 </div>
@@ -2909,11 +3033,19 @@ if(screen==='result'){
 
   <div style={{
 
-    fontSize:'0.85rem',
+  fontSize:'0.85rem',
 
-    fontWeight:700,
+  fontWeight:700,
 
-    flex:1
+  flex:1,
+
+  minWidth:0,
+
+  overflow:'hidden',
+
+  textOverflow:'ellipsis',
+
+  whiteSpace:'nowrap'
 
   }}>
 
@@ -2925,7 +3057,8 @@ if(screen==='result'){
 
     fontSize:'0.9rem',
 
-    fontWeight:900
+    fontWeight:900,
+    whiteSpace:'nowrap'
 
   }}>
 
@@ -2943,7 +3076,7 @@ if(screen==='result'){
   </>
 
 )}
-
+</div>
 </div>
 
       {/* 하단 버튼 */}
@@ -3340,6 +3473,7 @@ if(screen==='result'){
 
             </div>
           </div>
+          
         </div>
       )}
 
