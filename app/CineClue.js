@@ -741,6 +741,12 @@ export default function CineClue()  {
 
 
   useEffect(()=>{
+    setSuggestions([])
+    setInput('')
+  }, [qi])
+
+
+  useEffect(()=>{
     if(screen !== 'quiz') return
     if(quizMode !== 'objective') return
     if(!pool[qi]) return
