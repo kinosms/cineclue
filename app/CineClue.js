@@ -720,7 +720,6 @@ export default function CineClue()  {
   const skipTime = 30; // 30초에 자동 실행
   const [buttonActive, setButtonActive] = useState(false);
   const [scoreFlash, setScoreFlash] = useState(false)
-  const [scorePop, setScorePop] = useState(false)
   const timerRef = useRef(null)
   const [mounted, setMounted] = useState(false)
   const [suggestions, setSuggestions] = useState([])
@@ -1297,17 +1296,14 @@ export default function CineClue()  {
           genre: m.final_genre || '',
           grade: primaryGrade
         }])
-        setFb(`정답! +${gained}점`)
+        setFb(`정답! 이번 문제가 좀 쉬웠죠`)
         setFbt('ok')
         setAnswered(true)
         setScoreFlash(true)
         setTimeout(() => {
           setScoreFlash(false)
         }, 300)
-        setScorePop(true)
-        setTimeout(() => {
-          setScorePop(false)
-        }, 500)
+
       } else {
         // 객관식: 첫 오답 클릭이면 콤보 해제
         if(quizMode === 'objective' && wrongCount === 0){
@@ -2097,6 +2093,14 @@ export default function CineClue()  {
         // 퀴즈화면 pool 선언 후 시작
         const m = pool[qi]
 
+        const basePoint = Math.round(BP * ({
+          1: 1.0,
+          2: 0.8,
+          3: 0.6,
+          4: 0.4,
+          5: 0.2
+        }[sh] || 0))
+
         return (
           <AppLayout>
             <div style={{
@@ -2116,90 +2120,110 @@ export default function CineClue()  {
               <div style={{
                 background:'#fff',
                 borderBottom:'1px solid #f0ece6',
-                padding:'14px 20px 4px',
+                padding:'14px 20px 10px',
                 flexShrink:0,
                 position:'relative',
                 zIndex:20 
               }}>
 
-                {/* 1️⃣ 캐릭터 / 포인트 영역 */}
-                <div style={{position:'relative', width:42, height:42}}>
+                {/* 1️⃣ 상단 1줄 */}
+                <div style={{
+                  display:'flex',
+                  alignItems:'center',
+                  width:'100%',
+                  marginBottom:6
+                }}>
 
-                  {/* 🔥 life 변화 표시 (추가) */}
-                  {lifeDelta !== null && (
+                  {/* 1️⃣ 캐릭터 / 포인트 영역 */}
+                  <div style={{position:'relative', width:42, height:42}}>
+
+                    {/* 🔥 life 변화 표시 (추가) */}
+                    {lifeDelta !== null && (
+                      <div style={{
+                        position:'absolute',
+                        top:-6,
+                        right:-6,
+                        fontSize:'0.7rem',
+                        fontWeight:900,
+                        padding:'2px 6px',
+                        borderRadius:10,
+                        color:
+                          lifeDelta === -1 ? '#ff3b3b' :
+                          lifeDelta === 5 ? '#4caf50' :
+                          '#434343',
+                        animation:'popLife 0.8s ease forwards',
+                        pointerEvents:'none',
+                        zIndex:10,
+                        textShadow:'0 1px 2px rgba(0,0,0,0.35)'
+                      }}>
+                        {lifeDelta > 0 ? `+${lifeDelta}` : lifeDelta}
+                      </div>
+                    )}
+
+                    {/* 목숨 링 */}
+                    <svg width="42" height="42" style={{
+                      position:'absolute',
+                      top:0,
+                      left:0
+                    }}>
+                      {/* 배경 */}
+                      <circle
+                        cx="21"
+                        cy="21"
+                        r="18"
+                        stroke="#eee"
+                        strokeWidth="5"
+                        fill="none"
+                      />
+                      {/* 🔥 실제 게이지 + 깜빡임 (하나로 합침) */}
+                      <circle
+                        cx="21"
+                        cy="21"
+                        r="18"
+                        stroke={lives <= 3 ? '#ff3b3b' : '#4caf50'}
+                        strokeWidth="5"
+                        fill="none"
+                        strokeDasharray={113}
+                        strokeDashoffset={113 * (1 - lives / 30)}
+                        strokeLinecap="round"
+                        style={{
+                          transition:'all 0.3s ease',
+                          animation: lives <= 3 ? 'blinkRed 0.8s infinite' : 'none'
+                        }}
+                      />
+                    </svg>
+                    {/* 🔥 캐릭터 (중앙 정렬 핵심) */}
                     <div style={{
                       position:'absolute',
-                      top:-6,
-                      right:-6,
-                      fontSize:'0.7rem',
-                      fontWeight:900,
-                      padding:'2px 6px',
-                      borderRadius:10,
-                      color:
-                        lifeDelta === -1 ? '#ff3b3b' :
-                        lifeDelta === 5 ? '#4caf50' :
-                        '#434343',
-                      animation:'popLife 0.8s ease forwards',
-                      pointerEvents:'none',
-                      zIndex:10,
-                      textShadow:'0 1px 2px rgba(0,0,0,0.35)'
+                      top:'50%',
+                      left:'50%',
+                      transform:'translate(-50%, -50%)'
                     }}>
-                      {lifeDelta > 0 ? `+${lifeDelta}` : lifeDelta}
+                      <CharAvatar charId={selChar} size={34}/>
                     </div>
-                  )}
+                  </div>
 
-                  {/* 목숨 링 */}
-                  <svg width="42" height="42" style={{
-                    position:'absolute',
-                    top:0,
-                    left:0
+                  {/* 닉네임 */}
+                  <span style={{
+                    fontSize:'0.75rem',
+                    fontWeight:700,
+                    color:'#1a1814',
+                    flex:1,
+                    marginLeft:8
                   }}>
-                    {/* 배경 */}
-                    <circle
-                      cx="21"
-                      cy="21"
-                      r="18"
-                      stroke="#eee"
-                      strokeWidth="3"
-                      fill="none"
-                    />
-                    {/* 🔥 실제 게이지 + 깜빡임 (하나로 합침) */}
-                    <circle
-                      cx="21"
-                      cy="21"
-                      r="18"
-                      stroke={lives <= 3 ? '#ff3b3b' : '#4caf50'}
-                      strokeWidth="3"
-                      fill="none"
-                      strokeDasharray={113}
-                      strokeDashoffset={113 * (1 - lives / 30)}
-                      strokeLinecap="round"
-                      style={{
-                        transition:'all 0.3s ease',
-                        animation: lives <= 3 ? 'blinkRed 0.8s infinite' : 'none'
-                      }}
-                    />
-                  </svg>
-                  {/* 🔥 캐릭터 (중앙 정렬 핵심) */}
+                    {users.find(u=>u.charId===selChar)?.nickname || 'USER'}
+                  </span>
+
+                  {/* 퀴즈점수 */}
                   <div style={{
-                    position:'absolute',
-                    top:'50%',
-                    left:'50%',
-                    transform:'translate(-50%, -50%)'
+                    fontSize:'0.9rem',
+                    fontWeight:900,
+                    color:'#ff6b7a',
+                    whiteSpace:'nowrap'
                   }}>
-                    <CharAvatar charId={selChar} size={34}/>
+                    {basePoint}pt
                   </div>
                 </div>
-
-                {/* 닉네임 */}
-                <span style={{
-                  fontSize:'0.75rem',
-                  fontWeight:700,
-                  color:'#1a1814',
-                  flex:1
-                }}>
-                  {users.find(u=>u.charId===selChar)?.nickname || 'USER'}
-                </span>
 
                 {/* 2️⃣ 버블영역 */}
                 <div style={{
