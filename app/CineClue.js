@@ -590,6 +590,9 @@ async function loadRanking({ supabase }){
 
 
 
+
+
+
 function CharAvatar({charId,size=40}){
   const c=CHARS.find(x=>x.id===charId)
   if(!c) return <div style={{width:size,height:size,borderRadius:'50%',background:'#f0eeea',border:'1.5px solid #e0dcd4'}}/>
@@ -723,6 +726,7 @@ export default function CineClue()  {
   const [suggestions, setSuggestions] = useState([])
   const [allMovies, setAllMovies] = useState([])
   const [showAnswers, setShowAnswers] = useState(false)
+  const [deathMessage, setDeathMessage] = useState(false)
   const UI = {
   surface: '#ffffff',
   border: '#e8e4dd',
@@ -850,6 +854,16 @@ export default function CineClue()  {
     }
     return options
   }
+
+
+  function triggerDeath(){
+  setDeathMessage(true)   // 👉 화면 띄우기
+  setTimeout(()=>{
+    setDeathMessage(false)
+    setSelChar(null)
+    setScreen('char')     // 👉 캐릭터 선택으로 이동
+  }, 3500)
+}
 
 
   function toggleGrade(id){
@@ -993,8 +1007,6 @@ export default function CineClue()  {
     if(target){
       // 👉 죽은 캐릭터 → 부활 팝업
       if(target?.isDead){
-        setReviveTarget(charId)
-        setShowRevive(true)
         return
       }
       // 👉 살아있는 캐릭터 → 선택
@@ -1345,6 +1357,10 @@ export default function CineClue()  {
       const updated = prev.map(u => {
         if(u.charId === selChar){
           const nextLives = (u.lives ?? 30) - 1
+
+          if(nextLives <= 0){
+            triggerDeath()   // 👉 사망 처리 함수 호출
+          }
           return {
             ...u,
             lives: Math.max(nextLives, 0),
@@ -1564,7 +1580,7 @@ export default function CineClue()  {
                     opacity: u?.isDead ? 0.45 : 1,
                     filter: u?.isDead ? 'grayscale(100%)' : 'none',
                   }}>
-                    {sel && (
+                    {sel && !u?.isDead && (
                       <div style={{
                         position:'absolute',
                         top:8,
@@ -1653,7 +1669,7 @@ export default function CineClue()  {
                           top:8,
                           left:8,
                           fontSize:11,
-                          background:'#ffa8a8',
+                          background: u.isDead ? '#e8808c' : '#b8b4ae',
                           color:'#ffffff',
                           borderRadius:6,
                           padding:'2px 6px',
@@ -1984,107 +2000,58 @@ export default function CineClue()  {
             {/* 1️⃣ 캐릭터 / 포인트 영역 */}
             <div style={{position:'relative', width:42, height:42}}>
 
-    {/* 목숨 링 */}
+              {/* 목숨 링 */}
+              <svg width="42" height="42" style={{
+                position:'absolute',
+                top:0,
+                left:0
+              }}>
+                {/* 배경 */}
+                <circle
+                  cx="21"
+                  cy="21"
+                  r="18"
+                  stroke="#eee"
+                  strokeWidth="3"
+                  fill="none"
+                />
+                {/* 🔥 실제 게이지 + 깜빡임 (하나로 합침) */}
+                <circle
+                  cx="21"
+                  cy="21"
+                  r="18"
+                  stroke={lives <= 3 ? '#ff3b3b' : '#4caf50'}
+                  strokeWidth="3"
+                  fill="none"
+                  strokeDasharray={113}
+                  strokeDashoffset={113 * (1 - lives / 30)}
+                  strokeLinecap="round"
+                  style={{
+                    transition:'all 0.3s ease',
+                    animation: lives <= 3 ? 'blinkRed 0.8s infinite' : 'none'
+                  }}
+                />
+              </svg>
+              {/* 🔥 캐릭터 (중앙 정렬 핵심) */}
+              <div style={{
+                position:'absolute',
+                top:'50%',
+                left:'50%',
+                transform:'translate(-50%, -50%)'
+              }}>
+                <CharAvatar charId={selChar} size={34}/>
+              </div>
+            </div>
 
-    <svg width="42" height="42" style={{
-
-      position:'absolute',
-
-      top:0,
-
-      left:0
-
-    }}>
-
-      {/* 배경 */}
-
-      <circle
-
-        cx="21"
-
-        cy="21"
-
-        r="18"
-
-        stroke="#eee"
-
-        strokeWidth="3"
-
-        fill="none"
-
-      />
-
-  {/* 🔥 실제 게이지 + 깜빡임 (하나로 합침) */}
-
-  <circle
-
-    cx="21"
-
-    cy="21"
-
-    r="18"
-
-    stroke={lives <= 3 ? '#ff3b3b' : '#4caf50'}
-
-    strokeWidth="3"
-
-    fill="none"
-
-    strokeDasharray={113}
-
-    strokeDashoffset={113 * (1 - lives / 30)}
-
-    strokeLinecap="round"
-
-    style={{
-
-      transition:'all 0.3s ease',
-
-      animation: lives <= 3 ? 'blinkRed 0.8s infinite' : 'none'
-
-    }}
-
-  />
-
-    </svg>
-
-    {/* 🔥 캐릭터 (중앙 정렬 핵심) */}
-
-  <div style={{
-
-    position:'absolute',
-
-    top:'50%',
-
-    left:'50%',
-
-    transform:'translate(-50%, -50%)'
-
-  }}>
-
-    <CharAvatar charId={selChar} size={34}/>
-
-  </div>
-
-</div>
-
-   {/* 닉네임 */}
-
-  <span style={{
-
-    fontSize:'0.75rem',
-
-    fontWeight:700,
-
-    color:'#1a1814',
-
-    flex:1
-
-  }}>
-
-    {users.find(u=>u.charId===selChar)?.nickname || 'USER'}
-
-  </span>
+            {/* 닉네임 */}
+            <span style={{
+              fontSize:'0.75rem',
+              fontWeight:700,
+              color:'#1a1814',
+              flex:1
+            }}>
+              {users.find(u=>u.charId===selChar)?.nickname || 'USER'}
+            </span>
 
             {/* 2️⃣ 버블영역 */}
             <div style={{
@@ -2664,778 +2631,817 @@ export default function CineClue()  {
     })
 
     return(
-      <AppLayout>
-        <div style={{
-          height:'100dvh',
-          overflow:'hidden',
-          background:'#fff',
-          display:'flex',
-          flexDirection:'column',
-          padding:'12px 0 8px',
-        }}>
-
-          {/* 상단영역*/}
+      <>
+        {deathMessage && (
           <div style={{
-          flexShrink:0,
-          paddingTop:12,
-          display:'flex',           
-          flexDirection:'column',    
-          alignItems:'center' 
+            position:'fixed',
+            top:0,
+            left:0,
+            width:'100%',
+            height:'100%',
+            background:'rgba(0,0,0,0.85)',
+            display:'flex',
+            alignItems:'center',
+            justifyContent:'center',
+            zIndex:9999
+          }}>
+            <div className="typingText">
+              Hasta la Vista Baby...
+            </div>
+
+            <style>{`
+              .typingText {
+              font-size: 2rem;
+              font-weight: 900;
+              color: #fff;
+              text-align: center;
+              opacity: 0;
+              transform: translateY(10px);
+              animation: fadeUp 1.8s ease forwards;   
+            }
+
+            @keyframes fadeUp {
+              to {
+                opacity: 1;
+                transform: translateY(0);
+              }
+            }
+            `}</style>
+          </div>
+        )}
+        <AppLayout>
+          <div style={{
+            height:'100dvh',
+            overflow:'hidden',
+            background:'#fff',
+            display:'flex',
+            flexDirection:'column',
+            padding:'12px 0 8px',
           }}>
 
+            {/* 상단영역*/}
             <div style={{
-              width:75,
-              height:75,
-              borderRadius:'50%',
-              background:'#faf9f7',
-              border:'2.5px solid #e8e4dd',
-              display:'flex',
-              alignItems:'center',
-              justifyContent:'center',
-              marginBottom:10
+            flexShrink:0,
+            paddingTop:12,
+            display:'flex',           
+            flexDirection:'column',    
+            alignItems:'center' 
             }}>
-              <div onClick={()=>setShowProfile(true)} style={{cursor:'pointer'}}>
-                <svg viewBox="0 0 80 80" style={{width:68,height:68}}>
-                  {char?.svg?.props?.children}
-                </svg>
+
+              <div style={{
+                width:75,
+                height:75,
+                borderRadius:'50%',
+                background:'#faf9f7',
+                border:'2.5px solid #e8e4dd',
+                display:'flex',
+                alignItems:'center',
+                justifyContent:'center',
+                marginBottom:10
+              }}>
+                <div onClick={()=>setShowProfile(true)} style={{cursor:'pointer'}}>
+                  <svg viewBox="0 0 80 80" style={{width:68,height:68}}>
+                    {char?.svg?.props?.children}
+                  </svg>
+                </div>
               </div>
-            </div>
 
-            <div style={{
-              fontSize:'0.8rem',
-              fontWeight:700,
-              color:'#1a1814',
-              marginBottom:6
-            }}>
-              {nickname}
-            </div>
-
-            <div style={{
-              fontSize:'2.5rem',
-              fontWeight:900,
-              color:'#1a1814'
-            }}>
-              {(displayScore || 0).toLocaleString()}점
-            </div>
-
-            <div style={{
-              marginTop:10,
-              marginBottom:18,
-              display:'flex',
-              justifyContent:'center'
-            }}>
-              <button
-                onClick={()=>{
-                  setResultView(prev => prev === 'score' ? 'ranking' : 'score')
-                }}
-                style={{
-                  padding:'6px 12px',
-                  borderRadius:20,
-                  border:'1px solid #ddd',
-                  background:'#fff',
-                  fontSize:'0.8rem',
-                  cursor:'pointer'
-                }}>
-                {resultView === 'score' ? '랭킹 보기' : '점수 보기'}
-              </button>
-            </div>
-
-            {isLevelCompleted && (
               <div style={{
                 fontSize:'0.8rem',
-                color:'#888',
-                marginTop:6
+                fontWeight:700,
+                color:'#1a1814',
+                marginBottom:6
               }}>
-                {currentGrade === '2020s' && '2020년대 레벨을 완료하였습니다'}
-                {currentGrade === '2010s' && '2010년대 레벨을 완료하였습니다'}
-                {currentGrade === '2000s' && '2000년대 레벨을 완료하였습니다'}
-                {currentGrade === '1990s' && '1990년대 레벨을 완료하였습니다'}
-                {currentGrade === 'old' && '오래전 영화 레벨을 완료하였습니다'}
+                {nickname}
               </div>
-            )}
-          </div>
 
-      
-          {/* 🔥 결과 전체 wrapper */}
-          <div style={{ position:'relative' }}>
-            {/* 🔥 버튼 */}
-            {resultView === 'score' && hasFail && !showAnswers && (
-              <button
-                onClick={handleShowAnswers}
-                disabled={showAnswers}
-                style={{
-                  position:'absolute',
-                  top:-30,
-                  left:20,
-                  zIndex:20,
-                  display:'flex',
-                  alignItems:'center',
-                  gap:6,
-                  fontSize:'0.7rem',
-                  padding:'6px 10px',
-                  borderRadius:8,
-                  border:'none',
-                  background: '#e8808c',
-                  color:'#ffffff' ,
-                  fontWeight:700
-                }}
-              >
-                정답보기
-                <span style={{
-                  fontSize:'0.35rem',
-                  padding:'2px 5px',
-                  borderRadius:6,
-                  background:'#ffffff',
-                  color:'#252525'
+              <div style={{
+                fontSize:'2.5rem',
+                fontWeight:900,
+                color:'#1a1814'
+              }}>
+                {(displayScore || 0).toLocaleString()}점
+              </div>
+
+              <div style={{
+                marginTop:10,
+                marginBottom:18,
+                display:'flex',
+                justifyContent:'center'
+              }}>
+                <button
+                  onClick={()=>{
+                    setResultView(prev => prev === 'score' ? 'ranking' : 'score')
+                  }}
+                  style={{
+                    padding:'6px 12px',
+                    borderRadius:20,
+                    border:'1px solid #ddd',
+                    background:'#fff',
+                    fontSize:'0.8rem',
+                    cursor:'pointer'
+                  }}>
+                  {resultView === 'score' ? '랭킹 보기' : '점수 보기'}
+                </button>
+              </div>
+
+              {isLevelCompleted && (
+                <div style={{
+                  fontSize:'0.8rem',
+                  color:'#888',
+                  marginTop:6
                 }}>
-                  AD
-                </span>
-              </button>
-            )}
+                  {currentGrade === '2020s' && '2020년대 레벨을 완료하였습니다'}
+                  {currentGrade === '2010s' && '2010년대 레벨을 완료하였습니다'}
+                  {currentGrade === '2000s' && '2000년대 레벨을 완료하였습니다'}
+                  {currentGrade === '1990s' && '1990년대 레벨을 완료하였습니다'}
+                  {currentGrade === 'old' && '오래전 영화 레벨을 완료하였습니다'}
+                </div>
+              )}
+            </div>
 
-            {/*결과리스트 영역*/}
-            <div style={{
-              padding:'0 20px',
-              // 🔥 핵심 1: score 기준 높이 고정
-              height: `${Math.min(results.length, 5) * 65}px`,
-              // 🔥 핵심 2: ranking은 스크롤만
-              overflowY: 'auto',
-              WebkitOverflowScrolling:'touch',
-              overscrollBehavior:'contain'
-            }}>
+        
+            {/* 🔥 결과 전체 wrapper */}
+            <div style={{ position:'relative' }}>
+              {/* 🔥 버튼 */}
+              {resultView === 'score' && hasFail && !showAnswers && (
+                <button
+                  onClick={handleShowAnswers}
+                  disabled={showAnswers}
+                  style={{
+                    position:'absolute',
+                    top:-30,
+                    left:20,
+                    zIndex:20,
+                    display:'flex',
+                    alignItems:'center',
+                    gap:6,
+                    fontSize:'0.7rem',
+                    padding:'6px 10px',
+                    borderRadius:8,
+                    border:'none',
+                    background: '#e8808c',
+                    color:'#ffffff' ,
+                    fontWeight:700
+                  }}
+                >
+                  정답보기
+                  <span style={{
+                    fontSize:'0.35rem',
+                    padding:'2px 5px',
+                    borderRadius:6,
+                    background:'#ffffff',
+                    color:'#252525'
+                  }}>
+                    AD
+                  </span>
+                </button>
+              )}
 
-              {resultView === 'score' ? (
-                results.slice(0, visibleResults).map((r,i)=>{
-                  const rg = GRADES.find(x=>x.id===r.grade)
-                  const isCorrect = r.correct === true
-                  return(
-                    <div key={i} style={{
-                      borderRadius:13,
-                      border:'1.5px solid #ece8e2',
-                      background:'#fff',
-                      padding:'12px 16px',
-                      marginBottom:8,
-                      display:'flex',
-                      alignItems:'center',
-                      gap:12
-                    }}>
-                      <div style={{
-                        width:28,
-                        height:28,
-                        borderRadius:'50%',
-                        background: isCorrect ? `${rg?.color || '#ccc'}15` : '#f5f3ef',
+              {/*결과리스트 영역*/}
+              <div style={{
+                padding:'0 20px',
+                // 🔥 핵심 1: score 기준 높이 고정
+                height: `${Math.min(results.length, 5) * 65}px`,
+                // 🔥 핵심 2: ranking은 스크롤만
+                overflowY: 'auto',
+                WebkitOverflowScrolling:'touch',
+                overscrollBehavior:'contain'
+              }}>
+
+                {resultView === 'score' ? (
+                  results.slice(0, visibleResults).map((r,i)=>{
+                    const rg = GRADES.find(x=>x.id===r.grade)
+                    const isCorrect = r.correct === true
+                    return(
+                      <div key={i} style={{
+                        borderRadius:13,
+                        border:'1.5px solid #ece8e2',
+                        background:'#fff',
+                        padding:'12px 16px',
+                        marginBottom:8,
                         display:'flex',
                         alignItems:'center',
-                        justifyContent:'center',
-                        border:`1.5px solid ${isCorrect ? (rg?.color || '#ccc') : '#e8e4dd'}`
+                        gap:12
                       }}>
-                        <span style={{
-                          fontSize:'0.7rem',
-                          fontWeight:800,
-                          color:r.correct ? rg?.color : '#b0aaa3'
-                        }}>
-                          Q{i+1}
-                        </span>
-                      </div>
-                      <div style={{flex:1}}>
                         <div style={{
-                          fontSize:
-                            r.correct && r.title.length > 20 ? '0.7rem' :
-                            r.correct && r.title.length > 14 ? '0.75rem' :
-                            '0.8rem',
-                          fontWeight:700,
-                          color: (r.correct || showAnswers) ? '#1a1814' : '#c0bbb4',
-                          lineHeight:1.25,
-                          wordBreak:'keep-all'
+                          width:28,
+                          height:28,
+                          borderRadius:'50%',
+                          background: isCorrect ? `${rg?.color || '#ccc'}15` : '#f5f3ef',
+                          display:'flex',
+                          alignItems:'center',
+                          justifyContent:'center',
+                          border:`1.5px solid ${isCorrect ? (rg?.color || '#ccc') : '#e8e4dd'}`
                         }}>
-                          {r.correct 
-                          ? r.title 
-                          : showAnswers 
-                            ? r.title
-                            : '실패'
-                        }
-                        </div>
-                      </div>
-                      <div style={{
-                        position:'relative',
-                        minWidth:50,
-                        display:'flex',
-                        justifyContent:'flex-end'
-                      }}>
-
-                        {/* 점수 */}
-                        <div style={{
-                          fontSize:'0.85rem',
-                          fontWeight:800,
-                          color:r.correct ? '#4a9c6d' : '#d45c5c'
-                        }}>
-                          {r.correct ? `+${r.score}` : '-'}
-                        </div>
-
-                        {/* 도장 */}
-                        {r.combo && (
-                          <div style={{
-                            position:'absolute',
-                            top:-17,
-                            right:-28,
-                            fontSize:'0.55rem',
-                            fontWeight:900,
-                            padding:'2px 6px',
-                            borderRadius:6,
-                            transform:'rotate(-10deg)',
-                            zIndex:2,
-
-                            background:
-                              r.combo === 'good'  ? '#fff3cd' :
-                              r.combo === 'wow'   ? '#ffe0e0' :
-                              r.combo === 'crazy' ? '#e6d6ff' : '#eee',
-
-                            color:
-                              r.combo === 'good'  ? '#c8a84a' :
-                              r.combo === 'wow'   ? '#d45c5c' :
-                              r.combo === 'crazy' ? '#7a4cff' : '#888',
-
-                            border:`1px solid ${
-                              r.combo === 'good'  ? '#f0c36d' :
-                              r.combo === 'wow'   ? '#f0b4b4' :
-                              r.combo === 'crazy' ? '#c8a8ff' : '#ddd'
-                            }`,
-
-                            boxShadow:'0 2px 6px rgba(0,0,0,0.15)',
-                            pointerEvents:'none'
+                          <span style={{
+                            fontSize:'0.7rem',
+                            fontWeight:800,
+                            color:r.correct ? rg?.color : '#b0aaa3'
                           }}>
-                            {
-                              r.combo === 'good'  ? 'GOOD' :
-                              r.combo === 'wow'   ? 'WOW' :
-                              r.combo === 'crazy' ? 'CRAZY' : ''
-                            }
+                            Q{i+1}
+                          </span>
+                        </div>
+                        <div style={{flex:1}}>
+                          <div style={{
+                            fontSize:
+                              r.correct && r.title.length > 20 ? '0.7rem' :
+                              r.correct && r.title.length > 14 ? '0.75rem' :
+                              '0.8rem',
+                            fontWeight:700,
+                            color: (r.correct || showAnswers) ? '#1a1814' : '#c0bbb4',
+                            lineHeight:1.25,
+                            wordBreak:'keep-all'
+                          }}>
+                            {r.correct 
+                            ? r.title 
+                            : showAnswers 
+                              ? r.title
+                              : '실패'
+                          }
                           </div>
-                        )}
-                      </div>
-                    </div>
-                  )
-                })
-              ) : (
-                <>
-                  {(() => {
-                    const safeRanking = Array.isArray(ranked) ? ranked : []
-                    const safeUsers = Array.isArray(users) ? users : []
-                    const TOP_LIMIT = 10
-                    const myRankIndex = safeRanking.findIndex(
-                      r => r.character_id === selChar
-                    )
-                    const myRank = myRankIndex >= 0 ? myRankIndex + 1 : null
-                    const myRankData = safeRanking[myRankIndex]
-                    return (
-                      <>
-                        {Array.from({ length: rankingRevealDone ? TOP_LIMIT : 5 }).map((_, i) => {
-                          const r = safeRanking[i] || null
-                          const char = r ? CHARS.find(c => c.id === r.character_id) : null
-                          const isDead = r && !safeUsers.find(u => u.charId === r.character_id)
-                          const isMe = r && String(r.user_id) === String(currentUser.userId)
-                          const isAnimated = i < 5
+                        </div>
+                        <div style={{
+                          position:'relative',
+                          minWidth:50,
+                          display:'flex',
+                          justifyContent:'flex-end'
+                        }}>
 
-                          return (
-                            <div
-                              key={i}
-                              style={{
-                                borderRadius:13,
-                              border: isMe
-                                ? '2px solid #e8808c'
-                                : '1.5px solid #ece8e2',
-                              background: isMe
-                                ? '#fff5f6'
-                                : '#fff',
-                              color: isMe ? '#e8808c' : '#1a1814',
-                              padding:'12px 16px',
-                              marginBottom:8,
-                              display:'flex',
-                              alignItems:'center',
-                              gap:12,
-                              animation: isAnimated ? 'fadeUp 0.3s ease forwards' : 'none',
-                              opacity: isAnimated ? 0 : 1,
-                              animationDelay: `${i * 0.08}s`
+                          {/* 점수 */}
+                          <div style={{
+                            fontSize:'0.85rem',
+                            fontWeight:800,
+                            color:r.correct ? '#4a9c6d' : '#d45c5c'
+                          }}>
+                            {r.correct ? `+${r.score}` : '-'}
+                          </div>
+
+                          {/* 도장 */}
+                          {r.combo && (
+                            <div style={{
+                              position:'absolute',
+                              top:-17,
+                              right:-28,
+                              fontSize:'0.55rem',
+                              fontWeight:900,
+                              padding:'2px 6px',
+                              borderRadius:6,
+                              transform:'rotate(-10deg)',
+                              zIndex:2,
+
+                              background:
+                                r.combo === 'good'  ? '#fff3cd' :
+                                r.combo === 'wow'   ? '#ffe0e0' :
+                                r.combo === 'crazy' ? '#e6d6ff' : '#eee',
+
+                              color:
+                                r.combo === 'good'  ? '#c8a84a' :
+                                r.combo === 'wow'   ? '#d45c5c' :
+                                r.combo === 'crazy' ? '#7a4cff' : '#888',
+
+                              border:`1px solid ${
+                                r.combo === 'good'  ? '#f0c36d' :
+                                r.combo === 'wow'   ? '#f0b4b4' :
+                                r.combo === 'crazy' ? '#c8a8ff' : '#ddd'
+                              }`,
+
+                              boxShadow:'0 2px 6px rgba(0,0,0,0.15)',
+                              pointerEvents:'none'
                             }}>
-                              <div style={{
-                                width:28,
-                                height:28,
-                                borderRadius:'50%',
-                                background:'#f5f3ef',
+                              {
+                                r.combo === 'good'  ? 'GOOD' :
+                                r.combo === 'wow'   ? 'WOW' :
+                                r.combo === 'crazy' ? 'CRAZY' : ''
+                              }
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    )
+                  })
+                ) : (
+                  <>
+                    {(() => {
+                      const safeRanking = Array.isArray(ranked) ? ranked : []
+                      const safeUsers = Array.isArray(users) ? users : []
+                      const TOP_LIMIT = 10
+                      const myRankIndex = safeRanking.findIndex(
+                        r => r.character_id === selChar
+                      )
+                      const myRank = myRankIndex >= 0 ? myRankIndex + 1 : null
+                      const myRankData = safeRanking[myRankIndex]
+                      return (
+                        <>
+                          {Array.from({ length: rankingRevealDone ? TOP_LIMIT : 5 }).map((_, i) => {
+                            const r = safeRanking[i] || null
+                            const char = r ? CHARS.find(c => c.id === r.character_id) : null
+                            const isDead = r && !safeUsers.find(u => u.charId === r.character_id)
+                            const isMe = r && String(r.user_id) === String(currentUser.userId)
+                            const isAnimated = i < 5
+
+                            return (
+                              <div
+                                key={i}
+                                style={{
+                                  borderRadius:13,
+                                border: isMe
+                                  ? '2px solid #e8808c'
+                                  : '1.5px solid #ece8e2',
+                                background: isMe
+                                  ? '#fff5f6'
+                                  : '#fff',
+                                color: isMe ? '#e8808c' : '#1a1814',
+                                padding:'12px 16px',
+                                marginBottom:8,
                                 display:'flex',
                                 alignItems:'center',
-                                justifyContent:'center',
-                                border:'1.5px solid #e8e4dd'
+                                gap:12,
+                                animation: isAnimated ? 'fadeUp 0.3s ease forwards' : 'none',
+                                opacity: isAnimated ? 0 : 1,
+                                animationDelay: `${i * 0.08}s`
                               }}>
-                                <span style={{
-                                  fontSize:'0.65rem',
-                                  fontWeight:800
-                                }}>
-                                  {r.rank}위
-                                </span>
-                              </div>
-                              {r ? (
-                                <CharAvatar charId={r.character_id} size={28}/>
-                                ) : (
                                 <div style={{
                                   width:28,
                                   height:28,
                                   borderRadius:'50%',
-                                  background:'#f0eeea'
-                                }}/>
-                              )}
-                              <div style={{
-                                flex:1,
-                                minWidth:0 
-                              }}>
-                                <div style={{
-                                  fontSize:'0.8rem',
-                                  fontWeight:700,
-                                  color: r
-                                    ? isDead ? '#b0aaa3' : '#1a1814'
-                                    : '#c0bbb4',
-                                  overflow:'hidden',           
-                                  textOverflow:'ellipsis',     
-                                  whiteSpace:'nowrap'          
+                                  background:'#f5f3ef',
+                                  display:'flex',
+                                  alignItems:'center',
+                                  justifyContent:'center',
+                                  border:'1.5px solid #e8e4dd'
                                 }}>
-                                  {r
-                                    ? isDead
-                                      ? `${r.nickname || char?.name || 'UNKNOWN'} 💀`
-                                      : (r.nickname || char?.name || 'USER')
-                                    : '-'
-                                  }
+                                  <span style={{
+                                    fontSize:'0.65rem',
+                                    fontWeight:800
+                                  }}>
+                                    {r.rank}위
+                                  </span>
+                                </div>
+                                {r ? (
+                                  <CharAvatar charId={r.character_id} size={28}/>
+                                  ) : (
+                                  <div style={{
+                                    width:28,
+                                    height:28,
+                                    borderRadius:'50%',
+                                    background:'#f0eeea'
+                                  }}/>
+                                )}
+                                <div style={{
+                                  flex:1,
+                                  minWidth:0 
+                                }}>
+                                  <div style={{
+                                    fontSize:'0.8rem',
+                                    fontWeight:700,
+                                    color: r
+                                      ? isDead ? '#b0aaa3' : '#1a1814'
+                                      : '#c0bbb4',
+                                    overflow:'hidden',           
+                                    textOverflow:'ellipsis',     
+                                    whiteSpace:'nowrap'          
+                                  }}>
+                                    {r
+                                      ? isDead
+                                        ? `${r.nickname || char?.name || 'UNKNOWN'} 💀`
+                                        : (r.nickname || char?.name || 'USER')
+                                      : '-'
+                                    }
+                                  </div>
+                                </div>
+
+                                <div style={{
+                                  fontSize:'0.85rem',
+                                  fontWeight:800,
+                                  color: r ? '#1a1814' : '#c0bbb4',
+                                  whiteSpace:'nowrap'
+                                }}>
+                                  {r ? r.score : 0}
                                 </div>
                               </div>
+                            )
+                          })}
+
+                          {myRank && myRank > TOP_LIMIT && (
+                            <div style={{
+                              marginTop:8,
+                              padding:'12px 14px',
+                              borderRadius:14,
+                              background:'#fff5f6',
+                              border:'2px solid #e8808c',
+                              display:'flex',
+                              alignItems:'center',
+                              gap:10
+                            }}>
+                              <div style={{
+                                fontSize:'0.75rem',
+                                fontWeight:800,
+                                color:'#e8808c'
+                              }}>
+                                내 순위
+                              </div>
 
                               <div style={{
+                                fontSize:'1rem',
+                                fontWeight:900,
+                                color:'#e8808c'
+                              }}>
+                                {myRank}위
+                              </div>
+                              <CharAvatar charId={selChar} size={28}/>
+                              <div style={{
                                 fontSize:'0.85rem',
-                                fontWeight:800,
-                                color: r ? '#1a1814' : '#c0bbb4',
+                                fontWeight:700,
+                                flex:1,
+                                minWidth:0,
+                                overflow:'hidden',
+                                textOverflow:'ellipsis',
                                 whiteSpace:'nowrap'
                               }}>
-                                {r ? r.score : 0}
+                                {myRankData?.nickname || 'USER'}
+                              </div>
+
+                              <div style={{
+                                fontSize:'0.9rem',
+                                fontWeight:900,
+                                whiteSpace:'nowrap'
+                              }}>
+                                {myRankData?.score || 0}
                               </div>
                             </div>
-                          )
-                        })}
+                          )}
 
-                        {myRank && myRank > TOP_LIMIT && (
-                          <div style={{
-                            marginTop:8,
-                            padding:'12px 14px',
-                            borderRadius:14,
-                            background:'#fff5f6',
-                            border:'2px solid #e8808c',
-                            display:'flex',
-                            alignItems:'center',
-                            gap:10
-                          }}>
-                            <div style={{
-                              fontSize:'0.75rem',
-                              fontWeight:800,
-                              color:'#e8808c'
-                            }}>
-                              내 순위
-                            </div>
-
-                            <div style={{
-                              fontSize:'1rem',
-                              fontWeight:900,
-                              color:'#e8808c'
-                            }}>
-                              {myRank}위
-                            </div>
-                            <CharAvatar charId={selChar} size={28}/>
-                            <div style={{
-                              fontSize:'0.85rem',
-                              fontWeight:700,
-                              flex:1,
-                              minWidth:0,
-                              overflow:'hidden',
-                              textOverflow:'ellipsis',
-                              whiteSpace:'nowrap'
-                            }}>
-                              {myRankData?.nickname || 'USER'}
-                            </div>
-
-                            <div style={{
-                              fontSize:'0.9rem',
-                              fontWeight:900,
-                              whiteSpace:'nowrap'
-                            }}>
-                              {myRankData?.score || 0}
-                            </div>
-                          </div>
-                        )}
-
-                      </>
-                    )
-                  })()}
-                </>
-              )}
+                        </>
+                      )
+                    })()}
+                  </>
+                )}
+              </div>
             </div>
-          </div>
 
-          {/* 하단 버튼 */}
-          {visibleResults > results.length && (
-            <div style={{
-              flexShrink:0,
-              padding:'8px 20px calc(10px + env(safe-area-inset-bottom))',
-              display:'flex',
-              gap:10,
-              background:'#fff',
-              borderTop:'1px solid #f0ece6'
-            }}>
+            {/* 하단 버튼 */}
+            {visibleResults > results.length && (
+              <div style={{
+                flexShrink:0,
+                padding:'8px 20px calc(10px + env(safe-area-inset-bottom))',
+                display:'flex',
+                gap:10,
+                background:'#fff',
+                borderTop:'1px solid #f0ece6'
+              }}>
 
-              {/* 🔥 조건 버튼 */}
-              {!isLevelCompleted && (
+                {/* 🔥 조건 버튼 */}
+                {!isLevelCompleted && (
+                  <button
+                    style={{
+                      flex:1,
+                      height:54,
+                      borderRadius:14,
+                      background:'#4a4a4a',
+                      color:'#fff',
+                      fontSize:'0.8rem',
+                      fontWeight:700,
+                      border:'none'
+                    }}
+                    onClick={()=>loadMovies()}
+                  >
+                    계속하기
+                  </button>
+                )}
+                
+                {/* 🔥 공통 버튼 (홈은 무조건 하나만) */}
                 <button
                   style={{
                     flex:1,
                     height:54,
-                    borderRadius:14,
-                    background:'#4a4a4a',
-                    color:'#fff',
+                    borderRadius:12,
+                    background:'transparent',
+                    color:'#9a9490',
                     fontSize:'0.8rem',
-                    fontWeight:700,
-                    border:'none'
+                    fontWeight:500,
+                    border:'1.5px solid #e8e4dd'
                   }}
-                  onClick={()=>loadMovies()}
+                  onClick={()=>setScreen('char')}
                 >
-                  계속하기
+                  홈으로
                 </button>
-              )}
-              
-              {/* 🔥 공통 버튼 (홈은 무조건 하나만) */}
-              <button
-                style={{
-                  flex:1,
-                  height:54,
-                  borderRadius:12,
-                  background:'transparent',
-                  color:'#9a9490',
-                  fontSize:'0.8rem',
-                  fontWeight:500,
-                  border:'1.5px solid #e8e4dd'
-                }}
-                onClick={()=>setScreen('char')}
-              >
-                홈으로
-              </button>
-            </div>
-          )}
+              </div>
+            )}
 
-          {/* 🔥 프로필 팝업: 결과 UI 밖, root 마지막 */}
-          {showProfile && (
-            <div style={{
-              position:'fixed',
-              inset:0,
-              background:'rgba(0,0,0,0.3)',
-              display:'flex',
-              alignItems:'center',
-              justifyContent:'center',
-              zIndex:99
-            }}>
+            {/* 🔥 프로필 팝업: 결과 UI 밖, root 마지막 */}
+            {showProfile && (
               <div style={{
-                transform:'scale(0.88)',
-                transformOrigin:'center center'
+                position:'fixed',
+                inset:0,
+                background:'rgba(0,0,0,0.3)',
+                display:'flex',
+                alignItems:'center',
+                justifyContent:'center',
+                zIndex:99
               }}>
                 <div style={{
-                  width:'92vw',
-                  maxWidth:420,
-                  background:'#faf9f7',
-                  borderRadius:20,
-                  border:'1.5px solid #e8e4dd',
-                  padding:'20px 16px',
-                  boxShadow:'0 10px 30px rgba(0,0,0,0.1)',
-                  position:'relative'
+                  transform:'scale(0.88)',
+                  transformOrigin:'center center'
                 }}>
-                  <div
-                    onClick={()=>setShowProfile(false)}
-                    style={{
-                      position:'absolute',
-                      top:12,
-                      right:12,
-                      width:30,
-                      height:30,
-                      borderRadius:'50%',
-                      background:'#f5f3ef',
-                      border:'1px solid #e8e4dd',
-                      display:'flex',
-                      alignItems:'center',
-                      justifyContent:'center',
-                      cursor:'pointer'
-                    }}
-                  >
-                    <span style={{color:'#1a1814',fontSize:16,fontWeight:700}}>×</span>
-                  </div>
-
-                  <div style={{textAlign:'center', marginBottom:14}}>
-                    <div style={{fontSize:'0.9rem', color:'#ff6b7a'}}>
-                      SF액션
-                    </div>
-
-                    <div style={{
-                      fontSize:'1.4rem',
-                      fontWeight:900,
-                      color:'#1a1814',
-                      marginTop:4
-                    }}>
-                      총소리 놀람이
-                    </div>
-
-                    <div style={{
-                      fontSize:'0.7rem',
-                      color:'#888',
-                      marginTop:6
-                    }}>
-                      나나나
-                    </div>
-                  </div>
-
                   <div style={{
-                    width:'100%',
-                    display:'flex',
-                    justifyContent:'center',
-                    marginBottom:14
+                    width:'92vw',
+                    maxWidth:420,
+                    background:'#faf9f7',
+                    borderRadius:20,
+                    border:'1.5px solid #e8e4dd',
+                    padding:'20px 16px',
+                    boxShadow:'0 10px 30px rgba(0,0,0,0.1)',
+                    position:'relative'
                   }}>
+                    <div
+                      onClick={()=>setShowProfile(false)}
+                      style={{
+                        position:'absolute',
+                        top:12,
+                        right:12,
+                        width:30,
+                        height:30,
+                        borderRadius:'50%',
+                        background:'#f5f3ef',
+                        border:'1px solid #e8e4dd',
+                        display:'flex',
+                        alignItems:'center',
+                        justifyContent:'center',
+                        cursor:'pointer'
+                      }}
+                    >
+                      <span style={{color:'#1a1814',fontSize:16,fontWeight:700}}>×</span>
+                    </div>
+
+                    <div style={{textAlign:'center', marginBottom:14}}>
+                      <div style={{fontSize:'0.9rem', color:'#ff6b7a'}}>
+                        SF액션
+                      </div>
+
+                      <div style={{
+                        fontSize:'1.4rem',
+                        fontWeight:900,
+                        color:'#1a1814',
+                        marginTop:4
+                      }}>
+                        총소리 놀람이
+                      </div>
+
+                      <div style={{
+                        fontSize:'0.7rem',
+                        color:'#888',
+                        marginTop:6
+                      }}>
+                        나나나
+                      </div>
+                    </div>
+
                     <div style={{
                       width:'100%',
-                      maxWidth:320
-                    }}>
-                      <img
-                        src="/sadako_full.png"
-                        alt="character"
-                        style={{
-                          width:'100%',
-                          height:140,
-                          objectFit:'contain'
-                        }}
-                      />
-                    </div>
-                  </div>
-
-                  <div style={{marginBottom:14}}>
-                    <div style={{
-                      fontSize:'1.2rem',
-                      fontWeight:800,
-                      color:'#1a1814'
-                    }}>
-                      Lv. 20
-                    </div>
-
-                    <div style={{
-                      height:6,
-                      background:'#eee',
-                      borderRadius:10,
-                      marginTop:6
+                      display:'flex',
+                      justifyContent:'center',
+                      marginBottom:14
                     }}>
                       <div style={{
-                        width:'80%',
-                        height:'100%',
-                        background:'#ff6b7a'
-                      }}/>
+                        width:'100%',
+                        maxWidth:320
+                      }}>
+                        <img
+                          src="/sadako_full.png"
+                          alt="character"
+                          style={{
+                            width:'100%',
+                            height:140,
+                            objectFit:'contain'
+                          }}
+                        />
+                      </div>
+                    </div>
+
+                    <div style={{marginBottom:14}}>
+                      <div style={{
+                        fontSize:'1.2rem',
+                        fontWeight:800,
+                        color:'#1a1814'
+                      }}>
+                        Lv. 20
+                      </div>
+
+                      <div style={{
+                        height:6,
+                        background:'#eee',
+                        borderRadius:10,
+                        marginTop:6
+                      }}>
+                        <div style={{
+                          width:'80%',
+                          height:'100%',
+                          background:'#ff6b7a'
+                        }}/>
+                      </div>
+
+                      <div style={{
+                        fontSize:'0.65rem',
+                        color:'#888',
+                        textAlign:'right',
+                        marginTop:4
+                      }}>
+                        2,450 / 3,000 EXP
+                      </div>
                     </div>
 
                     <div style={{
-                      fontSize:'0.65rem',
-                      color:'#888',
-                      textAlign:'right',
-                      marginTop:4
+                      display:'flex',
+                      justifyContent:'center',
+                      margin:'14px 0'
                     }}>
-                      2,450 / 3,000 EXP
+
+                      {(() => {
+                        const genres = [
+                          {name:'애니', value:50},
+                          {name:'SF', value:60},
+                          {name:'SF액션', value:85},
+                          {name:'SF공포', value:70},
+                          {name:'판타지', value:55},
+                          {name:'판타지액션', value:65},
+                          {name:'공포', value:90},
+                          {name:'미스터리', value:65},
+                          {name:'액션', value:70},
+                          {name:'코미디', value:30},
+                          {name:'로맨스', value:40},
+                          {name:'드라마', value:45}
+                        ]
+                        const cx = 100
+                        const cy = 100
+                        const radius = 70
+                        const points = genres.map((g,i)=>{
+                          const angle = (Math.PI*2/genres.length)*i - Math.PI/2
+                          const cos = Math.cos(angle)
+                          const sin = Math.sin(angle)
+                          const r = (g.value/100) * radius
+
+                          let labelRadius = radius + 26
+
+                          if(Math.abs(cos) > 0.7){
+                            labelRadius = radius + 34
+                          }
+
+                          if(Math.abs(cos) > 0.3 && Math.abs(cos) < 0.7){
+                            labelRadius = radius + 30
+                          }
+
+                          return {
+                            x: cx + cos*r,
+                            y: cy + sin*r,
+                            labelX: cx + cos*labelRadius,
+                            labelY: cy + sin*labelRadius,
+                            valueX: cx + cos*(radius+10),
+                            valueY: cy + sin*(radius+10),
+                            name:g.name,
+                            value:g.value
+                          }
+                        })
+
+                        const polygonPoints = points.map(p=>`${p.x},${p.y}`).join(' ')
+
+                        return (
+                          <svg width="220" height="220">
+                            <defs>
+                              <filter id="glow-result">
+                                <feGaussianBlur stdDeviation="2"/>
+                              </filter>
+                            </defs>
+
+                            {[0.25,0.5,0.75,1].map((r,i)=>(
+                              <circle
+                                key={i}
+                                cx={cx}
+                                cy={cy}
+                                r={radius*r}
+                                stroke="rgba(0,0,0,0.08)"
+                                fill="none"
+                              />
+                            ))}
+
+                            {points.map((p,i)=>(
+                              <line
+                                key={i}
+                                x1={cx}
+                                y1={cy}
+                                x2={p.labelX}
+                                y2={p.labelY}
+                                stroke="rgba(0,0,0,0.08)"
+                              />
+                            ))}
+
+                            <polygon
+                              points={polygonPoints}
+                              fill="rgba(255,107,122,0.35)"
+                              stroke="#ff6b7a"
+                              strokeWidth="2"
+                              filter="url(#glow-result)"
+                            />
+
+                            {points.map((p,i)=>(
+                              <circle
+                                key={i}
+                                cx={p.x}
+                                cy={p.y}
+                                r="3"
+                                fill="#ff6b7a"
+                              />
+                            ))}
+
+                            {points.map((p,i)=>(
+                              <text
+                                key={i}
+                                x={p.labelX}
+                                y={p.labelY}
+                                fill="#555"
+                                fontSize="9"
+                                textAnchor="middle"
+                                alignmentBaseline="middle"
+                              >
+                                {p.name}
+                              </text>
+                            ))}
+
+                            {points.map((p,i)=>(
+                              <text
+                                key={i}
+                                x={p.valueX}
+                                y={p.valueY}
+                                fill="#ff6b7a"
+                                fontSize="10"
+                                fontWeight="700"
+                                textAnchor="middle"
+                              >
+                                {p.value}
+                              </text>
+                            ))}
+                          </svg>
+                        )
+                      })()}
                     </div>
-                  </div>
 
-                  <div style={{
-                    display:'flex',
-                    justifyContent:'center',
-                    margin:'14px 0'
-                  }}>
+                    <div style={{
+                      display:'grid',
+                      gridTemplateColumns:'1fr 1fr',
+                      gap:8,
+                      marginTop:10
+                    }}>
 
-                    {(() => {
-                      const genres = [
-                        {name:'애니', value:50},
-                        {name:'SF', value:60},
-                        {name:'SF액션', value:85},
-                        {name:'SF공포', value:70},
-                        {name:'판타지', value:55},
-                        {name:'판타지액션', value:65},
-                        {name:'공포', value:90},
-                        {name:'미스터리', value:65},
-                        {name:'액션', value:70},
-                        {name:'코미디', value:30},
-                        {name:'로맨스', value:40},
-                        {name:'드라마', value:45}
-                      ]
-                      const cx = 100
-                      const cy = 100
-                      const radius = 70
-                      const points = genres.map((g,i)=>{
-                        const angle = (Math.PI*2/genres.length)*i - Math.PI/2
-                        const cos = Math.cos(angle)
-                        const sin = Math.sin(angle)
-                        const r = (g.value/100) * radius
-
-                        let labelRadius = radius + 26
-
-                        if(Math.abs(cos) > 0.7){
-                          labelRadius = radius + 34
-                        }
-
-                        if(Math.abs(cos) > 0.3 && Math.abs(cos) < 0.7){
-                          labelRadius = radius + 30
-                        }
-
-                        return {
-                          x: cx + cos*r,
-                          y: cy + sin*r,
-                          labelX: cx + cos*labelRadius,
-                          labelY: cy + sin*labelRadius,
-                          valueX: cx + cos*(radius+10),
-                          valueY: cy + sin*(radius+10),
-                          name:g.name,
-                          value:g.value
-                        }
-                      })
-
-                      const polygonPoints = points.map(p=>`${p.x},${p.y}`).join(' ')
-
-                      return (
-                        <svg width="220" height="220">
-                          <defs>
-                            <filter id="glow-result">
-                              <feGaussianBlur stdDeviation="2"/>
-                            </filter>
-                          </defs>
-
-                          {[0.25,0.5,0.75,1].map((r,i)=>(
-                            <circle
-                              key={i}
-                              cx={cx}
-                              cy={cy}
-                              r={radius*r}
-                              stroke="rgba(0,0,0,0.08)"
-                              fill="none"
-                            />
-                          ))}
-
-                          {points.map((p,i)=>(
-                            <line
-                              key={i}
-                              x1={cx}
-                              y1={cy}
-                              x2={p.labelX}
-                              y2={p.labelY}
-                              stroke="rgba(0,0,0,0.08)"
-                            />
-                          ))}
-
-                          <polygon
-                            points={polygonPoints}
-                            fill="rgba(255,107,122,0.35)"
-                            stroke="#ff6b7a"
-                            strokeWidth="2"
-                            filter="url(#glow-result)"
-                          />
-
-                          {points.map((p,i)=>(
-                            <circle
-                              key={i}
-                              cx={p.x}
-                              cy={p.y}
-                              r="3"
-                              fill="#ff6b7a"
-                            />
-                          ))}
-
-                          {points.map((p,i)=>(
-                            <text
-                              key={i}
-                              x={p.labelX}
-                              y={p.labelY}
-                              fill="#555"
-                              fontSize="9"
-                              textAnchor="middle"
-                              alignmentBaseline="middle"
-                            >
-                              {p.name}
-                            </text>
-                          ))}
-
-                          {points.map((p,i)=>(
-                            <text
-                              key={i}
-                              x={p.valueX}
-                              y={p.valueY}
-                              fill="#ff6b7a"
-                              fontSize="10"
-                              fontWeight="700"
-                              textAnchor="middle"
-                            >
-                              {p.value}
-                            </text>
-                          ))}
-                        </svg>
-                      )
-                    })()}
-                  </div>
-
-                  <div style={{
-                    display:'grid',
-                    gridTemplateColumns:'1fr 1fr',
-                    gap:8,
-                    marginTop:10
-                  }}>
-
-                    {[
-                      ['총 점수','12,450'],
-                      ['플레이 시간','48h 30m'],
-                      ['선호 장르','SF액션, 공포'],
-                      ['최근 플레이','2024.05.20']
-                    ].map(([k,v],i)=>(
-                      <div key={i} style={{
-                        background:'#fff',
-                        border:'1px solid #e8e4dd',
-                        borderRadius:10,
-                        padding:'8px'
-                      }}>
-                        <div style={{
-                          fontSize:'0.6rem',
-                          color:'#888',
-                          marginBottom:2
+                      {[
+                        ['총 점수','12,450'],
+                        ['플레이 시간','48h 30m'],
+                        ['선호 장르','SF액션, 공포'],
+                        ['최근 플레이','2024.05.20']
+                      ].map(([k,v],i)=>(
+                        <div key={i} style={{
+                          background:'#fff',
+                          border:'1px solid #e8e4dd',
+                          borderRadius:10,
+                          padding:'8px'
                         }}>
-                          {k}
+                          <div style={{
+                            fontSize:'0.6rem',
+                            color:'#888',
+                            marginBottom:2
+                          }}>
+                            {k}
+                          </div>
+                          <div style={{
+                            fontSize:'0.8rem',
+                            fontWeight:700,
+                            color:'#1a1814'
+                          }}>
+                            {v}
+                          </div>
                         </div>
-                        <div style={{
-                          fontSize:'0.8rem',
-                          fontWeight:700,
-                          color:'#1a1814'
-                        }}>
-                          {v}
-                        </div>
-                      </div>
-                    ))}
+                      ))}
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
-          )}
+            )}
 
-          <style jsx>{`
-            @keyframes fadeUp {
-              from {
-                transform: translateY(10px);
-                opacity: 0;
+            <style jsx>{`
+              @keyframes fadeUp {
+                from {
+                  transform: translateY(10px);
+                  opacity: 0;
+                }
+                to {
+                  transform: translateY(0);
+                  opacity: 1;
+                }
               }
-              to {
-                transform: translateY(0);
-                opacity: 1;
-              }
-            }
-          `}</style>
+            `}</style>
 
-        </div>
-      </AppLayout>
+          </div>
+        </AppLayout>
+      </>
     )
   }
   return null
