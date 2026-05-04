@@ -158,3 +158,20 @@ input { font-family: inherit; outline: none; }
   100% { opacity:0.3; transform: scale(0.95); }
 
 }
+
+
+.danger {
+
+  animation: blinkRed 0.8s infinite;
+
+}
+
+@keyframes blinkRed {
+
+  0%   { stroke: #ff3b3b; }
+
+  50%  { stroke: #ffaaaa; }
+
+  100% { stroke: #ff3b3b; }
+
+}

@@ -9,23 +9,23 @@ const SUPABASE_KEY = process.env.NEXT_PUBLIC_SUPABASE_KEY || ''
 
 
 const CHARS = [
-  { id:'yoda', name:'요다', movie:'스타워즈', color:'#5a9660',
+  { id:'yoda', name:'포스의 스승', movie:'스타워즈', color:'#5a9660',
     svg: <svg viewBox="0 0 80 80" fill="none"><ellipse cx="40" cy="52" rx="14" ry="11" fill="#4a7c4e"/><ellipse cx="40" cy="36" rx="16" ry="15" fill="#6aaa6e"/><ellipse cx="8" cy="34" rx="10" ry="5" fill="#5a9660" transform="rotate(-20 8 34)"/><ellipse cx="72" cy="34" rx="10" ry="5" fill="#5a9660" transform="rotate(20 72 34)"/><ellipse cx="34" cy="34" rx="4" ry="4.5" fill="#1a2a1a"/><ellipse cx="46" cy="34" rx="4" ry="4.5" fill="#1a2a1a"/><circle cx="33" cy="33" r="1.5" fill="#fff" opacity=".8"/><circle cx="45" cy="33" r="1.5" fill="#fff" opacity=".8"/><path d="M32 42 Q40 45 48 42" stroke="#3a6040" strokeWidth="1.5" fill="none"/><path d="M28 30 Q30 27 34 29" stroke="#3a6040" strokeWidth="1" fill="none"/><path d="M46 29 Q50 27 52 30" stroke="#3a6040" strokeWidth="1" fill="none"/></svg>},
-  { id:'immortan', name:'임모탄', movie:'매드맥스', color:'#4a90e8',
+  { id:'immortan', name:'사막 독재자', movie:'매드맥스', color:'#4a90e8',
     svg: <svg viewBox="0 0 80 80" fill="none"><rect x="20" y="50" width="40" height="22" rx="4" fill="#c8c0b0"/><ellipse cx="40" cy="36" rx="18" ry="17" fill="#d4cabb"/><rect x="24" y="38" width="32" height="18" rx="8" fill="#e8e8e8" stroke="#bbb" strokeWidth="1"/><rect x="27" y="41" width="26" height="12" rx="5" fill="#d0d0d0"/>{[30,34,38,42,46].map(x=><line key={x} x1={x} y1="41" x2={x} y2="53" stroke="#bbb" strokeWidth="1"/>)}<ellipse cx="32" cy="31" rx="5" ry="3.5" fill="#5588dd" opacity=".9"/><ellipse cx="48" cy="31" rx="5" ry="3.5" fill="#5588dd" opacity=".9"/><ellipse cx="32" cy="31" rx="3" ry="2.5" fill="#2255aa"/><ellipse cx="48" cy="31" rx="3" ry="2.5" fill="#2255aa"/><ellipse cx="40" cy="20" rx="16" ry="10" fill="#e8e4dc"/></svg>},
-  { id:'leon', name:'레옹', movie:'레옹', color:'#888',
+  { id:'leon', name:'고독한 킬러', movie:'레옹', color:'#888',
     svg: <svg viewBox="0 0 80 80" fill="none"><rect x="18" y="52" width="44" height="22" rx="4" fill="#2a2a2a"/><ellipse cx="40" cy="36" rx="17" ry="18" fill="#c8956a"/><rect x="22" y="24" width="36" height="7" rx="3" fill="#111"/><circle cx="31" cy="27" r="6" fill="#0a0a0a" stroke="#444" strokeWidth="1.5"/><circle cx="49" cy="27" r="6" fill="#0a0a0a" stroke="#444" strokeWidth="1.5"/><line x1="37" y1="27" x2="43" y2="27" stroke="#444" strokeWidth="1.5"/><path d="M33 44 Q40 47 47 44" stroke="#8a6040" strokeWidth="1.5" fill="none"/><ellipse cx="40" cy="20" rx="17" ry="8" fill="#1a1a1a"/></svg>},
-  { id:'morpheus', name:'모피어스', movie:'매트릭스', color:'#8866cc',
+  { id:'morpheus', name:'각성의 안내자', movie:'매트릭스', color:'#8866cc',
     svg: <svg viewBox="0 0 80 80" fill="none"><rect x="15" y="52" width="50" height="22" rx="4" fill="#111"/><ellipse cx="40" cy="36" rx="16" ry="17" fill="#7a5a3a"/><ellipse cx="31" cy="33" rx="7" ry="4.5" fill="#0a0a0a" stroke="#888" strokeWidth="1.5"/><ellipse cx="49" cy="33" rx="7" ry="4.5" fill="#0a0a0a" stroke="#888" strokeWidth="1.5"/><line x1="38" y1="33" x2="42" y2="33" stroke="#888" strokeWidth="1.5"/><path d="M33 45 Q40 49 47 45" stroke="#4a3020" strokeWidth="2" fill="none"/><ellipse cx="40" cy="21" rx="16" ry="9" fill="#5a3a1a"/><ellipse cx="28" cy="64" rx="4" ry="2.5" fill="#dd2222"/><ellipse cx="52" cy="64" rx="4" ry="2.5" fill="#2244cc"/></svg>},
-  { id:'pennywise', name:'페니와이즈', movie:'그것', color:'#e07020',
+  { id:'pennywise', name:'공포먹는 삐에로', movie:'그것', color:'#e07020',
     svg: <svg viewBox="0 0 80 80" fill="none"><ellipse cx="40" cy="68" rx="22" ry="10" fill="#f0f0f0"/><circle cx="28" cy="64" r="4" fill="#dd4444"/><circle cx="40" cy="66" r="4" fill="#dd4444"/><circle cx="52" cy="64" r="4" fill="#dd4444"/><ellipse cx="40" cy="36" rx="18" ry="19" fill="#f5f0e8"/><ellipse cx="12" cy="26" rx="7" ry="10" fill="#dd6600" transform="rotate(-20 12 26)"/><ellipse cx="68" cy="26" rx="7" ry="10" fill="#dd6600" transform="rotate(20 68 26)"/><ellipse cx="31" cy="31" rx="5.5" ry="5.5" fill="#f5dd44"/><ellipse cx="49" cy="31" rx="5.5" ry="5.5" fill="#f5dd44"/><ellipse cx="31" cy="31" rx="3" ry="3.5" fill="#1a1a1a"/><ellipse cx="49" cy="31" rx="3" ry="3.5" fill="#1a1a1a"/><ellipse cx="40" cy="39" rx="4.5" ry="3.5" fill="#dd2222"/><path d="M24 46 Q28 51 40 53 Q52 51 56 46" stroke="#cc1111" strokeWidth="2.5" fill="none"/></svg>},
-  { id:'predator', name:'프레데터', movie:'프레데터', color:'#6a9a3a',
+  { id:'predator', name:'외계 포식자', movie:'프레데터', color:'#6a9a3a',
     svg: <svg viewBox="0 0 80 80" fill="none"><rect x="16" y="52" width="48" height="22" rx="4" fill="#5a7a3a"/><ellipse cx="40" cy="36" rx="17" ry="18" fill="#6a8a4a"/>{[-16,-8,0,8,16].map((dx,i)=>(<line key={i} x1={40+dx} y1="20" x2={40+dx*1.5} y2="8" stroke="#4a6a2a" strokeWidth="3" strokeLinecap="round"/>))}<ellipse cx="32" cy="32" rx="4" ry="3" fill="#aadd00"/><ellipse cx="48" cy="32" rx="4" ry="3" fill="#aadd00"/><ellipse cx="32" cy="32" rx="2" ry="2" fill="#88bb00"/><ellipse cx="48" cy="32" rx="2" ry="2" fill="#88bb00"/><path d="M30 43 L33 50 L36 43 L40 50 L44 43 L47 50 L50 43" stroke="#3a5a1a" strokeWidth="1.5" fill="none"/></svg>},
-  { id:'sparrow', name:'잭 스패로우', movie:'캐리비안의 해적', color:'#8a5a2a',
+  { id:'sparrow', name:'불멸의 해적', movie:'캐리비안의 해적', color:'#8a5a2a',
     svg: <svg viewBox="0 0 80 80" fill="none"><rect x="18" y="52" width="44" height="22" rx="4" fill="#3a2a1a"/><ellipse cx="40" cy="37" rx="16" ry="17" fill="#c8906a"/><path d="M16 26 L40 8 L64 26 Z" fill="#1a1a1a"/><rect x="14" y="24" width="52" height="5" rx="2" fill="#2a2a2a"/><ellipse cx="32" cy="34" rx="4.5" ry="3.5" fill="#1a1a1a"/><ellipse cx="48" cy="34" rx="4.5" ry="3.5" fill="#1a1a1a"/><path d="M27 32 Q32 29 37 32" stroke="#1a1a1a" strokeWidth="1.5" fill="none"/><path d="M43 32 Q48 29 53 32" stroke="#1a1a1a" strokeWidth="1.5" fill="none"/><path d="M34 42 Q40 44 46 42" stroke="#5a3a1a" strokeWidth="2" fill="none"/><line x1="38" y1="43" x2="38" y2="48" stroke="#5a3a1a" strokeWidth="1.5"/><line x1="42" y1="43" x2="42" y2="48" stroke="#5a3a1a" strokeWidth="1.5"/><path d="M24 26 Q40 22 56 26 Q56 30 40 32 Q24 30 24 26" fill="#cc3322"/></svg>},
-  { id:'joker', name:'조커', movie:'다크나이트', color:'#5533aa',
+  { id:'joker', name:'혼돈의 광대', movie:'다크나이트', color:'#5533aa',
     svg: <svg viewBox="0 0 80 80" fill="none"><rect x="16" y="52" width="48" height="22" rx="4" fill="#5533aa"/><ellipse cx="40" cy="36" rx="17" ry="18" fill="#f0eeea"/><ellipse cx="31" cy="32" rx="5" ry="4" fill="#1a1a1a" opacity=".8"/><ellipse cx="49" cy="32" rx="5" ry="4" fill="#1a1a1a" opacity=".8"/><path d="M28 35 Q30 40 29 43" stroke="#1a1a1a" strokeWidth="1.5" fill="none" opacity=".6"/><path d="M52 35 Q50 40 51 43" stroke="#1a1a1a" strokeWidth="1.5" fill="none" opacity=".6"/><path d="M22 44 Q27 40 31 44 Q35 48 40 46 Q45 48 49 44 Q53 40 58 44" stroke="#dd2222" strokeWidth="2.5" fill="none"/><ellipse cx="40" cy="20" rx="17" ry="10" fill="#446622"/>{[28,33,38,43,48,53].map((x,i)=>(<line key={i} x1={x} y1="20" x2={x+(i%2===0?-2:2)} y2="10" stroke="#335511" strokeWidth="2.5" strokeLinecap="round"/>))}</svg>},
-  { id:'sadako', name:'사다코', movie:'링', color:'#444',
+  { id:'sadako', name:'우물 귀신', movie:'링', color:'#444',
     svg: <svg viewBox="0 0 80 80" fill="none"><rect x="18" y="48" width="44" height="28" rx="4" fill="#f0f0f0"/><ellipse cx="40" cy="36" rx="16" ry="17" fill="#f5f0e8"/><path d="M24 20 Q20 36 18 56" stroke="#1a1a1a" strokeWidth="8" fill="none" strokeLinecap="round"/><path d="M28 18 Q24 34 22 52" stroke="#1a1a1a" strokeWidth="7" fill="none" strokeLinecap="round"/><path d="M34 17 Q30 32 28 50" stroke="#1a1a1a" strokeWidth="6" fill="none" strokeLinecap="round"/><path d="M40 16 Q38 30 36 50" stroke="#1a1a1a" strokeWidth="5" fill="none" strokeLinecap="round"/><path d="M56 20 Q60 36 62 56" stroke="#1a1a1a" strokeWidth="8" fill="none" strokeLinecap="round"/><path d="M52 18 Q56 34 58 52" stroke="#1a1a1a" strokeWidth="7" fill="none" strokeLinecap="round"/><path d="M46 17 Q50 32 52 50" stroke="#1a1a1a" strokeWidth="6" fill="none" strokeLinecap="round"/><ellipse cx="40" cy="20" rx="17" ry="11" fill="#1a1a1a"/><ellipse cx="47" cy="35" rx="3" ry="3.5" fill="#0a0a0a"/><circle cx="48" cy="34" r="1" fill="#fff" opacity=".6"/></svg>},
 ]
 
@@ -50,8 +50,8 @@ const GRADES = [
   { id:'2020s', name:'2020년대', desc:'매드맥스·기생충·범죄도시… 요즘 거 맞춰보자' },
   { id:'2010s', name:'2010년대', desc:'인터스텔라·어벤져스·곡성… 기억나지?' },
   { id:'2000s', name:'2000년대', desc:'올드보이·괴물·매트릭스… 추억 소환' },
-  { id:'1990s', name:'1990년대', desc:'타이타닉·더록·킬빌… 이젠 클래식' },
-  { id:'old',  name:'오래전 영화', desc:'대부·시민 케인,채플린… 진짜 영화 덕후 영역' }
+  { id:'1990s', name:'1990년대', desc:'쥬라기공원·더록·킬빌… 이젠 클래식' },
+  { id:'old',  name:'오래전 영화', desc:'스타워즈·대부·칠수와 만수… 진짜 영화 덕후 영역' }
 ]
 
 function shuffle(arr){
@@ -691,6 +691,8 @@ export default function CineClue()  {
   const safeUsers = Array.isArray(users) ? users : []
   const currentUser = safeUsers.find(u => u.charId === selChar) || null
   const currentUserId = currentUser?.userId
+  const lives = currentUser?.lives ?? 30
+  const isDead = currentUser?.isDead ?? false
   const [showNameModal, setShowNameModal] = useState(false)
   const [resultView, setResultView] = useState('score') 
   const [forceFill, setForceFill] = useState(false)
@@ -986,12 +988,23 @@ export default function CineClue()  {
 
 
   function handleCharClick(charId){
-    setSelChar(charId)
-    const exists = users.find(u=>u.charId===charId)
-    if(!exists){
-      setTempChar(charId)
-      setShowNameModal(true)
+    const target = users.find(u => u.charId === charId)
+    // 🔥 1. 기존 캐릭터 있음
+    if(target){
+      // 👉 죽은 캐릭터 → 부활 팝업
+      if(target?.isDead){
+        setReviveTarget(charId)
+        setShowRevive(true)
+        return
+      }
+      // 👉 살아있는 캐릭터 → 선택
+      setSelChar(charId)
+      return
     }
+    // 🔥 2. 신규 캐릭터 (기존 로직 유지)
+    setSelChar(charId)
+    setTempChar(charId)
+    setShowNameModal(true)
   }
 
 
@@ -1199,7 +1212,7 @@ export default function CineClue()  {
         setUsers(prev => {
           const updated = prev.map(u => {
             if(u.charId === selChar){
-              return { ...u, score: (u.score || 0) + gained }
+              return { ...u, score: (u.score || 0) + gained, lives: Math.min((u.lives ?? 30) + 1, 30) }
             }
             return u
           })
@@ -1327,6 +1340,22 @@ export default function CineClue()  {
     setIsSubmitting(true)
     setComboStreak(0)
     setMode(null)
+
+    setUsers(prev => {
+      const updated = prev.map(u => {
+        if(u.charId === selChar){
+          const nextLives = (u.lives ?? 30) - 1
+          return {
+            ...u,
+            lives: Math.max(nextLives, 0),
+            isDead: nextLives <= 0
+          }
+        }
+        return u
+      })
+      localStorage.setItem('cineclue_users', JSON.stringify(updated))
+      return updated
+    })
 
     const m = pool[qi]
 
@@ -1520,73 +1549,120 @@ export default function CineClue()  {
                     flexDirection:'column',
                     alignItems:'center',
                     gap:8,
-                    cursor:'pointer',
+                    cursor: u?.isDead ? 'pointer' : 'pointer',
                     transition:'all .18s cubic-bezier(.34,1.56,.64,1)',
                     boxShadow:sel?`0 6px 22px ${c.color}50`:'0 1px 4px rgba(0,0,0,0.06)',
-                    transform:sel?'scale(1.06)':'scale(1)',
-                    position:'relative',
+                    transform: sel && !u?.isDead ? 'scale(1.06)' : 'scale(1)',
+                    position:'relative'
+                }}>
+                  <div style={{
+                    width:'100%',
+                    display:'flex',
+                    flexDirection:'column',
+                    alignItems:'center',
+                    gap:8,
+                    opacity: u?.isDead ? 0.45 : 1,
+                    filter: u?.isDead ? 'grayscale(100%)' : 'none',
                   }}>
-
-                  {sel && (
-                    <div style={{
-                      position:'absolute',
-                      top:8,
-                      right:8,
-                      width:18,
-                      height:18,
-                      borderRadius:'50%',
-                      background:c.color,
-                      display:'flex',
-                      alignItems:'center',
-                      justifyContent:'center'
-                    }}>
-                      <span style={{color:'#fff',fontSize:'0.95rem',fontWeight:900}}>✓</span>
-                    </div>
-                  )}
-
-                  {u && (
-                    <div
-                      onClick={(e)=>{
-                        e.stopPropagation()
-                        deleteUser(c.id)
-                      }}
-                      style={{
+                    {sel && (
+                      <div style={{
                         position:'absolute',
                         top:8,
-                        left:8,
-                        fontSize:11,
-                        background:'#c0bdbd',
-                        color:'#fff',
-                        borderRadius:6,
-                        padding:'2px 6px',
-                        cursor:'pointer'
+                        right:8,
+                        width:18,
+                        height:18,
+                        borderRadius:'50%',
+                        background:c.color,
+                        display:'flex',
+                        alignItems:'center',
+                        justifyContent:'center'
                       }}>
-                      ✕
-                    </div>
-                  )}
-
-                  <svg viewBox="0 0 80 80" fill="none" style={{width:56,height:56}}>
-                    {c.svg.props.children}
-                  </svg>
-
-                  <div style={{
-                    fontSize:'0.7rem',
-                    fontWeight:700,
-                    color:sel?c.color:'#6f6e6e',
-                    textAlign:'center',
-                    lineHeight:1.3,
-                  }}>
-                    {u ? u.nickname : c.name}
-
+                        <span style={{color:'#fff',fontSize:'0.95rem',fontWeight:900}}>✓</span>
+                      </div>
+                    )}
+                    {u?.isDead && (
+                      <div style={{
+                        position:'absolute',
+                        top:6,
+                        right:6,
+                        zIndex:5,
+                        filter:'drop-shadow(0 1px 2px rgba(0,0,0,0.4))'
+                      }}>
+                        <svg width="28" height="65" viewBox="0 0 24 24">
+                          {/* 무덤 */}
+                          <path
+                            d="M6 20V10C6 7 8 5 12 5C16 5 18 7 18 10V20H6Z"
+                            fill="#aa9e9e"
+                          />
+                          {/* 십자가 세로 */}
+                          <rect x="11" y="8" width="2" height="14" fill="#000000"/>
+                          {/* 십자가 가로 */}
+                          <rect x="9" y="10" width="6" height="2" fill="#000000"/>
+                          {/* 바닥 */}
+                          <rect x="5" y="20" width="14" height="2" fill="#717171"/>
+                        </svg>
+                      </div>
+                    )}
+                    <svg viewBox="0 0 80 80" fill="none" style={{width:56,height:56}}>
+                      {c.svg.props.children}
+                    </svg>
                     <div style={{
-                      fontSize:'0.6rem',
-                      fontWeight:500,
-                      marginTop:2,
-                      color:'#72685e'
+                      fontSize:'0.7rem',
+                      fontWeight:700,
+                      color:sel?c.color:'#6f6e6e',
+                      textAlign:'center',
+                      lineHeight:1.3,
                     }}>
-                      {u ? (u.score || 0) : ''}
+                      {u ? u.nickname : c.name}
+                      <div style={{
+                        fontSize:'0.6rem',
+                        fontWeight:500,
+                        marginTop:2,
+                        color:'#72685e'
+                      }}>
+                        {u ? (u.score || 0) : ''}
+                      </div>
                     </div>
                   </div>
+                    {u && (
+                      <div
+                        onClick={(e)=>{
+                          e.stopPropagation()
+                          if(u.isDead){
+                            // 🔥 부활 처리 (여기!)
+                            setUsers(prev => {
+                              const updated = prev.map(x => {
+                                if(x.charId === c.id){
+                                  return {
+                                    ...x,
+                                    lives: 10,       // 🔥 부활 시 10
+                                    isDead: false
+                                  }
+                                }
+                                return x
+                              })
+                              localStorage.setItem('cineclue_users', JSON.stringify(updated))
+                              return updated
+                            })
+                          } else{
+                            deleteUser(c.id)
+                          }
+                        }}
+                        style={{
+                          position:'absolute',
+                          top:8,
+                          left:8,
+                          fontSize:11,
+                          background:'#ffa8a8',
+                          color:'#ffffff',
+                          borderRadius:6,
+                          padding:'2px 6px',
+                          cursor:'pointer',
+                          zIndex:10
+                      }}>
+                      {u.isDead ? '♥' : '✕'}
+                    </div>
+                  )}
                 </div>
               ) 
             })}
@@ -1635,11 +1711,11 @@ export default function CineClue()  {
               <input
                 value={nickname}
                 onChange={(e)=>{
-                  if(e.target.value.length<=11){
+                  if(e.target.value.length<=10){
                     setNickname(e.target.value)
                   }
                 }}
-                placeholder="최대 11자"
+                placeholder="최대 10자"
                 style={{
                   width:'100%',
                   height:44,
@@ -1906,34 +1982,109 @@ export default function CineClue()  {
           }}>
 
             {/* 1️⃣ 캐릭터 / 포인트 영역 */}
-            <div style={{
-              display:'flex',
-              alignItems:'center',
-              gap:10,
-              marginBottom:8
-            }}> 
-              <CharAvatar charId={selChar} size={34}/>
-              <span style={{
-                fontSize:'0.75rem',
-                fontWeight:700,
-                color:'#1a1814',
-                flex:1
-              }}>
-                {users.find(u=>u.charId===selChar)?.nickname || 'USER'}
-              </span>
+            <div style={{position:'relative', width:42, height:42}}>
 
-              <span style={{
-                fontSize:'0.7rem',
-                fontWeight:800,
-                padding:'4px 10px',
-                borderRadius:20,
-                background: `${g?.color||'#e8808c'}15`,
-                color: g?.color,
-                border:`1px solid ${g?.color||'#e8808c'}30`,
-              }}>
-                {getPts()}pt
-              </span>
-            </div>
+    {/* 목숨 링 */}
+
+    <svg width="42" height="42" style={{
+
+      position:'absolute',
+
+      top:0,
+
+      left:0
+
+    }}>
+
+      {/* 배경 */}
+
+      <circle
+
+        cx="21"
+
+        cy="21"
+
+        r="18"
+
+        stroke="#eee"
+
+        strokeWidth="3"
+
+        fill="none"
+
+      />
+
+  {/* 🔥 실제 게이지 + 깜빡임 (하나로 합침) */}
+
+  <circle
+
+    cx="21"
+
+    cy="21"
+
+    r="18"
+
+    stroke={lives <= 3 ? '#ff3b3b' : '#4caf50'}
+
+    strokeWidth="3"
+
+    fill="none"
+
+    strokeDasharray={113}
+
+    strokeDashoffset={113 * (1 - lives / 30)}
+
+    strokeLinecap="round"
+
+    style={{
+
+      transition:'all 0.3s ease',
+
+      animation: lives <= 3 ? 'blinkRed 0.8s infinite' : 'none'
+
+    }}
+
+  />
+
+    </svg>
+
+    {/* 🔥 캐릭터 (중앙 정렬 핵심) */}
+
+  <div style={{
+
+    position:'absolute',
+
+    top:'50%',
+
+    left:'50%',
+
+    transform:'translate(-50%, -50%)'
+
+  }}>
+
+    <CharAvatar charId={selChar} size={34}/>
+
+  </div>
+
+</div>
+
+   {/* 닉네임 */}
+
+  <span style={{
+
+    fontSize:'0.75rem',
+
+    fontWeight:700,
+
+    color:'#1a1814',
+
+    flex:1
+
+  }}>
+
+    {users.find(u=>u.charId===selChar)?.nickname || 'USER'}
+
+  </span>
 
             {/* 2️⃣ 버블영역 */}
             <div style={{
@@ -2498,15 +2649,18 @@ export default function CineClue()  {
     const nickname = user?.nickname || 'USER'
     const currentGrade = selGrades?.[0]
     const hasFail = results.some(r => !r.correct)
+
+    let lastRank = 1
     const ranked = ranking.map((r, i) => {
       if(i === 0){
         return { ...r, rank: 1 }
       }
       const prev = ranking[i-1]
       if(r.score === prev.score){
-        return { ...r, rank: ranked[i-1].rank }
+        return { ...r, rank: lastRank }
       }
-      return { ...r, rank: i + 1 }
+      lastRank = i + 1
+      return { ...r, rank: lastRank }
     })
 
     return(
