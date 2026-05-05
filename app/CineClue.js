@@ -88,67 +88,36 @@ function lev(a,b){
   return dp[m][n]
 }
 function isCorrect(inp, title, answers = []) {
-
   const a = normalize(inp)
-
   for (const c of [title, ...answers]) {
-
     const b = normalize(c)
-
      // 🔥 1️⃣ 숫자 4자리면 완전 일치만 허용
-
     if (/^\d{4}$/.test(b)) {
-
       if (a === b) return true
-
       continue
-
     }
-
     // 1️⃣ 완전 일치
-
     if (a === b) return true
-
     // 2️⃣ 짧은 단어 보호
-
     if (b.length < 4) continue
-
     // 3️⃣ 오타 1개 허용
-
     if (a.length === b.length && lev(a, b) <= 1) {
-
       return true
-
     }
-
   }
-
   return false
-
 }
-
 //스피너//
-
 function CharacterSpinner({ fadeOut }){
-
   const [idx, setIdx] = useState(0)
-
   useEffect(() => {
-
   const t = setInterval(() => {
-
     setIdx(prev => (prev + 1) % CHARS.length)
-
   }, 180)
-
   return () => clearInterval(t)
-
 }, [])
-
   const char = CHARS[idx]
-
   return(
-
     <div style={{
       position:'fixed',
       inset:0,
@@ -482,19 +451,6 @@ animationDelay: '5s'
 
 
 
-
-function buildSidePool(side){
-  if(!side) return []
-  const p=[]
-  if(side.year) p.push({t:'year',v:side.year})
-  if(side.actors) side.actors.forEach(a=>p.push({t:'a',v:a}))
-  if(side.genre) p.push({t:'g',v:side.genre})
-  if(side.awards) side.awards.forEach(a=>p.push({t:'aw',v:a}))
-  if(side.runtime) p.push({t:'rt',v:side.runtime})
-  for(let i=p.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[p[i],p[j]]=[p[j],p[i]]}
-  return p
-}
-
 async function saveLog({
   supabase,
   userId,
@@ -667,10 +623,26 @@ export default function CineClue()  {
     return all
   }   
 
+  const MODES = [
+    { key:'2020s', label:'20년대', type:'era', image:'/mode/20s.png' },
+    { key:'2010s', label:'10년대', type:'era', image:'/mode/10s.png' },
+    { key:'2000s', label:'00년대', type:'era', image:'/mode/00s.png' },
+    { key:'1990s', label:'90년대', type:'era', image:'/mode/90s.png' },
+    { key:'old', label:'오래전', type:'era', image:'/mode/old.png' },
+    { key:'all', label:'전체', type:'era', image:'/mode/all.png' },
+    { key:'horror', label:'호러파티', type:'theme', image:'/mode/horror.png' },
+    { key:'hk', label:'홍콩매니아', type:'theme', image:'/mode/hk.png' },
+    { key:'sf', label:'SF환상특급', type:'theme', image:'/mode/sf.png' },
+    { key:'kr', label:'한국영화', type:'theme', image:'/mode/kr.png' },
+    { key:'anime', label:'애니', type:'theme', image:'/mode/anime.png' },
+    { key:'thriller', label:'스릴러 영화', type:'theme', image:'/mode/thriller.png' }
+  ]
   const [isFlashing, setIsFlashing] = useState(false)
+  const ERA_MODES = MODES.filter(m => m.type === 'era')
+  const THEME_MODES = MODES.filter(m => m.type === 'theme')
   const [screen,   setScreen]   = useState('intro')
   const [selChar,  setSelChar]  = useState(null)
-  const [selGrades, setSelGrades] = useState([])
+  const [selGrade, setSelGrade] = useState(null)
   const [pool,     setPool]     = useState([])
   const [qi,       setQi]       = useState(0)
   const [sh,       setSh]       = useState(1)
@@ -714,7 +686,7 @@ export default function CineClue()  {
   const [genreStats, setGenreStats] = useState([])
   const [showProfile, setShowProfile] = useState(false)
   const [rankingRevealDone, setRankingRevealDone] = useState(false)
-  const primaryGrade = selGrades[0] || null
+  const primaryGrade = selGrade || null
   const [progress, setProgress] = useState(0); // 0 ~ 100
   const duration = quizMode === 'objective' ? 15 : 30; // 총 30초
   const skipTime = 30; // 30초에 자동 실행
@@ -888,12 +860,7 @@ export default function CineClue()  {
 
 
   function toggleGrade(id){
-    setSelGrades(prev=>{
-      if(prev.includes(id)){
-        return prev.filter(g=>g !== id)
-      }
-      return [...prev, id]
-    })
+  setSelGrade(id)
   }
 
 
@@ -934,13 +901,13 @@ export default function CineClue()  {
       setRanking(data)
     }
     run()
-  }, [screen, supabase, users, selChar, selGrades, nickname, roundStartScore, results])
+  }, [screen, supabase, users, selChar, selGrade, nickname, roundStartScore, results])
 
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isLevelCompleted, setIsLevelCompleted] = useState(false)
   const inputRef = useRef(null)
   const char = CHARS.find(c=>c.id===selChar)
-  const g    = GRADES.find(x=>x.id===selGrades[0])
+  const g    = GRADES.find(x=>x.id===selGrade)
 
   // ✅ supabase 생성
   useEffect(()=>{
@@ -1071,12 +1038,21 @@ export default function CineClue()  {
             *,
             hints(*)
           `)
-        const g = selGrades[0]
+        const g = selGrade
+
         if(g === '2020s') query = query.gte('year', 2020)
         if(g === '2010s') query = query.gte('year', 2010).lt('year', 2020)
         if(g === '2000s') query = query.gte('year', 2000).lt('year', 2010)
         if(g === '1990s') query = query.gte('year', 1990).lt('year', 2000)
         if(g === 'old')   query = query.lt('year', 1990)
+        if(g === 'horror') query = query.ilike('genre', '%공포%')
+        if(g === 'hk')     query = query.or('country.ilike.%홍콩%,country.ilike.%중국%,country.ilike.%대만%,country.ilike.%일본%')
+        if(g === 'sf')     query = query.ilike('genre', '%SF%')
+        if(g === 'kr')     query = query.ilike('country', '%한국%')
+        if(g === 'anime')  query = query.ilike('genre', '%애니%')
+        if(g === 'thriller.') query = query.ilike('genre', '%스릴러%')
+        if(g === 'all') {// 필터 없음 (전체)
+          }
         const all = []
         const pageSize = 1000
         let from = 0
@@ -1149,6 +1125,7 @@ export default function CineClue()  {
       console.error(e)
       alert('오류 발생')
     }
+      
   
     finally{
       setLoading(false)
@@ -1909,13 +1886,11 @@ export default function CineClue()  {
 
 
     
-      {/* 화면 2: 기간(grade) 선택 화면 */}
+      {/* 화면 2: 게임 모드 선택 화면 */}
       {screen==='grade' && (
         <AppLayout>
           <div style={{background:'#fff',display:'flex',flexDirection:'column',padding:'40px 0 40px',height:'100vh',overflowY:'auto'}}>
-
-            <div style={{padding:'0 20px'}}>
-
+            <div style={{padding:'0 20px',flexShrink:0}}>
               <div style={{
                 fontSize:'0.7rem',
                 fontWeight:700,
@@ -1924,9 +1899,8 @@ export default function CineClue()  {
                 textTransform:'uppercase',
                 marginBottom:14
               }}>
-                도전할 시대를 골라보세요 *여러 개 선택 OK
+                도전할 모드를 선택하세요.
               </div>
-
               <div style={{display:'flex', gap:8, marginBottom:16}}>
                 <button
                   onClick={()=>setQuizMode('subjective')}
@@ -1940,7 +1914,6 @@ export default function CineClue()  {
                   }}>
                   주관식
                 </button>
-
                 <button
                   onClick={()=>setQuizMode('objective')}
                   style={{
@@ -1955,117 +1928,153 @@ export default function CineClue()  {
                 </button>
               </div>
 
-              {GRADES.map(gr=>{
-                const sel = selGrades.includes(gr.id)
-                const color = gr.color || '#e8808c'
-                const border = gr.border || '#e8e4dd'
-                const bg = gr.bg || '#fff5f6'
 
-                return(
-                  <div
-                    key={gr.id}
-                    onClick={()=>toggleGrade(gr.id)}
-                    style={{
-                      borderRadius:16,
-                      border:`2px solid ${sel ? color : border}`,
-                      background: sel ? bg : '#fff',
-                      padding:'12px 16px',
-                      marginBottom:10,
-                      cursor:'pointer',
-                      display:'flex',
-                      alignItems:'center',
-                      gap:14,
-                      transition:'all .2s',
-                      boxShadow: sel
-                        ? `0 3px 16px ${color}20`
-                        : '0 1px 4px rgba(0,0,0,0.05)',
-                    }}>
+              {/* 스크롤 영역 */}
 
-                    {/* 아이콘 */}
-                    <div style={{
-                      width:52,
-                      height:52,
-                      borderRadius:12,
-                      background: sel ? `${color}18` : '#f5f3ef',
-                      border:`1.5px solid ${sel ? color : border}`,
-                      display:'flex',
-                      alignItems:'center',
-                      justifyContent:'center',
-                      flexShrink:0,
-                      overflow:'hidden'
-                    }}>
-                      <svg viewBox="0 0 60 60" fill="none" style={{width:52,height:52}}>
-                        {GRADE_CHARS?.[gr.id]?.props?.children}
-                      </svg>
-                    </div>
+              <div style={{
+                flex:1,
+                overflowY:'auto',
+                padding:'10px 5px 5px'
+              }}>
 
-                    {/* 텍스트 */}
-                    <div style={{flex:1,minWidth:0}}>
-                      <div style={{
-                        fontSize:'0.9rem',
-                        fontWeight:800,
-                        color: sel ? color : '#1a1814',
-                        marginBottom:5
-                      }}>
-                        {gr.name}
+                <div style={{
+                  display:'grid',
+                  gridTemplateColumns:'repeat(3,1fr)',
+                  gap:10,
+                  marginBottom:16
+                }}>
+                  {ERA_MODES.map(m => {
+                    const sel = selGrade === m.key
+                    return (
+                      <div
+                        key={m.key}
+                        onClick={()=>toggleGrade(m.key)}
+                        style={{
+                          height:80,
+                          borderRadius:16,
+                          overflow:'hidden',
+                          position:'relative',
+                          cursor:'pointer',
+                          transform: sel ? 'scale(1.09)' : 'scale(1)',
+                          boxShadow: sel
+                            ? '0 6px 18px rgba(0,0,0,0.2)'
+                            : '0 2px 6px rgba(0,0,0,0.08)'
+                        }}
+                      >
+                        <img
+                          src={m.image}
+                          style={{
+                            width:'100%',
+                            height:'100%',
+                            objectFit:'cover'
+                          }}
+                        />
+                        {sel && (
+                          <div style={{
+                            position:'absolute',
+                            inset:0,
+                            outline:'3px solid #323232', 
+                            borderRadius:16,
+                            pointerEvents:'none'
+                          }}/>
+                        )}
                       </div>
-
-                      <div style={{
-                        fontSize:'0.7rem',
-                        color:'#707070',
-                        lineHeight:1.2
-                      }}>
-                        {gr.desc}
+                    )
+                  })}
+                </div>
+                {/* 🔥 테마 */}
+                <div style={{
+                  display:'grid',
+                  gridTemplateColumns:'repeat(3,1fr)',
+                  gap:10,
+                }}>
+                  {THEME_MODES.map(m => {
+                    const sel = selGrade === m.key
+                    return (
+                      <div
+                        key={m.key}
+                        onClick={()=>toggleGrade(m.key)}
+                        style={{
+                          height:80,
+                          borderRadius:16,
+                          overflow:'hidden',
+                          position:'relative',
+                          cursor:'pointer',
+                          transform: sel ? 'scale(1.09)' : 'scale(1)',
+                          boxShadow: sel
+                            ? '0 6px 18px rgba(0,0,0,0.2)'
+                            : '0 2px 6px rgba(0,0,0,0.08)'
+                        }}
+                      >
+                        <img
+                          src={m.image}
+                          style={{
+                            width:'100%',
+                            height:'100%',
+                            objectFit:'cover'
+                          }}
+                        />
+                        {sel && (
+                          <div style={{
+                            position:'absolute',
+                            inset:0,
+                            outline:'3px solid #323232', 
+                            borderRadius:16,
+                            pointerEvents:'none'
+                          }}/>
+                        )}
                       </div>
-                    </div>
-                  </div>
-                )
-              })}
-            </div>
+                    )
+                  })}
+                </div>
+              </div>
 
-            {/* 버튼 영역 */}
-            <div style={{
-              padding:'12px 20px 0',
-              display:'flex',
-              flexDirection:'row',
-              gap:10
-            }}>
+              {/* 버튼 영역 */}
+              <div style={{
+                padding:'20px 0 0',
+                display:'flex',
+                flexDirection:'row',
+                gap:10,
+                flexShrink:0,
+                background:'#fff'
+              }}>
 
-              {/* 퀴즈시작 버튼 */}
-              <button
-                style={{
-                  flex:1,
-                  height:54,
-                  borderRadius:14,
-                  background: selGrades.length > 0 && !loading ? '#ed4b5e' : '#d4d0cc',
-                  color:'#fff',
-                  fontSize:'0.8rem',
-                  fontWeight:700,
-                  border:'none',
-                  cursor: selGrades.length > 0 && !loading ? 'pointer' : 'default'
-                }}
-                disabled={selGrades.length === 0 || loading}
-                onClick={()=>loadMovies()}>
+                {/* 퀴즈시작 버튼 */}
+                <button
+                  style={{
+                    flex:1,
+                    height:54,
+                    borderRadius:14,
+                    background: selGrade !== null && !loading ? '#ed4b5e' : '#d4d0cc',
+                    color:'#fff',
+                    fontSize:'0.8rem',
+                    fontWeight:700,
+                    border:'none',
+                    cursor: selGrade !== null && !loading ? 'pointer' : 'default'
+                  }}
+                  disabled={selGrade === null || loading}
+                  onClick={()=>loadMovies()}>
 
-                {loading ? '로딩 중...' : '퀴즈시작'}
-              </button> 
+                  {loading ? '로딩 중...' : '퀴즈시작'}
+                </button> 
 
-              {/* 뒤로가기 버튼 */}
-              <button
-                style={{
-                  flex:1,
-                  height:54,
-                  borderRadius:12,
-                  background:'transparent',
-                  color:'#6e6e6e',
-                  fontSize:'0.8rem',
-                  fontWeight:500,
-                  border:'1.5px solid #e8e4dd',
-                  cursor:'pointer'
-                }}
-                onClick={()=>setScreen('char')}>
-                캐릭터 선택
-              </button>
+                {/* 뒤로가기 버튼 */}
+                <button
+                  style={{
+                    flex:1,
+                    height:54,
+                    borderRadius:12,
+                    background:'transparent',
+                    color:'#6e6e6e',
+                    fontSize:'0.8rem',
+                    fontWeight:500,
+                    border:'1.5px solid #e8e4dd',
+                    cursor:'pointer'
+                  }}
+                  onClick={()=>setScreen('char')}>
+                  캐릭터 선택
+                </button>
+              </div>
             </div>
           </div>
         </AppLayout>
@@ -2801,7 +2810,7 @@ export default function CineClue()  {
         const roundScore = (results ?? []).reduce((s,r)=>s+r.score,0)
         const tot = baseScore + roundScore
         const nickname = user?.nickname || 'USER'
-        const currentGrade = selGrades?.[0]
+        const currentGrade = selGrade
         const hasFail = results.some(r => !r.correct)
 
         let lastRank = 1

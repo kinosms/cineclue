@@ -94,13 +94,9 @@ export default function FlashLetterHint({ title, hintLevel, onFlash }) {
     // 🔥 4글자 이상
     if (len >= 4) {
 
-      if (hintLevel >= 2 && hintLevel <= 4) {
+      if (hintLevel >= 2 && hintLevel <= 5) {
         const index = order[hintLevel - 2]
         value = letters[index]
-      }
-
-      if (hintLevel === 5) {
-        value = cleanTitle.slice(0, 2)
       }
 
     }
@@ -108,13 +104,9 @@ export default function FlashLetterHint({ title, hintLevel, onFlash }) {
     // 🔥 3글자
     else if (len === 3) {
 
-      if (hintLevel >= 2 && hintLevel <= 4) {
+      if (hintLevel >= 3 && hintLevel <= 5) {
         const index = order[(hintLevel - 2) % order.length]
         value = letters[index]
-      }
-
-      if (hintLevel === 5) {
-        value = cleanTitle.slice(0, 2)
       }
 
     }
