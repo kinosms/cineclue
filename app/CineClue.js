@@ -624,18 +624,18 @@ export default function CineClue()  {
   }   
 
   const MODES = [
-    { key:'2020s', label:'20년대', type:'era', image:'/mode/20s.png' },
-    { key:'2010s', label:'10년대', type:'era', image:'/mode/10s.png' },
-    { key:'2000s', label:'00년대', type:'era', image:'/mode/00s.png' },
-    { key:'1990s', label:'90년대', type:'era', image:'/mode/90s.png' },
-    { key:'old', label:'오래전', type:'era', image:'/mode/old.png' },
-    { key:'all', label:'전체', type:'era', image:'/mode/all.png' },
-    { key:'horror', label:'호러파티', type:'theme', image:'/mode/horror.png' },
-    { key:'hk', label:'홍콩매니아', type:'theme', image:'/mode/hk.png' },
-    { key:'sf', label:'SF환상특급', type:'theme', image:'/mode/sf.png' },
-    { key:'kr', label:'한국영화', type:'theme', image:'/mode/kr.png' },
-    { key:'anime', label:'애니', type:'theme', image:'/mode/anime.png' },
-    { key:'thriller', label:'스릴러 영화', type:'theme', image:'/mode/thriller.png' }
+    { key:'2020s', label:'20년대', type:'era', image:'/mode/20s.webp' },
+    { key:'2010s', label:'10년대', type:'era', image:'/mode/10s.webp' },
+    { key:'2000s', label:'00년대', type:'era', image:'/mode/00s.webp' },
+    { key:'1990s', label:'90년대', type:'era', image:'/mode/90s.webp' },
+    { key:'old', label:'오래전', type:'era', image:'/mode/old.webp' },
+    { key:'all', label:'전체', type:'era', image:'/mode/all.webp' },
+    { key:'horror', label:'호러파티', type:'theme', image:'/mode/horror.webp' },
+    { key:'hk', label:'홍콩매니아', type:'theme', image:'/mode/hk.webp' },
+    { key:'sf', label:'SF환상특급', type:'theme', image:'/mode/sf.webp' },
+    { key:'kr', label:'한국영화', type:'theme', image:'/mode/kr.webp' },
+    { key:'anime', label:'애니', type:'theme', image:'/mode/anime.webp' },
+    { key:'thriller', label:'스릴러 영화', type:'theme', image:'/mode/thriller.webp' }
   ]
   const [isFlashing, setIsFlashing] = useState(false)
   const ERA_MODES = MODES.filter(m => m.type === 'era')
