@@ -2201,7 +2201,7 @@ useEffect(()=>{
                 />
                 {/* 메뉴 */}
                 <div style={{
-                  position:'absolute',
+                  position:'fixed',
                   top:30,
                   right:18,
                   width:220,
@@ -2221,6 +2221,10 @@ useEffect(()=>{
                   ].map((item,i)=>(
                     <div
                       key={i}
+                      onClick={()=>{
+                        setSettingsPage(item)
+                        setShowSettings(false)
+                      }}
                       style={{
                         padding:'14px 16px',
                         fontSize:'0.82rem',
