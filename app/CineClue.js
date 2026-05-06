@@ -441,11 +441,8 @@ animationDelay: '5s'
 }
 
 `}</style>
-
     </div>
-
   )
-
 }
 
 
@@ -624,20 +621,40 @@ export default function CineClue()  {
   }   
 
   const MODES = [
-    { key:'2020s', label:'20년대', type:'era', image:'/mode/20s.webp' },
-    { key:'2010s', label:'10년대', type:'era', image:'/mode/10s.webp' },
-    { key:'2000s', label:'00년대', type:'era', image:'/mode/00s.webp' },
-    { key:'1990s', label:'90년대', type:'era', image:'/mode/90s.webp' },
-    { key:'old', label:'오래전', type:'era', image:'/mode/old.webp' },
-    { key:'all', label:'전체', type:'era', image:'/mode/all.webp' },
+    { key:'2020s', label:'2020년대', type:'era', image:'/mode/20s.webp' },
+    { key:'2010s', label:'2010년대', type:'era', image:'/mode/10s.webp' },
+    { key:'2000s', label:'2000년대', type:'era', image:'/mode/00s.webp' },
+    { key:'1990s', label:'1990년대', type:'era', image:'/mode/90s.webp' },
+    { key:'old', label:'CLASSIC MOVIES', type:'era', image:'/mode/old.webp' },
+    { key:'all', label:'ALL MOVIES', type:'era', image:'/mode/all.webp' },
     { key:'horror', label:'호러파티', type:'theme', image:'/mode/horror.webp' },
-    { key:'hk', label:'홍콩매니아', type:'theme', image:'/mode/hk.webp' },
+    { key:'hk', label:'아시아영화 매니아', type:'theme', image:'/mode/hk.webp' },
     { key:'sf', label:'SF환상특급', type:'theme', image:'/mode/sf.webp' },
-    { key:'kr', label:'한국영화', type:'theme', image:'/mode/kr.webp' },
-    { key:'anime', label:'애니', type:'theme', image:'/mode/anime.webp' },
-    { key:'thriller', label:'스릴러 영화', type:'theme', image:'/mode/thriller.webp' }
+    { key:'kr', label:'한국영화 따라잡기', type:'theme', image:'/mode/kr.webp' },
+    { key:'anime', label:'오로지 애니', type:'theme', image:'/mode/anime.webp' },
+    { key:'thriller', label:'미스테리&스릴러', type:'theme', image:'/mode/thriller.webp' }
   ]
+
+const MODE_IMAGES = [
+  '/mode/20s.webp',
+  '/mode/10s.webp',
+  '/mode/00s.webp',
+  '/mode/90s.webp',
+  '/mode/old.webp',
+  '/mode/all.webp',
+  '/mode/horror.webp',
+  '/mode/hk.webp',
+  '/mode/sf.webp',
+  '/mode/kr.webp',
+  '/mode/anime.webp',
+  '/mode/thriller.webp'
+]
+
+
   const [isFlashing, setIsFlashing] = useState(false)
+  const [showSettings, setShowSettings] = useState(false)
+  const [settingsPage, setSettingsPage] = useState(null)
+  const [selectedSuggestion, setSelectedSuggestion] = useState(-1)
   const ERA_MODES = MODES.filter(m => m.type === 'era')
   const THEME_MODES = MODES.filter(m => m.type === 'theme')
   const [screen,   setScreen]   = useState('intro')
@@ -710,7 +727,6 @@ export default function CineClue()  {
   }
 
 
-
   useEffect(() => {
     console.log('lifeDelta 👉', lifeDelta)
     if (lifeDelta === null) return
@@ -719,6 +735,23 @@ export default function CineClue()  {
     }, 1000)   // 👉 시간 늘려도 됨
     return () => clearTimeout(t)
   }, [lifeDelta])
+
+
+
+  useEffect(()=>{
+    setSelectedSuggestion(-1)
+  }, [suggestions])
+
+
+
+
+useEffect(()=>{
+  MODE_IMAGES.forEach(src => {
+    const img = new Image()
+    img.src = src
+  })
+},[])
+
 
 
 
@@ -1027,9 +1060,23 @@ export default function CineClue()  {
       .not('movie_id', 'is', null)
       .order('id', { ascending: false })
 
+      const HISTORY_LIMIT = {
+        '2020s': 900,
+        '2010s': 900,
+        '2000s': 900,
+        '1990s': 900,
+        'old': 700,
+        'kr': 900,
+        'thriller': 700,
+        'horror': 250,
+        'hk': 250,
+        'sf': 250,
+        'anime': 200
+}
       const playedIds = (logs || [])
-      .map(l => l.movie_id)
-      .slice(0, 900)
+        .map(l => l.movie_id)
+        .slice(0, HISTORY_LIMIT[selGrade] || 300)
+
       // 3️⃣ 영화 가져오기 (🔥 필터 제거)
       async function fetchMoviesByYears(){
         let query = supabase
@@ -1050,7 +1097,7 @@ export default function CineClue()  {
         if(g === 'sf')     query = query.ilike('genre', '%SF%')
         if(g === 'kr')     query = query.ilike('country', '%한국%')
         if(g === 'anime')  query = query.ilike('genre', '%애니%')
-        if(g === 'thriller.') query = query.ilike('genre', '%스릴러%')
+        if(g === 'thriller') query = query.ilike('genre', '%스릴러%')
         if(g === 'all') {// 필터 없음 (전체)
           }
         const all = []
@@ -1550,6 +1597,7 @@ export default function CineClue()  {
       charId: tempChar,
       nickname,
       score: 0,
+      lives: 15,
       userId: Date.now().toString()
     }
 
@@ -1639,7 +1687,221 @@ export default function CineClue()  {
 
       {screen === 'char' && (
         <AppLayout>
-          <div style={{width:'100%',background:'#fff',display:'flex',height:'100dvh',flexDirection:'column',padding:'48px 0 40px',overflowY:'auto'}}>
+          <div style={{width:'100%',background:'#fff',position:'relative',display:'flex',height:'100dvh',flexDirection:'column',padding:'48px 0 40px',overflowY:'auto'}}>
+            <div style={{
+              position:'absolute',
+              top:20,
+              right:24,
+              zIndex:20
+            }}>
+              <button
+                onClick={()=>setShowSettings(true)}
+                style={{
+                  width:32,
+                  height:32,
+                  border:'none',
+                  background:'transparent',
+                  display:'flex',
+                  alignItems:'center',
+                  justifyContent:'center',
+                  cursor:'pointer',
+                  padding:0
+                }}
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="18"
+                  height="18"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="#b0aaa3"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <circle cx="12" cy="12" r="3"></circle>
+                  <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33h0A1.65 1.65 0 0 0 10 3.09V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51h0a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82v0A1.65 1.65 0 0 0 20.91 10H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+                </svg>
+              </button>
+              {showSettings && (
+              <>
+                {/* 배경 클릭 닫기 */}
+                <div
+                  onClick={()=>setShowSettings(false)}
+                  style={{
+                    position:'fixed',
+                    inset:0,
+                    background:'rgba(0,0,0,0.18)',
+                    zIndex:90
+                  }}
+                />
+                  {/* 메뉴 */}
+                  <div style={{
+                    position:'absolute',
+                    top:30,
+                    right:18,
+                    width:220,
+                    background:'#fff',
+                    border:'1px solid #ece8e2',
+                    borderRadius:18,
+                    overflow:'hidden',
+                    boxShadow:'0 10px 30px rgba(0,0,0,0.08)',
+                    zIndex:100,
+                    animation:'menuFade .18s ease'
+                  }}>
+                    {[
+                      '소개',
+                      '게임규칙',
+                      '문의하기',
+                      '신고하기'
+                    ].map((item,i)=>(
+                      <div
+                        key={i}
+                        onClick={()=>{
+                          setSettingsPage(item)
+                        }}
+                        style={{
+                          padding:'14px 16px',
+                          fontSize:'0.82rem',
+                          fontWeight:600,
+                          color:'#1a1814',
+                          borderBottom:
+                            i !== 3
+                              ? '1px solid #f3f0eb'
+                              : 'none',
+                          cursor:'pointer',
+                          background:'#fff'
+                        }}
+                      >
+                        {item}
+                      </div>
+                    ))}
+                  </div>
+                </>
+              )}
+
+              {settingsPage && (
+                <div style={{
+                  position:'fixed',
+                  inset:0,
+                  background:'rgba(0,0,0,0.28)',
+                  zIndex:120,
+                  display:'flex',
+                  justifyContent:'center',
+                  alignItems:'center'
+                }}>
+
+                  <div style={{
+                    width:'88%',
+                    maxWidth:420,
+                    background:'#fff',
+                    borderRadius:22,
+                    padding:'24px 20px',
+                    boxShadow:'0 20px 40px rgba(0,0,0,0.12)',
+                    position:'relative'
+                  }}>
+
+                    {/* 닫기 */}
+                    <button
+                      onClick={()=>setSettingsPage(null)}
+                      style={{
+                        position:'absolute',
+                        top:14,
+                        right:14,
+                        border:'none',
+                        background:'transparent',
+                        fontSize:'1.2rem',
+                        color:'#999',
+                        cursor:'pointer'
+                      }}
+                    >
+                      ×
+                    </button>
+
+                    {/* 제목 */}
+                    <div style={{
+                      fontSize:'1rem',
+                      fontWeight:800,
+                      marginBottom:18,
+                      color:'#1a1814'
+                    }}>
+                      {settingsPage}
+                    </div>
+
+                    {/* 내용 */}
+                    {settingsPage === '소개' && (
+                      <div style={{
+                        fontSize:'0.82rem',
+                        lineHeight:1.8,
+                        color:'#5f5a55'
+                      }}>
+                        <div style={{
+                          fontSize:'1.2rem',
+                          fontWeight:900,
+                          marginBottom:14,
+                          color:'#1a1814'
+                        }}>
+                          CineCLUE
+                        </div>
+
+                        영화를 기억하는 방식은
+                        제목보다 장면에 가깝습니다.
+
+                        <br/><br/>
+
+                        CineCLUE는
+                        장면의 단서를 통해 영화를 맞히는
+                        영화 퀴즈 게임입니다.
+                      </div>
+                    )}
+
+                    {settingsPage === '게임규칙' && (
+                      <div style={{
+                        fontSize:'0.82rem',
+                        lineHeight:1.9,
+                        color:'#5f5a55'
+                      }}>
+                        • 힌트를 보고 영화 제목을 맞혀보세요.
+                        <br/>
+                        • 게임모드에 따라 얻을 수 있는 점수가 다릅니다.
+                        <br/>
+                        • 주관식모드는 한글자 또는 초성을 힌트로 제공합니다.
+                        <br/>
+                        • 연속 정답 시 콤보 보너스가 적용됩니다.
+                        <br/>
+                        • 목숨이 모두 소진되면 캐릭터가 사망하고, 소생가능합니다.
+                        <br/>
+                        • 캐릭터 삭제시 기록은 삭제되지만 랭킹에는 남습니다.
+                      </div>
+                    )}
+
+                    {settingsPage === '문의하기' && (
+                      <div style={{
+                        fontSize:'0.82rem',
+                        lineHeight:1.8,
+                        color:'#5f5a55'
+                      }}>
+                        Contact Us
+                        <br/>
+                        cinecluegame@gmail.com
+                      </div>
+                    )}
+
+                    {settingsPage === '신고하기' && (
+                      <div style={{
+                        fontSize:'0.82rem',
+                        lineHeight:1.8,
+                        color:'#5f5a55'
+                      }}>
+                        힌트 오류 / 제목 오류 / 일반 문의 등을
+                        메일로 보내주세요.
+                      </div>
+                    )}
+
+                  </div>
+                </div>
+              )}
+            </div>
             <div style={{textAlign:'center',marginBottom:40}}>
               <div style={{fontSize:'2.6rem',fontWeight:900,letterSpacing:'-1px',lineHeight:1,color:'#1a1814'}}>
                 Cine <span style={{color:'#e8808c'}}>CLUE</span>
@@ -1889,7 +2151,217 @@ export default function CineClue()  {
       {/* 화면 2: 게임 모드 선택 화면 */}
       {screen==='grade' && (
         <AppLayout>
-          <div style={{background:'#fff',display:'flex',flexDirection:'column',padding:'40px 0 40px',height:'100vh',overflowY:'auto'}}>
+          <div style={{background:'#fff',display:'flex',position:'relative',flexDirection:'column',padding:'40px 0 40px',height:'100vh',overflowY:'auto'}}>
+            <div style={{
+              position:'absolute',
+              top:20,
+              right:24,
+              zIndex:20
+            }}>
+              <button
+                onClick={()=>setShowSettings(true)}
+                style={{
+                  width:32,
+                  height:32,
+                  border:'none',
+                  background:'transparent',
+                  display:'flex',
+                  alignItems:'center',
+                  justifyContent:'center',
+                  cursor:'pointer',
+                  padding:0
+                }}
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="18"
+                  height="18"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="#b0aaa3"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <circle cx="12" cy="12" r="3"></circle>
+                  <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33h0A1.65 1.65 0 0 0 10 3.09V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51h0a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82v0A1.65 1.65 0 0 0 20.91 10H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+                </svg>
+              </button>
+              {showSettings && (
+              <>
+                {/* 배경 클릭 닫기 */}
+                <div
+                  onClick={()=>setShowSettings(false)}
+                  style={{
+                    position:'fixed',
+                    inset:0,
+                    background:'rgba(0,0,0,0.18)',
+                    zIndex:90
+                  }}
+                />
+                {/* 메뉴 */}
+                <div style={{
+                  position:'absolute',
+                  top:30,
+                  right:18,
+                  width:220,
+                  background:'#fff',
+                  border:'1px solid #ece8e2',
+                  borderRadius:18,
+                  overflow:'hidden',
+                  boxShadow:'0 10px 30px rgba(0,0,0,0.08)',
+                  zIndex:100,
+                  animation:'menuFade .18s ease'
+                }}>
+                  {[
+                    '소개',
+                    '게임규칙',
+                    '문의하기',
+                    '신고하기'
+                  ].map((item,i)=>(
+                    <div
+                      key={i}
+                      style={{
+                        padding:'14px 16px',
+                        fontSize:'0.82rem',
+                        fontWeight:600,
+                        color:'#1a1814',
+                        borderBottom:
+                          i !== 3
+                            ? '1px solid #f3f0eb'
+                            : 'none',
+                        cursor:'pointer',
+                        background:'#fff'
+                      }}
+                    >
+                      {item}
+                    </div>
+                  ))}
+                </div>
+              </>
+              )}
+              {settingsPage && (
+                <div style={{
+                  position:'fixed',
+                  inset:0,
+                  background:'rgba(0,0,0,0.28)',
+                  zIndex:120,
+                  display:'flex',
+                  justifyContent:'center',
+                  alignItems:'center'
+                }}>
+
+                  <div style={{
+                    width:'88%',
+                    maxWidth:420,
+                    background:'#fff',
+                    borderRadius:22,
+                    padding:'24px 20px',
+                    boxShadow:'0 20px 40px rgba(0,0,0,0.12)',
+                    position:'relative'
+                  }}>
+
+                    {/* 닫기 */}
+                    <button
+                      onClick={()=>setSettingsPage(null)}
+                      style={{
+                        position:'absolute',
+                        top:14,
+                        right:14,
+                        border:'none',
+                        background:'transparent',
+                        fontSize:'1.2rem',
+                        color:'#999',
+                        cursor:'pointer'
+                      }}
+                    >
+                      ×
+                    </button>
+
+                    {/* 제목 */}
+                    <div style={{
+                      fontSize:'1rem',
+                      fontWeight:800,
+                      marginBottom:18,
+                      color:'#1a1814'
+                    }}>
+                      {settingsPage}
+                    </div>
+
+                    {/* 내용 */}
+                    {settingsPage === '소개' && (
+                      <div style={{
+                        fontSize:'0.82rem',
+                        lineHeight:1.8,
+                        color:'#5f5a55'
+                      }}>
+                        <div style={{
+                          fontSize:'1.2rem',
+                          fontWeight:900,
+                          marginBottom:14,
+                          color:'#1a1814'
+                        }}>
+                          CineCLUE
+                        </div>
+
+                        영화를 기억하는 방식은
+                        제목보다 장면에 가깝습니다.
+
+                        <br/><br/>
+
+                        CineCLUE는
+                        장면의 단서를 통해 영화를 맞히는
+                        영화 퀴즈 게임입니다.
+                      </div>
+                    )}
+
+                    {settingsPage === '게임규칙' && (
+                      <div style={{
+                        fontSize:'0.82rem',
+                        lineHeight:1.9,
+                        color:'#5f5a55'
+                      }}>
+                        • 힌트를 보고 영화 제목을 맞혀보세요.
+                        <br/>
+                        • 게임모드에 따라 얻을 수 있는 점수가 다릅니다.
+                        <br/>
+                        • 주관식모드는 한글자 또는 초성을 힌트로 제공합니다.
+                        <br/>
+                        • 연속 정답 시 콤보 보너스가 적용됩니다.
+                        <br/>
+                        • 목숨이 모두 소진되면 캐릭터가 사망하고, 소생가능합니다.
+                        <br/>
+                        • 캐릭터 삭제시 기록은 삭제되지만 랭킹에는 남습니다.
+                      </div>
+                    )}
+
+                    {settingsPage === '문의하기' && (
+                      <div style={{
+                        fontSize:'0.82rem',
+                        lineHeight:1.8,
+                        color:'#5f5a55'
+                      }}>
+                        Contact Us
+                        <br/>
+                        cinecluegame@gmail.com
+                      </div>
+                    )}
+
+                    {settingsPage === '신고하기' && (
+                      <div style={{
+                        fontSize:'0.82rem',
+                        lineHeight:1.8,
+                        color:'#5f5a55'
+                      }}>
+                        힌트 오류 / 제목 오류 / 일반 문의 등을
+                        메일로 보내주세요.
+                      </div>
+                    )}
+
+                  </div>
+                </div>
+              )}
+            </div>
             <div style={{padding:'0 20px',flexShrink:0}}>
               <div style={{
                 fontSize:'0.7rem',
@@ -1955,7 +2427,7 @@ export default function CineClue()  {
                           overflow:'hidden',
                           position:'relative',
                           cursor:'pointer',
-                          transform: sel ? 'scale(1.09)' : 'scale(1)',
+                          transform: sel ? 'scale(1.05)' : 'scale(1)',
                           boxShadow: sel
                             ? '0 6px 18px rgba(0,0,0,0.2)'
                             : '0 2px 6px rgba(0,0,0,0.08)'
@@ -1973,7 +2445,7 @@ export default function CineClue()  {
                           <div style={{
                             position:'absolute',
                             inset:0,
-                            outline:'3px solid #323232', 
+                            border:'3px solid rgba(255, 0, 0, 0.9)',
                             borderRadius:16,
                             pointerEvents:'none'
                           }}/>
@@ -2000,7 +2472,7 @@ export default function CineClue()  {
                           overflow:'hidden',
                           position:'relative',
                           cursor:'pointer',
-                          transform: sel ? 'scale(1.09)' : 'scale(1)',
+                          transform: sel ? 'scale(1.05)' : 'scale(1)',
                           boxShadow: sel
                             ? '0 6px 18px rgba(0,0,0,0.2)'
                             : '0 2px 6px rgba(0,0,0,0.08)'
@@ -2018,7 +2490,7 @@ export default function CineClue()  {
                           <div style={{
                             position:'absolute',
                             inset:0,
-                            outline:'3px solid #323232', 
+                            border:'3px solid rgba(255, 0, 0, 0.9)', 
                             borderRadius:16,
                             pointerEvents:'none'
                           }}/>
@@ -2101,14 +2573,9 @@ export default function CineClue()  {
           ): (() => {
         // 퀴즈화면 pool 선언 후 시작
         const m = pool[qi]
+        const currentMode = MODES.find(mode => mode.key === selGrade)
 
-        const basePoint = Math.round(BP * ({
-          1: 1.0,
-          2: 0.8,
-          3: 0.6,
-          4: 0.4,
-          5: 0.2
-        }[sh] || 0))
+        const basePoint = getPts(mode)
 
         return (
           <AppLayout>
@@ -2212,16 +2679,32 @@ export default function CineClue()  {
                     </div>
                   </div>
 
-                  {/* 닉네임 */}
-                  <span style={{
-                    fontSize:'0.75rem',
-                    fontWeight:700,
-                    color:'#1a1814',
+                  {/* 닉네임과 게임모드 */}
+                  <div style={{
                     flex:1,
-                    marginLeft:8
+                    marginLeft:8,
+                    display:'flex',
+                    flexDirection:'column',
+                    justifyContent:'center',
+                    gap:2
                   }}>
-                    {users.find(u=>u.charId===selChar)?.nickname || 'USER'}
-                  </span>
+                    <div style={{
+                      fontSize:'0.62rem',
+                      fontWeight:700,
+                      color:'#5c5b5a',
+                      letterSpacing:'0.04em'
+                    }}>
+                      [{currentMode?.label}]
+                    </div>
+                    <div style={{
+                      fontSize:'0.78rem',
+                      fontWeight:800,
+                      color:'#1a1814',
+                      lineHeight:1.1
+                    }}>
+                      {users.find(u=>u.charId===selChar)?.nickname || 'USER'}
+                    </div>
+                  </div>
 
                   {/* 퀴즈점수 */}
                   <div style={{
@@ -2655,9 +3138,37 @@ export default function CineClue()  {
                                   setSuggestions(filtered)
                                 }}
                                 onKeyDown={e=>{
-                                  if(e.key==='Enter'){
-                                  e.preventDefault()
-                                  submit()
+                                  // ↓ 아래 이동
+                                  if(e.key === 'ArrowDown'){
+                                    e.preventDefault()
+                                    setSelectedSuggestion(prev =>
+                                      Math.min(prev + 1, suggestions.length - 1)
+                                    )
+                                    return
+                                  }
+                                  // ↑ 위 이동
+                                  if(e.key === 'ArrowUp'){
+                                    e.preventDefault()
+                                    setSelectedSuggestion(prev =>
+                                      Math.max(prev - 1, 0)
+                                    )
+                                    return
+                                  }
+                                  // 엔터 선택
+                                  if(e.key === 'Enter'){
+                                    e.preventDefault()
+                                    // 자동완성 선택
+                                    if(
+                                      selectedSuggestion >= 0 &&
+                                      suggestions[selectedSuggestion]
+                                    ){
+                                      setInput(suggestions[selectedSuggestion].title)
+                                      setSuggestions([])
+                                      setSelectedSuggestion(-1)
+                                      return
+                                    }
+                                    // 일반 제출
+                                    submit()
                                   }
                                 }}
                                 placeholder="영화 제목 입력"
@@ -2665,7 +3176,7 @@ export default function CineClue()  {
                                   flex:1,
                                   height:46,
                                   borderRadius:11,
-                                  border:`1.5px solid ${input?'#1a1814':'#e8e4dd'}`,
+                                  border:'1.5px solid #e8e4dd',
                                   background:'#faf9f7',
                                   padding:'0 14px'
                                 }}
@@ -2673,7 +3184,8 @@ export default function CineClue()  {
 
                               {/* 입력 자동완성 */}
                               {suggestions.length > 0 && (
-                                <div style={{
+                                <div onTouchMove={(e)=>e.stopPropagation()}
+                                style={{
                                   position:'absolute',
                                   left:0,
                                   right:0,
@@ -2681,7 +3193,10 @@ export default function CineClue()  {
                                   background:'#fff',
                                   border:'1px solid #ddd',
                                   borderRadius:10,
-                                  overflow:'hidden',
+                                  overflow:'auto',
+                                  maxHeight:240,
+                                  overscrollBehavior:'contain',
+                                  WebkitOverflowScrolling:'touch',
                                   zIndex:50
                                 }}>
                                   {suggestions.map((s, i)=>(
@@ -2696,7 +3211,20 @@ export default function CineClue()  {
                                         padding:'10px 12px',
                                         fontSize:'0.8rem',
                                         borderBottom:'1px solid #eee',
-                                        cursor:'pointer'
+                                        cursor:'pointer',
+                                        background:
+                                        selectedSuggestion === i
+                                          ? '#f3f0eb'
+                                          : '#fff',
+                                      color:
+                                        selectedSuggestion === i
+                                          ? '#1a1814'
+                                          : '#555',
+                                      fontWeight:
+                                        selectedSuggestion === i
+                                          ? 700
+                                          : 500,
+                                      transition:'all .12s ease'
                                     }}>
                                       {s.title}
                                     </div>
@@ -2791,7 +3319,32 @@ export default function CineClue()  {
                   transform: translateY(-10px) scale(1);
                 }
               }
+
             `}</style>
+
+            <style jsx>{`
+
+              @keyframes menuFade{
+
+                from{
+
+                  opacity:0;
+
+                  transform:translateY(-6px);
+
+                }
+
+                to{
+
+                  opacity:1;
+
+                  transform:translateY(0);
+
+                }
+
+              }
+
+              `}</style>
           </AppLayout>
         )
         })()
@@ -2959,9 +3512,9 @@ export default function CineClue()  {
 
                   {/*결과리스트 영역*/}
                   <div style={{
-                    padding:'0 20px',
+                    padding:'7px 20px 0',
                     // 🔥 핵심 1: score 기준 높이 고정
-                    height: `${Math.min(results.length, 5) * 65}px`,
+                    height: `${Math.min(results.length, 5) * 65+3}px`,
                     // 🔥 핵심 2: ranking은 스크롤만
                     overflowY: 'auto',
                     WebkitOverflowScrolling:'touch',
