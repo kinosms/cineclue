@@ -2151,218 +2151,217 @@ useEffect(()=>{
       {/* 화면 2: 게임 모드 선택 화면 */}
       {screen==='grade' && (
         <AppLayout>
-          <div style={{
-            position:'absolute',
-            top:20,
-            right:24,
-            zIndex:20
-          }}>
-            <button
-              onClick={()=>setShowSettings(true)}
-              style={{
-                width:32,
-                height:32,
-                border:'none',
-                background:'transparent',
-                display:'flex',
-                alignItems:'center',
-                justifyContent:'center',
-                cursor:'pointer',
-                padding:0
-              }}
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="18"
-                height="18"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="#b0aaa3"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <circle cx="12" cy="12" r="3"></circle>
-                <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33h0A1.65 1.65 0 0 0 10 3.09V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51h0a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82v0A1.65 1.65 0 0 0 20.91 10H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
-              </svg>
-            </button>
-            {showSettings && (
-            <>
-              {/* 배경 클릭 닫기 */}
-              <div
-                onClick={()=>setShowSettings(false)}
+          <div style={{background:'#fff',display:'flex',position:'relative',flexDirection:'column',padding:'40px 0 40px',height:'100vh',overflowY:'auto'}}>
+            <div style={{
+              position:'fixed',
+              top:20,
+              right:24,
+              zIndex:20
+            }}>
+              <button
+                onClick={()=>setShowSettings(true)}
                 style={{
+                  width:32,
+                  height:32,
+                  border:'none',
+                  background:'transparent',
+                  display:'flex',
+                  alignItems:'center',
+                  justifyContent:'center',
+                  cursor:'pointer',
+                  padding:0
+                }}
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="18"
+                  height="18"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="#b0aaa3"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <circle cx="12" cy="12" r="3"></circle>
+                  <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33h0A1.65 1.65 0 0 0 10 3.09V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51h0a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82v0A1.65 1.65 0 0 0 20.91 10H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+                </svg>
+              </button>
+              {showSettings && (
+              <>
+                {/* 배경 클릭 닫기 */}
+                <div
+                  onClick={()=>setShowSettings(false)}
+                  style={{
+                    position:'fixed',
+                    inset:0,
+                    background:'rgba(0,0,0,0.18)',
+                    zIndex:80
+                  }}
+                />
+                {/* 메뉴 */}
+                <div style={{
+                  position:'absolute',
+                  top:30,
+                  right:18,
+                  width:220,
+                  background:'#fff',
+                  border:'1px solid #ece8e2',
+                  borderRadius:18,
+                  overflow:'hidden',
+                  boxShadow:'0 10px 30px rgba(0,0,0,0.08)',
+                  zIndex:200,
+                  animation:'menuFade .18s ease'
+                }}>
+                  {[
+                    '소개',
+                    '게임규칙',
+                    '문의하기',
+                    '신고하기'
+                  ].map((item,i)=>(
+                    <div
+                      key={i}
+                      style={{
+                        padding:'14px 16px',
+                        fontSize:'0.82rem',
+                        fontWeight:600,
+                        color:'#1a1814',
+                        borderBottom:
+                          i !== 3
+                            ? '1px solid #f3f0eb'
+                            : 'none',
+                        cursor:'pointer',
+                        background:'#fff'
+                      }}
+                    >
+                      {item}
+                    </div>
+                  ))}
+                </div>
+              </>
+              )}
+              {settingsPage && (
+                <div style={{
                   position:'fixed',
                   inset:0,
-                  background:'rgba(0,0,0,0.18)',
-                  zIndex:80
-                }}
-              />
-              {/* 메뉴 */}
-              <div style={{
-                position:'absolute',
-                top:30,
-                right:18,
-                width:220,
-                background:'#fff',
-                border:'1px solid #ece8e2',
-                borderRadius:18,
-                overflow:'hidden',
-                boxShadow:'0 10px 30px rgba(0,0,0,0.08)',
-                zIndex:200,
-                animation:'menuFade .18s ease'
-              }}>
-                {[
-                  '소개',
-                  '게임규칙',
-                  '문의하기',
-                  '신고하기'
-                ].map((item,i)=>(
-                  <div
-                    key={i}
-                    style={{
-                      padding:'14px 16px',
-                      fontSize:'0.82rem',
-                      fontWeight:600,
-                      color:'#1a1814',
-                      borderBottom:
-                        i !== 3
-                          ? '1px solid #f3f0eb'
-                          : 'none',
-                      cursor:'pointer',
-                      background:'#fff'
-                    }}
-                  >
-                    {item}
-                  </div>
-                ))}
-              </div>
-            </>
-            )}
-            {settingsPage && (
-              <div style={{
-                position:'fixed',
-                inset:0,
-                background:'rgba(0,0,0,0.28)',
-                zIndex:120,
-                display:'flex',
-                justifyContent:'center',
-                alignItems:'center'
-              }}>
-
-                <div style={{
-                  width:'88%',
-                  maxWidth:420,
-                  background:'#fff',
-                  borderRadius:22,
-                  padding:'24px 20px',
-                  boxShadow:'0 20px 40px rgba(0,0,0,0.12)',
-                  position:'relative'
+                  background:'rgba(0,0,0,0.28)',
+                  zIndex:120,
+                  display:'flex',
+                  justifyContent:'center',
+                  alignItems:'center'
                 }}>
 
-                  {/* 닫기 */}
-                  <button
-                    onClick={()=>setSettingsPage(null)}
-                    style={{
-                      position:'absolute',
-                      top:14,
-                      right:14,
-                      border:'none',
-                      background:'transparent',
-                      fontSize:'1.2rem',
-                      color:'#999',
-                      cursor:'pointer'
-                    }}
-                  >
-                    ×
-                  </button>
-
-                  {/* 제목 */}
                   <div style={{
-                    fontSize:'1rem',
-                    fontWeight:800,
-                    marginBottom:18,
-                    color:'#1a1814'
+                    width:'88%',
+                    maxWidth:420,
+                    background:'#fff',
+                    borderRadius:22,
+                    padding:'24px 20px',
+                    boxShadow:'0 20px 40px rgba(0,0,0,0.12)',
+                    position:'relative'
                   }}>
-                    {settingsPage}
-                  </div>
 
-                  {/* 내용 */}
-                  {settingsPage === '소개' && (
-                    <div style={{
-                      fontSize:'0.82rem',
-                      lineHeight:1.8,
-                      color:'#5f5a55'
-                    }}>
-                      <div style={{
+                    {/* 닫기 */}
+                    <button
+                      onClick={()=>setSettingsPage(null)}
+                      style={{
+                        position:'absolute',
+                        top:14,
+                        right:14,
+                        border:'none',
+                        background:'transparent',
                         fontSize:'1.2rem',
-                        fontWeight:900,
-                        marginBottom:14,
-                        color:'#1a1814'
+                        color:'#999',
+                        cursor:'pointer'
+                      }}
+                    >
+                      ×
+                    </button>
+
+                    {/* 제목 */}
+                    <div style={{
+                      fontSize:'1rem',
+                      fontWeight:800,
+                      marginBottom:18,
+                      color:'#1a1814'
+                    }}>
+                      {settingsPage}
+                    </div>
+
+                    {/* 내용 */}
+                    {settingsPage === '소개' && (
+                      <div style={{
+                        fontSize:'0.82rem',
+                        lineHeight:1.8,
+                        color:'#5f5a55'
                       }}>
-                        CineCLUE
+                        <div style={{
+                          fontSize:'1.2rem',
+                          fontWeight:900,
+                          marginBottom:14,
+                          color:'#1a1814'
+                        }}>
+                          CineCLUE
+                        </div>
+
+                        영화를 기억하는 방식은
+                        제목보다 장면에 가깝습니다.
+
+                        <br/><br/>
+
+                        CineCLUE는
+                        장면의 단서를 통해 영화를 맞히는
+                        영화 퀴즈 게임입니다.
                       </div>
+                    )}
 
-                      영화를 기억하는 방식은
-                      제목보다 장면에 가깝습니다.
+                    {settingsPage === '게임규칙' && (
+                      <div style={{
+                        fontSize:'0.82rem',
+                        lineHeight:1.9,
+                        color:'#5f5a55'
+                      }}>
+                        • 힌트를 보고 영화 제목을 맞혀보세요.
+                        <br/>
+                        • 게임모드에 따라 얻을 수 있는 점수가 다릅니다.
+                        <br/>
+                        • 주관식모드는 한글자 또는 초성을 힌트로 제공합니다.
+                        <br/>
+                        • 연속 정답 시 콤보 보너스가 적용됩니다.
+                        <br/>
+                        • 목숨이 모두 소진되면 캐릭터가 사망하고, 소생가능합니다.
+                        <br/>
+                        • 캐릭터 삭제시 기록은 삭제되지만 랭킹에는 남습니다.
+                      </div>
+                    )}
 
-                      <br/><br/>
+                    {settingsPage === '문의하기' && (
+                      <div style={{
+                        fontSize:'0.82rem',
+                        lineHeight:1.8,
+                        color:'#5f5a55'
+                      }}>
+                        Contact Us
+                        <br/>
+                        cinecluegame@gmail.com
+                      </div>
+                    )}
 
-                      CineCLUE는
-                      장면의 단서를 통해 영화를 맞히는
-                      영화 퀴즈 게임입니다.
-                    </div>
-                  )}
+                    {settingsPage === '신고하기' && (
+                      <div style={{
+                        fontSize:'0.82rem',
+                        lineHeight:1.8,
+                        color:'#5f5a55'
+                      }}>
+                        힌트 오류 / 제목 오류 / 일반 문의 등을
+                        메일로 보내주세요.
+                      </div>
+                    )}
 
-                  {settingsPage === '게임규칙' && (
-                    <div style={{
-                      fontSize:'0.82rem',
-                      lineHeight:1.9,
-                      color:'#5f5a55'
-                    }}>
-                      • 힌트를 보고 영화 제목을 맞혀보세요.
-                      <br/>
-                      • 게임모드에 따라 얻을 수 있는 점수가 다릅니다.
-                      <br/>
-                      • 주관식모드는 한글자 또는 초성을 힌트로 제공합니다.
-                      <br/>
-                      • 연속 정답 시 콤보 보너스가 적용됩니다.
-                      <br/>
-                      • 목숨이 모두 소진되면 캐릭터가 사망하고, 소생가능합니다.
-                      <br/>
-                      • 캐릭터 삭제시 기록은 삭제되지만 랭킹에는 남습니다.
-                    </div>
-                  )}
-
-                  {settingsPage === '문의하기' && (
-                    <div style={{
-                      fontSize:'0.82rem',
-                      lineHeight:1.8,
-                      color:'#5f5a55'
-                    }}>
-                      Contact Us
-                      <br/>
-                      cinecluegame@gmail.com
-                    </div>
-                  )}
-
-                  {settingsPage === '신고하기' && (
-                    <div style={{
-                      fontSize:'0.82rem',
-                      lineHeight:1.8,
-                      color:'#5f5a55'
-                    }}>
-                      힌트 오류 / 제목 오류 / 일반 문의 등을
-                      메일로 보내주세요.
-                    </div>
-                  )}
-
+                  </div>
                 </div>
-              </div>
-            )}
-          </div>
-          <div style={{background:'#fff',display:'flex',position:'relative',flexDirection:'column',padding:'40px 0 40px',height:'100vh',overflowY:'auto'}}>
-
+              )}
+            </div>
             <div style={{padding:'0 20px',flexShrink:0}}>
               <div style={{
                 fontSize:'0.7rem',
