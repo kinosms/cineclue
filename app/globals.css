@@ -175,3 +175,18 @@ input { font-family: inherit; outline: none; }
   100% { stroke: #ff3b3b; }
 
 }
+
+.autocomplete-list {
+
+  max-height: 240px;
+
+  overflow-y: auto;
+
+  /* 🔥 핵심 */
+
+  overscroll-behavior: contain;
+
+  -webkit-overflow-scrolling: touch;
+
+}
+
