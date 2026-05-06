@@ -2196,7 +2196,7 @@ useEffect(()=>{
                     position:'fixed',
                     inset:0,
                     background:'rgba(0,0,0,0.18)',
-                    zIndex:90
+                    zIndex:80
                   }}
                 />
                 {/* 메뉴 */}
@@ -2210,7 +2210,7 @@ useEffect(()=>{
                   borderRadius:18,
                   overflow:'hidden',
                   boxShadow:'0 10px 30px rgba(0,0,0,0.08)',
-                  zIndex:100,
+                  zIndex:200,
                   animation:'menuFade .18s ease'
                 }}>
                   {[
