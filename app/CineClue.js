@@ -495,6 +495,110 @@ async function saveLog({
 }
 
 
+
+async function getProfileStats(supabase, charId){
+  const { data: logs } = await supabase
+    .from('game_logs')
+    .select('*')
+    .eq('character_id', charId)
+  const totalScore = logs.reduce(
+    (sum, l) => sum + (l.score_earned || 0),
+    0
+  )
+  const level =
+    Math.floor(totalScore / 50000) + 1
+  const currentLevelScore =
+    totalScore % 50000
+  const levelPercent =
+    Math.round(
+    (currentLevelScore / 50000) * 100
+  )
+  const totalSeconds = logs.reduce((sum, l) => {
+    return sum + (l.mode === 'objective' ? 15 : 30)
+  }, 0)
+
+  const lastPlayed =
+    logs
+      .filter(l => l.created_at)
+      .sort((a,b)=>
+        new Date(b.created_at) - new Date(a.created_at)
+      )[0]?.created_at
+
+  const genreMap = {}
+
+  logs.forEach(l=>{
+
+    if(!l.genre) return
+
+    if(!genreMap[l.genre]){
+
+      genreMap[l.genre] = {
+
+        genre: l.genre,
+
+        attempt_count: 0,
+
+        correct_count: 0,
+
+        total_score: 0
+
+      }
+
+    }
+
+    genreMap[l.genre].attempt_count += 1
+
+    if(l.is_correct){
+
+      genreMap[l.genre].correct_count += 1
+
+    }
+
+    genreMap[l.genre].total_score +=
+
+      l.score_earned || 0
+
+  })
+
+  const genreStats = Object.values(genreMap).map(g => ({
+
+  ...g,
+
+  percent: g.attempt_count > 0
+
+    ? Math.round((g.correct_count / g.attempt_count) * 100)
+
+    : 0
+
+}))
+
+  const favoriteGenres =
+  [...genreStats]
+    .sort((a,b)=>
+      b.percent - a.percent
+    )
+    .slice(0,2)
+    .map(g => g.genre)
+
+  return {
+    nickname:
+    logs?.[0]?.nickname || '-',
+    totalScore,
+    totalSeconds,
+    lastPlayed,
+    level,
+    currentLevelScore,
+    levelPercent,
+    favoriteGenres,
+    genreStats
+  }
+}
+
+
+
+
+
+
 async function loadRanking({ supabase }){
   const { data, error } = await supabase
     .from('game_logs')
@@ -637,26 +741,28 @@ export default function CineClue()  {
     { key:'thriller', label:'미스테리&스릴러', type:'theme', image:'/mode/thriller.webp' }
   ]
 
-const MODE_IMAGES = [
-  '/mode/20s.webp',
-  '/mode/10s.webp',
-  '/mode/00s.webp',
-  '/mode/90s.webp',
-  '/mode/old.webp',
-  '/mode/all.webp',
-  '/mode/horror.webp',
-  '/mode/hk.webp',
-  '/mode/sf.webp',
-  '/mode/kr.webp',
-  '/mode/anime.webp',
-  '/mode/thriller.webp'
-]
+  const MODE_IMAGES = [
+    '/mode/20s.webp',
+    '/mode/10s.webp',
+    '/mode/00s.webp',
+    '/mode/90s.webp',
+    '/mode/old.webp',
+    '/mode/all.webp',
+    '/mode/horror.webp',
+    '/mode/hk.webp',
+    '/mode/sf.webp',
+    '/mode/kr.webp',
+    '/mode/anime.webp',
+    '/mode/thriller.webp'
+  ]
 
 
+ 
   const [isFlashing, setIsFlashing] = useState(false)
   const [showSettings, setShowSettings] = useState(false)
   const [settingsPage, setSettingsPage] = useState(null)
   const [selectedSuggestion, setSelectedSuggestion] = useState(-1)
+  const [profileStats, setProfileStats] = useState(null)
   const ERA_MODES = MODES.filter(m => m.type === 'era')
   const THEME_MODES = MODES.filter(m => m.type === 'theme')
   const [screen,   setScreen]   = useState('intro')
@@ -704,6 +810,16 @@ const MODE_IMAGES = [
   const [choices, setChoices] = useState([])
   const [genreStats, setGenreStats] = useState([])
   const [showProfile, setShowProfile] = useState(false)
+  const [profileTarget, setProfileTarget]
+  = useState(null)
+  const [profileUser, setProfileUser]
+  = useState(null) 
+  const profileCharId =
+  profileTarget || selChar
+  const profileChar =
+  CHARS.find(
+    c => c.id === profileCharId
+  )
   const [rankingRevealDone, setRankingRevealDone] = useState(false)
   const primaryGrade = selGrade || null
   const [progress, setProgress] = useState(0); // 0 ~ 100
@@ -719,6 +835,8 @@ const MODE_IMAGES = [
   const [lifeDelta, setLifeDelta] = useState(null)
   const [deathMessage, setDeathMessage] = useState(false)
   const [pendingLifeDelta, setPendingLifeDelta] = useState(null)
+  const [animateStats, setAnimateStats]
+  = useState(false)
   const UI = {
   surface: '#ffffff',
   border: '#e8e4dd',
@@ -739,6 +857,15 @@ const MODE_IMAGES = [
   }, [lifeDelta])
 
 
+  useEffect(()=>{
+    if(showProfile){
+      setAnimateStats(false)
+      setTimeout(()=>{
+        setAnimateStats(true)
+      }, 60)
+    }
+  }, [showProfile, profileTarget])
+
 
   useEffect(()=>{
     setSelectedSuggestion(-1)
@@ -747,13 +874,26 @@ const MODE_IMAGES = [
 
 
 
-useEffect(()=>{
-  MODE_IMAGES.forEach(src => {
-    const img = new Image()
-    img.src = src
-  })
-},[])
+  useEffect(()=>{
+    MODE_IMAGES.forEach(src => {
+      const img = new Image()
+      img.src = src
+    })
+  },[])
 
+
+  useEffect(()=>{
+    if(!supabase || !selChar) return
+    const run = async()=>{
+      const profile =
+        await getProfileStats(
+          supabase,
+          profileTarget || selChar
+        )
+      setProfileStats(profile)
+    }
+    run()
+  }, [supabase, selChar, profileTarget])
 
 
 
@@ -1785,9 +1925,9 @@ useEffect(()=>{
                   }}>
                     {[
                       '소개',
-                      '게임규칙',
+                      '게임 규칙',
                       '문의하기',
-                      'Privacy Policy',
+                      '개인정보 처리방침',
                       '신고하기'
                     ].map((item,i)=>(
                       <div
@@ -1890,7 +2030,7 @@ useEffect(()=>{
                       </div>
                     )}
 
-                    {settingsPage === '게임규칙' && (
+                    {settingsPage === '게임 규칙' && (
                       <div style={{
                         fontSize:'0.82rem',
                         lineHeight:1.9,
@@ -1922,56 +2062,56 @@ useEffect(()=>{
                       </div>
                     )}
 
-                    {settingsPage === 'Privacy Policy' && (
-  <div style={{
-    fontSize:'0.82rem',
-    lineHeight:1.9,
-    color:'#5f5a55'
-  }}>
-    CineCLUE는 게임 진행 및 랭킹 제공을 위해
-    일부 데이터를 저장할 수 있습니다.
+                    {settingsPage === '개인정보 처리방침' && (
+                      <div style={{
+                        fontSize:'0.82rem',
+                        lineHeight:1.9,
+                        color:'#5f5a55'
+                      }}>
+                        CineCLUE는 게임 진행 및 랭킹 제공을 위해
+                        일부 데이터를 저장할 수 있습니다.
 
-    <br/><br/>
+                        <br/><br/>
 
-    저장될 수 있는 정보:
-    <br/>
-    • 닉네임
-    <br/>
-    • 게임 기록 및 점수
-    <br/>
-    • 랭킹 정보
-    <br/>
-    • 로그인 정보(추후 지원 시)
+                        저장될 수 있는 정보:
+                        <br/>
+                        • 닉네임
+                        <br/>
+                        • 게임 기록 및 점수
+                        <br/>
+                        • 랭킹 정보
+                        <br/>
+                        • 로그인 정보(추후 지원 시)
 
-    <br/><br/>
+                        <br/><br/>
 
-    게스트 플레이의 경우 일부 데이터는
-    브라우저 저장소(local storage)에 저장될 수 있습니다.
+                        게스트 플레이의 경우 일부 데이터는
+                        브라우저 저장소(local storage)에 저장될 수 있습니다.
 
-    <br/><br/>
+                        <br/><br/>
 
-    CineCLUE는 서비스 개선 및 광고 제공을 위해
-    외부 서비스를 사용할 수 있습니다.
+                        CineCLUE는 서비스 개선 및 광고 제공을 위해
+                        외부 서비스를 사용할 수 있습니다.
 
-    <br/><br/>
+                        <br/><br/>
 
-    사용될 수 있는 서비스:
-    <br/>
-    • Supabase
-    <br/>
-    • Vercel
-    <br/>
-    • Google AdMob
-    <br/>
-    • TMDB API
+                        사용될 수 있는 서비스:
+                        <br/>
+                        • Supabase
+                        <br/>
+                        • Vercel
+                        <br/>
+                        • Google AdMob
+                        <br/>
+                        • TMDB API
 
-    <br/><br/>
+                        <br/><br/>
 
-    문의:
-    <br/>
-    cinecluegame@gmail.com
-  </div>
-)}
+                        문의:
+                        <br/>
+                        cinecluegame@gmail.com
+                      </div>
+                    )}
 
                     {settingsPage === '신고하기' && (
                       <div style={{
@@ -1979,7 +2119,7 @@ useEffect(()=>{
                         lineHeight:1.8,
                         color:'#5f5a55'
                       }}>
-                        힌트 오류 / 제목 오류 / 일반 문의 등을
+                        힌트오류 / 제목오류 / 일반문의 등을
                         메일로 보내주세요.
                       </div>
                     )}
@@ -2321,9 +2461,9 @@ useEffect(()=>{
                 }}>
                   {[
                     '소개',
-                    '게임규칙',
+                    '게임 규칙',
                     '문의하기',
-                    'Privacy Policy',
+                    '개인정보 처리방침',
                     '신고하기'
                   ].map((item,i)=>(
                     <div
@@ -2426,7 +2566,7 @@ useEffect(()=>{
                       </div>
                     )}
 
-                    {settingsPage === '게임규칙' && (
+                    {settingsPage === '게임 규칙' && (
                       <div style={{
                         fontSize:'0.82rem',
                         lineHeight:1.9,
@@ -2458,7 +2598,7 @@ useEffect(()=>{
                       </div>
                     )}
 
-                    {settingsPage === 'Privacy Policy' && (
+                    {settingsPage === '개인정보 처리방침' && (
                       <div style={{
                         fontSize:'0.82rem',
                         lineHeight:1.9,
@@ -2515,7 +2655,7 @@ useEffect(()=>{
                         lineHeight:1.8,
                         color:'#5f5a55'
                       }}>
-                        힌트 오류 / 제목 오류 / 일반 문의 등을
+                        힌트오류 / 제목오류 / 일반문의 등을
                         메일로 보내주세요.
                       </div>
                     )}
@@ -3563,11 +3703,15 @@ useEffect(()=>{
                 }}>
 
                   <div style={{
+                    position:'relative',
                     width:75,
                     height:75,
                     borderRadius:'50%',
                     background:'#faf9f7',
-                    border:'2.5px solid #e8e4dd',
+                    border:'2.5px solid #f2d7dc',
+                    boxShadow:`
+                      0 0 0 3px rgba(255,107,122,0.10),
+                      0 8px 20px rgba(255,107,122,0.12)`,
                     display:'flex',
                     alignItems:'center',
                     justifyContent:'center',
@@ -3578,6 +3722,28 @@ useEffect(()=>{
                         {char?.svg?.props?.children}
                       </svg>
                     </div>
+
+                    {/* 🔥 프로필 배지 */}
+                      <div style={{
+                        position:'absolute',
+                        right:-2,
+                        bottom:6,
+                        width:22,
+                        height:22,
+                        borderRadius:'50%',
+                        background:'#fff8f9',
+                        border:'1.5px solid #e8e4dd',
+                        boxShadow:`
+                          0 0 0 3px rgba(255,107,122,0.10),
+                          0 4px 12px rgba(255,107,122,0.12)`,
+                        display:'flex',
+                        alignItems:'center',
+                        justifyContent:'center',
+                        fontSize:'0.72rem',
+                        boxShadow:'0 2px 6px rgba(0,0,0,0.08)'
+                      }}>
+                        📊
+                      </div>
                   </div>
 
                   <div style={{
@@ -3819,22 +3985,27 @@ useEffect(()=>{
                                     key={i}
                                     style={{
                                       borderRadius:13,
-                                    border: isMe
-                                      ? '2px solid #e8808c'
-                                      : '1.5px solid #ece8e2',
-                                    background: isMe
-                                      ? '#fff5f6'
-                                      : '#fff',
-                                    color: isMe ? '#e8808c' : '#1a1814',
-                                    padding:'12px 16px',
-                                    marginBottom:8,
-                                    display:'flex',
-                                    alignItems:'center',
-                                    gap:12,
-                                    animation: isAnimated ? 'fadeUp 0.3s ease forwards' : 'none',
-                                    opacity: isAnimated ? 0 : 1,
-                                    animationDelay: `${i * 0.08}s`
-                                  }}>
+                                      border: isMe
+                                        ? '2px solid #e8808c'
+                                        : '1.5px solid #ece8e2',
+                                      background: isMe
+                                        ? '#fff5f6'
+                                        : '#fff',
+                                      color: isMe ? '#e8808c' : '#1a1814',
+                                      padding:'12px 16px',
+                                      marginBottom:8,
+                                      display:'flex',
+                                      alignItems:'center',
+                                      gap:12,
+                                      animation: isAnimated
+                                        ? 'fadeUp 0.3s ease forwards'
+                                        : 'none',
+                                      opacity: isAnimated ? 0 : 1,
+                                      animationDelay: `${i * 0.08}s`
+                                    }}
+                                  >
+
+                                    {/* 순위 */}
                                     <div style={{
                                       width:28,
                                       height:28,
@@ -3843,7 +4014,8 @@ useEffect(()=>{
                                       display:'flex',
                                       alignItems:'center',
                                       justifyContent:'center',
-                                      border:'1.5px solid #e8e4dd'
+                                      border:'1.5px solid #e8e4dd',
+                                      flexShrink:0
                                     }}>
                                       <span style={{
                                         fontSize:'0.65rem',
@@ -3852,29 +4024,98 @@ useEffect(()=>{
                                         {r.rank}위
                                       </span>
                                     </div>
+
+                                    {/* 캐릭터 + 📊 */}
                                     {r ? (
-                                      <CharAvatar charId={r.character_id} size={28}/>
-                                      ) : (
+                                      <div style={{
+                                        position:'relative',
+                                        width:28,
+                                        height:28,
+                                        flexShrink:0
+                                      }}>
+
+                                        {/* 캐릭터 */}
+                                        <div
+                                          onClick={()=>{
+                                            setAnimateStats(false)
+                                            requestAnimationFrame(()=>{
+                                              setAnimateStats(true)
+                                            })
+                                            setProfileTarget(r.character_id)
+                                            setProfileUser(r)
+                                            setShowProfile(true)
+                                          }}
+                                          style={{
+                                            cursor:'pointer'
+                                          }}
+                                        >
+                                          <CharAvatar
+                                            charId={r.character_id}
+                                            size={28}
+                                          />
+                                        </div>
+
+                                        {/* 📊 배지 */}
+                                        <div
+                                          onClick={()=>{
+                                            setAnimateStats(false)
+                                            requestAnimationFrame(()=>{
+                                              setAnimateStats(true)
+                                            })
+                                            setProfileTarget(r.character_id)
+                                            setProfileUser(r)
+                                            setShowProfile(true)
+                                          }}
+                                          style={{
+                                            position:'absolute',
+                                            right:-5,
+                                            bottom:-5,
+                                            width:16,
+                                            height:16,
+                                            borderRadius:'50%',
+                                            background:'#fff8f9',
+                                            border:'1px solid #e8e4dd',
+                                            display:'flex',
+                                            alignItems:'center',
+                                            justifyContent:'center',
+                                            fontSize:'0.45rem',
+                                            boxShadow:'0 2px 5px rgba(0,0,0,0.08)',
+                                            cursor:'pointer'
+                                          }}
+                                        >
+                                          📊
+                                        </div>
+
+                                      </div>
+
+                                    ) : (
+
                                       <div style={{
                                         width:28,
                                         height:28,
                                         borderRadius:'50%',
-                                        background:'#f0eeea'
+                                        background:'#f0eeea',
+                                        flexShrink:0
                                       }}/>
+
                                     )}
+
+                                    {/* 이름 */}
                                     <div style={{
                                       flex:1,
-                                      minWidth:0 
+                                      minWidth:0
                                     }}>
                                       <div style={{
                                         fontSize:'0.8rem',
                                         fontWeight:700,
                                         color: r
-                                          ? isDead ? '#b0aaa3' : '#1a1814'
+                                          ? isDead
+                                            ? '#b0aaa3'
+                                            : '#1a1814'
                                           : '#c0bbb4',
-                                        overflow:'hidden',           
-                                        textOverflow:'ellipsis',     
-                                        whiteSpace:'nowrap'          
+                                        overflow:'hidden',
+                                        textOverflow:'ellipsis',
+                                        whiteSpace:'nowrap'
                                       }}>
                                         {r
                                           ? isDead
@@ -3885,6 +4126,7 @@ useEffect(()=>{
                                       </div>
                                     </div>
 
+                                    {/* 점수 */}
                                     <div style={{
                                       fontSize:'0.85rem',
                                       fontWeight:800,
@@ -3893,6 +4135,7 @@ useEffect(()=>{
                                     }}>
                                       {r ? r.score : 0}
                                     </div>
+
                                   </div>
                                 )
                               })}
@@ -4003,8 +4246,10 @@ useEffect(()=>{
                   </div>
                 )}
 
-                {/* 🔥 프로필 팝업: 결과 UI 밖, root 마지막 */}
+
+                {/* 🔥 프로필 팝업 */}
                 {showProfile && (
+
                   <div style={{
                     position:'fixed',
                     inset:0,
@@ -4014,13 +4259,17 @@ useEffect(()=>{
                     justifyContent:'center',
                     zIndex:99
                   }}>
+
                     <div style={{
                       transform:'scale(0.88)',
                       transformOrigin:'center center'
                     }}>
+
                       <div style={{
                         width:'92vw',
                         maxWidth:420,
+                        maxHeight:'88vh',
+                        overflowY:'auto',
                         background:'#faf9f7',
                         borderRadius:20,
                         border:'1.5px solid #e8e4dd',
@@ -4028,6 +4277,8 @@ useEffect(()=>{
                         boxShadow:'0 10px 30px rgba(0,0,0,0.1)',
                         position:'relative'
                       }}>
+
+                        {/* 닫기 */}
                         <div
                           onClick={()=>setShowProfile(false)}
                           style={{
@@ -4045,259 +4296,364 @@ useEffect(()=>{
                             cursor:'pointer'
                           }}
                         >
-                          <span style={{color:'#1a1814',fontSize:16,fontWeight:700}}>×</span>
+                          <span style={{
+                            color:'#1a1814',
+                            fontSize:16,
+                            fontWeight:700
+                          }}>
+                            ×
+                          </span>
                         </div>
 
-                        <div style={{textAlign:'center', marginBottom:14}}>
-                          <div style={{fontSize:'0.9rem', color:'#ff6b7a'}}>
-                            SF액션
-                          </div>
+                        {/* 타이틀 */}
+                        <div style={{
+                          textAlign:'center',
+                          marginBottom:10
+                        }}>
 
                           <div style={{
-                            fontSize:'1.4rem',
+                            fontSize:'1.2rem',
                             fontWeight:900,
-                            color:'#1a1814',
-                            marginTop:4
+                            color:'#1a1814'
                           }}>
                             총소리 놀람이
                           </div>
 
                           <div style={{
-                            fontSize:'0.7rem',
+                            fontSize:'0.92rem',
                             color:'#888',
-                            marginTop:6
+                            marginTop:8
                           }}>
-                            나나나
+                            {profileUser?.nickname || currentUser?.nickname || '-'}
                           </div>
+
                         </div>
 
+
+                        {/* 레벨 */}
                         <div style={{
-                          width:'100%',
-                          display:'flex',
-                          justifyContent:'center',
-                          marginBottom:14
+                          marginBottom:15
                         }}>
-                          <div style={{
-                            width:'100%',
-                            maxWidth:320
-                          }}>
-                            <img
-                              src="/sadako_full.png"
-                              alt="character"
-                              style={{
-                                width:'100%',
-                                height:140,
-                                objectFit:'contain'
-                              }}
-                            />
-                          </div>
-                        </div>
 
-                        <div style={{marginBottom:14}}>
                           <div style={{
                             fontSize:'1.2rem',
-                            fontWeight:800,
+                            fontWeight:900,
                             color:'#1a1814'
                           }}>
-                            Lv. 20
+                            Lv. {profileStats?.level || 1}
                           </div>
 
                           <div style={{
-                            height:6,
-                            background:'#eee',
-                            borderRadius:10,
-                            marginTop:6
+                            height:10,
+                            background:'#ece9e4',
+                            borderRadius:999,
+                            marginTop:10,
+                            overflow:'hidden'
                           }}>
+
                             <div style={{
-                              width:'80%',
+                              width:`${profileStats?.levelPercent || 0}%`,
                               height:'100%',
-                              background:'#ff6b7a'
+                              background:
+                                'linear-gradient(90deg,#ff8a95,#ff5f73)',
+                              borderRadius:999,
+                              boxShadow:'0 0 12px rgba(255,95,115,0.35)'
                             }}/>
+
                           </div>
 
                           <div style={{
-                            fontSize:'0.65rem',
+                            fontSize:'0.72rem',
                             color:'#888',
                             textAlign:'right',
-                            marginTop:4
+                            marginTop:6,
+                            fontWeight:600
                           }}>
-                            2,450 / 3,000 EXP
+                            {(profileStats?.currentLevelScore || 0)
+                              .toLocaleString()}
+                            {' '}
+                            / 50,000 EXP
                           </div>
+
                         </div>
 
-                        <div style={{
-                          display:'flex',
-                          justifyContent:'center',
-                          margin:'14px 0'
-                        }}>
-
-                          {(() => {
-                            const genres = [
-                              {name:'애니', value:50},
-                              {name:'SF', value:60},
-                              {name:'SF액션', value:85},
-                              {name:'SF공포', value:70},
-                              {name:'판타지', value:55},
-                              {name:'판타지액션', value:65},
-                              {name:'공포', value:90},
-                              {name:'미스터리', value:65},
-                              {name:'액션', value:70},
-                              {name:'코미디', value:30},
-                              {name:'로맨스', value:40},
-                              {name:'드라마', value:45}
-                            ]
-                            const cx = 100
-                            const cy = 100
-                            const radius = 70
-                            const points = genres.map((g,i)=>{
-                              const angle = (Math.PI*2/genres.length)*i - Math.PI/2
-                              const cos = Math.cos(angle)
-                              const sin = Math.sin(angle)
-                              const r = (g.value/100) * radius
-
-                              let labelRadius = radius + 26
-
-                              if(Math.abs(cos) > 0.7){
-                                labelRadius = radius + 34
-                              }
-
-                              if(Math.abs(cos) > 0.3 && Math.abs(cos) < 0.7){
-                                labelRadius = radius + 30
-                              }
-
-                              return {
-                                x: cx + cos*r,
-                                y: cy + sin*r,
-                                labelX: cx + cos*labelRadius,
-                                labelY: cy + sin*labelRadius,
-                                valueX: cx + cos*(radius+10),
-                                valueY: cy + sin*(radius+10),
-                                name:g.name,
-                                value:g.value
-                              }
-                            })
-
-                            const polygonPoints = points.map(p=>`${p.x},${p.y}`).join(' ')
-
-                            return (
-                              <svg width="220" height="220">
-                                <defs>
-                                  <filter id="glow-result">
-                                    <feGaussianBlur stdDeviation="2"/>
-                                  </filter>
-                                </defs>
-
-                                {[0.25,0.5,0.75,1].map((r,i)=>(
-                                  <circle
-                                    key={i}
-                                    cx={cx}
-                                    cy={cy}
-                                    r={radius*r}
-                                    stroke="rgba(0,0,0,0.08)"
-                                    fill="none"
-                                  />
-                                ))}
-
-                                {points.map((p,i)=>(
-                                  <line
-                                    key={i}
-                                    x1={cx}
-                                    y1={cy}
-                                    x2={p.labelX}
-                                    y2={p.labelY}
-                                    stroke="rgba(0,0,0,0.08)"
-                                  />
-                                ))}
-
-                                <polygon
-                                  points={polygonPoints}
-                                  fill="rgba(255,107,122,0.35)"
-                                  stroke="#ff6b7a"
-                                  strokeWidth="2"
-                                  filter="url(#glow-result)"
-                                />
-
-                                {points.map((p,i)=>(
-                                  <circle
-                                    key={i}
-                                    cx={p.x}
-                                    cy={p.y}
-                                    r="3"
-                                    fill="#ff6b7a"
-                                  />
-                                ))}
-
-                                {points.map((p,i)=>(
-                                  <text
-                                    key={i}
-                                    x={p.labelX}
-                                    y={p.labelY}
-                                    fill="#555"
-                                    fontSize="9"
-                                    textAnchor="middle"
-                                    alignmentBaseline="middle"
-                                  >
-                                    {p.name}
-                                  </text>
-                                ))}
-
-                                {points.map((p,i)=>(
-                                  <text
-                                    key={i}
-                                    x={p.valueX}
-                                    y={p.valueY}
-                                    fill="#ff6b7a"
-                                    fontSize="10"
-                                    fontWeight="700"
-                                    textAnchor="middle"
-                                  >
-                                    {p.value}
-                                  </text>
-                                ))}
-                              </svg>
-                            )
-                          })()}
-                        </div>
-
+                        {/* 정보 카드 */}
                         <div style={{
                           display:'grid',
                           gridTemplateColumns:'1fr 1fr',
-                          gap:8,
-                          marginTop:10
+                          gap:10,
+                          marginBottom:10
                         }}>
 
                           {[
-                            ['총 점수','12,450'],
-                            ['플레이 시간','48h 30m'],
-                            ['선호 장르','SF액션, 공포'],
-                            ['최근 플레이','2024.05.20']
+                            [
+                              '총 점수',
+                              profileStats?.totalScore?.toLocaleString() || '0'
+                            ],
+
+                            [
+                              '플레이 시간',
+
+                              `${Math.floor((profileStats?.totalSeconds || 0)/3600)}h ${
+                                Math.floor(
+                                  ((profileStats?.totalSeconds || 0)%3600)/60
+                                )
+                              }m`
+                            ],
+
+                            [
+                              '선호 장르',
+
+                              profileStats?.favoriteGenres?.[0] || '-'
+                            ],
+
+                            [
+                              '최근 플레이',
+
+                              profileStats?.lastPlayed
+                                ? new Date(profileStats.lastPlayed)
+                                    .toLocaleDateString('ko-KR')
+                                : '-'
+                            ]
+
                           ].map(([k,v],i)=>(
-                            <div key={i} style={{
-                              background:'#fff',
-                              border:'1px solid #e8e4dd',
-                              borderRadius:10,
-                              padding:'8px'
-                            }}>
+
+                            <div
+                              key={i}
+                              style={{
+                                background:'#fff',
+                                border:'1px solid #ece7df',
+                                borderRadius:14,
+                                padding:'12px 12px'
+                              }}
+                            >
+
                               <div style={{
-                                fontSize:'0.6rem',
-                                color:'#888',
-                                marginBottom:2
+                                fontSize:'0.66rem',
+                                color:'#999',
+                                marginBottom:5,
+                                fontWeight:600
                               }}>
                                 {k}
                               </div>
+
                               <div style={{
-                                fontSize:'0.8rem',
-                                fontWeight:700,
-                                color:'#1a1814'
+                                fontSize:'1rem',
+                                fontWeight:800,
+                                color:'#1a1814',
+                                lineHeight:1.3
                               }}>
                                 {v}
                               </div>
+
                             </div>
+
                           ))}
+
                         </div>
+
+                        {/* 장르 숙련도 */}
+                        <div style={{
+                          background:'#fff',
+                          border:'1px solid #ece7df',
+                          borderRadius:18,
+                          padding:'14px 14px'
+                        }}>
+
+                          {/* 헤더 */}
+                          <div style={{
+                            display:'flex',
+                            justifyContent:'space-between',
+                            alignItems:'center',
+                            marginBottom:14
+                          }}>
+
+                            <div>
+
+                              <div style={{
+                                fontSize:'1rem',
+                                fontWeight:900,
+                                color:'#1a1814'
+                              }}>
+                                🎬 장르 숙련도
+                              </div>
+
+                              <div style={{
+                                fontSize:'0.68rem',
+                                color:'#999',
+                                marginTop:2
+                              }}>
+                                정답 기록 기반 영화 성향 분석
+                              </div>
+
+                            </div>
+
+                            <div style={{
+                              fontSize:'0.72rem',
+                              fontWeight:800,
+                              color:'#ff5f73'
+                            }}>
+                              TOP 5
+                            </div>
+
+                          </div>
+
+                          {/* 리스트 */}
+                          <div style={{
+                            display:'flex',
+                            flexDirection:'column',
+                            gap:12
+                          }}>
+
+                            {[...(profileStats?.genreStats || [])]
+
+                              .sort((a,b)=>
+                                b.percent - a.percent
+                              )
+
+                              .slice(0,5)
+
+                              .map((g,i)=>{
+
+                                let rankLabel = 'BEGINNER'
+
+                                if(g.percent >= 80){
+
+                                  rankLabel = 'MASTER'
+
+                                }else if(g.percent >= 60){
+
+                                  rankLabel = 'EXPERT'
+
+                                }else if(g.percent >= 40){
+
+                                  rankLabel = 'ADVANCED'
+
+                                }else if(g.percent >= 20){
+
+                                  rankLabel = 'INTERMEDIATE'
+
+                                }
+
+                                return(
+
+                                  <div
+                                    key={i}
+                                    style={{
+                                      display:'flex',
+                                      alignItems:'center',
+                                      gap:10
+                                    }}
+                                  >
+
+                                    {/* 장르명 */}
+                                    <div style={{
+                                      width:82,
+                                      fontSize:'0.78rem',
+                                      fontWeight:700,
+                                      color:'#1a1814',
+                                      flexShrink:0,
+                                      overflow:'hidden',
+                                      textOverflow:'ellipsis',
+                                      whiteSpace:'nowrap'
+                                    }}>
+                                      {g.genre}
+                                    </div>
+
+                                    {/* 바 */}
+                                    <div style={{
+                                      flex:1,
+                                      height:8,
+                                      background:'#f1efeb',
+                                      borderRadius:999,
+                                      overflow:'hidden'
+                                    }}>
+
+                                      <div style={{
+
+                                        width:'100%',
+
+                                        height:'100%',
+
+                                        background:
+
+                                          'linear-gradient(90deg,#ff8a95,#ff5f73)',
+
+                                        borderRadius:999,
+
+                                        boxShadow:
+
+                                          '0 0 10px rgba(255,95,115,0.35)',
+
+                                        transformOrigin:'left center',
+
+                                        transform:
+
+                                          animateStats
+
+                                            ? `scaleX(${g.percent / 100})`
+
+                                            : 'scaleX(0)',
+
+                                        transition:
+
+                                          `transform 0.8s cubic-bezier(.22,.61,.36,1) ${i * 0.08}s`
+
+                                      }}/>
+
+                                    </div>
+
+                                    {/* 퍼센트 */}
+                                    <div style={{
+                                      width:40,
+                                      textAlign:'right',
+                                      fontSize:'0.78rem',
+                                      fontWeight:800,
+                                      color:'#ff5f73',
+                                      flexShrink:0
+                                    }}>
+                                      {g.percent}%
+                                    </div>
+
+                                    {/* 티어 */}
+                                    <div style={{
+                                      width:86,
+                                      height:24,
+                                      borderRadius:999,
+                                      border:'1px solid #ece7df',
+                                      background:'#faf8f5',
+                                      display:'flex',
+                                      alignItems:'center',
+                                      justifyContent:'center',
+                                      fontSize:'0.62rem',
+                                      fontWeight:800,
+                                      color:
+                                        rankLabel === 'MASTER'
+                                          ? '#ff8a00'
+                                          : rankLabel === 'EXPERT'
+                                          ? '#ff5f73'
+                                          : rankLabel === 'ADVANCED'
+                                          ? '#7c63ff'
+                                          : '#7f8a99'
+                                    }}>
+                                      {rankLabel}
+                                    </div>
+
+                                  </div>
+
+                                )
+                              })}
+
+                          </div>
+
+                        </div>
+
                       </div>
+
                     </div>
+
                   </div>
+
                 )}
 
                 <style jsx>{`
