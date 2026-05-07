@@ -1,4 +1,5 @@
 import './globals.css'
+import Script from 'next/script'
 
 export const metadata = {
 
@@ -37,6 +38,8 @@ export default function RootLayout({ children }) {
   return (
     <html lang="ko">
       <body>
+        <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9833499589161859"
+     crossorigin="anonymous"></script>
         <div className="app-wrap">
           <div className="app-inner">
             {children}

@@ -1687,8 +1687,26 @@ useEffect(()=>{
 
       {screen === 'char' && (
         <AppLayout>
-          <div style={{width:'100%',background:'#fff',position:'relative',display:'flex',height:'100dvh',flexDirection:'column',padding:'48px 0 40px',overflowY:'auto'}}>
-            <div style={{
+          <div style={{
+
+            width:'100%',
+
+            background:'#fff',
+
+            position:'relative',
+
+            display:'flex',
+
+            height:'100dvh',
+
+            flexDirection:'column',
+
+            padding:'48px 0 40px',
+
+            overflowY:'auto'
+
+          }}>
+                      <div style={{
               position:'absolute',
               top:20,
               right:24,
@@ -1738,8 +1756,8 @@ useEffect(()=>{
                   {/* 메뉴 */}
                   <div style={{
                     position:'absolute',
-                    top:30,
-                    right:18,
+                    top:34,
+                    right:0,
                     width:220,
                     background:'#fff',
                     border:'1px solid #ece8e2',
@@ -1753,6 +1771,7 @@ useEffect(()=>{
                       '소개',
                       '게임규칙',
                       '문의하기',
+                      'Privacy Policy',
                       '신고하기'
                     ].map((item,i)=>(
                       <div
@@ -1887,6 +1906,57 @@ useEffect(()=>{
                       </div>
                     )}
 
+                    {settingsPage === 'Privacy Policy' && (
+  <div style={{
+    fontSize:'0.82rem',
+    lineHeight:1.9,
+    color:'#5f5a55'
+  }}>
+    CineCLUE는 게임 진행 및 랭킹 제공을 위해
+    일부 데이터를 저장할 수 있습니다.
+
+    <br/><br/>
+
+    저장될 수 있는 정보:
+    <br/>
+    • 닉네임
+    <br/>
+    • 게임 기록 및 점수
+    <br/>
+    • 랭킹 정보
+    <br/>
+    • 로그인 정보(추후 지원 시)
+
+    <br/><br/>
+
+    게스트 플레이의 경우 일부 데이터는
+    브라우저 저장소(local storage)에 저장될 수 있습니다.
+
+    <br/><br/>
+
+    CineCLUE는 서비스 개선 및 광고 제공을 위해
+    외부 서비스를 사용할 수 있습니다.
+
+    <br/><br/>
+
+    사용될 수 있는 서비스:
+    <br/>
+    • Supabase
+    <br/>
+    • Vercel
+    <br/>
+    • Google AdMob
+    <br/>
+    • TMDB API
+
+    <br/><br/>
+
+    문의:
+    <br/>
+    cinecluegame@gmail.com
+  </div>
+)}
+
                     {settingsPage === '신고하기' && (
                       <div style={{
                         fontSize:'0.82rem',
@@ -1901,6 +1971,8 @@ useEffect(()=>{
                   </div>
                 </div>
               )}
+             
+            
             </div>
             <div style={{textAlign:'center',marginBottom:40}}>
               <div style={{fontSize:'2.6rem',fontWeight:900,letterSpacing:'-1px',lineHeight:1,color:'#1a1814'}}>
@@ -2151,9 +2223,27 @@ useEffect(()=>{
       {/* 화면 2: 게임 모드 선택 화면 */}
       {screen==='grade' && (
         <AppLayout>
-          <div style={{background:'#fff',display:'flex',position:'relative',flexDirection:'column',padding:'40px 0 40px',height:'100vh',overflowY:'auto'}}>
+          <div style={{
+
+            width:'100%',
+
+            background:'#fff',
+
+            position:'relative',
+
+            display:'flex',
+
+            height:'100dvh',
+
+            flexDirection:'column',
+
+            padding:'48px 0 40px',
+
+            overflowY:'auto'
+
+          }}>
             <div style={{
-              position:'fixed',
+              position:'absolute',
               top:20,
               right:24,
               zIndex:20
@@ -2201,9 +2291,9 @@ useEffect(()=>{
                 />
                 {/* 메뉴 */}
                 <div style={{
-                  position:'fixed',
-                  top:30,
-                  right:18,
+                  position:'absolute',
+                  top:34,
+                  right:0,
                   width:220,
                   background:'#fff',
                   border:'1px solid #ece8e2',
@@ -2217,6 +2307,7 @@ useEffect(()=>{
                     '소개',
                     '게임규칙',
                     '문의하기',
+                    'Privacy Policy',
                     '신고하기'
                   ].map((item,i)=>(
                     <div
@@ -2346,6 +2437,57 @@ useEffect(()=>{
                         color:'#5f5a55'
                       }}>
                         Contact Us
+                        <br/>
+                        cinecluegame@gmail.com
+                      </div>
+                    )}
+
+                    {settingsPage === 'Privacy Policy' && (
+                      <div style={{
+                        fontSize:'0.82rem',
+                        lineHeight:1.9,
+                        color:'#5f5a55'
+                      }}>
+                        CineCLUE는 게임 진행 및 랭킹 제공을 위해
+                        일부 데이터를 저장할 수 있습니다.
+
+                        <br/><br/>
+
+                        저장될 수 있는 정보:
+                        <br/>
+                        • 닉네임
+                        <br/>
+                        • 게임 기록 및 점수
+                        <br/>
+                        • 랭킹 정보
+                        <br/>
+                        • 로그인 정보(추후 지원 시)
+
+                        <br/><br/>
+
+                        게스트 플레이의 경우 일부 데이터는
+                        브라우저 저장소(local storage)에 저장될 수 있습니다.
+
+                        <br/><br/>
+
+                        CineCLUE는 서비스 개선 및 광고 제공을 위해
+                        외부 서비스를 사용할 수 있습니다.
+
+                        <br/><br/>
+
+                        사용될 수 있는 서비스:
+                        <br/>
+                        • Supabase
+                        <br/>
+                        • Vercel
+                        <br/>
+                        • Google AdMob
+                        <br/>
+                        • TMDB API
+
+                        <br/><br/>
+
+                        문의:
                         <br/>
                         cinecluegame@gmail.com
                       </div>
