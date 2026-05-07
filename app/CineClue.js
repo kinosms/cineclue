@@ -462,7 +462,8 @@ async function saveLog({
   userInput,  
   nickname,
   genre,
-  log_type = 'play'
+  log_type = 'play',
+  quizMode
 }){
 
   if(!supabase) {
@@ -484,7 +485,8 @@ async function saveLog({
     nickname: nickname, 
     user_input: userInput,
     genre: genre,
-    log_type: log_type
+    log_type: log_type,
+    mode: quizMode
   })
 
   if(error){
@@ -882,6 +884,15 @@ useEffect(()=>{
   }
 
 
+
+  function formatPlayTime(sec){
+    const h = Math.floor(sec / 3600)
+    const m = Math.floor((sec % 3600) / 60)
+    if(h > 0) return `${h}시간 ${m}분`
+    return `${m}분`
+  }
+
+
   function triggerDeath(){
   setDeathMessage(true)   // 👉 화면 띄우기
   setTimeout(()=>{
@@ -927,7 +938,8 @@ useEffect(()=>{
         comboMode: null,
         isCorrect: true,
         nickname: currentUser.nickname,
-        log_type: 'result'
+        log_type: 'result',
+        quizMode
       })
 
       const data = await loadRanking({ supabase })
@@ -1301,7 +1313,8 @@ useEffect(()=>{
           nickname: currentUser.nickname,
           userInput: inputValue?.trim() || null,
           genre: m.final_genre || null,
-          log_type: 'play'
+          log_type: 'play',
+          quizMode
         })
         await supabase.rpc('update_genre_stats', {
           p_user_id: String(currentUser.userId),
@@ -1371,7 +1384,8 @@ useEffect(()=>{
             nickname: currentUser.nickname,
             userInput: inputValue?.trim() || null,
             genre: m.final_genre || null,
-            log_type: 'play'
+            log_type: 'play',
+            quizMode
           })
 
           await supabase.rpc('update_genre_stats', {
@@ -1453,7 +1467,8 @@ useEffect(()=>{
       isSkip: true,
       nickname: currentUser.nickname,
       genre: m?.final_genre || null,
-      log_type: 'play'
+      log_type: 'play',
+      quizMode
     })
 
     const genreValue = m?.final_genre || '기타'
@@ -1487,7 +1502,8 @@ useEffect(()=>{
         comboMode: null,
         isCorrect: true,
         nickname: currentUser.nickname,
-        log_type: 'result'
+        log_type: 'result',
+        quizMode
       })
 
       setAnswered(true)
