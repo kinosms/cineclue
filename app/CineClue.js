@@ -757,7 +757,12 @@ export default function CineClue()  {
   ]
 
 
- 
+
+
+
+
+  const TMDB_KEY =process.env.NEXT_PUBLIC_TMDB_KEY
+  const KMDB_KEY =process.env.NEXT_PUBLIC_KMDB_KEY
   const [isFlashing, setIsFlashing] = useState(false)
   const [showSettings, setShowSettings] = useState(false)
   const [settingsPage, setSettingsPage] = useState(null)
@@ -1024,6 +1029,80 @@ export default function CineClue()  {
   }
 
 
+
+
+  async function loadMovieDetail(movie){
+  console.log('클릭영화', movie)
+  const TMDB_KEY =
+    process.env.NEXT_PUBLIC_TMDB_KEY
+  try{
+    const res = await fetch(
+      `https://api.themoviedb.org/3/search/movie?api_key=${TMDB_KEY}&query=${encodeURIComponent(movie.title)}&language=ko-KR`
+    )
+    const data = await res.json()
+    console.log('TMDB 검색결과', data)
+  }catch(err){
+    console.error(err)
+  }
+}
+
+
+async function loadMovieDetail(movie){
+
+  const TMDB_KEY =
+    process.env.NEXT_PUBLIC_TMDB_KEY
+
+  try{
+
+    const res = await fetch(
+
+      `https://api.themoviedb.org/3/search/movie?api_key=${TMDB_KEY}&query=${encodeURIComponent(movie.title)}&language=ko-KR`
+
+    )
+
+    const data = await res.json()
+
+    const found = data.results.find(m => {
+
+      const tmdbYear =
+        m.release_date?.slice(0,4)
+
+      const sameYear =
+        String(tmdbYear) === String(movie.year)
+
+      const sameOriginal =
+        (m.original_title || '')
+          .toLowerCase()
+          .trim()
+
+        ===
+
+        (movie.title_en || '')
+          .toLowerCase()
+          .trim()
+
+      const sameKorean =
+        (m.title || '').trim()
+
+        ===
+
+        (movie.title || '').trim()
+
+      return sameYear && (
+        sameOriginal || sameKorean
+      )
+
+    }) || data.results[0]
+
+    console.log(found)
+
+  }catch(err){
+
+    console.error(err)
+
+  }
+
+}
 
   function formatPlayTime(sec){
     const h = Math.floor(sec / 3600)
@@ -3883,24 +3962,37 @@ export default function CineClue()  {
                               </span>
                             </div>
                             <div style={{flex:1}}>
-                              <div style={{
-                                fontSize:
-                                  r.correct && r.title.length > 20 ? '0.7rem' :
-                                  r.correct && r.title.length > 14 ? '0.75rem' :
-                                  '0.8rem',
-                                fontWeight:700,
-                                color: (r.correct || showAnswers) ? '#1a1814' : '#c0bbb4',
-                                lineHeight:1.25,
-                                wordBreak:'keep-all'
-                              }}>
-                                {r.correct 
-                                ? r.title 
-                                : showAnswers 
-                                  ? r.title
-                                  : '실패'
-                              }
+                              <div onClick={()=>{
+                                if(r.correct || showAnswers){
+                                  loadMovieDetail(r)
+                                }
+                                }}
+                                style={{
+                                  fontSize:
+                                    r.correct && (r.title || '').length > 20 ? '0.7rem' :
+                                    r.correct && (r.title || '').length > 14 ? '0.75rem' :
+                                    '0.8rem',
+                                  fontWeight:700,
+                                  transition:'opacity 0.15s ease',
+                                  color:
+                                    (r.correct || showAnswers)
+                                      ? '#1a1814'
+                                      : '#c0bbb4',
+                                  lineHeight:1.25,
+                                  wordBreak:'keep-all',
+                                  cursor:
+                                    (r.correct || showAnswers)
+                                      ? 'pointer'
+                                      : 'default'
+                                }}>
+                                  {r.correct 
+                                  ? r.title 
+                                  : showAnswers 
+                                    ? r.title
+                                    : '실패'
+                                  }
+                                </div>
                               </div>
-                            </div>
                             <div style={{
                               position:'relative',
                               minWidth:50,
