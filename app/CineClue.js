@@ -1878,8 +1878,15 @@ async function loadTMDB(movie){
       setFb('')
       setFbt('')
     } else {
-      doSkip()
+      // 객관식은 마지막 힌트에서도
+      // 오답 기회 남겨둠
+    if(
+      quizMode === 'choice'
+      && wrongCount < 2
+    ){
+      return
     }
+    doSkip()
   }
 
 
