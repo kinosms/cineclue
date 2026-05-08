@@ -1106,6 +1106,8 @@ async function loadTMDB(movie){
   const TMDB_KEY =
     process.env.NEXT_PUBLIC_TMDB_KEY
 
+    alert(TMDB_KEY)
+
   try{
 
     const res = await fetch(
