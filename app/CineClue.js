@@ -1583,6 +1583,14 @@ async function loadTMDB(movie){
     setProgress(0)
     setQuestionReady(false)
     setScreen('quiz')
+    setPool([])
+    setQi(0)
+    setSh(1)
+    setFb('')
+    setFbt('')
+    setAnswered(false)
+    setInput('')
+    setScreen('quiz')
     try{
       if(!supabase){
         alert('DB 연결 안됨')
