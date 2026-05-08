@@ -2546,7 +2546,7 @@ async function loadTMDB(movie){
                                     if(x.charId === c.id){
                                       return {
                                         ...x,
-                                        lives: 10,       // 🔥 부활 시 10
+                                        lives: 15,       // 🔥 부활 시 10
                                         isDead: false
                                       }
                                     }
@@ -4207,7 +4207,7 @@ async function loadTMDB(movie){
                                   position:'absolute',
                                   inset:0,
                                   background:
-                                    'linear-gradient(to right, rgba(255,255,255,0.88) 0%, rgba(255, 255, 255, 0.43) 35%, rgba(255,255,255,0.00) 50%, rgba(255,255,255,0.18) 65%, rgba(255,255,255,0.88) 100%)',
+                                    'linear-gradient(to right, rgba(255,255,255,0.88) 0%, rgba(255, 255, 255, 0.43) 35%, rgba(255,255,255,0.00) 50%, rgba(255, 255, 255, 0.34) 65%, rgba(255,255,255,0.88) 100%)',
                                   zIndex:1,
                                   pointerEvents:'none'
                                 }}/>
