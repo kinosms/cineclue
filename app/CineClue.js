@@ -3954,11 +3954,12 @@ async function loadTMDB(movie){
 
                       {fbt==='ok' && (
                         <div style={{
+                          marginTop:22,
                           marginBottom:14
                         }}>
                           <div style={{
                             position:'relative',
-                            marginBottom:16
+                            marginBottom:10
                           }}>
 
                           {/* 정답 제목 */}
