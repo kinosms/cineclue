@@ -4191,7 +4191,7 @@ async function loadTMDB(movie){
                                     height:'100%',
                                     objectFit:'cover',
                                     objectPosition:'center center',
-                                    opacity:0.6,
+                                    opacity:0.8,
                                     zIndex:0,
                                     pointerEvents:'none'
                                   }}
@@ -4201,7 +4201,7 @@ async function loadTMDB(movie){
                                   position:'absolute',
                                   inset:0,
                                   background:
-                                    'linear-gradient(to right,rgba(255,255,255,0.90) 0%, rgba(255,255,255,0.55) 30%,rgba(255,255,255,0.02) 100%)',
+                                    'linear-gradient(to right, rgba(255,255,255,0.88) 0%, rgba(255,255,255,0.18) 35%, rgba(255,255,255,0.00) 50%, rgba(255,255,255,0.18) 65%, rgba(255,255,255,0.88) 100%)',
                                   zIndex:1,
                                   pointerEvents:'none'
                                 }}/>
@@ -4354,7 +4354,9 @@ async function loadTMDB(movie){
                           const safeUsers = Array.isArray(users) ? users : []
                           const TOP_LIMIT = 10
                           const myRankIndex = safeRanking.findIndex(
-                            r => String(r.character_id) === String(selChar)
+                            r =>
+                              String(r.user_id) === String(currentUser.userId) &&
+                              String(r.character_id) === String(selChar)
                           )
                           const myRank =
                             myRankIndex >= 0
@@ -4370,7 +4372,10 @@ async function loadTMDB(movie){
                                 const r = safeRanking[i] || null
                                 const char = r ? CHARS.find(c => c.id === r.character_id) : null
                                 const isDead = r && !safeUsers.find(u => u.charId === r.character_id)
-                                const isMe = r && String(r.character_id) === String(selChar)
+                                const isMe =
+                                  r &&
+                                  String(r.user_id) === String(currentUser.userId) &&
+                                  String(r.character_id) === String(selChar)
                                 const isAnimated = i < 5
 
                                 return (
