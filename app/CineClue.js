@@ -1084,7 +1084,7 @@ async function loadMovieDetail(movie){
     }
 
     const detailRes = await fetch(
-      `https://api.themoviedb.org/3/movie/${movie.tmdb_id}?api_key=${TMDB_KEY}&language=ko-KR&append_to_response=credits`
+      `https://api.themoviedb.org/3/movie/${found.id}?api_key=${TMDB_KEY}&language=ko-KR&append_to_response=credits`
     )
     if(!detailRes.ok){
       console.error(
@@ -1155,7 +1155,17 @@ async function loadTMDB(movie){
 
     })
 
-    return found || {}
+    if(!found){
+      return {}
+        }
+        const detailRes = await fetch(
+          `https://api.themoviedb.org/3/movie/${found.id}?api_key=${TMDB_KEY}&language=ko-KR&append_to_response=credits`
+        )
+        if(!detailRes.ok){
+          return found || {}
+        }
+        const detail = await detailRes.json()
+        return detail || {}
 
   }catch(e){
 
@@ -1467,51 +1477,32 @@ async function loadTMDB(movie){
 
       }))
 
-      setPool(sel)
+      Promise.all(
+        sel.map(async movie => {
+          const tmdb = await loadTMDB(movie)
+          return {
+            ...movie,
+            tmdbLoaded:true,
+            poster_path:
+              tmdb?.poster_path || null,
+            backdrop_path:
+              tmdb?.backdrop_path || null,
+            overview:
+              tmdb?.overview || '',
+            tmdb_id:
+              tmdb?.id || null,
+            release_date:
+              tmdb?.release_date || '',
+            vote_average:
+              tmdb?.vote_average || null,
+            credits:
+              tmdb?.credits || null
+          }
+        })
 
-      loadTMDB(sel[0]).then(tmdb => {
+).then(updated => {
 
-  setPool(prev =>
-
-    prev.map((m, idx) => {
-
-      if(idx !== 0) return m
-
-      return {
-
-        ...m,
-
-        tmdbLoaded:true,
-
-        poster_path:
-
-          tmdb?.poster_path || null,
-
-        backdrop_path:
-
-          tmdb?.backdrop_path || null,
-
-        overview:
-
-          tmdb?.overview || '',
-
-        tmdb_id:
-
-          tmdb?.id || null,
-
-        release_date:
-
-          tmdb?.release_date || '',
-
-        vote_average:
-
-          tmdb?.vote_average || null
-
-      }
-
-    })
-
-  )
+  setPool(updated)
 
 })
       setQi(0)
@@ -3852,7 +3843,9 @@ async function loadTMDB(movie){
                       )}
                     </>
                   ) : (
+                    
                     <>
+
                       {fbt==='ok' && (
                         <div style={{
                           marginBottom:14
@@ -3936,7 +3929,7 @@ async function loadTMDB(movie){
                                 <div style={{
                                   display:'flex',
                                   flexDirection:'column',
-                                  gap:8
+                                  gap:5
                                 }}>
 
                                   {/* 연도 */}
@@ -3951,42 +3944,6 @@ async function loadTMDB(movie){
                                     <span>{m.year || '-'}</span>
                                   </div>
 
-                                  {/* 언어 */}
-                                  <div style={{
-                                    display:'flex',
-                                    alignItems:'center',
-                                    gap:10,
-                                    fontSize:'0.75rem',
-                                    color:'#555'
-                                  }}>
-                                    <span style={{fontSize:'0.75rem'}}>언어</span>
-                                    <span>
-                                      {m.original_language === 'ko'
-                                        ? '한국어'
-                                        : m.original_language === 'ja'
-                                        ? '일본어'
-                                        : m.original_language === 'en'
-                                        ? '영어'
-                                        : m.original_language || '-'}
-                                    </span>
-                                  </div>
-
-                                  {/* 평점 */}
-                                  <div style={{
-                                    display:'flex',
-                                    alignItems:'center',
-                                    gap:10,
-                                    fontSize:'0.75rem',
-                                    color:'#555'
-                                  }}>
-                                    <span style={{fontSize:'0.75rem'}}>평점</span>
-                                    <span>
-                                      {m.vote_average
-                                        ? `${Number(m.vote_average).toFixed(1)} / 10`
-                                        : '-'}
-                                    </span>
-                                  </div>
-
                                   {/* 국가 */}
                                   <div style={{
                                     display:'flex',
@@ -3998,6 +3955,7 @@ async function loadTMDB(movie){
                                     <span style={{fontSize:'0.75rem'}}>국가</span>
                                     <span>{m.country || '-'}</span>
                                   </div>
+
 
                                   {/* 장르 */}
                                   <div style={{
@@ -4011,6 +3969,60 @@ async function loadTMDB(movie){
                                     <span>{m.genre || '-'}</span>
                                   </div>
 
+
+                                  {/* 감독 */}
+                                  <div style={{
+                                    display:'flex',
+                                    alignItems:'center',
+                                    gap:10,
+                                    fontSize:'0.75rem',
+                                    color:'#555'
+                                  }}>
+                                    <span style={{fontSize:'0.75rem'}}>감독</span>
+                                    <span>
+                                    {
+                                      m.credits?.crew
+                                        ?.find(p => p.job === 'Director')
+                                        ?.name || '-'
+                                    }
+                                  </span>
+                                  </div>
+                                  {/* 배우 */}
+                                  <div style={{
+                                    display:'flex',
+                                    alignItems:'flex-start',
+                                    gap:10,
+                                    fontSize:'0.75rem',
+                                    color:'#555',
+                                    lineHeight:1.5
+                                  }}>
+                                    <span style={{fontSize:'0.75rem'}}>출연</span>
+                                    <span>
+                                      {
+                                        m.credits?.cast
+                                          ?.slice(0,3)
+                                          ?.map(a => a.name)
+                                          ?.join(' · ')
+                                        || '-'
+                                      }
+                                  </span>
+                                  </div>
+
+                                    {/* 평점 */}
+                                    <div style={{
+                                      display:'flex',
+                                      alignItems:'center',
+                                      gap:10,
+                                      fontSize:'0.75rem',
+                                      color:'#555'
+                                    }}>
+                                      <span style={{fontSize:'0.75rem'}}>평점</span>
+                                      <span>
+                                        {m.vote_average
+                                          ? `${Number(m.vote_average).toFixed(1)} / 10`
+                                          : '-'}
+                                      </span>
+                                    </div>
                                 </div>
 
                                 {/* 시놉시스 버튼 */}
@@ -5492,9 +5504,35 @@ async function loadTMDB(movie){
                             </div>
 
                             {[
-                              ['개봉', movieCard.release_date],
-                              ['언어', movieCard.original_language?.toUpperCase()],
-                              ['평점', movieCard.vote_average?.toFixed(1)]
+                              ['개봉', movieCard.release_date
+                              ],
+
+                              ['국가', movieCard.production_countries
+                                ?.map(c => c.name)
+                                ?.join(', ')
+                              ],
+
+                              ['평점',
+                                movieCard.vote_average?.toFixed(1)
+                              ],
+
+                              ['장르', movieCard.genres
+                                ?.map(g => g.name)
+                                ?.join(', ')
+                              ],
+
+                              ['감독', movieCard.credits?.crew
+                                ?.find(p => p.job === 'Director')
+                                ?.name
+                              ],
+
+                              ['출연',
+                                movieCard.credits?.cast
+                                  ?.slice(0,5)
+                                  ?.map(a => a.name)
+                                  ?.join(' · ')
+                              ]
+                              
                             ].map(([k,v],i)=>(
                               <div
                                 key={i}
