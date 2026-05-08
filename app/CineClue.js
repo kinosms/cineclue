@@ -848,6 +848,7 @@ export default function CineClue()  {
   const [deathMessage, setDeathMessage] = useState(false)
   const [pendingLifeDelta, setPendingLifeDelta] = useState(null)
   const [showSynopsis, setShowSynopsis] = useState(false)
+  const [showReportMenu, setShowReportMenu] = useState(false)
   const [animateStats, setAnimateStats]
   = useState(false)
   const UI = {
@@ -2217,7 +2218,7 @@ async function loadTMDB(movie){
                     {[
                       '소개',
                       '게임 규칙',
-                      '문의하기',
+                      '이메일',
                       '개인정보 처리방침',
                       '신고하기'
                     ].map((item,i)=>(
@@ -2341,7 +2342,7 @@ async function loadTMDB(movie){
                       </div>
                     )}
 
-                    {settingsPage === '문의하기' && (
+                    {settingsPage === '이메일' && (
                       <div style={{
                         fontSize:'0.82rem',
                         lineHeight:1.8,
@@ -2374,13 +2375,11 @@ async function loadTMDB(movie){
                         <br/>
                         • 로그인 정보(추후 지원 시)
 
-                        <br/><br/>
+                        <br/>
 
                         게스트 플레이의 경우 일부 데이터는
-                        브라우저 저장소(local storage)에 저장될 수 있습니다.
-
-                        <br/><br/>
-
+                        브라우저 저장소에 저장될 수 있습니다.
+                        <br/>
                         CineCLUE는 서비스 개선 및 광고 제공을 위해
                         외부 서비스를 사용할 수 있습니다.
 
@@ -2395,12 +2394,6 @@ async function loadTMDB(movie){
                         • Google AdMob
                         <br/>
                         • TMDB API
-
-                        <br/><br/>
-
-                        문의:
-                        <br/>
-                        cinecluegame@gmail.com
                       </div>
                     )}
 
@@ -2410,8 +2403,8 @@ async function loadTMDB(movie){
                         lineHeight:1.8,
                         color:'#5f5a55'
                       }}>
-                        힌트오류 / 제목오류 / 일반문의 등을
-                        메일로 보내주세요.
+                        힌트오류 / 제목오류는 퀴즈화면 내 신고버튼을 이용해주세요. <br/>
+                        기타 신고사항은 이메일을 이용해주시기 바랍니다. 
                       </div>
                     )}
 
@@ -2753,7 +2746,7 @@ async function loadTMDB(movie){
                   {[
                     '소개',
                     '게임 규칙',
-                    '문의하기',
+                    '이메일',
                     '개인정보 처리방침',
                     '신고하기'
                   ].map((item,i)=>(
@@ -2854,6 +2847,7 @@ async function loadTMDB(movie){
                         CineCLUE는
                         장면의 단서를 통해 영화를 맞히는
                         영화 퀴즈 게임입니다.
+
                       </div>
                     )}
 
@@ -2877,7 +2871,7 @@ async function loadTMDB(movie){
                       </div>
                     )}
 
-                    {settingsPage === '문의하기' && (
+                    {settingsPage === '이메일' && (
                       <div style={{
                         fontSize:'0.82rem',
                         lineHeight:1.8,
@@ -2910,13 +2904,11 @@ async function loadTMDB(movie){
                         <br/>
                         • 로그인 정보(추후 지원 시)
 
-                        <br/><br/>
+                        <br/>
 
                         게스트 플레이의 경우 일부 데이터는
-                        브라우저 저장소(local storage)에 저장될 수 있습니다.
-
-                        <br/><br/>
-
+                        브라우저 저장소에 저장될 수 있습니다.
+                        <br/>
                         CineCLUE는 서비스 개선 및 광고 제공을 위해
                         외부 서비스를 사용할 수 있습니다.
 
@@ -2932,11 +2924,6 @@ async function loadTMDB(movie){
                         <br/>
                         • TMDB API
 
-                        <br/><br/>
-
-                        문의:
-                        <br/>
-                        cinecluegame@gmail.com
                       </div>
                     )}
 
@@ -2946,8 +2933,9 @@ async function loadTMDB(movie){
                         lineHeight:1.8,
                         color:'#5f5a55'
                       }}>
-                        힌트오류 / 제목오류 / 일반문의 등을
-                        메일로 보내주세요.
+                        힌트오류 / 제목오류는 퀴즈화면 내 신고버튼을 이용해주세요. <br/>
+                        기타 신고사항은 이메일을 이용해주시기 바랍니다. 
+                        
                       </div>
                     )}
 
@@ -3573,16 +3561,221 @@ async function loadTMDB(movie){
                   paddingBottom: '20px',
                   flexShrink:0
                 }}>
-                  {fb && (
-                    <div style={{
-                      fontSize:'0.78rem',
-                      fontWeight:700,
-                      marginBottom:8,
-                      color:fbt==='ok' ? '#4a9c6d' : '#d45c5c'
-                    }}>
-                      {fb}
-                    </div>
-                  )}
+{fb && (
+
+  <div style={{
+
+    display:'flex',
+
+    alignItems:'center',
+
+    justifyContent:'space-between',
+
+    marginBottom:8
+
+  }}>
+
+    {/* 메시지 */}
+
+    <div style={{
+
+      fontSize:'0.78rem',
+
+      fontWeight:700,
+
+      color:fbt==='ok'
+
+        ? '#4a9c6d'
+
+        : '#d45c5c'
+
+    }}>
+
+      {fb}
+
+    </div>
+
+    {/* 오답일 때만 신고 */}
+
+    {fbt==='sk' && (
+
+      <div style={{
+
+        position:'relative'
+
+      }}>
+
+        <button
+
+          onClick={() =>
+
+            setShowReportMenu(v => !v)
+
+          }
+
+          style={{
+
+            border:'none',
+
+            background:'transparent',
+
+            color:'rgba(226,7,7,0.72)',
+
+            fontSize:'1rem',
+
+            cursor:'pointer',
+
+            padding:2
+
+          }}
+
+        >
+
+          ⚠
+
+        </button>
+
+        {showReportMenu && (
+
+          <div style={{
+
+            position:'absolute',
+
+            right:0,
+
+            bottom:'100%',
+
+            marginBottom:6,
+
+            background:'#fff',
+
+            border:'1px solid #ece8e2',
+
+            borderRadius:12,
+
+            overflow:'hidden',
+
+            boxShadow:'0 8px 24px rgba(0,0,0,0.08)',
+
+            zIndex:100,
+
+            minWidth:96
+
+          }}>
+
+            <button
+
+              onClick={async()=>{
+
+                setShowReportMenu(false)
+
+                await supabase
+
+                  .from('hint_reports')
+
+                  .insert({
+
+                    movie_id:m.id,
+
+                    title:m.title,
+
+                    report_type:'title',
+
+                    user_id:String(currentUser.userId),
+
+                    nickname:currentUser.nickname
+
+                  })
+
+                alert('신고가 접수되었어요')
+
+              }}
+
+              style={{
+
+                width:'100%',
+
+                border:'none',
+
+                background:'#fff',
+
+                padding:'10px 12px',
+
+                fontSize:'0.74rem',
+
+                textAlign:'left'
+
+              }}
+
+            >
+
+              제목 오류
+
+            </button>
+
+            <button
+
+              onClick={async()=>{
+
+                setShowReportMenu(false)
+
+                await supabase
+
+                  .from('hint_reports')
+
+                  .insert({
+
+                    movie_id:m.id,
+
+                    title:m.title,
+
+                    report_type:'hint',
+
+                    user_id:String(currentUser.userId),
+
+                    nickname:currentUser.nickname
+
+                  })
+
+                alert('신고가 접수되었어요')
+
+              }}
+
+              style={{
+
+                width:'100%',
+
+                border:'none',
+
+                background:'#fff',
+
+                padding:'10px 12px',
+
+                fontSize:'0.74rem',
+
+                textAlign:'left',
+
+                borderTop:'1px solid #f2efea'
+
+              }}
+
+            >
+
+              힌트 오류
+
+            </button>
+
+          </div>
+
+        )}
+
+      </div>
+
+    )}
+
+  </div>
+
+)}
 
                   {!answered ? (
                     <>
@@ -3850,6 +4043,14 @@ async function loadTMDB(movie){
                         <div style={{
                           marginBottom:14
                         }}>
+                          <div style={{
+                            display:'flex',
+                            alignItems:'center',
+                            justifyContent:'center',
+                            gap:10,
+                            marginBottom:16,
+                            position:'relative'
+                          }}></div>
 
                           {/* 정답 제목 */}
                           <div style={{
@@ -3861,6 +4062,162 @@ async function loadTMDB(movie){
                             lineHeight:1.3
                           }}>
                             {m.title}
+                          </div>
+
+                           {/* 신고 버튼 */}
+                          <div style={{
+                            position:'absolute',
+                            right:0,
+                            top:'18%',
+                            transform:'translateY(-50%)'
+                          }}>
+                            <button
+                              onClick={() =>
+                                setShowReportMenu(v => !v)
+                              }
+                              style={{
+                                border:'none',
+                                background:'transparent',
+                                color:'rgba(226, 7, 7, 0.7)',
+                                fontSize:'1.2rem',
+                                cursor:'pointer',
+                                padding:4,
+                                display:'flex',
+                                alignItems:'center',
+                                justifyContent:'center'
+                              }}
+                            >
+                              ⚠
+                            </button>
+                            {/* 메뉴 */}
+                            {showReportMenu && (
+                              <div style={{
+                                position:'absolute',
+                                top:'100%',
+                                right:0,
+                                marginTop:0.2,
+                                background:'#fff',
+                                border:'1px solid #ece8e2',
+                                borderRadius:12,
+                                overflow:'hidden',
+                                boxShadow:'0 8px 24px rgba(0,0,0,0.08)',
+                                zIndex:50,
+                                minWidth:95
+                              }}>
+
+                                {/* 제목 오류 */}
+
+                                <button
+
+                                  onClick={async()=>{
+
+                                    setShowReportMenu(false)
+
+                                    await supabase
+
+                                      .from('hint_reports')
+
+                                      .insert({
+
+                                        movie_id:m.id,
+
+                                        title:m.title,
+
+                                        report_type:'title',
+
+                                        user_id:String(currentUser.userId),
+
+                                        nickname:currentUser.nickname
+
+                                      })
+
+                                    alert('신고가 접수되었어요')
+
+                                  }}
+
+                                  style={{
+
+                                    width:'100%',
+
+                                    border:'none',
+
+                                    background:'#fff',
+
+                                    padding:'11px 14px',
+
+                                    fontSize:'0.78rem',
+
+                                    textAlign:'center',
+
+                                    cursor:'pointer',
+
+                                    borderBottom:'1px solid #f1efeb'
+
+                                  }}
+
+                                >
+
+                                  제목 오류
+
+                                </button>
+
+                                {/* 힌트 오류 */}
+
+                                <button
+
+                                  onClick={async()=>{
+
+                                    setShowReportMenu(false)
+
+                                    await supabase
+
+                                      .from('hint_reports')
+
+                                      .insert({
+
+                                        movie_id:m.id,
+
+                                        title:m.title,
+
+                                        report_type:'hint',
+
+                                        user_id:String(currentUser.userId),
+
+                                        nickname:currentUser.nickname
+
+                                      })
+
+                                    alert('신고가 접수되었어요')
+
+                                  }}
+
+                                  style={{
+
+                                    width:'100%',
+
+                                    border:'none',
+
+                                    background:'#fff',
+
+                                    padding:'11px 14px',
+
+                                    fontSize:'0.78rem',
+
+                                    textAlign:'center',
+
+                                    cursor:'pointer'
+
+                                  }}
+
+                                >
+
+                                  힌트 오류
+
+                                </button>
+
+                              </div>
+                                  )}
+
                           </div>
 
                           {/* 영화 카드 */}
@@ -5532,7 +5889,7 @@ async function loadTMDB(movie){
                                   ?.map(a => a.name)
                                   ?.join(' · ')
                               ]
-                              
+
                             ].map(([k,v],i)=>(
                               <div
                                 key={i}
