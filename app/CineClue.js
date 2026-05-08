@@ -1686,10 +1686,6 @@ async function loadTMDB(movie){
         }
         // 주관식 오답은 여기서 콤보 해제 안 함
         if(quizMode === 'objective'){
-          if(sh >= 5){
-            await doSkip()
-            return
-          }
           if(wrongCount === 0){
             setWrongCount(1)
             nextH()
