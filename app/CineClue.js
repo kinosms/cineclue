@@ -1671,7 +1671,6 @@ async function loadTMDB(movie){
           genre: m.final_genre || '',
           grade: primaryGrade
         }])
-        setFb(`정답! 이번 문제가 좀 쉬웠죠`)
         setFbt('ok')
         setAnswered(true)
         setScoreFlash(true)
@@ -3598,183 +3597,94 @@ async function loadTMDB(movie){
     {/* 오답일 때만 신고 */}
 
     {fbt==='sk' && (
-
       <div style={{
-
         position:'relative'
-
       }}>
-
         <button
-
           onClick={() =>
-
             setShowReportMenu(v => !v)
-
           }
-
           style={{
-
             border:'none',
-
             background:'transparent',
-
             color:'rgba(226,7,7,0.72)',
-
-            fontSize:'1rem',
-
+            fontSize:'1.2rem',
             cursor:'pointer',
-
             padding:2
-
           }}
-
         >
-
           ⚠
-
         </button>
-
         {showReportMenu && (
-
           <div style={{
-
             position:'absolute',
-
             right:0,
-
             bottom:'100%',
-
             marginBottom:6,
-
             background:'#fff',
-
             border:'1px solid #ece8e2',
-
             borderRadius:12,
-
             overflow:'hidden',
-
             boxShadow:'0 8px 24px rgba(0,0,0,0.08)',
-
             zIndex:100,
-
             minWidth:96
-
           }}>
-
             <button
-
               onClick={async()=>{
-
                 setShowReportMenu(false)
-
                 await supabase
-
                   .from('hint_reports')
-
                   .insert({
-
                     movie_id:m.id,
-
                     title:m.title,
-
                     report_type:'title',
-
                     user_id:String(currentUser.userId),
-
                     nickname:currentUser.nickname
-
                   })
-
                 alert('신고가 접수되었어요')
-
               }}
-
               style={{
-
                 width:'100%',
-
                 border:'none',
-
                 background:'#fff',
-
                 padding:'10px 12px',
-
                 fontSize:'0.74rem',
-
                 textAlign:'left'
-
               }}
-
             >
-
               제목 오류
-
             </button>
-
             <button
-
               onClick={async()=>{
-
                 setShowReportMenu(false)
-
                 await supabase
-
                   .from('hint_reports')
-
                   .insert({
-
                     movie_id:m.id,
-
                     title:m.title,
-
                     report_type:'hint',
-
                     user_id:String(currentUser.userId),
-
                     nickname:currentUser.nickname
-
                   })
-
                 alert('신고가 접수되었어요')
-
               }}
-
               style={{
-
                 width:'100%',
-
                 border:'none',
-
                 background:'#fff',
-
                 padding:'10px 12px',
-
                 fontSize:'0.74rem',
-
                 textAlign:'left',
-
                 borderTop:'1px solid #f2efea'
-
               }}
-
             >
-
               힌트 오류
-
             </button>
-
           </div>
-
         )}
-
       </div>
-
     )}
-
   </div>
-
 )}
 
                   {!answered ? (
@@ -4057,7 +3967,7 @@ async function loadTMDB(movie){
                             fontSize:'1.3rem',
                             fontWeight:900,
                             color:'#c8a84a',
-                            marginBottom:16,
+                            marginBottom:4,
                             textAlign:'center',
                             lineHeight:1.3
                           }}>
@@ -4068,7 +3978,7 @@ async function loadTMDB(movie){
                           <div style={{
                             position:'absolute',
                             right:0,
-                            top:'18%',
+                            top:'9.5%',
                             transform:'translateY(-50%)'
                           }}>
                             <button
