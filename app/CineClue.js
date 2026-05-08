@@ -1105,9 +1105,6 @@ async function loadTMDB(movie){
 
   const TMDB_KEY =
     process.env.NEXT_PUBLIC_TMDB_KEY
-
-    alert(TMDB_KEY)
-
   try{
 
     const res = await fetch(
@@ -1469,6 +1466,52 @@ async function loadTMDB(movie){
       }))
 
       setPool(sel)
+
+      loadTMDB(sel[0]).then(tmdb => {
+
+  setPool(prev =>
+
+    prev.map((m, idx) => {
+
+      if(idx !== 0) return m
+
+      return {
+
+        ...m,
+
+        tmdbLoaded:true,
+
+        poster_path:
+
+          tmdb?.poster_path || null,
+
+        backdrop_path:
+
+          tmdb?.backdrop_path || null,
+
+        overview:
+
+          tmdb?.overview || '',
+
+        tmdb_id:
+
+          tmdb?.id || null,
+
+        release_date:
+
+          tmdb?.release_date || '',
+
+        vote_average:
+
+          tmdb?.vote_average || null
+
+      }
+
+    })
+
+  )
+
+})
       setQi(0)
       setSh(1)
       setResults([])
