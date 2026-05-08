@@ -3560,7 +3560,7 @@ async function loadTMDB(movie){
                   paddingBottom: '20px',
                   flexShrink:0
                 }}>
-{fb && (
+{fb && fbt!=='ok' && (
 
   <div style={{
 
