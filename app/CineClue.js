@@ -1888,7 +1888,9 @@ async function loadTMDB(movie){
         if(quizMode === 'objective'){
           if(wrongCount === 0){
             setWrongCount(1)
-            nextH()
+            if(sh < 5){
+              nextH()
+            }
             setFb('다시 생각해봐')
             setFbt('ng')
             return
@@ -1903,6 +1905,11 @@ async function loadTMDB(movie){
             }, 700)
             return
           }
+        }
+        if(quizMode === 'subjective'){
+          setFb('다시 생각해봐')
+          setFbt('ng')
+          return
         }
           await saveLog({
             supabase,
@@ -5352,7 +5359,7 @@ async function loadTMDB(movie){
                         {/* 타이틀 */}
                           <div style={{
                             textAlign:'center',
-                            marginBottom:14
+                            marginBottom:7
                           }}>
 
                             {/* 작은 라벨 */}
@@ -5368,7 +5375,7 @@ async function loadTMDB(movie){
 
                             {/* 타이틀 */}
                             <div style={{
-                              fontSize:'2rem',
+                              fontSize:'1.6rem',
                               fontWeight:900,
                               color:'#1a1814',
                               letterSpacing:'-0.04em',
@@ -5401,7 +5408,7 @@ async function loadTMDB(movie){
                         }}>
 
                           <div style={{
-                            fontSize:'1.2rem',
+                            fontSize:'1.0rem',
                             fontWeight:900,
                             color:'#1a1814'
                           }}>
@@ -5536,7 +5543,7 @@ async function loadTMDB(movie){
                             <div>
 
                               <div style={{
-                                fontSize:'1rem',
+                                fontSize:'01.0rem',
                                 fontWeight:900,
                                 color:'#1a1814'
                               }}>
@@ -5567,7 +5574,7 @@ async function loadTMDB(movie){
                           <div style={{
                             display:'flex',
                             flexDirection:'column',
-                            gap:12
+                            gap:10
                           }}>
 
                             {[...(profileStats?.genreStats || [])]
