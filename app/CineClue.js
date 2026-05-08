@@ -1446,52 +1446,25 @@ async function loadTMDB(movie){
       // 🔥 2차 랜덤 (그 안에서 5개)
       const baseSel = shuffle(sampled).slice(0,5)
 
-      const sel = await Promise.all(
-        baseSel.map(async m => {
-          let tmdb = {}
-          try{
-            tmdb = await loadTMDB(m)
-          }catch(e){
-            console.error('TMDB preload 실패', e)
-          }
-          return {
-            ...m,
-            poster_path:
-              tmdb?.poster_path || null,
-            backdrop_path:
-              tmdb?.backdrop_path || null,
-            overview:
-              tmdb?.overview || '',
-            tmdb_id:
-              tmdb?.id || null,
-            release_date:
-              tmdb?.release_date || '',
-            vote_average:
-              tmdb?.vote_average || null,
-            hintsArr: m.hints
-              ? m.hints
-                .sort((a,b)=>a.hint_level - b.hint_level)
-                .map(h=>h.hint_text)
-              : [],
-            choices:
-              buildChoices(m, movies)
-          }
-        })
-      )
+      const sel = baseSel.map(m => ({
 
-      await Promise.all(
-        sel.map(movie => {
-          if(!movie.poster_path)
-            return Promise.resolve()
-          return new Promise(resolve => {
-            const img = new Image()
-            img.src =
-              `https://image.tmdb.org/t/p/w500${movie.poster_path}`
-            img.onload = resolve
-            img.onerror = resolve
-          })
-        })
-      )
+        ...m,
+
+        hintsArr: m.hints
+
+          ? m.hints
+
+            .sort((a,b)=>a.hint_level - b.hint_level)
+
+            .map(h=>h.hint_text)
+
+          : [],
+
+        choices:
+
+          buildChoices(m, movies)
+
+      }))
 
       setPool(sel)
       setQi(0)
@@ -1921,6 +1894,82 @@ async function loadTMDB(movie){
     setSelectedChoice(null)
 
   }
+
+  useEffect(()=>{
+
+  async function preloadCurrentMovie(){
+
+    const movie = pool[qi]
+
+    if(!movie) return
+
+    // 이미 불러왔으면 패스
+
+    if(movie.tmdbLoaded) return
+
+    try{
+
+      const tmdb = await loadTMDB(movie)
+
+      setPool(prev =>
+
+        prev.map((m, idx) => {
+
+          if(idx !== qi) return m
+
+          return {
+
+            ...m,
+
+            tmdbLoaded:true,
+
+            poster_path:
+
+              tmdb?.poster_path || null,
+
+            backdrop_path:
+
+              tmdb?.backdrop_path || null,
+
+            overview:
+
+              tmdb?.overview || '',
+
+            tmdb_id:
+
+              tmdb?.id || null,
+
+            release_date:
+
+              tmdb?.release_date || '',
+
+            vote_average:
+
+              tmdb?.vote_average || null
+
+          }
+
+        })
+
+      )
+
+    }catch(e){
+
+      console.error(
+
+        'TMDB preload 실패',
+
+        e
+
+      )
+
+    }
+
+  }
+
+  preloadCurrentMovie()
+
+}, [qi])
 
 
   function enterGame(){
