@@ -847,6 +847,7 @@ export default function CineClue()  {
   const [lifeDelta, setLifeDelta] = useState(null)
   const [deathMessage, setDeathMessage] = useState(false)
   const [pendingLifeDelta, setPendingLifeDelta] = useState(null)
+  const [showSynopsis, setShowSynopsis] = useState(false)
   const [animateStats, setAnimateStats]
   = useState(false)
   const UI = {
@@ -1898,6 +1899,7 @@ async function loadTMDB(movie){
     setProgress(0)
     setButtonActive(false)
     setShowAnswers(false) 
+    setShowSynopsis(false)
 
     if(currentUser?.isDead){
     return
@@ -3853,13 +3855,208 @@ async function loadTMDB(movie){
                     <>
                       {fbt==='ok' && (
                         <div style={{
-                          fontSize:'1.3rem',
-                          fontWeight:900,
-                          color:'#c8a84a',
-                          marginBottom:12,
-                          textAlign:'center'
+                          marginBottom:14
                         }}>
-                          {m.title}
+
+                          {/* 정답 제목 */}
+                          <div style={{
+                            fontSize:'1.3rem',
+                            fontWeight:900,
+                            color:'#c8a84a',
+                            marginBottom:16,
+                            textAlign:'center',
+                            lineHeight:1.3
+                          }}>
+                            {m.title}
+                          </div>
+
+                          {/* 영화 카드 */}
+                          <div style={{
+                            borderRadius:22,
+                            overflow:'hidden',
+                            border:'1.5px solid #ece8e2',
+                            background:'#fff',
+                            padding:16,
+                            marginBottom:14
+                          }}>
+
+                            <div style={{
+                              display:'flex',
+                              gap:15,
+                              alignItems:'stretch'
+                            }}>
+
+                              {/* 포스터 */}
+                              <div style={{
+                                width:100,
+                                height:150,
+                                borderRadius:16,
+                                overflow:'hidden',
+                                flexShrink:0,
+                                background:'#f5f3ef'
+                              }}>
+
+                                {m.poster_path ? (
+
+                                  <img
+                                    src={`https://image.tmdb.org/t/p/w300${m.poster_path}`}
+                                    alt=""
+                                    style={{
+                                      width:'100%',
+                                      height:'100%',
+                                      objectFit:'cover'
+                                    }}
+                                  />
+
+                                ) : (
+
+                                  <img
+                                    src="/no_poster.webp"
+                                    alt="No Poster"
+                                    style={{
+                                      width:'100%',
+                                      height:'100%',
+                                      objectFit:'cover'
+                                    }}
+                                  />
+
+                                )}
+
+                              </div>
+
+                              {/* 정보 */}
+                              <div style={{
+                                flex:1,
+                                display:'flex',
+                                flexDirection:'column',
+                                justifyContent:'space-between',
+                                minWidth:0
+                              }}>
+
+                                <div style={{
+                                  display:'flex',
+                                  flexDirection:'column',
+                                  gap:8
+                                }}>
+
+                                  {/* 연도 */}
+                                  <div style={{
+                                    display:'flex',
+                                    alignItems:'center',
+                                    gap:10,
+                                    fontSize:'0.75rem',
+                                    color:'#555'
+                                  }}>
+                                    <span style={{fontSize:'0.75rem'}}>개봉</span>
+                                    <span>{m.year || '-'}</span>
+                                  </div>
+
+                                  {/* 언어 */}
+                                  <div style={{
+                                    display:'flex',
+                                    alignItems:'center',
+                                    gap:10,
+                                    fontSize:'0.75rem',
+                                    color:'#555'
+                                  }}>
+                                    <span style={{fontSize:'0.75rem'}}>언어</span>
+                                    <span>
+                                      {m.original_language === 'ko'
+                                        ? '한국어'
+                                        : m.original_language === 'ja'
+                                        ? '일본어'
+                                        : m.original_language === 'en'
+                                        ? '영어'
+                                        : m.original_language || '-'}
+                                    </span>
+                                  </div>
+
+                                  {/* 평점 */}
+                                  <div style={{
+                                    display:'flex',
+                                    alignItems:'center',
+                                    gap:10,
+                                    fontSize:'0.75rem',
+                                    color:'#555'
+                                  }}>
+                                    <span style={{fontSize:'0.75rem'}}>평점</span>
+                                    <span>
+                                      {m.vote_average
+                                        ? `${Number(m.vote_average).toFixed(1)} / 10`
+                                        : '-'}
+                                    </span>
+                                  </div>
+
+                                  {/* 국가 */}
+                                  <div style={{
+                                    display:'flex',
+                                    alignItems:'center',
+                                    gap:10,
+                                    fontSize:'0.75rem',
+                                    color:'#555'
+                                  }}>
+                                    <span style={{fontSize:'0.75rem'}}>국가</span>
+                                    <span>{m.country || '-'}</span>
+                                  </div>
+
+                                  {/* 장르 */}
+                                  <div style={{
+                                    display:'flex',
+                                    alignItems:'center',
+                                    gap:10,
+                                    fontSize:'0.75rem',
+                                    color:'#555'
+                                  }}>
+                                    <span style={{fontSize:'0.75rem'}}>장르</span>
+                                    <span>{m.genre || '-'}</span>
+                                  </div>
+
+                                </div>
+
+                                {/* 시놉시스 버튼 */}
+                                {m.overview && (
+                                  <button
+                                    onClick={() =>
+                                      setShowSynopsis(v => !v)
+                                    }
+                                    style={{
+                                      marginTop:16,
+                                      border:'none',
+                                      background:'none',
+                                      padding:0,
+                                      textAlign:'left',
+                                      fontSize:'0.8rem',
+                                      fontWeight:800,
+                                      color:'#666',
+                                      cursor:'pointer'
+                                    }}
+                                  >
+                                    {showSynopsis
+                                      ? '줄거리 ▲'
+                                      : '줄거리 ▼'}
+                                  </button>
+                                )}
+
+                              </div>
+                            </div>
+
+                            {/* 시놉시스 */}
+                            {showSynopsis && m.overview && (
+
+                              <div style={{
+                                marginTop:18,
+                                paddingTop:16,
+                                borderTop:'1px solid #efebe5',
+                                fontSize:'0.82rem',
+                                lineHeight:1.7,
+                                color:'#555'
+                              }}>
+                                {m.overview}
+                              </div>
+
+                            )}
+
+                          </div>
                         </div>
                       )}
                       <button
