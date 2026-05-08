@@ -1896,80 +1896,81 @@ async function loadTMDB(movie){
   }
 
   useEffect(()=>{
+    if(!pool?.length) return
 
-  async function preloadCurrentMovie(){
+    async function preloadCurrentMovie(){
 
-    const movie = pool[qi]
+      const movie = pool[qi]
 
-    if(!movie) return
+      if(!movie) return
 
-    // 이미 불러왔으면 패스
+      // 이미 불러왔으면 패스
 
-    if(movie.tmdbLoaded) return
+      if(movie.tmdbLoaded) return
 
-    try{
+      try{
 
-      const tmdb = await loadTMDB(movie)
+        const tmdb = await loadTMDB(movie)
 
-      setPool(prev =>
+        setPool(prev =>
 
-        prev.map((m, idx) => {
+          prev.map((m, idx) => {
 
-          if(idx !== qi) return m
+            if(idx !== qi) return m
 
-          return {
+            return {
 
-            ...m,
+              ...m,
 
-            tmdbLoaded:true,
+              tmdbLoaded:true,
 
-            poster_path:
+              poster_path:
 
-              tmdb?.poster_path || null,
+                tmdb?.poster_path || null,
 
-            backdrop_path:
+              backdrop_path:
 
-              tmdb?.backdrop_path || null,
+                tmdb?.backdrop_path || null,
 
-            overview:
+              overview:
 
-              tmdb?.overview || '',
+                tmdb?.overview || '',
 
-            tmdb_id:
+              tmdb_id:
 
-              tmdb?.id || null,
+                tmdb?.id || null,
 
-            release_date:
+              release_date:
 
-              tmdb?.release_date || '',
+                tmdb?.release_date || '',
 
-            vote_average:
+              vote_average:
 
-              tmdb?.vote_average || null
+                tmdb?.vote_average || null
 
-          }
+            }
 
-        })
+          })
 
-      )
+        )
 
-    }catch(e){
+      }catch(e){
 
-      console.error(
+        console.error(
 
-        'TMDB preload 실패',
+          'TMDB preload 실패',
 
-        e
+          e
 
-      )
+        )
+
+      }
 
     }
 
-  }
+    preloadCurrentMovie()
 
-  preloadCurrentMovie()
-
-}, [qi, pool])
+  }, [pool, qi])
 
 
   function enterGame(){
