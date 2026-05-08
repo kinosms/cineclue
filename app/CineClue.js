@@ -1874,15 +1874,14 @@ async function loadTMDB(movie){
       setFb('')
       setFbt('')
     } else {
-      // 객관식은 마지막 힌트에서도
-      // 오답 기회 남겨둠
-    if(
-      quizMode === 'choice'
-      && wrongCount < 2
-    ){
-      return
+      if(
+        quizMode === 'choice'
+        && wrongCount < 2
+      ){
+        return
+      }
+      doSkip()
     }
-    doSkip()
   }
 
 
@@ -1894,6 +1893,7 @@ async function loadTMDB(movie){
     setButtonActive(false)
     setShowAnswers(false) 
     setShowSynopsis(false)
+    setShowReportMenu(false)
 
     if(currentUser?.isDead){
     return
@@ -3563,132 +3563,132 @@ async function loadTMDB(movie){
                   paddingBottom: '20px',
                   flexShrink:0
                 }}>
-{fb && fbt!=='ok' && (
+               {fb && fbt!=='ok' && (
 
-  <div style={{
+                  <div style={{
 
-    display:'flex',
+                    display:'flex',
 
-    alignItems:'center',
+                    alignItems:'center',
 
-    justifyContent:'space-between',
+                    justifyContent:'space-between',
 
-    marginBottom:8
+                    marginBottom:8
 
-  }}>
+                  }}>
 
-    {/* 메시지 */}
+                    {/* 메시지 */}
 
-    <div style={{
+                    <div style={{
 
-      fontSize:'0.78rem',
+                      fontSize:'0.78rem',
 
-      fontWeight:700,
+                      fontWeight:700,
 
-      color:fbt==='ok'
+                      color:fbt==='ok'
 
-        ? '#4a9c6d'
+                        ? '#4a9c6d'
 
-        : '#d45c5c'
+                        : '#d45c5c'
 
-    }}>
+                    }}>
 
-      {fb}
+                      {fb}
 
-    </div>
+                    </div>
 
-    {/* 오답일 때만 신고 */}
+                    {/* 오답일 때만 신고 */}
 
-    {fbt==='sk' && (
-      <div style={{
-        position:'relative'
-      }}>
-        <button
-          onClick={() =>
-            setShowReportMenu(v => !v)
-          }
-          style={{
-            border:'none',
-            background:'transparent',
-            color:'rgba(226,7,7,0.72)',
-            fontSize:'1.2rem',
-            cursor:'pointer',
-            padding:2
-          }}
-        >
-          ⚠
-        </button>
-        {showReportMenu && (
-          <div style={{
-            position:'absolute',
-            right:0,
-            bottom:'100%',
-            marginBottom:6,
-            background:'#fff',
-            border:'1px solid #ece8e2',
-            borderRadius:12,
-            overflow:'hidden',
-            boxShadow:'0 8px 24px rgba(0,0,0,0.08)',
-            zIndex:100,
-            minWidth:96
-          }}>
-            <button
-              onClick={async()=>{
-                setShowReportMenu(false)
-                await supabase
-                  .from('hint_reports')
-                  .insert({
-                    movie_id:m.id,
-                    title:m.title,
-                    report_type:'title',
-                    user_id:String(currentUser.userId),
-                    nickname:currentUser.nickname
-                  })
-                alert('신고가 접수되었어요')
-              }}
-              style={{
-                width:'100%',
-                border:'none',
-                background:'#fff',
-                padding:'10px 12px',
-                fontSize:'0.74rem',
-                textAlign:'left'
-              }}
-            >
-              제목 오류
-            </button>
-            <button
-              onClick={async()=>{
-                setShowReportMenu(false)
-                await supabase
-                  .from('hint_reports')
-                  .insert({
-                    movie_id:m.id,
-                    title:m.title,
-                    report_type:'hint',
-                    user_id:String(currentUser.userId),
-                    nickname:currentUser.nickname
-                  })
-                alert('신고가 접수되었어요')
-              }}
-              style={{
-                width:'100%',
-                border:'none',
-                background:'#fff',
-                padding:'10px 12px',
-                fontSize:'0.74rem',
-                textAlign:'left',
-                borderTop:'1px solid #f2efea'
-              }}
-            >
-              힌트 오류
-            </button>
-          </div>
-        )}
-      </div>
-    )}
-  </div>
-)}
+                    {fbt==='sk' && (
+                      <div style={{
+                        position:'relative'
+                      }}>
+                        <button
+                          onClick={() =>
+                            setShowReportMenu(v => !v)
+                          }
+                          style={{
+                            border:'none',
+                            background:'transparent',
+                            color:'rgba(226,7,7,0.72)',
+                            fontSize:'1.2rem',
+                            cursor:'pointer',
+                            padding:2
+                          }}
+                        >
+                          ⚠
+                        </button>
+                        {showReportMenu && (
+                          <div style={{
+                            position:'absolute',
+                            right:0,
+                            bottom:'100%',
+                            marginBottom:6,
+                            background:'#fff',
+                            border:'1px solid #ece8e2',
+                            borderRadius:12,
+                            overflow:'hidden',
+                            boxShadow:'0 8px 24px rgba(0,0,0,0.08)',
+                            zIndex:100,
+                            minWidth:96
+                          }}>
+                            <button
+                              onClick={async()=>{
+                                setShowReportMenu(false)
+                                await supabase
+                                  .from('hint_reports')
+                                  .insert({
+                                    movie_id:m.id,
+                                    title:m.title,
+                                    report_type:'title',
+                                    user_id:String(currentUser.userId),
+                                    nickname:currentUser.nickname
+                                  })
+                                alert('신고가 접수되었어요')
+                              }}
+                              style={{
+                                width:'100%',
+                                border:'none',
+                                background:'#fff',
+                                padding:'10px 12px',
+                                fontSize:'0.74rem',
+                                textAlign:'left'
+                              }}
+                            >
+                              제목 오류
+                            </button>
+                            <button
+                              onClick={async()=>{
+                                setShowReportMenu(false)
+                                await supabase
+                                  .from('hint_reports')
+                                  .insert({
+                                    movie_id:m.id,
+                                    title:m.title,
+                                    report_type:'hint',
+                                    user_id:String(currentUser.userId),
+                                    nickname:currentUser.nickname
+                                  })
+                                alert('신고가 접수되었어요')
+                              }}
+                              style={{
+                                width:'100%',
+                                border:'none',
+                                background:'#fff',
+                                padding:'10px 12px',
+                                fontSize:'0.74rem',
+                                textAlign:'left',
+                                borderTop:'1px solid #f2efea'
+                              }}
+                            >
+                              힌트 오류
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                )}
 
                   {!answered ? (
                     <>
