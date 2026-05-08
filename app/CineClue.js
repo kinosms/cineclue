@@ -3957,181 +3957,122 @@ async function loadTMDB(movie){
                           marginBottom:14
                         }}>
                           <div style={{
-                            display:'flex',
-                            alignItems:'center',
-                            justifyContent:'center',
-                            gap:10,
-                            marginBottom:16,
-                            position:'relative'
-                          }}></div>
+                            position:'relative',
+                            marginBottom:16
+                          }}>
 
                           {/* 정답 제목 */}
-                          <div style={{
-                            fontSize:'1.3rem',
-                            fontWeight:900,
-                            color:'#c8a84a',
-                            marginBottom:4,
-                            textAlign:'center',
-                            lineHeight:1.3
-                          }}>
-                            {m.title}
-                          </div>
+                            <div style={{
+                              fontSize:'1.3rem',
+                              fontWeight:900,
+                              color:'#c8a84a',
+                              marginBottom:4,
+                              textAlign:'center',
+                              lineHeight:1.3
+                            }}>
+                              {m.title}
+                            </div>
 
-                           {/* 신고 버튼 */}
-                          <div style={{
-                            position:'absolute',
-                            right:0,
-                            top:'9.5%',
-                            transform:'translateY(-50%)'
-                          }}>
-                            <button
-                              onClick={() =>
-                                setShowReportMenu(v => !v)
-                              }
-                              style={{
-                                border:'none',
-                                background:'transparent',
-                                color:'rgba(226, 7, 7, 0.7)',
-                                fontSize:'1.2rem',
-                                cursor:'pointer',
-                                padding:4,
-                                display:'flex',
-                                alignItems:'center',
-                                justifyContent:'center'
-                              }}
-                            >
-                              ⚠
-                            </button>
-                            {/* 메뉴 */}
-                            {showReportMenu && (
-                              <div style={{
-                                position:'absolute',
-                                top:'100%',
-                                right:0,
-                                marginTop:0.2,
-                                background:'#fff',
-                                border:'1px solid #ece8e2',
-                                borderRadius:12,
-                                overflow:'hidden',
-                                boxShadow:'0 8px 24px rgba(0,0,0,0.08)',
-                                zIndex:50,
-                                minWidth:95
-                              }}>
+                            {/* 신고 버튼 */}
+                            <div style={{
+                              position:'absolute',
+                              right:0,
+                              top:'9.5%',
+                              transform:'translateY(-50%)'
+                            }}>
+                              <button
+                                onClick={() =>
+                                  setShowReportMenu(v => !v)
+                                }
+                                style={{
+                                  border:'none',
+                                  background:'transparent',
+                                  color:'rgba(226, 7, 7, 0.7)',
+                                  fontSize:'1.2rem',
+                                  cursor:'pointer',
+                                  padding:4,
+                                  display:'flex',
+                                  alignItems:'center',
+                                  justifyContent:'center'
+                                }}
+                              >
+                                ⚠
+                              </button>
 
-                                {/* 제목 오류 */}
 
-                                <button
-
-                                  onClick={async()=>{
-
-                                    setShowReportMenu(false)
-
-                                    await supabase
-
-                                      .from('hint_reports')
-
-                                      .insert({
-
-                                        movie_id:m.id,
-
-                                        title:m.title,
-
-                                        report_type:'title',
-
-                                        user_id:String(currentUser.userId),
-
-                                        nickname:currentUser.nickname
-
-                                      })
-
-                                    alert('신고가 접수되었어요')
-
-                                  }}
-
-                                  style={{
-
-                                    width:'100%',
-
-                                    border:'none',
-
-                                    background:'#fff',
-
-                                    padding:'11px 14px',
-
-                                    fontSize:'0.78rem',
-
-                                    textAlign:'center',
-
-                                    cursor:'pointer',
-
-                                    borderBottom:'1px solid #f1efeb'
-
-                                  }}
-
-                                >
-
-                                  제목 오류
-
-                                </button>
-
-                                {/* 힌트 오류 */}
-
-                                <button
-
-                                  onClick={async()=>{
-
-                                    setShowReportMenu(false)
-
-                                    await supabase
-
-                                      .from('hint_reports')
-
-                                      .insert({
-
-                                        movie_id:m.id,
-
-                                        title:m.title,
-
-                                        report_type:'hint',
-
-                                        user_id:String(currentUser.userId),
-
-                                        nickname:currentUser.nickname
-
-                                      })
-
-                                    alert('신고가 접수되었어요')
-
-                                  }}
-
-                                  style={{
-
-                                    width:'100%',
-
-                                    border:'none',
-
-                                    background:'#fff',
-
-                                    padding:'11px 14px',
-
-                                    fontSize:'0.78rem',
-
-                                    textAlign:'center',
-
-                                    cursor:'pointer'
-
-                                  }}
-
-                                >
-
-                                  힌트 오류
-
-                                </button>
-
-                              </div>
-                                  )}
-
-                          </div>
+                              {/* 메뉴 */}
+                              {showReportMenu && (
+                                <div style={{
+                                  position:'absolute',
+                                  top:'100%',
+                                  right:0,
+                                  marginTop:0.2,
+                                  background:'#fff',
+                                  border:'1px solid #ece8e2',
+                                  borderRadius:12,
+                                  overflow:'hidden',
+                                  boxShadow:'0 8px 24px rgba(0,0,0,0.08)',
+                                  zIndex:50,
+                                  minWidth:95
+                                }}>
+                                  {/* 제목 오류 */}
+                                  <button
+                                    onClick={async()=>{
+                                      setShowReportMenu(false)
+                                      await supabase
+                                        .from('hint_reports')
+                                        .insert({
+                                          movie_id:m.id,
+                                          title:m.title,
+                                          report_type:'title',
+                                          user_id:String(currentUser.userId),
+                                          nickname:currentUser.nickname
+                                        })
+                                      alert('신고가 접수되었어요')
+                                    }}
+                                    style={{
+                                      width:'100%',
+                                      border:'none',
+                                      background:'#fff',
+                                      padding:'11px 14px',
+                                      fontSize:'0.78rem',
+                                      textAlign:'center',
+                                      cursor:'pointer',
+                                      borderBottom:'1px solid #f1efeb'
+                                    }}
+                                  >
+                                    제목 오류
+                                  </button>
+                                  {/* 힌트 오류 */}
+                                  <button
+                                    onClick={async()=>{
+                                      setShowReportMenu(false)
+                                      await supabase
+                                        .from('hint_reports')
+                                        .insert({
+                                          movie_id:m.id,
+                                          title:m.title,
+                                          report_type:'hint',
+                                          user_id:String(currentUser.userId),
+                                          nickname:currentUser.nickname
+                                        })
+                                      alert('신고가 접수되었어요')
+                                    }}
+                                    style={{
+                                      width:'100%',
+                                      border:'none',
+                                      background:'#fff',
+                                      padding:'11px 14px',
+                                      fontSize:'0.78rem',
+                                      textAlign:'center',
+                                      cursor:'pointer'
+                                    }}
+                                  >
+                                    힌트 오류
+                                  </button>
+                                </div>
+                                    )}
+                            </div>
 
                           {/* 영화 카드 */}
                           <div style={{
@@ -4338,6 +4279,7 @@ async function loadTMDB(movie){
 
                             )}
 
+                          </div>
                           </div>
                         </div>
                       )}
