@@ -880,12 +880,20 @@ export default function CineClue()  {
 
   const TMDB_KEY =process.env.NEXT_PUBLIC_TMDB_KEY
   const KMDB_KEY =process.env.NEXT_PUBLIC_KMDB_KEY
+
+  const [showRecommendCard, setShowRecommendCard]
+  = useState(false)
+  const [recommendCard, setRecommendCard]
+  = useState(null)
   const [showMovieCard,setShowMovieCard]
   = useState(false)
   const [movieCard,setMovieCard]
   = useState(null)
   const [movieCardFlipped,setMovieCardFlipped]
   = useState(false)
+
+
+
   const [isFlashing, setIsFlashing] = useState(false)
   const [showReportToast, setShowReportToast] = useState(false)
   const [showSettings, setShowSettings] = useState(false)
@@ -994,6 +1002,8 @@ export default function CineClue()  {
 
 
   async function openMovieRecommend(){
+    setShowMovieCard(false)
+    setMovieCard(null)
     setIsLoadingRecommend(true)
     setRecommendStatus('loading')
     const TMDB_KEY =
@@ -1054,12 +1064,23 @@ export default function CineClue()  {
       // detail + credits
 
       const detailRes = await fetch(
-        `https://api.themoviedb.org/3/movie/${randomMovie.id}?api_key=${TMDB_KEY}&language=ko-KR&append_to_response=credits`
+        `https://api.themoviedb.org/3/movie/${randomMovie.id}?api_key=${TMDB_KEY}&language=ko-KR&append_to_response=credits,videos`
       )
 
       const detail =
         await detailRes.json()
-      setRecommendMovie(detail)
+
+      const trailer =
+        detail.videos?.results?.find(v =>
+          v.site === 'YouTube'
+        )
+      const youtubeKey =
+        trailer?.key || null
+      const movieData = {
+        ...detail,
+        youtubeKey
+       } 
+      setRecommendMovie(movieData)
       setShowRecommendModal(true)
       setRecommendStatus('idle')  
       }catch(e){
@@ -1209,9 +1230,7 @@ export default function CineClue()  {
     setButtonActive(false)
   }, [qi])
 
-  useEffect(()=>{
-    console.log('genreStats:', genreStats)
-  }, [genreStats])
+
 
 
   useEffect(() => {
@@ -1267,6 +1286,8 @@ export default function CineClue()  {
 
 async function loadMovieDetail(movie){
 
+  setShowRecommendModal(false)
+
   const TMDB_KEY =
     process.env.NEXT_PUBLIC_TMDB_KEY
 
@@ -1311,7 +1332,7 @@ async function loadMovieDetail(movie){
     }
 
     const detailRes = await fetch(
-      `https://api.themoviedb.org/3/movie/${found.id}?api_key=${TMDB_KEY}&language=ko-KR&append_to_response=credits`
+      `https://api.themoviedb.org/3/movie/${found.id}?api_key=${TMDB_KEY}&language=ko-KR&append_to_response=credits,videos`
     )
     if(!detailRes.ok){
       console.error(
@@ -1322,13 +1343,65 @@ async function loadMovieDetail(movie){
       return
     }
     const detail = await detailRes.json()
-    setMovieCard(detail)
+
+    console.log('🎬 TMDB VIDEOS CHECK', {
+
+  title: detail.title,
+
+  tmdbId: detail.id,
+
+  videos: detail.videos?.results || []
+
+})
+
+    const trailer =
+      detail.videos?.results?.find(v =>
+
+    v.site === 'YouTube' &&
+
+    v.type === 'Trailer'
+
+  ) ||
+
+  detail.videos?.results?.find(v =>
+
+    v.site === 'YouTube' &&
+
+    v.official
+
+  )
+
+  ||
+
+  detail.videos?.results?.find(v =>
+
+  v.site === 'YouTube'
+
+)
+
+    const youtubeKey = trailer?.key || null
+    console.log('🎬 YOUTUBE KEY', {
+
+  title: detail.title,
+
+  youtubeKey,
+
+  pickedVideo: trailer || null
+
+})
+
+    const movieData = {
+      ...detail,
+      youtubeKey
+    }
+    setMovieCard(movieData)
     setMovieCardFlipped(false)
     setShowMovieCard(true)
-  }catch(err){
-    console.error(err)
+    }
+    catch(err){
+      console.error(err)
+    }
   }
-}
 
 async function loadTMDB(movie){
 
@@ -1386,13 +1459,50 @@ async function loadTMDB(movie){
       return {}
         }
         const detailRes = await fetch(
-          `https://api.themoviedb.org/3/movie/${found.id}?api_key=${TMDB_KEY}&language=ko-KR&append_to_response=credits`
+          `https://api.themoviedb.org/3/movie/${found.id}?api_key=${TMDB_KEY}&language=ko-KR&append_to_response=credits,videos`
         )
         if(!detailRes.ok){
           return found || {}
         }
         const detail = await detailRes.json()
-        return detail || {}
+       
+        const trailer =
+
+          detail.videos?.results?.find(v =>
+
+            v.site === 'YouTube' &&
+
+            v.type === 'Trailer'
+
+          ) ||
+
+          detail.videos?.results?.find(v =>
+
+            v.site === 'YouTube'
+
+          )
+
+        const youtubeKey =
+
+          trailer?.key || null
+
+        console.log('🎬 YOUTUBE KEY', {
+
+          title: detail.title,
+
+          youtubeKey,
+
+          pickedVideo: trailer || null
+
+        })
+
+        return {
+
+          ...detail,
+
+          youtubeKey
+
+        }
 
   }catch(e){
 
@@ -1733,7 +1843,9 @@ async function loadTMDB(movie){
             vote_average:
               tmdb?.vote_average || null,
             credits:
-              tmdb?.credits || null
+              tmdb?.credits || null,
+            youtubeKey:
+              tmdb?.youtubeKey || null
           }
         })
 
@@ -4391,7 +4503,12 @@ async function loadTMDB(movie){
                                     fontSize:'0.75rem',
                                     color:'#555'
                                   }}>
-                                    <span style={{fontSize:'0.75rem'}}>개봉</span>
+                                    <span style={{
+                                      width:38,
+                                      flexShrink:0,
+                                      whiteSpace:'nowrap',
+                                      fontSize:'0.75rem'
+                                    }}>개봉</span>
                                     <span>{m.year || '-'}</span>
                                   </div>
 
@@ -4403,7 +4520,12 @@ async function loadTMDB(movie){
                                     fontSize:'0.75rem',
                                     color:'#555'
                                   }}>
-                                    <span style={{fontSize:'0.75rem'}}>국가</span>
+                                    <span style={{
+                                      width:38,
+                                      flexShrink:0,
+                                      whiteSpace:'nowrap',
+                                      fontSize:'0.75rem'
+                                    }}>국가</span>
                                     <span>{m.country || '-'}</span>
                                   </div>
 
@@ -4416,7 +4538,12 @@ async function loadTMDB(movie){
                                     fontSize:'0.75rem',
                                     color:'#555'
                                   }}>
-                                    <span style={{fontSize:'0.75rem'}}>장르</span>
+                                    <span style={{
+                                      width:38,
+                                      flexShrink:0,
+                                      whiteSpace:'nowrap',
+                                      fontSize:'0.75rem'
+                                    }}>장르</span>
                                     <span>{m.genre || '-'}</span>
                                   </div>
 
@@ -4429,7 +4556,12 @@ async function loadTMDB(movie){
                                     fontSize:'0.75rem',
                                     color:'#555'
                                   }}>
-                                    <span style={{fontSize:'0.75rem'}}>감독</span>
+                                    <span style={{
+                                      width:38,
+                                      flexShrink:0,
+                                      whiteSpace:'nowrap',
+                                      fontSize:'0.75rem'
+                                    }}>감독</span>
                                     <span>
                                     {
                                       m.credits?.crew
@@ -4447,7 +4579,7 @@ async function loadTMDB(movie){
                                     color:'#555',
                                     lineHeight:1.5
                                   }}>
-                                    <span style={{fontSize:'0.75rem'}}>출연</span>
+                                    <span style={{width:38, flexShrink:0, whiteSpace:'nowrap', fontSize:'0.75rem'}}>출연</span>
                                     <span>
                                       {
                                         m.credits?.cast
@@ -4459,7 +4591,7 @@ async function loadTMDB(movie){
                                   </span>
                                   </div>
 
-                                    {/* 평점 */}
+                                    {/* 영상 */}
                                     <div style={{
                                       display:'flex',
                                       alignItems:'center',
@@ -4467,15 +4599,33 @@ async function loadTMDB(movie){
                                       fontSize:'0.75rem',
                                       color:'#555'
                                     }}>
-                                      <span style={{fontSize:'0.75rem'}}>평점</span>
-                                      <span>
-                                        {m.vote_average
-                                          ? `${Number(m.vote_average).toFixed(1)} / 10`
-                                          : '-'}
-                                      </span>
+                                    <span style={{
+                                      width:38,
+                                      flexShrink:0,
+                                      whiteSpace:'nowrap',
+                                      fontSize:'0.75rem'
+                                    }}>영상</span>
+                                      {m.youtubeKey ? (
+                                        <span
+                                          onClick={()=>
+                                            window.open(
+                                              `https://youtube.com/watch?v=${m?.youtubeKey}`,
+                                              '_blank'
+                                            )
+                                          }
+                                          style={{
+                                            cursor:'pointer',
+                                            color:'#c84f4f',
+                                            fontWeight:700
+                                          }}
+                                        >
+                                        🎬 영상 보기
+                                        </span>
+                                      ) : (
+                                        <span>-</span>
+                                      )}
                                     </div>
-                                </div>
-
+                                  </div>
                                 {/* 시놉시스 버튼 */}
                                 {m.overview && (
                                   <button
@@ -4483,7 +4633,7 @@ async function loadTMDB(movie){
                                       setShowSynopsis(v => !v)
                                     }
                                     style={{
-                                      marginTop:16,
+                                      marginTop:10,
                                       border:'none',
                                       background:'none',
                                       padding:0,
@@ -5837,165 +5987,250 @@ async function loadTMDB(movie){
                   }}
                 >
                   <div
+
+                    onClick={(e)=>
+
+                      e.stopPropagation()
+
+                    }
+
                     style={{
+
+                      position:'relative',
+
                       width:'100%',
+
                       maxWidth:320,
+
                       borderRadius:24,
+
                       background:'#fff',
+
                       padding:18,
+
                       boxShadow:'0 18px 48px rgba(0,0,0,0.18)'
+
                     }}
+
                   >
+
+                    {/* 🎬 버튼 */}
+
+                    <div style={{
+
+                      position:'absolute',
+
+                      top:14,
+
+                      right:14,
+
+                      zIndex:5
+
+                    }}>
+
+                      <div
+
+                        onClick={()=>{
+
+                          console.log(recommendMovie?.youtubeKey)
+
+                          if(recommendMovie?.youtubeKey){
+
+                            window.open(
+
+                              `https://youtube.com/watch?v=${recommendMovie.youtubeKey}`,
+
+                              '_blank'
+
+                            )
+
+                          }
+
+                        }}
+
+                        style={{
+
+                          width:38,
+
+                          height:38,
+
+                          borderRadius:'50%',
+
+                          background:'rgba(255,255,255,0.9)',
+
+                          border:'1px solid #ece7df',
+
+                          display:'flex',
+
+                          alignItems:'center',
+
+                          justifyContent:'center',
+
+                          cursor:'pointer',
+
+                          fontSize:'1.05rem',
+
+                          boxShadow:'0 4px 14px rgba(0,0,0,0.12)'
+
+                        }}
+
+                      >
+
+                        🎬
+
+                      </div>
+
+                    </div>
                     {/* 포스터 카드 재사용 */}
                     <div style={{
 
-  textAlign:'center'
+                      textAlign:'center'
 
-}}>
+                    }}>
 
-  {/* 포스터 */}
+                      {/* 포스터 */}
 
-  <img
+                      <img
 
-    src={`https://image.tmdb.org/t/p/w500${recommendMovie.poster_path}`}
+                        src={`https://image.tmdb.org/t/p/w500${recommendMovie.poster_path}`}
 
-    alt=""
+                        alt=""
 
-    style={{
+                        style={{
 
-      width:'60%',
+                          width:'60%',
 
-      maxWidth:220,
+                          maxWidth:220,
 
-      borderRadius:18,
+                          borderRadius:18,
 
-      marginBottom:10,
+                          marginBottom:10,
 
-      boxShadow:'0 14px 34px rgba(0,0,0,0.18)'
+                          boxShadow:'0 14px 34px rgba(0,0,0,0.18)'
 
-    }}
+                        }}
 
-  />
+                      />
 
-  {/* 제목 */}
+                      {/* 제목 */}
 
-  <div style={{
+                      <div style={{
 
-    fontSize:'1.18rem',
+                        fontSize:'1.18rem',
 
-    fontWeight:900,
+                        fontWeight:900,
 
-    color:'#1a1814',
+                        color:'#1a1814',
 
-    lineHeight:1.3,
+                        lineHeight:1.3,
 
-    marginBottom:8
+                        marginBottom:8
 
-  }}>
+                      }}>
 
-    {recommendMovie.title}
+                        {recommendMovie.title}
 
-  </div>
+                      </div>
 
-  {/* 평점 */}
+                      {/* 평점 */}
 
-  <div style={{
+                      <div style={{
 
-    fontSize:'0.82rem',
+                        fontSize:'0.82rem',
 
-    fontWeight:700,
+                        fontWeight:700,
 
-    color:'#ff5f73',
+                        color:'#ff5f73',
 
-    marginBottom:10
+                        marginBottom:10
 
-  }}>
+                      }}>
 
-    ★ {Number(recommendMovie.vote_average).toFixed(1)} / 10
+                        ★ {Number(recommendMovie.vote_average).toFixed(1)} / 10
 
-  </div>
+                      </div>
 
-  {/* 감독 */}
+                      {/* 감독 */}
 
-  <div style={{
+                      <div style={{
 
-    fontSize:'0.8rem',
+                        fontSize:'0.8rem',
 
-    color:'#666',
+                        color:'#666',
 
-    marginBottom:2,
+                        marginBottom:2,
 
-    lineHeight:1.5
+                        lineHeight:1.5
 
-  }}>
+                      }}>
 
-    감독 · {
+                        감독 · {
 
-      recommendMovie.credits?.crew
+                          recommendMovie.credits?.crew
 
-        ?.find(p => p.job === 'Director')
+                            ?.find(p => p.job === 'Director')
 
-        ?.name || '-'
+                            ?.name || '-'
 
-    }
+                        }
 
-  </div>
+                      </div>
 
-  {/* 배우 */}
+                      {/* 배우 */}
 
-  <div style={{
+                      <div style={{
 
-    fontSize:'0.8rem',
+                        fontSize:'0.8rem',
 
-    color:'#666',
+                        color:'#666',
 
-    marginBottom:15,
+                        marginBottom:15,
 
-    lineHeight:1.5
+                        lineHeight:1.5
 
-  }}>
+                      }}>
 
-    출연 · {
+                        출연 · {
 
-      recommendMovie.credits?.cast
+                          recommendMovie.credits?.cast
 
-        ?.slice(0,3)
+                            ?.slice(0,3)
 
-        ?.map(a => a.name)
+                            ?.map(a => a.name)
 
-        ?.join(' · ')
+                            ?.join(' · ')
 
-      || '-'
+                          || '-'
 
-    }
+                        }
 
-  </div>
+                      </div>
 
-  {/* 시놉시스 */}
+                      {/* 시놉시스 */}
 
-  <div style={{
+                      <div style={{
 
-    fontSize:'0.7rem',
+                        fontSize:'0.7rem',
 
-    color:'#666',
+                        color:'#666',
 
-    lineHeight:1.75,
+                        lineHeight:1.75,
 
-    display:'-webkit-box',
+                        display:'-webkit-box',
 
-    WebkitLineClamp:3,
+                        WebkitLineClamp:3,
 
-    WebkitBoxOrient:'vertical',
+                        WebkitBoxOrient:'vertical',
 
-    overflow:'hidden'
+                        overflow:'hidden'
 
-  }}>
+                      }}>
 
-    {recommendMovie.overview}
+                        {recommendMovie.overview}
 
-  </div>
+                      </div>
 
-</div>
+                    </div>
                   </div>
                 </div>
               )}
@@ -6262,7 +6497,9 @@ async function loadTMDB(movie){
                                   ?.slice(0,5)
                                   ?.map(a => a.name)
                                   ?.join(' · ')
-                              ]
+                              ],
+
+                              ['영상', movieCard.youtubeKey]
 
                             ].map(([k,v],i)=>(
                               <div
@@ -6287,7 +6524,29 @@ async function loadTMDB(movie){
                                   fontSize:'0.82rem',
                                   lineHeight:1.5
                                 }}>
-                                  {v || '-'}
+
+                                  {k === '영상' ? (
+                                    v ? (
+                                      <span
+                                        onClick={()=>
+                                          window.open(
+                                            `https://youtube.com/watch?v=${v}`,
+                                            '_blank'
+                                          )
+                                        }
+                                        style={{
+                                          color:'#ff7b8d',
+                                          fontWeight:800,
+                                          cursor:'pointer'
+                                        }}
+                                      >
+                                        🎬 영상 보기
+                                      </span>
+                                    ) : '-'
+                                  ) : (
+                                    v || '-'
+                                  )}
+
                                 </div>
                               </div>
                             ))}
