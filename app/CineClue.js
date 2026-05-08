@@ -8,6 +8,110 @@ const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || ''
 const SUPABASE_KEY = process.env.NEXT_PUBLIC_SUPABASE_KEY || ''
 
 
+const LEVEL_TITLES = {
+  1: '스크린 입문자',
+  2: '팝콘 감시자',
+  3: '엔딩크레딧 관찰자',
+  4: '예고편 수집가',
+  5: '비디오 가게 단골',
+  6: '리모컨 방랑자',
+  7: '심야 영화 탐험가',
+  8: '장면 수집가',
+  9: '대사 따라하는 사람',
+  10: '필름 탐정',
+  11: '포스터 감별사',
+  12: '극장 의자 감정사',
+  13: '시네마 헌터',
+  14: 'VHS 보관자',
+  15: '기억의 큐레이터',
+  16: '필름 냄새 감식자',
+  17: '오프닝 시퀀스 중독자',
+  18: '필름 아카이비스트',
+  19: '숨은 명작 발굴자',
+  20: '장르 횡단자',
+  21: 'B급 영화 생존자',
+  22: '자막 완독자',
+  23: '흑백영화 체류자',
+  24: 'OST 추적자',
+  25: '감독 이름 외우는 사람',
+  26: '영화관 골목 주민',
+  27: '스포일러 회피 전문가',
+  28: '필름 릴 수호자',
+  29: '엔딩 여운 체류자',
+  30: '장면 기억 증후군',
+  31: '새벽 2시 관람객',
+  32: '대사 암기자',
+  33: '프레임 분석가',
+  34: '크레딧 끝까지 보는 사람',
+  35: '폐관 극장 탐험가',
+  36: '시네마 노마드',
+  37: '장르 왜곡자',
+  38: '극장 좌석 철학자',
+  39: '영화 대화 중독자',
+  40: '필름 룸 거주자',
+  41: 'VHS 복원가',
+  42: '오래된 극장의 유령',
+  43: '리메이크 감별사',
+  44: '편집 리듬 분석가',
+  45: '영화제 방랑자',
+  46: '필름 더스트 수집가',
+  47: '장면 해석자',
+  48: '시네마 심문관',
+  49: '기억 속 스크린 관리자',
+  50: '장르 초월자',
+  51: '대사 반응 감지자',
+  52: '카메라 워킹 추적자',
+  53: '영화 포스터 사냥꾼',
+  54: '심야 상영관 관리자',
+  55: '극장 폐인',
+  56: '필름 심연 관측자',
+  57: '사운드트랙 순례자',
+  58: '고전영화 보존회 회원',
+  59: '스틸컷 기억자',
+  60: '장면 복원술사',
+  61: '엔딩 후 체류자',
+  62: '필름 미로 탐험가',
+  63: '장르 해체자',
+  64: '무삭제판 추적자',
+  65: '대사 구조 분석가',
+  66: '필름 시간여행자',
+  67: '시네마 중독자',
+  68: '장면 연결자',
+  69: '영화관 야행성 주민',
+  70: '스크린 심문관',
+  71: '장르 포식자',
+  72: '필름 유물 감정사',
+  73: '크레딧 이후 생존자',
+  74: '시네마 잠복자',
+  75: '장면 예언자',
+  76: '필름 감정 채굴자',
+  77: '영화 기억 변환자',
+  78: '시네마 코드 해독자',
+  79: '숨겨진 명장면 목격자',
+  80: '스크린 내부인',
+  81: '필름 미학 연구자',
+  82: '극장 잔광 수집가',
+  83: '장면 지배자',
+  84: '영화 시간 관리자',
+  85: '시네마 환영 목격자',
+  86: '프레임 사냥꾼',
+  87: '필름 차원 이동자',
+  88: '장르 파괴자',
+  89: '영화 기억 아카이브',
+  90: '극장 심층 거주자',
+  91: '엔딩 이후의 사람',
+  92: '스크린 환영체',
+  93: '필름 세계 관찰자',
+  94: '시네마 괴인',
+  95: '기억 속 상영기사',
+  96: '필름 차원 관리자',
+  97: '장면의 지배자',
+  98: '영화의 잔상',
+  99: '스크린 너머의 존재',
+  100: 'CineClue Grand Master'
+}
+
+
 const CHARS = [
   { id:'yoda', name:'포스의 스승', movie:'스타워즈', color:'#5a9660',
     svg: <svg viewBox="0 0 80 80" fill="none"><ellipse cx="40" cy="52" rx="14" ry="11" fill="#4a7c4e"/><ellipse cx="40" cy="36" rx="16" ry="15" fill="#6aaa6e"/><ellipse cx="8" cy="34" rx="10" ry="5" fill="#5a9660" transform="rotate(-20 8 34)"/><ellipse cx="72" cy="34" rx="10" ry="5" fill="#5a9660" transform="rotate(20 72 34)"/><ellipse cx="34" cy="34" rx="4" ry="4.5" fill="#1a2a1a"/><ellipse cx="46" cy="34" rx="4" ry="4.5" fill="#1a2a1a"/><circle cx="33" cy="33" r="1.5" fill="#fff" opacity=".8"/><circle cx="45" cy="33" r="1.5" fill="#fff" opacity=".8"/><path d="M32 42 Q40 45 48 42" stroke="#3a6040" strokeWidth="1.5" fill="none"/><path d="M28 30 Q30 27 34 29" stroke="#3a6040" strokeWidth="1" fill="none"/><path d="M46 29 Q50 27 52 30" stroke="#3a6040" strokeWidth="1" fill="none"/></svg>},
@@ -757,7 +861,20 @@ export default function CineClue()  {
   ]
 
 
-
+  const TMDB_GENRE_MAP = {
+    '애니메이션': [16],
+    'SF': [878],
+    'SF공포': [878,27],
+    'SF액션': [878,28],
+    '판타지': [14],
+    '판타지액션': [14,28],
+    '공포': [27],
+    '미스터리/스릴러': [9648,53],
+    '액션': [28],
+    '코미디': [35],
+    '로맨스': [10749],
+    '드라마': [18]
+  }
 
 
 
@@ -850,6 +967,9 @@ export default function CineClue()  {
   const [pendingLifeDelta, setPendingLifeDelta] = useState(null)
   const [showSynopsis, setShowSynopsis] = useState(false)
   const [showReportMenu, setShowReportMenu] = useState(false)
+  const [showRecommendModal, setShowRecommendModal] = useState(false)
+  const [recommendMovie, setRecommendMovie] = useState(null)
+  const [questionReady, setQuestionReady] = useState(false)
   const [animateStats, setAnimateStats]
   = useState(false)
   const UI = {
@@ -860,6 +980,83 @@ export default function CineClue()  {
   textWeak: '#b0aaa3',
   accent: '#ff6b7a'
   }
+
+
+  const level =
+  Math.floor(score / 50000) + 1
+  const title =
+  LEVEL_TITLES[Math.min(level,100)]
+
+
+
+
+  async function openMovieRecommend(){
+    const TMDB_KEY =
+      process.env.NEXT_PUBLIC_TMDB_KEY
+    try{
+
+      // Top3 장르
+      const topGenres =
+        [...(profileStats?.genreStats || [])]
+          .sort((a,b)=>b.percent - a.percent)
+          .slice(0,3)
+      // 랜덤 장르 하나 선택
+
+      const pickedGenre =
+        topGenres[
+          Math.floor(Math.random() * topGenres.length)
+        ]?.genre
+
+      // TMDB 장르 id 변환
+
+      const genreIds =
+        TMDB_GENRE_MAP[pickedGenre]
+      if(!genreIds){
+        alert('장르 매핑 없음')
+        return
+      }
+
+      // discover 호출
+
+      const res = await fetch(
+        `https://api.themoviedb.org/3/discover/movie?api_key=${TMDB_KEY}` +
+        `&language=ko-KR` +
+        `&sort_by=vote_average.desc` +
+        `&vote_average.gte=7.5` +
+        `&vote_count.gte=300` +
+        `&with_genres=${genreIds.join(',')}`
+      )
+
+      const data = await res.json()
+      if(!data.results?.length){
+        alert('추천 영화 없음')
+        return
+      }
+
+      // 랜덤 영화
+
+      const randomMovie =
+        data.results[
+          Math.floor(Math.random() * data.results.length)
+        ]
+
+      // detail + credits
+
+      const detailRes = await fetch(
+        `https://api.themoviedb.org/3/movie/${randomMovie.id}?api_key=${TMDB_KEY}&language=ko-KR&append_to_response=credits`
+      )
+
+      const detail =
+        await detailRes.json()
+      setRecommendMovie(detail)
+      setShowRecommendModal(true)
+    }catch(e){
+      console.error(e)
+    }
+  }
+
+
+
 
 
   useEffect(() => {
@@ -992,6 +1189,7 @@ export default function CineClue()  {
 
   useEffect(() => {
     if(screen !== 'quiz') return
+    if(!questionReady) return
     if(answered) return   // 🔥 추가 (핵심)
     const start = Date.now()
     timerRef.current = setInterval(() => {
@@ -1006,7 +1204,7 @@ export default function CineClue()  {
       }
     }, 100)
     return () => clearInterval(timerRef.current)
-  }, [qi, screen, quizMode, answered])  
+  }, [qi, screen, quizMode, answered,questionReady])  
 
 
   async function fetchGenreStats(user_id, character_id){
@@ -1355,6 +1553,8 @@ async function loadTMDB(movie){
   async function loadMovies(){
     setLoading(true)
     setShowSpinner(true)
+    setProgress(0)
+    setQuestionReady(false)
     setScreen('quiz')
     try{
       if(!supabase){
@@ -1502,11 +1702,10 @@ async function loadTMDB(movie){
           }
         })
 
-).then(updated => {
-
-  setPool(updated)
-
-})
+      ).then(updated => {
+        setPool(updated)
+        setQuestionReady(true)
+      })
       setQi(0)
       setSh(1)
       setResults([])
@@ -5151,28 +5350,49 @@ async function loadTMDB(movie){
                         </div>
 
                         {/* 타이틀 */}
-                        <div style={{
-                          textAlign:'center',
-                          marginBottom:10
-                        }}>
-
                           <div style={{
-                            fontSize:'1.2rem',
-                            fontWeight:900,
-                            color:'#1a1814'
+                            textAlign:'center',
+                            marginBottom:14
                           }}>
-                            총소리 놀람이
-                          </div>
 
-                          <div style={{
-                            fontSize:'0.92rem',
-                            color:'#888',
-                            marginTop:8
-                          }}>
-                            {profileUser?.nickname || currentUser?.nickname || '-'}
-                          </div>
+                            {/* 작은 라벨 */}
+                            <div style={{
+                              fontSize:'0.62rem',
+                              letterSpacing:'0.24em',
+                              color:'#b8b1a8',
+                              fontWeight:700,
+                              marginBottom:8
+                            }}>
+                              CINECLUE TITLE
+                            </div>
 
-                        </div>
+                            {/* 타이틀 */}
+                            <div style={{
+                              fontSize:'2rem',
+                              fontWeight:900,
+                              color:'#1a1814',
+                              letterSpacing:'-0.04em',
+                              lineHeight:1.08
+                            }}>
+                              {LEVEL_TITLES[
+                                Math.min(
+                                  Math.floor((user.score || 0) / 50000) + 1,
+                                  100
+                                )
+                              ]}
+                            </div>
+
+                            {/* 닉네임 */}
+                            <div style={{
+                              fontSize:'0.9rem',
+                              color:'#8d857c',
+                              marginTop:10,
+                              fontWeight:600
+                            }}>
+                              {profileUser?.nickname || currentUser?.nickname || '-'}
+                            </div>
+
+                          </div>
 
 
                         {/* 레벨 */}
@@ -5338,7 +5558,7 @@ async function loadTMDB(movie){
                               fontWeight:800,
                               color:'#ff5f73'
                             }}>
-                              TOP 5
+                              TOP 3
                             </div>
 
                           </div>
@@ -5356,7 +5576,7 @@ async function loadTMDB(movie){
                                 b.percent - a.percent
                               )
 
-                              .slice(0,5)
+                              .slice(0,3)
 
                               .map((g,i)=>{
 
@@ -5483,13 +5703,69 @@ async function loadTMDB(movie){
                                     }}>
                                       {rankLabel}
                                     </div>
-
                                   </div>
+
 
                                 )
                               })}
 
                           </div>
+
+                        </div>
+
+                        {/* 추천 영화 CTA */}
+                        <div style={{
+                          marginTop:10,
+                          paddingTop:0
+                        }}>
+
+                          <button
+                            onClick={openMovieRecommend}
+                            style={{
+                              width:'100%',
+                              border:'1px solid #ece4dc',
+                              background:'#fff',
+                              borderRadius:18,
+                              padding:'16px 18px',
+                              display:'flex',
+                              alignItems:'center',
+                              justifyContent:'space-between',
+                              cursor:'pointer'
+                            }}
+                          >
+
+                            <div style={{
+                              textAlign:'left'
+                            }}>
+
+                              <div style={{
+                                fontSize:'0.9rem',
+                                fontWeight:800,
+                                color:'#1a1814',
+                                marginBottom:4
+                              }}>
+                                🔍 오늘의 추천 영화 알아보기
+                              </div>
+
+                              <div style={{
+                                fontSize:'0.72rem',
+                                color:'#9b9389',
+                                fontWeight:600
+                              }}>
+                                장르 숙련도 기반 랜덤 추천
+                              </div>
+
+                            </div>
+
+                            <div style={{
+                              fontSize:'1rem',
+                              color:'#c7b8a8',
+                              fontWeight:700
+                            }}>
+                              click ›
+                            </div>
+
+                          </button>
 
                         </div>
 
@@ -5500,6 +5776,187 @@ async function loadTMDB(movie){
                   </div>
 
                 )}
+
+
+                {showRecommendModal && recommendMovie && (
+                <div
+                  onClick={() =>
+                    setShowRecommendModal(false)
+                  }
+                  style={{
+                    position:'fixed',
+                    inset:0,
+                    background:'rgba(0,0,0,0.22)',
+                    zIndex:3000,
+                    display:'flex',
+                    alignItems:'center',
+                    justifyContent:'center',
+                    padding:24
+                  }}
+                >
+                  <div
+                    style={{
+                      width:'100%',
+                      maxWidth:320,
+                      borderRadius:24,
+                      background:'#fff',
+                      padding:18,
+                      boxShadow:'0 18px 48px rgba(0,0,0,0.18)'
+                    }}
+                  >
+                    {/* 포스터 카드 재사용 */}
+                    <div style={{
+
+  textAlign:'center'
+
+}}>
+
+  {/* 포스터 */}
+
+  <img
+
+    src={`https://image.tmdb.org/t/p/w500${recommendMovie.poster_path}`}
+
+    alt=""
+
+    style={{
+
+      width:'60%',
+
+      maxWidth:220,
+
+      borderRadius:18,
+
+      marginBottom:10,
+
+      boxShadow:'0 14px 34px rgba(0,0,0,0.18)'
+
+    }}
+
+  />
+
+  {/* 제목 */}
+
+  <div style={{
+
+    fontSize:'1.18rem',
+
+    fontWeight:900,
+
+    color:'#1a1814',
+
+    lineHeight:1.3,
+
+    marginBottom:8
+
+  }}>
+
+    {recommendMovie.title}
+
+  </div>
+
+  {/* 평점 */}
+
+  <div style={{
+
+    fontSize:'0.82rem',
+
+    fontWeight:700,
+
+    color:'#ff5f73',
+
+    marginBottom:10
+
+  }}>
+
+    ★ {Number(recommendMovie.vote_average).toFixed(1)} / 10
+
+  </div>
+
+  {/* 감독 */}
+
+  <div style={{
+
+    fontSize:'0.8rem',
+
+    color:'#666',
+
+    marginBottom:2,
+
+    lineHeight:1.5
+
+  }}>
+
+    감독 · {
+
+      recommendMovie.credits?.crew
+
+        ?.find(p => p.job === 'Director')
+
+        ?.name || '-'
+
+    }
+
+  </div>
+
+  {/* 배우 */}
+
+  <div style={{
+
+    fontSize:'0.8rem',
+
+    color:'#666',
+
+    marginBottom:15,
+
+    lineHeight:1.5
+
+  }}>
+
+    출연 · {
+
+      recommendMovie.credits?.cast
+
+        ?.slice(0,3)
+
+        ?.map(a => a.name)
+
+        ?.join(' · ')
+
+      || '-'
+
+    }
+
+  </div>
+
+  {/* 시놉시스 */}
+
+  <div style={{
+
+    fontSize:'0.7rem',
+
+    color:'#666',
+
+    lineHeight:1.75,
+
+    display:'-webkit-box',
+
+    WebkitLineClamp:3,
+
+    WebkitBoxOrient:'vertical',
+
+    overflow:'hidden'
+
+  }}>
+
+    {recommendMovie.overview}
+
+  </div>
+
+</div>
+                  </div>
+                </div>
+              )}
 
                 <style jsx>{`
                   @keyframes fadeUp {
