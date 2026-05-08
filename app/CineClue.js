@@ -770,6 +770,7 @@ export default function CineClue()  {
   const [movieCardFlipped,setMovieCardFlipped]
   = useState(false)
   const [isFlashing, setIsFlashing] = useState(false)
+  const [showReportToast, setShowReportToast] = useState(false)
   const [showSettings, setShowSettings] = useState(false)
   const [settingsPage, setSettingsPage] = useState(null)
   const [selectedSuggestion, setSelectedSuggestion] = useState(-1)
@@ -3564,41 +3565,25 @@ async function loadTMDB(movie){
                   flexShrink:0
                 }}>
                {fb && fbt!=='ok' && (
-
                   <div style={{
-
                     display:'flex',
-
                     alignItems:'center',
-
                     justifyContent:'space-between',
-
                     marginBottom:8
-
                   }}>
 
                     {/* 메시지 */}
-
                     <div style={{
-
                       fontSize:'0.78rem',
-
                       fontWeight:700,
-
                       color:fbt==='ok'
-
                         ? '#4a9c6d'
-
                         : '#d45c5c'
-
                     }}>
-
                       {fb}
-
                     </div>
 
                     {/* 오답일 때만 신고 */}
-
                     {fbt==='sk' && (
                       <div style={{
                         position:'relative'
@@ -3644,7 +3629,10 @@ async function loadTMDB(movie){
                                     user_id:String(currentUser.userId),
                                     nickname:currentUser.nickname
                                   })
-                                alert('신고가 접수되었어요')
+                                setShowReportToast(true)
+                                  setTimeout(()=>{
+                                    setShowReportToast(false)
+                                  }, 1600)
                               }}
                               style={{
                                 width:'100%',
@@ -3669,7 +3657,10 @@ async function loadTMDB(movie){
                                     user_id:String(currentUser.userId),
                                     nickname:currentUser.nickname
                                   })
-                                alert('신고가 접수되었어요')
+                                  setShowReportToast(true)
+                                  setTimeout(()=>{
+                                    setShowReportToast(false)
+                                  }, 1600)
                               }}
                               style={{
                                 width:'100%',
@@ -4029,7 +4020,10 @@ async function loadTMDB(movie){
                                           user_id:String(currentUser.userId),
                                           nickname:currentUser.nickname
                                         })
-                                      alert('신고가 접수되었어요')
+                                      setShowReportToast(true)
+                                      setTimeout(()=>{
+                                        setShowReportToast(false)
+                                      }, 1600)
                                     }}
                                     style={{
                                       width:'100%',
@@ -4057,7 +4051,10 @@ async function loadTMDB(movie){
                                           user_id:String(currentUser.userId),
                                           nickname:currentUser.nickname
                                         })
-                                      alert('신고가 접수되었어요')
+                                        setShowReportToast(true)
+                                        setTimeout(()=>{
+                                          setShowReportToast(false)
+                                        }, 1600)
                                     }}
                                     style={{
                                       width:'100%',
@@ -4303,6 +4300,28 @@ async function loadTMDB(movie){
                 </div>
               </div>
             </div>
+
+
+            {/* 신고 toast */}
+            {showReportToast && (
+              <div style={{
+                position:'fixed',
+                left:'50%',
+                bottom:90,
+                transform:'translateX(-50%)',
+                background:'rgba(30,30,30,0.92)',
+                color:'#fff',
+                padding:'12px 18px',
+                borderRadius:999,
+                fontSize:'0.78rem',
+                fontWeight:700,
+                zIndex:9999,
+                boxShadow:'0 8px 24px rgba(0,0,0,0.18)',
+                backdropFilter:'blur(8px)'
+              }}>
+                신고가 접수되었어요
+              </div>
+            )}
             
             <style jsx>{`
               @keyframes comboPulse {
