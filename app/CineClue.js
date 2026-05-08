@@ -4191,7 +4191,7 @@ async function loadTMDB(movie){
                                     height:'100%',
                                     objectFit:'cover',
                                     objectPosition:'center center',
-                                    opacity:0.4,
+                                    opacity:0.6,
                                     zIndex:0,
                                     pointerEvents:'none'
                                   }}
@@ -4329,11 +4329,11 @@ async function loadTMDB(movie){
                               display:'flex',
                               flexDirection:'column',
                               alignItems:'center',
-                              lineHeight:0.9,
+                              lineHeight:1.0,
                               fontSize:'0.53rem',
                               fontWeight:900,
                               color:'rgba(0, 0, 0, 0.92)',
-                              textShadow:'0 1px 4px rgba(255, 255, 255, 0.45)',
+                              textShadow:'0 1px 4px rgba(236, 236, 236, 0.45)',
                               letterSpacing:'0.5px',
                               pointerEvents:'none'
                             }}>
