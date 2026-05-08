@@ -3998,7 +3998,6 @@ async function loadTMDB(movie){
                               >
                                 ⚠
                               </button>
-                              </div>
 
 
                               {/* 메뉴 */}
@@ -4073,6 +4072,7 @@ async function loadTMDB(movie){
                                   </button>
                                 </div>
                                     )}
+                            </div>
                             </div>
 
                           {/* 영화 카드 */}
@@ -4281,7 +4281,6 @@ async function loadTMDB(movie){
                             )}
 
                           </div>
-                          </div>
                         </div>
                       )}
                       <button
@@ -4302,7 +4301,7 @@ async function loadTMDB(movie){
                   )}
                 </div>
               </div>
-
+            </div>
             
             <style jsx>{`
               @keyframes comboPulse {
