@@ -763,6 +763,12 @@ export default function CineClue()  {
 
   const TMDB_KEY =process.env.NEXT_PUBLIC_TMDB_KEY
   const KMDB_KEY =process.env.NEXT_PUBLIC_KMDB_KEY
+  const [showMovieCard,setShowMovieCard]
+  = useState(false)
+  const [movieCard,setMovieCard]
+  = useState(null)
+  const [movieCardFlipped,setMovieCardFlipped]
+  = useState(false)
   const [isFlashing, setIsFlashing] = useState(false)
   const [showSettings, setShowSettings] = useState(false)
   const [settingsPage, setSettingsPage] = useState(null)
@@ -853,7 +859,6 @@ export default function CineClue()  {
 
 
   useEffect(() => {
-    console.log('lifeDelta 👉', lifeDelta)
     if (lifeDelta === null) return
     const t = setTimeout(() => {
       setLifeDelta(null)
@@ -1031,22 +1036,6 @@ export default function CineClue()  {
 
 
 
-  async function loadMovieDetail(movie){
-  console.log('클릭영화', movie)
-  const TMDB_KEY =
-    process.env.NEXT_PUBLIC_TMDB_KEY
-  try{
-    const res = await fetch(
-      `https://api.themoviedb.org/3/search/movie?api_key=${TMDB_KEY}&query=${encodeURIComponent(movie.title)}&language=ko-KR`
-    )
-    const data = await res.json()
-    console.log('TMDB 검색결과', data)
-  }catch(err){
-    console.error(err)
-  }
-}
-
-
 async function loadMovieDetail(movie){
 
   const TMDB_KEY =
@@ -1055,23 +1044,92 @@ async function loadMovieDetail(movie){
   try{
 
     const res = await fetch(
-
       `https://api.themoviedb.org/3/search/movie?api_key=${TMDB_KEY}&query=${encodeURIComponent(movie.title)}&language=ko-KR`
-
     )
+    if(!res.ok){
+      console.error(
+        'TMDB SEARCH ERROR',
+        res.status
+      )
+      return
+    }
+    const data = await res.json()
+    const found = data.results.find(m => {
+      const tmdbYear =
+        m.release_date?.slice(0,4)
+      const sameYear =
+        String(tmdbYear) === String(movie.year)
+      const sameOriginal =
+        (m.original_title || '')
+          .toLowerCase()
+          .trim()
+        ===
+        (movie.title_en || '')
+          .toLowerCase()
+          .trim()
+      const sameTitle =
+        (m.title || '').trim()
+        ===
+        (movie.title || '').trim()
+      return sameYear && (
+        sameOriginal || sameTitle
+      )
+    })
+
+    if(!found){
+      alert('영화 정보를 찾을 수 없어요')
+      return
+    }
+
+    const detailRes = await fetch(
+      `https://api.themoviedb.org/3/movie/${movie.tmdb_id}?api_key=${TMDB_KEY}&language=ko-KR&append_to_response=credits`
+    )
+    if(!detailRes.ok){
+      console.error(
+        'TMDB DETAIL ERROR',
+        detailRes.status
+      )
+      alert('영화 정보를 불러오지 못했어요')
+      return
+    }
+    const detail = await detailRes.json()
+    setMovieCard(detail)
+    setMovieCardFlipped(false)
+    setShowMovieCard(true)
+  }catch(err){
+    console.error(err)
+  }
+}
+
+async function loadTMDB(movie){
+
+  const TMDB_KEY =
+    process.env.NEXT_PUBLIC_TMDB_KEY
+
+  try{
+
+    const res = await fetch(
+      `https://api.themoviedb.org/3/search/movie?api_key=${TMDB_KEY}&query=${encodeURIComponent(movie.title)}&language=ko-KR`
+    )
+
+    if(!res.ok){
+
+      return {}
+
+    }
 
     const data = await res.json()
 
-    const found = data.results.find(m => {
+    const found = data.results?.find(tmdb => {
 
       const tmdbYear =
-        m.release_date?.slice(0,4)
+        tmdb.release_date?.slice(0,4)
 
       const sameYear =
         String(tmdbYear) === String(movie.year)
 
       const sameOriginal =
-        (m.original_title || '')
+        (tmdb.original_title || '')
           .toLowerCase()
           .trim()
 
@@ -1081,28 +1139,37 @@ async function loadMovieDetail(movie){
           .toLowerCase()
           .trim()
 
-      const sameKorean =
-        (m.title || '').trim()
+      const sameTitle =
+        (tmdb.title || '')
+          .trim()
 
         ===
 
-        (movie.title || '').trim()
+        (movie.title || '')
+          .trim()
 
       return sameYear && (
-        sameOriginal || sameKorean
+        sameOriginal || sameTitle
       )
 
-    }) || data.results[0]
+    })
 
-    console.log(found)
+    return found || {}
 
-  }catch(err){
+  }catch(e){
 
-    console.error(err)
+    console.error(
+      'TMDB preload 실패',
+      e
+    )
+
+    return {}
 
   }
 
 }
+
+
 
   function formatPlayTime(sec){
     const h = Math.floor(sec / 3600)
@@ -1303,7 +1370,7 @@ async function loadMovieDetail(movie){
         'hk': 250,
         'sf': 250,
         'anime': 200
-}
+      }
       const playedIds = (logs || [])
         .map(l => l.movie_id)
         .slice(0, HISTORY_LIMIT[selGrade] || 300)
@@ -1375,16 +1442,56 @@ async function loadMovieDetail(movie){
       }
       // 🔥 1차 샘플링 (전체에서 100개)
       const sampled = shuffle(finalPool).slice(0, 50)
+
       // 🔥 2차 랜덤 (그 안에서 5개)
-      const sel = shuffle(sampled).slice(0,5).map(m=>({
-        ...m,
-        hintsArr: m.hints
-          ? m.hints
-            .sort((a,b)=>a.hint_level - b.hint_level)
-            .map(h=>h.hint_text)
-          : [],
-        choices: buildChoices(m, movies)
-      }))
+      const baseSel = shuffle(sampled).slice(0,5)
+
+      const sel = await Promise.all(
+        baseSel.map(async m => {
+          let tmdb = {}
+          try{
+            tmdb = await loadTMDB(m)
+          }catch(e){
+            console.error('TMDB preload 실패', e)
+          }
+          return {
+            ...m,
+            poster_path:
+              tmdb?.poster_path || null,
+            backdrop_path:
+              tmdb?.backdrop_path || null,
+            overview:
+              tmdb?.overview || '',
+            tmdb_id:
+              tmdb?.id || null,
+            release_date:
+              tmdb?.release_date || '',
+            vote_average:
+              tmdb?.vote_average || null,
+            hintsArr: m.hints
+              ? m.hints
+                .sort((a,b)=>a.hint_level - b.hint_level)
+                .map(h=>h.hint_text)
+              : [],
+            choices:
+              buildChoices(m, movies)
+          }
+        })
+      )
+
+      await Promise.all(
+        sel.map(movie => {
+          if(!movie.poster_path)
+            return Promise.resolve()
+          return new Promise(resolve => {
+            const img = new Image()
+            img.src =
+              `https://image.tmdb.org/t/p/w500${movie.poster_path}`
+            img.onload = resolve
+            img.onerror = resolve
+          })
+        })
+      )
 
       setPool(sel)
       setQi(0)
@@ -1543,7 +1650,7 @@ async function loadMovieDetail(movie){
           p_score: gained
         })
         setResults(r => [...r, {
-          title: m.title,
+          ...m,
           correct: true,
           hintUsed: sh,
           score: gained,
@@ -1615,8 +1722,19 @@ async function loadMovieDetail(movie){
             p_score: 0
           })
 
+          setResults(r => [...r, {
+            ...m,
+            correct: false,
+            hintUsed: sh,
+            score: 0,
+            country: m.country,
+            genre: m.final_genre || '',
+            grade: primaryGrade
+          }])
+
           setFb(rFB(sh))
           setFbt('ng')
+          setAnswered(true)
       }
     } finally {
 
@@ -1701,7 +1819,7 @@ async function loadMovieDetail(movie){
     })
 
     setResults(r => [...r, {
-      title: m.title,
+      ...m,
       correct: false,
       hintUsed: 0,
       score: 0,
@@ -2955,7 +3073,6 @@ async function loadMovieDetail(movie){
         // 퀴즈화면 pool 선언 후 시작
         const m = pool[qi]
         const currentMode = MODES.find(mode => mode.key === selGrade)
-
         const basePoint = getPts(mode)
 
         return (
@@ -3932,18 +4049,74 @@ async function loadMovieDetail(movie){
                       results.slice(0, visibleResults).map((r,i)=>{
                         const rg = GRADES.find(x=>x.id===r.grade)
                         const isCorrect = r.correct === true
+                        const hasMovieInfo =
+                          r.tmdb_id ||
+                          r.poster_path ||
+                          r.overview
                         return(
-                          <div key={i} style={{
-                            borderRadius:13,
-                            border:'1.5px solid #ece8e2',
-                            background:'#fff',
-                            padding:'12px 16px',
-                            marginBottom:8,
-                            display:'flex',
-                            alignItems:'center',
-                            gap:12
-                          }}>
+                          <div key={i}
+                            onClick={()=>{
+                              if(
+                                (r.correct || showAnswers)
+                                &&
+                                hasMovieInfo
+                              ){
+                                loadMovieDetail(r)
+                              }
+                            }}
+                            style={{
+                              position:'relative',
+                              overflow:'hidden',
+                              borderRadius:13,
+                              border:'1.5px solid #ece8e2',
+                              background:'#fff',
+                              padding:'12px 16px',
+                              marginBottom:8,
+                              display:'flex',
+                              alignItems:'center',
+                              gap:12,
+                              cursor:
+                                ((r.correct || showAnswers) && hasMovieInfo)
+                                  ? 'pointer'
+                                  : 'default'
+                            }}
+                          >
+                            {/* 🎬 포스터 배경 */}
+                            {(r.correct || showAnswers) && r.poster_path && (
+                              <>
+                                {/* 포스터 */}
+                                <img
+                                  src={`https://image.tmdb.org/t/p/w500${r.poster_path}`}
+                                  alt=""
+                                  style={{
+                                    position:'absolute',
+                                    top:0,
+                                    right:0,
+                                    width:'100%',
+                                    height:'100%',
+                                    objectFit:'cover',
+                                    objectPosition:'center center',
+                                    opacity:0.4,
+                                    zIndex:0,
+                                    pointerEvents:'none'
+                                  }}
+                                />
+                                {/* 가독성용 화이트 그라데이션 */}
+                                <div style={{
+                                  position:'absolute',
+                                  inset:0,
+                                  background:
+                                    'linear-gradient(to right,rgba(255,255,255,0.90) 0%, rgba(255,255,255,0.55) 30%,rgba(255,255,255,0.02) 100%)',
+                                  zIndex:1,
+                                  pointerEvents:'none'
+                                }}/>
+                              </>
+                            )}    
+
+                            {/* Q번호 */}
                             <div style={{
+                              position:'relative',
+                              zIndex:2,
                               width:28,
                               height:28,
                               borderRadius:'50%',
@@ -3961,13 +4134,14 @@ async function loadMovieDetail(movie){
                                 Q{i+1}
                               </span>
                             </div>
-                            <div style={{flex:1}}>
-                              <div onClick={()=>{
-                                if(r.correct || showAnswers){
-                                  loadMovieDetail(r)
-                                }
-                                }}
-                                style={{
+
+                            {/* 제목 */}
+                            <div style={{
+                              flex:1,
+                              position:'relative',
+                              zIndex:2
+                            }}>
+                              <div style={{
                                   fontSize:
                                     r.correct && (r.title || '').length > 20 ? '0.7rem' :
                                     r.correct && (r.title || '').length > 14 ? '0.75rem' :
@@ -3980,10 +4154,6 @@ async function loadMovieDetail(movie){
                                       : '#c0bbb4',
                                   lineHeight:1.25,
                                   wordBreak:'keep-all',
-                                  cursor:
-                                    (r.correct || showAnswers)
-                                      ? 'pointer'
-                                      : 'default'
                                 }}>
                                   {r.correct 
                                   ? r.title 
@@ -3991,30 +4161,34 @@ async function loadMovieDetail(movie){
                                     ? r.title
                                     : '실패'
                                   }
-                                </div>
                               </div>
+                            </div>
+
+                            {/* 점수 */}
                             <div style={{
                               position:'relative',
+                              zIndex:2,
                               minWidth:50,
                               display:'flex',
-                              justifyContent:'flex-end'
+                              justifyContent:'flex-end',
+                              paddingRight:18
                             }}>
-
-                              {/* 점수 */}
                               <div style={{
                                 fontSize:'0.85rem',
                                 fontWeight:800,
-                                color:r.correct ? '#4a9c6d' : '#d45c5c'
+                                textShadow:'0 1px 3px rgba(255,255,255,0.85)',
+                                color:r.correct ? '#d42c3f' : '#c7b9b9'
                               }}>
                                 {r.correct ? `+${r.score}` : '-'}
                               </div>
 
-                              {/* 도장 */}
+                              {/* 콤보도장 */}
                               {r.combo && (
                                 <div style={{
                                   position:'absolute',
-                                  top:-17,
-                                  right:-28,
+                                  zIndex:3,
+                                  top:-15,
+                                  right:38,
                                   fontSize:'0.55rem',
                                   fontWeight:900,
                                   padding:'2px 6px',
@@ -4049,6 +4223,32 @@ async function loadMovieDetail(movie){
                                 </div>
                               )}
                             </div>
+
+                            {((r.correct || showAnswers) && hasMovieInfo) && (
+                            <div style={{
+                              position:'absolute',
+                              right:8,
+                              top:'50%',
+                              transform:'translateY(-50%)',
+                              zIndex:2,
+                              display:'flex',
+                              flexDirection:'column',
+                              alignItems:'center',
+                              lineHeight:0.9,
+                              fontSize:'0.53rem',
+                              fontWeight:900,
+                              color:'rgba(0, 0, 0, 0.92)',
+                              textShadow:'0 1px 4px rgba(255, 255, 255, 0.45)',
+                              letterSpacing:'0.5px',
+                              pointerEvents:'none'
+                            }}>
+                              <span>O</span>
+                              <span>P</span>
+                              <span>E</span>
+                              <span>N</span>
+
+                            </div>
+                          )}
                           </div>
                         )
                       })
@@ -4059,17 +4259,23 @@ async function loadMovieDetail(movie){
                           const safeUsers = Array.isArray(users) ? users : []
                           const TOP_LIMIT = 10
                           const myRankIndex = safeRanking.findIndex(
-                            r => r.character_id === selChar
+                            r => String(r.character_id) === String(selChar)
                           )
-                          const myRank = myRankIndex >= 0 ? myRankIndex + 1 : null
-                          const myRankData = safeRanking[myRankIndex]
+                          const myRank =
+                            myRankIndex >= 0
+                              ? myRankIndex + 1
+                              : null
+                          const myRankData =
+                            myRankIndex >= 0
+                              ? safeRanking[myRankIndex]
+                              : null
                           return (
                             <>
                               {Array.from({ length: rankingRevealDone ? TOP_LIMIT : 5 }).map((_, i) => {
                                 const r = safeRanking[i] || null
                                 const char = r ? CHARS.find(c => c.id === r.character_id) : null
                                 const isDead = r && !safeUsers.find(u => u.charId === r.character_id)
-                                const isMe = r && String(r.user_id) === String(currentUser.userId)
+                                const isMe = r && String(r.character_id) === String(selChar)
                                 const isAnimated = i < 5
 
                                 return (
@@ -4760,6 +4966,296 @@ async function loadMovieDetail(movie){
                     }
                   }
                 `}</style>
+
+                {/* 🎬 영화 카드 팝업 */}
+                {showMovieCard && movieCard && (
+
+                  <div style={{
+                    position:'fixed',
+                    inset:0,
+                    background:'rgba(0,0,0,0.72)',
+                    zIndex:300,
+                    display:'flex',
+                    alignItems:'center',
+                    justifyContent:'center',
+                    padding:'20px'
+                  }}>
+
+                    {/* 바깥 터치 닫기 */}
+                    <div
+                      onClick={()=>setShowMovieCard(false)}
+                      style={{
+                        position:'absolute',
+                        inset:0
+                      }}
+                    />
+
+                    {/* 카드 */}
+                    <div
+                      style={{
+                        width:'92vw',
+                        maxWidth:340,
+                        height:'78vh',
+                        maxHeight:620,
+                        perspective:'1200px',
+                        position:'relative',
+                        zIndex:2,
+                        animation:'fadeUp 0.22s ease'
+                      }}
+                    >
+
+                      <div
+                        onClick={()=>setMovieCardFlipped(v=>!v)}
+                        style={{
+                          width:'100%',
+                          height:'100%',
+                          position:'relative',
+                          transformStyle:'preserve-3d',
+                          transition:'transform 0.7s cubic-bezier(.22,.61,.36,1)',
+                          transform: movieCardFlipped
+                            ? 'rotateY(180deg)'
+                            : 'rotateY(0deg)',
+                          cursor:'pointer'
+                        }}
+                      >
+
+                        {/* 앞면 */}
+                        <div style={{
+                          position:'absolute',
+                          inset:0,
+                          borderRadius:28,
+                          overflow:'hidden',
+                          background:'#111',
+                          backfaceVisibility:'hidden',
+                          boxShadow:'0 25px 60px rgba(0,0,0,0.45)'
+                        }}>
+
+                          {/* 포스터 */}
+                          <img
+                            src={
+                              movieCard.poster_path
+                                ? `https://image.tmdb.org/t/p/w500${movieCard.poster_path}`
+                                : '/no_poster.webp'
+                            }
+                            alt="poster"
+                            style={{
+                              width:'100%',
+                              height:'100%',
+                              objectFit:'cover'
+                            }}
+                          />
+
+                          {/* 상단 그라데이션 */}
+                          <div style={{
+                            position:'absolute',
+                            inset:0,
+                            background:
+                              'linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.1) 45%, rgba(0,0,0,0.35) 100%)'
+                          }}/>
+
+                          {/* 회전 버튼 */}
+                          <div style={{
+                            position:'absolute',
+                            top:14,
+                            right:14,
+                            width:38,
+                            height:38,
+                            borderRadius:'50%',
+                            background:'rgba(255,255,255,0.14)',
+                            backdropFilter:'blur(10px)',
+                            display:'flex',
+                            alignItems:'center',
+                            justifyContent:'center',
+                            color:'#fff',
+                            fontSize:'1rem',
+                            fontWeight:700,
+                            border:'1px solid rgba(255,255,255,0.22)'
+                          }}>
+                            ↻
+                          </div>
+
+                          {/* 하단 정보 */}
+                          <div style={{
+                            position:'absolute',
+                            left:22,
+                            right:22,
+                            bottom:24
+                          }}>
+
+                            <div style={{
+                              fontSize:'1.6rem',
+                              fontWeight:900,
+                              color:'#fff',
+                              lineHeight:1.12,
+                              marginBottom:8,
+                              textShadow:'0 4px 16px rgba(0,0,0,0.45)'
+                            }}>
+                              {movieCard.title}
+                            </div>
+
+                            <div style={{
+                              fontSize:'0.92rem',
+                              color:'rgba(255,255,255,0.78)',
+                              fontWeight:500
+                            }}>
+                              {movieCard.release_date?.slice(0,4)}
+                            </div>
+
+                          </div>
+                        </div>
+
+                        {/* 뒷면 */}
+                        <div style={{
+                          position:'absolute',
+                          inset:0,
+                          borderRadius:28,
+                          overflow:'hidden',
+                          background:'#141414',
+                          backfaceVisibility:'hidden',
+                          transform:'rotateY(180deg)',
+                          boxShadow:'0 25px 60px rgba(0,0,0,0.45)'
+                        }}>
+
+                          {/* 배경 blur */}
+                          {movieCard.backdrop_path && (
+                            <img
+                              src={`https://image.tmdb.org/t/p/w780${movieCard.backdrop_path}`}
+                              alt=""
+                              style={{
+                                position:'absolute',
+                                inset:0,
+                                width:'100%',
+                                height:'100%',
+                                objectFit:'cover',
+                                filter:'blur(24px)',
+                                opacity:0.22,
+                                transform:'scale(1.15)'
+                              }}
+                            />
+                          )}
+
+                          <div style={{
+                            position:'absolute',
+                            inset:0,
+                            background:'rgba(10,10,10,0.82)'
+                          }}/>
+
+                          {/* 회전 버튼 */}
+                          <div style={{
+                            position:'absolute',
+                            top:14,
+                            right:14,
+                            width:38,
+                            height:38,
+                            borderRadius:'50%',
+                            background:'rgba(255,255,255,0.14)',
+                            backdropFilter:'blur(10px)',
+                            display:'flex',
+                            alignItems:'center',
+                            justifyContent:'center',
+                            color:'#fff',
+                            fontSize:'1rem',
+                            fontWeight:700,
+                            border:'1px solid rgba(255,255,255,0.22)'
+                          }}>
+                            ↻
+                          </div>
+
+                          {/* 내용 */}
+                          <div style={{
+                            position:'relative',
+                            zIndex:2,
+                            height:'100%',
+                            overflowY:'auto',
+                            padding:'24px 22px 28px'
+                          }}>
+
+                            <div style={{
+                              fontSize:'1.35rem',
+                              fontWeight:900,
+                              color:'#fff',
+                              lineHeight:1.2,
+                              marginBottom:6
+                            }}>
+                              {movieCard.title}
+                            </div>
+
+                            <div style={{
+                              fontSize:'0.82rem',
+                              color:'rgba(255,255,255,0.62)',
+                              marginBottom:20
+                            }}>
+                              {movieCard.original_title}
+                            </div>
+
+                            {[
+                              ['개봉', movieCard.release_date],
+                              ['언어', movieCard.original_language?.toUpperCase()],
+                              ['평점', movieCard.vote_average?.toFixed(1)]
+                            ].map(([k,v],i)=>(
+                              <div
+                                key={i}
+                                style={{
+                                  display:'flex',
+                                  marginBottom:10
+                                }}
+                              >
+                                <div style={{
+                                  width:54,
+                                  color:'rgba(255,255,255,0.45)',
+                                  fontSize:'0.76rem',
+                                  fontWeight:700
+                                }}>
+                                  {k}
+                                </div>
+
+                                <div style={{
+                                  flex:1,
+                                  color:'#fff',
+                                  fontSize:'0.82rem',
+                                  lineHeight:1.5
+                                }}>
+                                  {v || '-'}
+                                </div>
+                              </div>
+                            ))}
+
+                            {/* 시놉시스 */}
+                            <div style={{
+                              marginTop:24
+                            }}>
+
+                              <div style={{
+                                fontSize:'0.8rem',
+                                fontWeight:800,
+                                color:'rgba(255,255,255,0.55)',
+                                marginBottom:10
+                              }}>
+                                SYNOPSIS
+                              </div>
+
+                              <div style={{
+                                fontSize:'0.86rem',
+                                lineHeight:1.72,
+                                color:'rgba(255,255,255,0.9)',
+                                wordBreak:'keep-all'
+                              }}>
+                                {movieCard.overview || '시놉시스 정보 없음'}
+                              </div>
+
+                            </div>
+
+                          </div>
+
+                        </div>
+
+                      </div>
+
+                    </div>
+
+                  </div>
+
+                )}
 
               </div>
             </AppLayout>
