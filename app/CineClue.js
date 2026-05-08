@@ -1969,7 +1969,7 @@ async function loadTMDB(movie){
 
   preloadCurrentMovie()
 
-}, [qi])
+}, [qi, pool])
 
 
   function enterGame(){
