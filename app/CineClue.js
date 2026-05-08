@@ -940,6 +940,8 @@ export default function CineClue()  {
   const [genreStats, setGenreStats] = useState([])
   const [showProfile, setShowProfile] = useState(false)
   const skipLockRef = useRef(false)
+  const [isLoadingRecommend, setIsLoadingRecommend] = useState(false)
+  const [loadingDots, setLoadingDots] = useState('.')
   const [profileTarget, setProfileTarget]
   = useState(null)
   const [profileUser, setProfileUser]
@@ -955,7 +957,8 @@ export default function CineClue()  {
   const [progress, setProgress] = useState(0); // 0 ~ 100
   const duration = quizMode === 'objective' ? 15 : 30; // 총 30초
   const skipTime = 30; // 30초에 자동 실행
-  const [buttonActive, setButtonActive] = useState(false);
+  const [buttonActive, setButtonActive] = useState(false)
+  const [recommendStatus, setRecommendStatus] = useState('idle')
   const [scoreFlash, setScoreFlash] = useState(false)
   const timerRef = useRef(null)
   const [mounted, setMounted] = useState(false)
@@ -991,6 +994,8 @@ export default function CineClue()  {
 
 
   async function openMovieRecommend(){
+    setIsLoadingRecommend(true)
+    setRecommendStatus('loading')
     const TMDB_KEY =
       process.env.NEXT_PUBLIC_TMDB_KEY
     try{
@@ -1012,7 +1017,10 @@ export default function CineClue()  {
       const genreIds =
         TMDB_GENRE_MAP[pickedGenre]
       if(!genreIds){
-        alert('장르 매핑 없음')
+        setRecommendStatus('fail')
+        setTimeout(()=>{
+          setRecommendStatus('idle')
+        }, 1500)
         return
       }
 
@@ -1029,7 +1037,10 @@ export default function CineClue()  {
 
       const data = await res.json()
       if(!data.results?.length){
-        alert('추천 영화 없음')
+        setRecommendStatus('fail')
+        setTimeout(()=>{
+          setRecommendStatus('idle')
+        }, 2200)
         return
       }
 
@@ -1050,10 +1061,26 @@ export default function CineClue()  {
         await detailRes.json()
       setRecommendMovie(detail)
       setShowRecommendModal(true)
-    }catch(e){
-      console.error(e)
+      setRecommendStatus('idle')  
+      }catch(e){
+        console.error(e)
+      }
+        finally{
+        setIsLoadingRecommend(false)
+      }
     }
-  }
+
+
+  useEffect(()=>{
+  if(!isLoadingRecommend) return
+  const seq = ['.', '..', '...']
+  let idx = 0
+  const t = setInterval(()=>{
+    idx = (idx + 1) % seq.length
+    setLoadingDots(seq[idx])
+  }, 320)
+  return ()=>clearInterval(t)
+  },[isLoadingRecommend])
 
 
 
@@ -5453,8 +5480,8 @@ async function loadTMDB(movie){
                         <div style={{
                           display:'grid',
                           gridTemplateColumns:'1fr 1fr',
-                          gap:10,
-                          marginBottom:10
+                          gap:7,
+                          marginBottom:7
                         }}>
 
                           {[
@@ -5722,7 +5749,7 @@ async function loadTMDB(movie){
 
                         {/* 추천 영화 CTA */}
                         <div style={{
-                          marginTop:10,
+                          marginTop:7,
                           paddingTop:0
                         }}>
 
@@ -5751,7 +5778,7 @@ async function loadTMDB(movie){
                                 color:'#1a1814',
                                 marginBottom:4
                               }}>
-                                🔍 오늘의 추천 영화 알아보기
+                                🔍 딱 맞는 추천 영화
                               </div>
 
                               <div style={{
@@ -5767,21 +5794,21 @@ async function loadTMDB(movie){
                             <div style={{
                               fontSize:'1rem',
                               color:'#c7b8a8',
-                              fontWeight:700
+                              fontWeight:700,
+                              minWidth:120,
+                              textAlign:'right'
                             }}>
-                              click ›
+                              {recommendStatus === 'loading'
+                                ? `Loading${loadingDots}`
+                                : recommendStatus === 'fail'
+                                ? 'no movie'
+                                : 'click ›'}
                             </div>
-
                           </button>
-
                         </div>
-
                       </div>
-
                     </div>
-
                   </div>
-
                 )}
 
 
