@@ -821,6 +821,7 @@ export default function CineClue()  {
   const [choices, setChoices] = useState([])
   const [genreStats, setGenreStats] = useState([])
   const [showProfile, setShowProfile] = useState(false)
+  const skipLockRef = useRef(false)
   const [profileTarget, setProfileTarget]
   = useState(null)
   const [profileUser, setProfileUser]
@@ -1771,7 +1772,9 @@ async function loadTMDB(movie){
     if(screen !== 'quiz') return
     if(answered || isSubmitting) return
     if(!currentUser?.userId) return
-
+    if(skipLockRef.current) return
+    
+    skipLockRef.current = true
     setIsSubmitting(true)
     setComboStreak(0)
     setMode(null)
@@ -1780,6 +1783,7 @@ async function loadTMDB(movie){
 
     if(!m){
       setIsSubmitting(false)
+      skipLockRef.current = false
       return
     }
 
@@ -1863,6 +1867,7 @@ async function loadTMDB(movie){
 
       setAnswered(true)
       setIsSubmitting(false)
+      skipLockRef.current = false
       triggerDeath()
       return
     }
@@ -1871,6 +1876,7 @@ async function loadTMDB(movie){
     setFbt('sk')
     setAnswered(true)
     setIsSubmitting(false)
+    skipLockRef.current = false
   }
 
 
@@ -1888,7 +1894,7 @@ async function loadTMDB(movie){
   function nextQ(){
 
     inputRef.current?.blur()
-
+    skipLockRef.current = false
     setProgress(0)
     setButtonActive(false)
     setShowAnswers(false) 
@@ -4191,7 +4197,7 @@ async function loadTMDB(movie){
                                     height:'100%',
                                     objectFit:'cover',
                                     objectPosition:'center center',
-                                    opacity:0.8,
+                                    opacity:0.7,
                                     zIndex:0,
                                     pointerEvents:'none'
                                   }}
@@ -4201,7 +4207,7 @@ async function loadTMDB(movie){
                                   position:'absolute',
                                   inset:0,
                                   background:
-                                    'linear-gradient(to right, rgba(255,255,255,0.88) 0%, rgba(255,255,255,0.18) 35%, rgba(255,255,255,0.00) 50%, rgba(255,255,255,0.18) 65%, rgba(255,255,255,0.88) 100%)',
+                                    'linear-gradient(to right, rgba(255,255,255,0.88) 0%, rgba(255, 255, 255, 0.43) 35%, rgba(255,255,255,0.00) 50%, rgba(255,255,255,0.18) 65%, rgba(255,255,255,0.88) 100%)',
                                   zIndex:1,
                                   pointerEvents:'none'
                                 }}/>
