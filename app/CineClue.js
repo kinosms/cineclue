@@ -3029,21 +3029,13 @@ async function loadTMDB(movie){
       {screen==='grade' && (
         <AppLayout>
           <div style={{
-
             width:'100%',
-
             background:'#fff',
-
             position:'relative',
-
             display:'flex',
-
             height:'100dvh',
-
             flexDirection:'column',
-
             padding:'48px 0 40px',
-
             overflowY:'auto'
 
           }}>
@@ -3530,7 +3522,7 @@ async function loadTMDB(movie){
                 display:'flex',
                 flexDirection:'column',
                 flex:1,
-                minHeight:'100dvh',
+                height:'100dvh',
                 overflow:'hidden'
               }}>
 
@@ -4249,7 +4241,6 @@ async function loadTMDB(movie){
                                     borderRadius:10,
                                     overflow:'auto',
                                     maxHeight:240,
-                                    overscrollBehavior:'contain',
                                     WebkitOverflowScrolling:'touch',
                                     zIndex:50
                                 }}>
