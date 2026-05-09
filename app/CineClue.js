@@ -1037,14 +1037,18 @@ export default function CineClue()  {
 
       // discover 호출
 
+      const randomPage = Math.floor(Math.random() * 20) + 1
+
       const res = await fetch(
         `https://api.themoviedb.org/3/discover/movie?api_key=${TMDB_KEY}` +
         `&language=ko-KR` +
         `&sort_by=vote_average.desc` +
-        `&vote_average.gte=7.5` +
-        `&vote_count.gte=300` +
-        `&with_genres=${genreIds.join(',')}`
+        `&vote_average.gte=7.0` +
+        `&vote_count.gte=100` +
+        `&with_genres=${genreIds.join(',')}` +
+        `&page=${randomPage}`
       )
+
 
       const data = await res.json()
       if(!data.results?.length){
