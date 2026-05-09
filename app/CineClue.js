@@ -6447,13 +6447,13 @@ async function loadTMDB(movie){
               alignItems:'center',
               justifyContent:'center',
               zIndex:99999,
-              padding:'20px'
+              padding:'5px'
           }}>
             <div
               onClick={(e)=>e.stopPropagation()}
               style={{
                 width:'100%',
-                maxWidth:'960px',
+                maxWidth:'100%',
                 aspectRatio:'16 / 9',
                 background:'#000',
                 borderRadius:'10px',
@@ -6461,26 +6461,6 @@ async function loadTMDB(movie){
                 position:'relative',
                 boxShadow:'0 10px 40px rgba(0,0,0,0.45)'
             }}>
-
-              {/* 닫기 버튼 */}
-              <button
-                onClick={()=>setTrailerKey(null)}
-                style={{
-                  position:'absolute',
-                  top:10,
-                  right:10,
-                  zIndex:10,
-                  width:36,
-                  height:36,
-                  border:'none',
-                  borderRadius:'50%',
-                  background:'rgba(0,0,0,0.55)',
-                  color:'#fff',
-                  fontSize:'18px',
-                  cursor:'pointer'
-              }}>
-                ✕
-              </button>
 
               <iframe
                 width="100%"
