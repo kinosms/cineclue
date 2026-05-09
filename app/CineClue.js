@@ -3923,9 +3923,7 @@ async function loadTMDB(movie){
                   })}
 
                   {/* 하단 입력 & 버튼 영역 */}
-                  <div style={{
-                    position:'sticky',   
-                    bottom:0,            
+                  <div style={{   
                     background:'#fff',
                     marginTop:16,
                     paddingBottom: '20px',
