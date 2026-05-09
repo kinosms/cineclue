@@ -1068,6 +1068,7 @@ export default function CineClue()  {
           Math.floor(Math.random() * data.results.length)
         ]
 
+
       // detail + credits
 
       const detailRes = await fetch(
@@ -1087,13 +1088,33 @@ export default function CineClue()  {
         )
       const youtubeKey =
         trailer?.key || null
+
       const movieData = {
         ...detail,
         youtubeKey
        } 
-      setRecommendMovie(movieData)
-      setShowRecommendModal(true)
-      setRecommendStatus('idle')  
+      const posterUrl =
+        movieData.poster_path
+          ? `https://image.tmdb.org/t/p/w500${movieData.poster_path}`
+          : null
+        if(posterUrl){
+          const img = new Image()
+          img.src = posterUrl
+          img.onload = () => {
+            setRecommendMovie(movieData)
+            setShowRecommendModal(true)
+            setRecommendStatus('idle')
+          }
+          img.onerror = () => {
+            setRecommendMovie(movieData)
+            setShowRecommendModal(true)
+            setRecommendStatus('idle')
+          }
+        }else{
+          setRecommendMovie(movieData)
+          setShowRecommendModal(true)
+          setRecommendStatus('idle')
+        }
       }catch(e){
         console.error(e)
       }
