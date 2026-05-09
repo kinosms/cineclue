@@ -984,7 +984,6 @@ export default function CineClue()  {
   const [questionReady, setQuestionReady] = useState(false)
   const [trailerKey, setTrailerKey] = useState(null)
   const hasAutoScrolled = useRef(false)
-  const prevSuggestionCount = useRef(0)
   const [animateStats, setAnimateStats]
   = useState(false)
   const UI = {
@@ -4310,6 +4309,7 @@ async function loadTMDB(movie){
                                     border:'1px solid #ddd',
                                     borderRadius:10,
                                     overflow:'hidden',
+                                    minHeight:210,
                                     zIndex:50
                                 }}>
                                   {suggestions.map((s, i)=>(
@@ -6510,7 +6510,7 @@ async function loadTMDB(movie){
               <iframe
                 width="100%"
                 height="100%"
-                src={`https://www.youtube.com/embed/${trailerKey}?autoplay=1&rel=0`}
+                src={`https://www.youtube.com/embed/${trailerKey}?autoplay=1&rel=0&modestbranding=1&playsinline=1`}
                 title="YouTube player"
                 frameBorder="0"
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
