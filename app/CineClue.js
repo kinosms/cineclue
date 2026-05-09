@@ -3530,7 +3530,7 @@ async function loadTMDB(movie){
                 display:'flex',
                 flexDirection:'column',
                 flex:1,
-                minheight:'100dvh',
+                minHeight:'100dvh',
                 overflow:'hidden'
               }}>
 
