@@ -895,6 +895,7 @@ export default function CineClue()  {
 
 
   const [isFlashing, setIsFlashing] = useState(false)
+  const suggestRef = useRef(null)
   const [showReportToast, setShowReportToast] = useState(false)
   const [showSettings, setShowSettings] = useState(false)
   const [settingsPage, setSettingsPage] = useState(null)
@@ -1181,6 +1182,21 @@ export default function CineClue()  {
       setAllMovies(data)
     })
   }, [supabase])
+
+
+ // 자동완성리스트 화면 포커스 처리
+  useEffect(()=>{
+  if(suggestions.length > 0){
+    setTimeout(()=>{
+      suggestRef.current?.scrollIntoView({
+        behavior:'smooth',
+        block:'end'
+      })
+    }, 120)
+  }
+}, [suggestions])
+
+
 
 
   useEffect(()=>{
@@ -4230,7 +4246,9 @@ async function loadTMDB(movie){
 
                               {/* 입력 자동완성 */}
                               {suggestions.length > 0 && (
-                                <div onTouchMove={(e)=>e.stopPropagation()}
+                                <div 
+                                ref={suggestRef}
+                                onTouchMove={(e)=>e.stopPropagation()}
                                   style={{
                                     position:'absolute',
                                     left:0,
