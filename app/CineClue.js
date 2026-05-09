@@ -981,6 +981,7 @@ export default function CineClue()  {
   const [showRecommendModal, setShowRecommendModal] = useState(false)
   const [recommendMovie, setRecommendMovie] = useState(null)
   const [questionReady, setQuestionReady] = useState(false)
+  const [showTrailer, setShowTrailer] = useState(false)
   const [animateStats, setAnimateStats]
   = useState(false)
   const UI = {
@@ -4607,11 +4608,7 @@ async function loadTMDB(movie){
                                     }}>영상</span>
                                       {m.youtubeKey ? (
                                         <span
-                                          onClick={()=>
-                                            window.open(
-                                              `https://youtube.com/watch?v=${m?.youtubeKey}`,
-                                              '_blank'
-                                            )
+                                          onClick={()=>setShowTrailer(true)
                                           }
                                           style={{
                                             cursor:'pointer',
@@ -4776,6 +4773,126 @@ async function loadTMDB(movie){
               }
 
               `}</style>
+
+              {/* 유튜브 플레이어 모달 */}
+
+              {showTrailer && (
+
+                <div
+
+                  onClick={()=>setShowTrailer(false)}
+
+                  style={{
+
+                    position:'fixed',
+
+                    inset:0,
+
+                    background:'rgba(0,0,0,0.86)',
+
+                    display:'flex',
+
+                    alignItems:'center',
+
+                    justifyContent:'center',
+
+                    zIndex:99999,
+
+                    padding:'20px'
+
+                  }}
+
+                >
+
+                  <div
+
+                    onClick={(e)=>e.stopPropagation()}
+
+                    style={{
+
+                      width:'100%',
+
+                      maxWidth:'820px',
+
+                      aspectRatio:'16 / 9',
+
+                      background:'#000',
+
+                      borderRadius:'20px',
+
+                      overflow:'hidden',
+
+                      position:'relative',
+
+                      boxShadow:'0 10px 40px rgba(0,0,0,0.45)'
+
+                    }}
+
+                  >
+
+                    {/* 닫기 버튼 */}
+
+                    <button
+
+                      onClick={()=>setShowTrailer(false)}
+
+                      style={{
+
+                        position:'absolute',
+
+                        top:10,
+
+                        right:10,
+
+                        zIndex:10,
+
+                        width:36,
+
+                        height:36,
+
+                        border:'none',
+
+                        borderRadius:'50%',
+
+                        background:'rgba(0,0,0,0.55)',
+
+                        color:'#fff',
+
+                        fontSize:'18px',
+
+                        cursor:'pointer'
+
+                      }}
+
+                    >
+
+                      ✕
+
+                    </button>
+
+                    <iframe
+
+                      width="100%"
+
+                      height="100%"
+
+                      src={`https://www.youtube.com/embed/${m.youtubeKey}?autoplay=1&rel=0`}
+
+                      title="YouTube player"
+
+                      frameBorder="0"
+
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+
+                      allowFullScreen
+
+                    />
+
+                </div>
+
+              </div>
+
+            )}
           </AppLayout>
         )
         })()
