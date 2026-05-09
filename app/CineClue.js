@@ -3516,297 +3516,303 @@ async function loadTMDB(movie){
           }}>
             <CharacterSpinner />
           </div>
-          ): (() => {
-        // 퀴즈화면 pool 선언 후 시작
-        const m = pool[qi]
-        const currentMode = MODES.find(mode => mode.key === selGrade)
-        const basePoint = getPts(mode)
+        ): (() => {
+          // 퀴즈화면 pool 선언 후 시작
+          const m = pool[qi]
+          const currentMode = MODES.find(mode => mode.key === selGrade)
+          const basePoint = getPts(mode)
 
-        return (
-          <AppLayout>
-            <div style={{
-              width:'100%',
-              background:'#fff',
-              display:'flex',
-              flexDirection:'column',
-              flex:1,
-              minHeight:0
-            }}>
-              {/*퀴즈화면 시작시 스피너 사라짐*/}
-              {showSpinner && (
-                <CharacterSpinner fadeOut={!showSpinner}/>
-              )}
-                
-              {/* ── 고정 헤더 ── */}
+          return (
+            <AppLayout>
               <div style={{
+                width:'100%',
                 background:'#fff',
-                borderBottom:'1px solid #f0ece6',
-                padding:'14px 20px 10px',
-                flexShrink:0,
-                position:'relative',
-                zIndex:20 
+                display:'flex',
+                flexDirection:'column',
+                flex:1,
+                minheight:'100dvh',
+                overflow:'hidden'
               }}>
 
-                {/* 1️⃣ 상단 1줄 */}
+                {/*퀴즈화면 시작시 스피너 사라짐*/}
+                {showSpinner && (
+                  <CharacterSpinner fadeOut={!showSpinner}/>
+                )}
+
+                {/* 헤더 영역 */}
                 <div style={{
-                  display:'flex',
-                  alignItems:'center',
-                  width:'100%',
-                  marginBottom:6
+                  background:'#fff',
+                  borderBottom:'1px solid #f0ece6',
+                  padding:'14px 20px 10px',
+                  flexShrink:0,
+                  position:'relative',
+                  zIndex:20 
                 }}>
 
-                  {/* 1️⃣ 캐릭터 / 포인트 영역 */}
-                  <div style={{position:'relative', width:42, height:42}}>
+                  {/* 1️⃣ 상단 영역 */}
+                  <div style={{
+                    display:'flex',
+                    alignItems:'center',
+                    width:'100%',
+                    marginBottom:6
+                  }}>
 
-                    {/* 🔥 life 변화 표시 (추가) */}
-                    {lifeDelta !== null && (
+                    {/* 캐릭터 / 포인트 영역 */}
+                    <div style={{position:'relative', width:42, height:42}}>
+
+                      {/* 🔥 life 변화 표시 (추가) */}
+                      {lifeDelta !== null && (
+                        <div style={{
+                          position:'absolute',
+                          top:-6,
+                          right:-6,
+                          fontSize:'0.7rem',
+                          fontWeight:900,
+                          padding:'2px 6px',
+                          borderRadius:10,
+                          color:
+                            lifeDelta === -1 ? '#ff3b3b' :
+                            lifeDelta === 5 ? '#4caf50' :
+                            '#434343',
+                          animation:'popLife 0.8s ease forwards',
+                          pointerEvents:'none',
+                          zIndex:10,
+                          textShadow:'0 1px 2px rgba(0,0,0,0.35)'
+                        }}>
+                          {lifeDelta > 0 ? `+${lifeDelta}` : lifeDelta}
+                        </div>
+                      )}
+
+                      {/* 목숨 링 */}
+                      <svg width="42" height="42" style={{
+                        position:'absolute',
+                        top:0,
+                        left:0
+                      }}>
+
+                        {/* 배경 */}
+                        <circle
+                          cx="21"
+                          cy="21"
+                          r="18"
+                          stroke="#eee"
+                          strokeWidth="5"
+                          fill="none"
+                        />
+                      
+                        {/* 🔥 실제 게이지 + 깜빡임 (하나로 합침) */}
+                        <circle
+                          cx="21"
+                          cy="21"
+                          r="18"
+                          stroke={lives <= 3 ? '#ff3b3b' : '#4caf50'}
+                          strokeWidth="5"
+                          fill="none"
+                          strokeDasharray={113}
+                          strokeDashoffset={113 * (1 - lives / 30)}
+                          strokeLinecap="round"
+                          style={{
+                            transition:'all 0.3s ease',
+                            animation: lives <= 3 ? 'blinkRed 0.8s infinite' : 'none'
+                          }}
+                        />
+                      </svg>
+
+                      {/* 🔥 캐릭터 (중앙 정렬 핵심) */}
                       <div style={{
                         position:'absolute',
-                        top:-6,
-                        right:-6,
-                        fontSize:'0.7rem',
-                        fontWeight:900,
-                        padding:'2px 6px',
-                        borderRadius:10,
-                        color:
-                          lifeDelta === -1 ? '#ff3b3b' :
-                          lifeDelta === 5 ? '#4caf50' :
-                          '#434343',
-                        animation:'popLife 0.8s ease forwards',
-                        pointerEvents:'none',
-                        zIndex:10,
-                        textShadow:'0 1px 2px rgba(0,0,0,0.35)'
+                        top:'50%',
+                        left:'50%',
+                        transform:'translate(-50%, -50%)'
                       }}>
-                        {lifeDelta > 0 ? `+${lifeDelta}` : lifeDelta}
+                        <CharAvatar charId={selChar} size={34}/>
                       </div>
-                    )}
+                    </div>
 
-                    {/* 목숨 링 */}
-                    <svg width="42" height="42" style={{
-                      position:'absolute',
-                      top:0,
-                      left:0
-                    }}>
-                      {/* 배경 */}
-                      <circle
-                        cx="21"
-                        cy="21"
-                        r="18"
-                        stroke="#eee"
-                        strokeWidth="5"
-                        fill="none"
-                      />
-                      {/* 🔥 실제 게이지 + 깜빡임 (하나로 합침) */}
-                      <circle
-                        cx="21"
-                        cy="21"
-                        r="18"
-                        stroke={lives <= 3 ? '#ff3b3b' : '#4caf50'}
-                        strokeWidth="5"
-                        fill="none"
-                        strokeDasharray={113}
-                        strokeDashoffset={113 * (1 - lives / 30)}
-                        strokeLinecap="round"
-                        style={{
-                          transition:'all 0.3s ease',
-                          animation: lives <= 3 ? 'blinkRed 0.8s infinite' : 'none'
-                        }}
-                      />
-                    </svg>
-                    {/* 🔥 캐릭터 (중앙 정렬 핵심) */}
+                    {/* 닉네임과 게임모드 */}
                     <div style={{
-                      position:'absolute',
-                      top:'50%',
-                      left:'50%',
-                      transform:'translate(-50%, -50%)'
+                      flex:1,
+                      marginLeft:8,
+                      display:'flex',
+                      flexDirection:'column',
+                      justifyContent:'center',
+                      gap:2
                     }}>
-                      <CharAvatar charId={selChar} size={34}/>
+                      <div style={{
+                        fontSize:'0.62rem',
+                        fontWeight:700,
+                        color:'#5c5b5a',
+                        letterSpacing:'0.04em'
+                      }}>
+                        [{currentMode?.label}]
+                      </div>
+                      <div style={{
+                        fontSize:'0.78rem',
+                        fontWeight:800,
+                        color:'#1a1814',
+                        lineHeight:1.1
+                      }}>
+                        {users.find(u=>u.charId===selChar)?.nickname || 'USER'}
+                      </div>
+                    </div>
+
+                    {/* 퀴즈점수 */}
+                    <div style={{
+                      fontSize:'0.9rem',
+                      fontWeight:900,
+                      color:'#ff6b7a',
+                      whiteSpace:'nowrap'
+                    }}>
+                      {basePoint}pt
                     </div>
                   </div>
 
-                  {/* 닉네임과 게임모드 */}
+
+                  {/* 2️⃣ 버블영역 */}
                   <div style={{
-                    flex:1,
-                    marginLeft:8,
                     display:'flex',
-                    flexDirection:'column',
-                    justifyContent:'center',
-                    gap:2
+                    alignItems:'center',
+                    gap:6,            
+                    whiteSpace:'nowrap',
+                    width:'100%'
                   }}>
-                    <div style={{
-                      fontSize:'0.62rem',
-                      fontWeight:700,
-                      color:'#5c5b5a',
-                      letterSpacing:'0.04em'
-                    }}>
-                      [{currentMode?.label}]
-                    </div>
-                    <div style={{
-                      fontSize:'0.78rem',
-                      fontWeight:800,
-                      color:'#1a1814',
-                      lineHeight:1.1
-                    }}>
-                      {users.find(u=>u.charId===selChar)?.nickname || 'USER'}
-                    </div>
-                  </div>
 
-                  {/* 퀴즈점수 */}
-                  <div style={{
-                    fontSize:'0.9rem',
-                    fontWeight:900,
-                    color:'#ff6b7a',
-                    whiteSpace:'nowrap'
-                  }}>
-                    {basePoint}pt
-                  </div>
-                </div>
-
-                {/* 2️⃣ 버블영역 */}
-                <div style={{
-                  display:'flex',
-                  alignItems:'center',
-                  gap:6,            
-                  whiteSpace:'nowrap',
-                  width:'100%'
-                }}>
-
-                  {/* 문제 번호 */}
-                  <span style={{
-                    fontSize:'0.7rem',
-                    fontWeight:700,
-                    padding:'3px 9px',
-                    borderRadius:20,
-                    background:'#f5f3ef',
-                    color:'#6b6560',
-                    border:'1px solid #e8e4dd',
-                    width:42,
-                    textAlign:'center',
-                    flexShrink:0
-                  }}>
-                    {qi+1}/5
-                  </span>
-
-                  {/* 연도 */}
-                  {m.year && (
+                    {/* 문제 번호 */}
                     <span style={{
                       fontSize:'0.7rem',
                       fontWeight:700,
-                      padding:'3px 0',
+                      padding:'3px 9px',
                       borderRadius:20,
-                      background:'#f5a3a3',
-                      color:'#fff',
-                      width:48,
+                      background:'#f5f3ef',
+                      color:'#6b6560',
+                      border:'1px solid #e8e4dd',
+                      width:42,
                       textAlign:'center',
                       flexShrink:0
                     }}>
-                      {m.year}
+                      {qi+1}/5
                     </span>
-                  )}
 
-                  {/* 국가 */}
-                  {m.country && (
-                    <span style={{
-                      fontSize:'0.7rem',
-                      fontWeight:700,
-                      padding:'3px 10px',
-                      borderRadius:20,
-                      background:'#e8f0fc',
-                      color:'#3a6abf',
-                      border:'1px solid #c0d4f8',
-                      flexShrink:0   // 🔥 추가
-                    }}>
-                      {m.country}
-                    </span>
-                  )}
+                    {/* 연도 */}
+                    {m.year && (
+                      <span style={{
+                        fontSize:'0.7rem',
+                        fontWeight:700,
+                        padding:'3px 0',
+                        borderRadius:20,
+                        background:'#f5a3a3',
+                        color:'#fff',
+                        width:48,
+                        textAlign:'center',
+                        flexShrink:0
+                      }}>
+                        {m.year}
+                      </span>
+                    )}
 
-                  {/* 장르 */}
-                  {m.final_genre && (
-                    <span style={{
-                      fontSize:'0.7rem',
-                      fontWeight:700,
-                      padding:'3px 10px',
-                      borderRadius:20,
-                      background:'#e8f5ee',
-                      color:'#2e8a52',
-                      border:'1px solid #a8dfc0',
-                      flexShrink:0
-                    }}>
-                      {m.final_genre}
-                    </span>
-                  )}
+                    {/* 국가 */}
+                    {m.country && (
+                      <span style={{
+                        fontSize:'0.7rem',
+                        fontWeight:700,
+                        padding:'3px 10px',
+                        borderRadius:20,
+                        background:'#e8f0fc',
+                        color:'#3a6abf',
+                        border:'1px solid #c0d4f8',
+                        flexShrink:0   // 🔥 추가
+                      }}>
+                        {m.country}
+                      </span>
+                    )}
 
-                  {/* 수상내역 */}
-                  {m.awards && (() => {
-                    try {
-                      const arr = JSON.parse(m.awards)
-                      if (!arr.length) return null
-                      return (
-                        <span style={{
-                          fontSize:'0.7rem',
-                          fontWeight:700,
-                          padding:'3px 10px',
-                          borderRadius:20,
-                          background:'#fff3e0',
-                          color:'#cc7a00',
-                          border:'1px solid #ffd8a8',  
-                          whiteSpace:'nowrap',          
-                          overflow:'hidden',            
-                          textOverflow:'ellipsis',
-                          flexShrink:1,
-                          maxWidth:120
-                        }}>
-                          {arr[0]}
-                        </span>
-                      )   
-                    } catch {
-                    return null
-                    }
-                  })()}
-                </div>
-              </div> 
+                    {/* 장르 */}
+                    {m.final_genre && (
+                      <span style={{
+                        fontSize:'0.7rem',
+                        fontWeight:700,
+                        padding:'3px 10px',
+                        borderRadius:20,
+                        background:'#e8f5ee',
+                        color:'#2e8a52',
+                        border:'1px solid #a8dfc0',
+                        flexShrink:0
+                      }}>
+                        {m.final_genre}
+                      </span>
+                    )}
 
-              {/* ── 콤보 배너 ── */}
-              {mode && (
-                <div style={{
-                  margin:'8px 16px 0',
-                  borderRadius:10,
-                  position:'relative',
-                  overflow:'hidden',
-                  padding:'7px 14px',
-                  display:'flex',
-                  alignItems:'center',
-                  justifyContent:'space-between',
-                  background:
-                    mode==='good'  ? '#fff7e6' :
-                    mode==='wow'   ? '#fff0f0' :
-                    mode==='crazy' ? '#f3e8ff' : '#fff',
+                    {/* 수상내역 */}
+                    {m.awards && (() => {
+                      try {
+                        const arr = JSON.parse(m.awards)
+                        if (!arr.length) return null
+                        return (
+                          <span style={{
+                            fontSize:'0.7rem',
+                            fontWeight:700,
+                            padding:'3px 10px',
+                            borderRadius:20,
+                            background:'#fff3e0',
+                            color:'#cc7a00',
+                            border:'1px solid #ffd8a8',  
+                            whiteSpace:'nowrap',          
+                            overflow:'hidden',            
+                            textOverflow:'ellipsis',
+                            flexShrink:1,
+                            maxWidth:120
+                          }}>
+                            {arr[0]}
+                          </span>
+                        )   
+                      } catch {
+                      return null
+                      }
+                    })()}
+                  </div>
+                </div> 
 
-                  border: `1px solid ${
-                    mode==='good'  ? '#f0c36d' :
-                    mode==='wow'   ? '#f0b4b4' :
-                    mode==='crazy' ? '#c8a8ff' : '#eee'
-                    }`,
-                  flexShrink:0
-                }}>
-
+                {/* 콤보배너 영역*/}
+                {mode && (
                   <div style={{
-                    position:'absolute',  
-                    inset:0,  
-                    borderRadius:10,  
-                    zIndex:0, 
-                    opacity:0.6,  
-                    filter:'blur(10px)',  
-                    background: 
-                      mode==='good'  ? '#ffe08a' :  
-                      mode==='wow'   ? '#ff9e9e' :  
-                      mode==='crazy' ? '#b388ff' : 'transparent', 
-                    animation:  
-                      mode==='good'  ? 'glowPulse 1.2s ease-in-out infinite' :  
-                      mode==='wow'   ? 'glowPulse 0.8s ease-in-out infinite' :  
-                      mode==='crazy' ? 'glowPulse 0.4s ease-in-out infinite' :  
-                      'none'  
-                  }}/>
+                    margin:'8px 16px 0',
+                    borderRadius:10,
+                    position:'relative',
+                    overflow:'hidden',
+                    padding:'7px 14px',
+                    display:'flex',
+                    alignItems:'center',
+                    justifyContent:'space-between',
+                    background:
+                      mode==='good'  ? '#fff7e6' :
+                      mode==='wow'   ? '#fff0f0' :
+                      mode==='crazy' ? '#f3e8ff' : '#fff',
+
+                    border: `1px solid ${
+                      mode==='good'  ? '#f0c36d' :
+                      mode==='wow'   ? '#f0b4b4' :
+                      mode==='crazy' ? '#c8a8ff' : '#eee'
+                      }`,
+                    flexShrink:0
+                  }}>
+
+                    <div style={{
+                      position:'absolute',  
+                      inset:0,  
+                      borderRadius:10,  
+                      zIndex:0, 
+                      opacity:0.6,  
+                      filter:'blur(10px)',  
+                      background: 
+                        mode==='good'  ? '#ffe08a' :  
+                        mode==='wow'   ? '#ff9e9e' :  
+                        mode==='crazy' ? '#b388ff' : 'transparent', 
+                      animation:  
+                        mode==='good'  ? 'glowPulse 1.2s ease-in-out infinite' :  
+                        mode==='wow'   ? 'glowPulse 0.8s ease-in-out infinite' :  
+                        mode==='crazy' ? 'glowPulse 0.4s ease-in-out infinite' :  
+                        'none'  
+                    }}/>
                     <span style={{
                       position:'relative',
                       zIndex:1,
@@ -3841,312 +3847,311 @@ async function loadTMDB(movie){
                       }
                     </span>
                   </div>
-              )}
+                )}
 
-              {/* 주관식모드에서 한글자 힌트 효과 */}
-              {quizMode === 'subjective' && (
-                <FlashLetterHint
-                  title={m.title}
-                  hintLevel={sh}
-                  onFlash={setIsFlashing}
-                />
-              )}
+                {/* 주관식모드에서 한글자 힌트 효과 */}
+                {quizMode === 'subjective' && (
+                  <FlashLetterHint
+                    title={m.title}
+                    hintLevel={sh}
+                    onFlash={setIsFlashing}
+                  />
+                )}
 
-              {/* ── 스크롤 영역 ── */}
-              <div
-              ref={scrollRef}     
-              style={{
-                flex:1,
-                minHeight:0,
-                overflowY:'auto',
-                pointerEvents:'auto',
-                WebkitOverflowScrolling:'touch',
-                padding:'12px 16px 24px',
-                overflowAnchor:'none',
-                overscrollBehavior:'contain',
-                scrollBehavior:'auto',
-                touchAction:'pan-y'
-              }}>
+                {/* ── 스크롤 영역 ── */}
+                <div
+                ref={scrollRef}     
+                style={{
+                  flex:1,
+                  minHeight:0,
+                  overflowY:'auto',
+                  pointerEvents:'auto',
+                  WebkitOverflowScrolling:'touch',
+                  padding:'12px 16px 24px',
+                  overflowAnchor:'none',
+                  overscrollBehavior:'contain',
+                  scrollBehavior:'auto',
+                  touchAction:'pan-y'
+                }}>
 
+                  {/* 힌트 리스트 영역 */}
+                  {Array.from({ length: 5 }).map((_, i) => {
+                    if (i >= sh) return null
 
-                {/* 힌트 리스트 */}
-                {Array.from({ length: 5 }).map((_, i) => {
-                  if (i >= sh) return null
+                    const isCurrent = i === sh - 1
 
-                  const isCurrent = i === sh - 1
-
-                  return (
-                    <div
-                      key={i}
-                      style={{
-                        animation:'hintSlideDown 0.9s ease'
-                    }}>
-                      <div style={{
-                        borderRadius:13,
-                        border:`1.5px solid ${isCurrent ? (g?.color || '#e8808c') : '#ece8e2'}`,
-                        background:isCurrent ? (g?.bg || '#fff5f6') : '#fff',
-                        padding:'13px 15px',
-                        marginBottom:8
+                    return (
+                      <div
+                        key={i}
+                        style={{
+                          animation:'hintSlideDown 0.9s ease'
                       }}>
-                        <div style={{display:'flex', alignItems:'center', gap:8}}>
-                          <span style={{
-                            width:28,
-                            height:28,
-                            borderRadius:'50%',
-                            background:g?.color || '#e8808c',
-                            color:'#fff',
-                            fontSize:'0.65rem',
-                            fontWeight:800,
-                            display:'flex',
-                            alignItems:'center',
-                            justifyContent:'center',
-                            flexShrink:0
-                          }}>
-                          {i + 1}
-                          </span>
+                        <div style={{
+                          borderRadius:13,
+                          border:`1.5px solid ${isCurrent ? (g?.color || '#e8808c') : '#ece8e2'}`,
+                          background:isCurrent ? (g?.bg || '#fff5f6') : '#fff',
+                          padding:'13px 15px',
+                          marginBottom:8
+                        }}>
+                          <div style={{display:'flex', alignItems:'center', gap:8}}>
+                            <span style={{
+                              width:28,
+                              height:28,
+                              borderRadius:'50%',
+                              background:g?.color || '#e8808c',
+                              color:'#fff',
+                              fontSize:'0.65rem',
+                              fontWeight:800,
+                              display:'flex',
+                              alignItems:'center',
+                              justifyContent:'center',
+                              flexShrink:0
+                            }}>
+                              {i + 1}
+                            </span>
 
-                          <div style={{
-                            fontSize:'0.82rem',
-                            lineHeight:1.7
-                          }}>
-                          {m.hintsArr?.[i] || '힌트 로딩중...'}
+                            <div style={{
+                              fontSize:'0.82rem',
+                              lineHeight:1.7
+                            }}>
+                              {m.hintsArr?.[i] || '힌트 로딩중...'}
+                            </div>
                           </div>
                         </div>
                       </div>
-                    </div>
-                  )
-                })}
+                    )
+                  })}
 
-                {/* ── 입력 & 버튼 ── */}
-                <div style={{
-                  position:'sticky',   
-                  bottom:0,            
-                  background:'#fff',
-                  marginTop:16,
-                  paddingBottom: '20px',
-                  flexShrink:0
-                }}>
-               {fb && fbt!=='ok' && (
+                  {/* 하단 입력 & 버튼 영역 */}
                   <div style={{
-                    display:'flex',
-                    alignItems:'center',
-                    justifyContent:'space-between',
-                    marginBottom:8
+                    position:'sticky',   
+                    bottom:0,            
+                    background:'#fff',
+                    marginTop:16,
+                    paddingBottom: '20px',
+                    flexShrink:0
                   }}>
-
-                    {/* 메시지 */}
-                    <div style={{
-                      fontSize:'0.78rem',
-                      fontWeight:700,
-                      color:fbt==='ok'
-                        ? '#4a9c6d'
-                        : '#d45c5c'
-                    }}>
-                      {fb}
-                    </div>
-
-                    {/* 오답일 때만 신고 */}
-                    {fbt==='sk' && (
+                    {fb && fbt!=='ok' && (
                       <div style={{
-                        position:'relative'
+                        display:'flex',
+                        alignItems:'center',
+                        justifyContent:'space-between',
+                        marginBottom:8
                       }}>
-                        <button
-                          onClick={() =>
-                            setShowReportMenu(v => !v)
-                          }
-                          style={{
-                            border:'none',
-                            background:'transparent',
-                            color:'rgba(226,7,7,0.72)',
-                            fontSize:'1.2rem',
-                            cursor:'pointer',
-                            padding:2
-                          }}
-                        >
-                          ⚠
-                        </button>
-                        {showReportMenu && (
+
+                        {/* 메시지 */}
+                        <div style={{
+                          fontSize:'0.78rem',
+                          fontWeight:700,
+                          color:fbt==='ok'
+                            ? '#4a9c6d'
+                            : '#d45c5c'
+                        }}>
+                          {fb}
+                        </div>
+
+                        {/* 오답일 때만 신고 */}
+                        {fbt==='sk' && (
                           <div style={{
-                            position:'absolute',
-                            right:0,
-                            bottom:'100%',
-                            marginBottom:6,
-                            background:'#fff',
-                            border:'1px solid #ece8e2',
-                            borderRadius:12,
-                            overflow:'hidden',
-                            boxShadow:'0 8px 24px rgba(0,0,0,0.08)',
-                            zIndex:100,
-                            minWidth:96
+                            position:'relative'
                           }}>
                             <button
-                              onClick={async()=>{
-                                setShowReportMenu(false)
-                                await supabase
-                                  .from('hint_reports')
-                                  .insert({
-                                    movie_id:m.id,
-                                    title:m.title,
-                                    report_type:'title',
-                                    user_id:String(currentUser.userId),
-                                    nickname:currentUser.nickname
-                                  })
-                                setShowReportToast(true)
-                                  setTimeout(()=>{
-                                    setShowReportToast(false)
-                                  }, 1600)
-                              }}
+                              onClick={() =>
+                                setShowReportMenu(v => !v)
+                              }
                               style={{
-                                width:'100%',
                                 border:'none',
-                                background:'#fff',
-                                padding:'10px 12px',
-                                fontSize:'0.74rem',
-                                textAlign:'left'
-                              }}
-                            >
-                              제목 오류
+                                background:'transparent',
+                                color:'rgba(226,7,7,0.72)',
+                                fontSize:'1.2rem',
+                                cursor:'pointer',
+                                padding:2
+                            }}>
+                              ⚠
                             </button>
-                            <button
-                              onClick={async()=>{
-                                setShowReportMenu(false)
-                                await supabase
-                                  .from('hint_reports')
-                                  .insert({
-                                    movie_id:m.id,
-                                    title:m.title,
-                                    report_type:'hint',
-                                    user_id:String(currentUser.userId),
-                                    nickname:currentUser.nickname
-                                  })
-                                  setShowReportToast(true)
-                                  setTimeout(()=>{
-                                    setShowReportToast(false)
-                                  }, 1600)
-                              }}
-                              style={{
-                                width:'100%',
-                                border:'none',
+
+                            {showReportMenu && (
+                              <div style={{
+                                position:'absolute',
+                                right:0,
+                                bottom:'100%',
+                                marginBottom:6,
                                 background:'#fff',
-                                padding:'10px 12px',
-                                fontSize:'0.74rem',
-                                textAlign:'left',
-                                borderTop:'1px solid #f2efea'
-                              }}
-                            >
-                              힌트 오류
-                            </button>
+                                border:'1px solid #ece8e2',
+                                borderRadius:12,
+                                overflow:'hidden',
+                                boxShadow:'0 8px 24px rgba(0,0,0,0.08)',
+                                zIndex:100,
+                                minWidth:96
+                              }}>
+                                <button
+                                  onClick={async()=>{
+                                    setShowReportMenu(false)
+                                    await supabase
+                                      .from('hint_reports')
+                                      .insert({
+                                        movie_id:m.id,
+                                        title:m.title,
+                                        report_type:'title',
+                                        user_id:String(currentUser.userId),
+                                        nickname:currentUser.nickname
+                                      })
+                                    setShowReportToast(true)
+                                      setTimeout(()=>{
+                                        setShowReportToast(false)
+                                      }, 1600)
+                                  }}
+                                  style={{
+                                    width:'100%',
+                                    border:'none',
+                                    background:'#fff',
+                                    padding:'10px 12px',
+                                    fontSize:'0.74rem',
+                                    textAlign:'left'
+                                }}>
+                                  제목 오류
+                                </button>
+
+                                <button
+                                  onClick={async()=>{
+                                    setShowReportMenu(false)
+                                    await supabase
+                                      .from('hint_reports')
+                                      .insert({
+                                        movie_id:m.id,
+                                        title:m.title,
+                                        report_type:'hint',
+                                        user_id:String(currentUser.userId),
+                                        nickname:currentUser.nickname
+                                      })
+                                      setShowReportToast(true)
+                                      setTimeout(()=>{
+                                        setShowReportToast(false)
+                                      }, 1600)
+                                  }}
+                                  style={{
+                                    width:'100%',
+                                    border:'none',
+                                    background:'#fff',
+                                    padding:'10px 12px',
+                                    fontSize:'0.74rem',
+                                    textAlign:'left',
+                                    borderTop:'1px solid #f2efea'
+                                  }}>
+                                    힌트 오류
+                                </button>
+                              </div>
+                            )}
                           </div>
                         )}
                       </div>
                     )}
-                  </div>
-                )}
 
-                  {!answered ? (
-                    <>
-                      {/* 힌트보기 넘기기 버튼 */}
-                      <div style={{display:'flex', gap:8, marginBottom:16}}>
-                        <button
-                          onClick={()=>{
-                            const el = scrollRef.current
-                            const prev = el.scrollHeight
-                            nextH()
-                            requestAnimationFrame(()=>{
-                              el.scrollTop += el.scrollHeight - prev
-                            })
-                          }}
-                          disabled={sh>=5 || lockChoice || isFlashing}
-                          style={{
-                            flex:1,
-                            height:40,
-                            borderRadius:10,
-                            fontSize:'0.8rem',
-                            background:'#f5f3ef',
-                            opacity: (sh>=5 || lockChoice || isFlashing) ? 0.4 : 1,
-                            pointerEvents: (sh>=5 || lockChoice || isFlashing) ? 'none' : 'auto'
-                        }}>
-                        다음 힌트
-                        </button>
-
-                        <button
-                          onClick={doSkip}
-                          style={{
-                            flex:1,
-                            height:40,
-                            position: 'relative',
-                            overflow: 'hidden',
-                            padding: '12px 20px',
-                            background: '#f5f3ef',
-                            border: 'none',
-                            borderRadius: '8px',
-                            padding:0, 
-                            transform: buttonActive ? 'scale(0.95)' : 'scale(1)',
-                            transition: 'transform 0.1s ease'
-                        }}>
-                          <div
+                    {/* 정답영화 영역 */}
+                    {!answered ? (
+                      <>
+                        {/* 힌트보기 & 넘기기 버튼 영역*/}
+                        <div style={{display:'flex', gap:8, marginBottom:16}}>
+                          <button
+                            onClick={()=>{
+                              const el = scrollRef.current
+                              const prev = el.scrollHeight
+                              nextH()
+                              requestAnimationFrame(()=>{
+                                el.scrollTop += el.scrollHeight - prev
+                              })
+                            }}
+                            disabled={sh>=5 || lockChoice || isFlashing}
                             style={{
-                              position: 'absolute',
-                              top: 0,
-                              left: 0,
-                              height: '100%',
-                              width: `${progress}%`,
-                              background: 'rgb(153, 153, 153)',
-                              transition: 'width 0.5s linear',
+                              flex:1,
+                              height:40,
+                              borderRadius:10,
                               fontSize:'0.8rem',
-                              zIndex: 0
-                            }}/>
-                          <span style={{ 
-                            position: 'relative', zIndex: 1 
+                              background:'#f5f3ef',
+                              opacity: (sh>=5 || lockChoice || isFlashing) ? 0.4 : 1,
+                              pointerEvents: (sh>=5 || lockChoice || isFlashing) ? 'none' : 'auto'
                           }}>
-                            넘기기
-                          </span>
-                        </button>
-                      </div>
+                          다음 힌트
+                          </button>
 
-
-                      {/*객관식 모드 답 선택영역 */}
-                      {quizMode === 'objective' ? (
-                        <div style={{
-                          display:'grid',
-                          gridTemplateColumns:'1fr 1fr',
-                          gap:8,
-                          marginBottom:8
-                        }}>
-                          {choices.map((c,i)=>(
-                            <button
-                              key={i}
-                              onClick={()=>{
-                                if(selectedChoice === c) return
-                                setSelectedChoice(c)
-                                submit(c)
-                              }}
-                              disabled={lockChoice}
+                          <button
+                            onClick={doSkip}
+                            style={{
+                              flex:1,
+                              height:40,
+                              position: 'relative',
+                              overflow: 'hidden',
+                              padding: '12px 20px',
+                              background: '#f5f3ef',
+                              border: 'none',
+                              borderRadius: '8px',
+                              padding:0, 
+                              transform: buttonActive ? 'scale(0.95)' : 'scale(1)',
+                              transition: 'transform 0.1s ease'
+                          }}>
+                            <div
                               style={{
-                                height:52,
-                                borderRadius:10,
-                                border:'1px solid #ddd',
-                                background: selectedChoice === c ? '#1a1814' : '#fff',
-                                color: selectedChoice === c ? '#fff' : '#000',
-                                fontWeight:600,
-                                opacity: lockChoice ? 0.4 : 1,
-                                pointerEvents: lockChoice ? 'none' : 'auto',
-                                transition:'opacity 0.2s ease'
-                              }}>
-                                <div style={{
-                                  padding:'2px 6px',
-                                  textAlign:'center',
-                                  lineHeight:1.25,
-                                  wordBreak:'keep-all'
-                                }}>
-                                  {c}
-                                </div>
-                            </button>
-                          ))}
+                                position: 'absolute',
+                                top: 0,
+                                left: 0,
+                                height: '100%',
+                                width: `${progress}%`,
+                                background: 'rgb(153, 153, 153)',
+                                transition: 'width 0.5s linear',
+                                fontSize:'0.8rem',
+                                zIndex: 0
+                              }}/>
+                            <span style={{ 
+                              position: 'relative', zIndex: 1 
+                            }}>
+                              넘기기
+                            </span>
+                          </button>
                         </div>
+
+
+                        {/*객관식 모드 답 선택영역 */}
+                        {quizMode === 'objective' ? (
+                          <div style={{
+                            display:'grid',
+                            gridTemplateColumns:'1fr 1fr',
+                            gap:8,
+                            marginBottom:8
+                          }}>
+                            {choices.map((c,i)=>(
+                              <button
+                                key={i}
+                                onClick={()=>{
+                                  if(selectedChoice === c) return
+                                  setSelectedChoice(c)
+                                  submit(c)
+                                }}
+                                disabled={lockChoice}
+                                style={{
+                                  height:52,
+                                  borderRadius:10,
+                                  border:'1px solid #ddd',
+                                  background: selectedChoice === c ? '#1a1814' : '#fff',
+                                  color: selectedChoice === c ? '#fff' : '#000',
+                                  fontWeight:600,
+                                  opacity: lockChoice ? 0.4 : 1,
+                                  pointerEvents: lockChoice ? 'none' : 'auto',
+                                  transition:'opacity 0.2s ease'
+                                }}>
+                                  <div style={{
+                                    padding:'2px 6px',
+                                    textAlign:'center',
+                                    lineHeight:1.25,
+                                    wordBreak:'keep-all'
+                                  }}>
+                                    {c}
+                                  </div>
+                              </button>
+                            ))}
+                          </div>
                         ) : (
                           <>
-                            {/* 🔥 주관식 모드 답 입력 영역 */}
+                            {/* 주관식 모드 답 입력영역 */}
                             <div style={{
                               position:'relative',
                               display:'flex',
@@ -4236,19 +4241,19 @@ async function loadTMDB(movie){
                               {/* 입력 자동완성 */}
                               {suggestions.length > 0 && (
                                 <div onTouchMove={(e)=>e.stopPropagation()}
-                                style={{
-                                  position:'absolute',
-                                  left:0,
-                                  right:0,
-                                  top:52, 
-                                  background:'#fff',
-                                  border:'1px solid #ddd',
-                                  borderRadius:10,
-                                  overflow:'auto',
-                                  maxHeight:240,
-                                  overscrollBehavior:'contain',
-                                  WebkitOverflowScrolling:'touch',
-                                  zIndex:50
+                                  style={{
+                                    position:'absolute',
+                                    left:0,
+                                    right:0,
+                                    top:52, 
+                                    background:'#fff',
+                                    border:'1px solid #ddd',
+                                    borderRadius:10,
+                                    overflow:'auto',
+                                    maxHeight:240,
+                                    overscrollBehavior:'contain',
+                                    WebkitOverflowScrolling:'touch',
+                                    zIndex:50
                                 }}>
                                   {suggestions.map((s, i)=>(
                                     <div
@@ -4257,25 +4262,25 @@ async function loadTMDB(movie){
                                         setInput(s.title)
                                         setSuggestions([])
                                         inputRef.current?.focus()
-                                      }}
-                                      style={{
-                                        padding:'10px 12px',
-                                        fontSize:'0.8rem',
-                                        borderBottom:'1px solid #eee',
-                                        cursor:'pointer',
-                                        background:
-                                        selectedSuggestion === i
-                                          ? '#f3f0eb'
-                                          : '#fff',
-                                      color:
-                                        selectedSuggestion === i
-                                          ? '#1a1814'
-                                          : '#555',
-                                      fontWeight:
-                                        selectedSuggestion === i
-                                          ? 700
-                                          : 500,
-                                      transition:'all .12s ease'
+                                        }}
+                                        style={{
+                                          padding:'10px 12px',
+                                          fontSize:'0.8rem',
+                                          borderBottom:'1px solid #eee',
+                                          cursor:'pointer',
+                                          background:
+                                            selectedSuggestion === i
+                                              ? '#f3f0eb'
+                                              : '#fff',
+                                          color:
+                                            selectedSuggestion === i
+                                              ? '#1a1814'
+                                              : '#555',
+                                          fontWeight:
+                                            selectedSuggestion === i
+                                              ? 700
+                                              : 500,
+                                          transition:'all .12s ease'
                                     }}>
                                       {s.title}
                                     </div>
@@ -4299,306 +4304,302 @@ async function loadTMDB(movie){
                                 </button>
                             </div>
                           </>
-                      )}
-                    </>
-                  ) : (
-                    
-                    <>
-
-                      {fbt==='ok' && (
-                        <div style={{
-                          marginTop:22,
-                          marginBottom:14
-                        }}>
+                        )}
+                      </>
+                      ) : (
+                      <>
+                        {/* 정답영화정보 영역 */}
+                        {fbt==='ok' && (
                           <div style={{
-                            position:'relative',
-                            marginBottom:10
+                            marginTop:22,
+                            marginBottom:14
                           }}>
-
-                          {/* 정답 제목 */}
                             <div style={{
-                              fontSize:'1.3rem',
-                              fontWeight:900,
-                              color:'#c8a84a',
-                              marginBottom:4,
-                              textAlign:'center',
-                              lineHeight:1.3
+                              position:'relative',
+                              marginBottom:10
                             }}>
-                              {m.title}
-                            </div>
 
-                            {/* 신고 버튼 */}
-                            <div style={{
-                              position:'absolute',
-                              right:0,
-                              top:'50%',
-                              transform:'translateY(-50%)'
-                            }}>
-                              <button
-                                onClick={() =>
-                                  setShowReportMenu(v => !v)
-                                }
-                                style={{
-                                  border:'none',
-                                  background:'transparent',
-                                  color:'rgba(226, 7, 7, 0.7)',
-                                  fontSize:'1.2rem',
-                                  cursor:'pointer',
-                                  padding:4,
-                                  display:'flex',
-                                  alignItems:'center',
-                                  justifyContent:'center'
-                                }}
-                              >
-                                ⚠
-                              </button>
+                              {/* 정답 제목 */}
+                              <div style={{
+                                fontSize:'1.3rem',
+                                fontWeight:900,
+                                color:'#c8a84a',
+                                marginBottom:4,
+                                textAlign:'center',
+                                lineHeight:1.3
+                              }}>
+                                {m.title}
+                              </div>
 
+                              {/* 신고 버튼 */}
+                              <div style={{
+                                position:'absolute',
+                                right:0,
+                                top:'50%',
+                                transform:'translateY(-50%)'
+                              }}>
+                                <button
+                                  onClick={() =>
+                                    setShowReportMenu(v => !v)
+                                  }
+                                  style={{
+                                    border:'none',
+                                    background:'transparent',
+                                    color:'rgba(226, 7, 7, 0.7)',
+                                    fontSize:'1.2rem',
+                                    cursor:'pointer',
+                                    padding:4,
+                                    display:'flex',
+                                    alignItems:'center',
+                                    justifyContent:'center'
+                                  }}
+                                >
+                                  ⚠
+                                </button>
 
-                              {/* 메뉴 */}
-                              {showReportMenu && (
-                                <div style={{
-                                  position:'absolute',
-                                  top:'100%',
-                                  right:0,
-                                  marginTop:0.2,
-                                  background:'#fff',
-                                  border:'1px solid #ece8e2',
-                                  borderRadius:12,
-                                  overflow:'hidden',
-                                  boxShadow:'0 8px 24px rgba(0,0,0,0.08)',
-                                  zIndex:50,
-                                  minWidth:95
-                                }}>
-                                  {/* 제목 오류 */}
-                                  <button
-                                    onClick={async()=>{
-                                      setShowReportMenu(false)
-                                      await supabase
-                                        .from('hint_reports')
-                                        .insert({
-                                          movie_id:m.id,
-                                          title:m.title,
-                                          report_type:'title',
-                                          user_id:String(currentUser.userId),
-                                          nickname:currentUser.nickname
-                                        })
-                                      setShowReportToast(true)
-                                      setTimeout(()=>{
-                                        setShowReportToast(false)
-                                      }, 1600)
-                                    }}
-                                    style={{
-                                      width:'100%',
-                                      border:'none',
-                                      background:'#fff',
-                                      padding:'11px 14px',
-                                      fontSize:'0.78rem',
-                                      textAlign:'center',
-                                      cursor:'pointer',
-                                      borderBottom:'1px solid #f1efeb'
-                                    }}
-                                  >
-                                    제목 오류
-                                  </button>
-                                  {/* 힌트 오류 */}
-                                  <button
-                                    onClick={async()=>{
-                                      setShowReportMenu(false)
-                                      await supabase
-                                        .from('hint_reports')
-                                        .insert({
-                                          movie_id:m.id,
-                                          title:m.title,
-                                          report_type:'hint',
-                                          user_id:String(currentUser.userId),
-                                          nickname:currentUser.nickname
-                                        })
+                                {/* 신고 메뉴 */}
+                                {showReportMenu && (
+                                  <div style={{
+                                    position:'absolute',
+                                    top:'100%',
+                                    right:0,
+                                    marginTop:0.2,
+                                    background:'#fff',
+                                    border:'1px solid #ece8e2',
+                                    borderRadius:12,
+                                    overflow:'hidden',
+                                    boxShadow:'0 8px 24px rgba(0,0,0,0.08)',
+                                    zIndex:50,
+                                    minWidth:95
+                                  }}>
+                                    {/* 제목 오류 */}
+                                    <button
+                                      onClick={async()=>{
+                                        setShowReportMenu(false)
+                                        await supabase
+                                          .from('hint_reports')
+                                          .insert({
+                                            movie_id:m.id,
+                                            title:m.title,
+                                            report_type:'title',
+                                            user_id:String(currentUser.userId),
+                                            nickname:currentUser.nickname
+                                          })
                                         setShowReportToast(true)
                                         setTimeout(()=>{
                                           setShowReportToast(false)
                                         }, 1600)
-                                    }}
-                                    style={{
-                                      width:'100%',
-                                      border:'none',
-                                      background:'#fff',
-                                      padding:'11px 14px',
-                                      fontSize:'0.78rem',
-                                      textAlign:'center',
-                                      cursor:'pointer'
-                                    }}
-                                  >
-                                    힌트 오류
-                                  </button>
-                                </div>
-                                    )}
-                            </div>
+                                      }}
+                                      style={{
+                                        width:'100%',
+                                        border:'none',
+                                        background:'#fff',
+                                        padding:'11px 14px',
+                                        fontSize:'0.78rem',
+                                        textAlign:'center',
+                                        cursor:'pointer',
+                                        borderBottom:'1px solid #f1efeb'
+                                    }}>
+                                      제목 오류
+                                    </button>
+
+                                    {/* 힌트 오류 */}
+                                    <button
+                                      onClick={async()=>{
+                                        setShowReportMenu(false)
+                                        await supabase
+                                          .from('hint_reports')
+                                          .insert({
+                                            movie_id:m.id,
+                                            title:m.title,
+                                            report_type:'hint',
+                                            user_id:String(currentUser.userId),
+                                            nickname:currentUser.nickname
+                                          })
+                                          setShowReportToast(true)
+                                          setTimeout(()=>{
+                                            setShowReportToast(false)
+                                          }, 1600)
+                                      }}
+                                      style={{
+                                        width:'100%',
+                                        border:'none',
+                                        background:'#fff',
+                                        padding:'11px 14px',
+                                        fontSize:'0.78rem',
+                                        textAlign:'center',
+                                        cursor:'pointer'
+                                    }}>
+                                      힌트 오류
+                                    </button>
+                                  </div>
+                                )}
+                              </div>
                             </div>
 
-                          {/* 영화 카드 */}
-                          <div style={{
-                            borderRadius:22,
-                            overflow:'hidden',
-                            border:'1.5px solid #ece8e2',
-                            background:'#fff',
-                            padding:16,
-                            marginBottom:14
-                          }}>
-
+                            {/* 영화 카드 */}
                             <div style={{
-                              display:'flex',
-                              gap:15,
-                              alignItems:'stretch'
+                              borderRadius:22,
+                              overflow:'hidden',
+                              border:'1.5px solid #ece8e2',
+                              background:'#fff',
+                              padding:16,
+                              marginBottom:14
                             }}>
 
-                              {/* 포스터 */}
                               <div style={{
-                                width:100,
-                                height:150,
-                                borderRadius:16,
-                                overflow:'hidden',
-                                flexShrink:0,
-                                background:'#f5f3ef'
-                              }}>
-
-                                {m.poster_path ? (
-
-                                  <img
-                                    src={`https://image.tmdb.org/t/p/w300${m.poster_path}`}
-                                    alt=""
-                                    style={{
-                                      width:'100%',
-                                      height:'100%',
-                                      objectFit:'cover'
-                                    }}
-                                  />
-
-                                ) : (
-
-                                  <img
-                                    src="/no_poster.webp"
-                                    alt="No Poster"
-                                    style={{
-                                      width:'100%',
-                                      height:'100%',
-                                      objectFit:'cover'
-                                    }}
-                                  />
-
-                                )}
-
-                              </div>
-
-                              {/* 정보 */}
-                              <div style={{
-                                flex:1,
                                 display:'flex',
-                                flexDirection:'column',
-                                justifyContent:'space-between',
-                                minWidth:0
+                                gap:15,
+                                alignItems:'stretch'
                               }}>
 
+                                {/* 포스터 */}
                                 <div style={{
-                                  display:'flex',
-                                  flexDirection:'column',
-                                  gap:5
+                                  width:100,
+                                  height:150,
+                                  borderRadius:16,
+                                  overflow:'hidden',
+                                  flexShrink:0,
+                                  background:'#f5f3ef'
                                 }}>
 
-                                  {/* 연도 */}
+                                  {m.poster_path ? (
+                                    <img
+                                      src={`https://image.tmdb.org/t/p/w300${m.poster_path}`}
+                                      alt=""
+                                      style={{
+                                        width:'100%',
+                                        height:'100%',
+                                        objectFit:'cover'
+                                      }}
+                                    />
+                                  ) : (
+                                    <img
+                                      src="/no_poster.webp"
+                                      alt="No Poster"
+                                      style={{
+                                        width:'100%',
+                                        height:'100%',
+                                        objectFit:'cover'
+                                      }}
+                                    />
+                                  )}
+                                </div>
+
+                                {/* 정보 */}
+                                <div style={{
+                                  flex:1,
+                                  display:'flex',
+                                  flexDirection:'column',
+                                  justifyContent:'space-between',
+                                  minWidth:0
+                                }}>
+
                                   <div style={{
                                     display:'flex',
-                                    alignItems:'center',
-                                    gap:10,
-                                    fontSize:'0.75rem',
-                                    color:'#555'
+                                    flexDirection:'column',
+                                    gap:5
                                   }}>
-                                    <span style={{
-                                      width:38,
-                                      flexShrink:0,
-                                      whiteSpace:'nowrap',
-                                      fontSize:'0.75rem'
-                                    }}>개봉</span>
-                                    <span>{m.year || '-'}</span>
-                                  </div>
 
-                                  {/* 국가 */}
-                                  <div style={{
-                                    display:'flex',
-                                    alignItems:'center',
-                                    gap:10,
-                                    fontSize:'0.75rem',
-                                    color:'#555'
-                                  }}>
-                                    <span style={{
-                                      width:38,
-                                      flexShrink:0,
-                                      whiteSpace:'nowrap',
-                                      fontSize:'0.75rem'
-                                    }}>국가</span>
-                                    <span>{m.country || '-'}</span>
-                                  </div>
+                                    {/* 연도 */}
+                                    <div style={{
+                                      display:'flex',
+                                      alignItems:'center',
+                                      gap:10,
+                                      fontSize:'0.75rem',
+                                      color:'#555'
+                                    }}>
+                                      <span style={{
+                                        width:38,
+                                        flexShrink:0,
+                                        whiteSpace:'nowrap',
+                                        fontSize:'0.75rem'
+                                      }}>개봉</span>
+                                      <span>{m.year || '-'}</span>
+                                    </div>
 
-
-                                  {/* 장르 */}
-                                  <div style={{
-                                    display:'flex',
-                                    alignItems:'center',
-                                    gap:10,
-                                    fontSize:'0.75rem',
-                                    color:'#555'
-                                  }}>
-                                    <span style={{
-                                      width:38,
-                                      flexShrink:0,
-                                      whiteSpace:'nowrap',
-                                      fontSize:'0.75rem'
-                                    }}>장르</span>
-                                    <span>{m.genre || '-'}</span>
-                                  </div>
+                                    {/* 국가 */}
+                                    <div style={{
+                                      display:'flex',
+                                      alignItems:'center',
+                                      gap:10,
+                                      fontSize:'0.75rem',
+                                      color:'#555'
+                                    }}>
+                                      <span style={{
+                                        width:38,
+                                        flexShrink:0,
+                                        whiteSpace:'nowrap',
+                                        fontSize:'0.75rem'
+                                      }}>국가</span>
+                                      <span>{m.country || '-'}</span>
+                                    </div>
 
 
-                                  {/* 감독 */}
-                                  <div style={{
-                                    display:'flex',
-                                    alignItems:'center',
-                                    gap:10,
-                                    fontSize:'0.75rem',
-                                    color:'#555'
-                                  }}>
-                                    <span style={{
-                                      width:38,
-                                      flexShrink:0,
-                                      whiteSpace:'nowrap',
-                                      fontSize:'0.75rem'
-                                    }}>감독</span>
-                                    <span>
-                                    {
-                                      m.credits?.crew
-                                        ?.find(p => p.job === 'Director')
-                                        ?.name || '-'
-                                    }
-                                  </span>
-                                  </div>
-                                  {/* 배우 */}
-                                  <div style={{
-                                    display:'flex',
-                                    alignItems:'flex-start',
-                                    gap:10,
-                                    fontSize:'0.75rem',
-                                    color:'#555',
-                                    lineHeight:1.5
-                                  }}>
-                                    <span style={{width:38, flexShrink:0, whiteSpace:'nowrap', fontSize:'0.75rem'}}>출연</span>
-                                    <span>
+                                    {/* 장르 */}
+                                    <div style={{
+                                      display:'flex',
+                                      alignItems:'center',
+                                      gap:10,
+                                      fontSize:'0.75rem',
+                                      color:'#555'
+                                    }}>
+                                      <span style={{
+                                        width:38,
+                                        flexShrink:0,
+                                        whiteSpace:'nowrap',
+                                        fontSize:'0.75rem'
+                                      }}>장르</span>
+                                      <span>{m.genre || '-'}</span>
+                                    </div>
+
+
+                                    {/* 감독 */}
+                                    <div style={{
+                                      display:'flex',
+                                      alignItems:'center',
+                                      gap:10,
+                                      fontSize:'0.75rem',
+                                      color:'#555'
+                                    }}>
+                                      <span style={{
+                                        width:38,
+                                        flexShrink:0,
+                                        whiteSpace:'nowrap',
+                                        fontSize:'0.75rem'
+                                      }}>
+                                        감독
+                                      </span>
+                                      <span>
                                       {
-                                        m.credits?.cast
-                                          ?.slice(0,3)
-                                          ?.map(a => a.name)
-                                          ?.join(' · ')
-                                        || '-'
+                                        m.credits?.crew
+                                          ?.find(p => p.job === 'Director')
+                                          ?.name || '-'
                                       }
-                                  </span>
-                                  </div>
+                                      </span>
+                                    </div>
+
+                                    {/* 배우 */}
+                                    <div style={{
+                                      display:'flex',
+                                      alignItems:'flex-start',
+                                      gap:10,
+                                      fontSize:'0.75rem',
+                                      color:'#555',
+                                      lineHeight:1.5
+                                    }}>
+                                      <span style={{width:38, flexShrink:0, whiteSpace:'nowrap', fontSize:'0.75rem'}}>출연
+                                      </span>
+                                      <span>
+                                        {
+                                          m.credits?.cast
+                                            ?.slice(0,3)
+                                            ?.map(a => a.name)
+                                            ?.join(' · ')
+                                          || '-'
+                                        }
+                                      </span>
+                                    </div>
 
                                     {/* 영상 */}
                                     <div style={{
@@ -4608,12 +4609,14 @@ async function loadTMDB(movie){
                                       fontSize:'0.75rem',
                                       color:'#555'
                                     }}>
-                                    <span style={{
-                                      width:38,
-                                      flexShrink:0,
-                                      whiteSpace:'nowrap',
-                                      fontSize:'0.75rem'
-                                    }}>영상</span>
+                                      <span style={{
+                                        width:38,
+                                        flexShrink:0,
+                                        whiteSpace:'nowrap',
+                                        fontSize:'0.75rem'
+                                      }}>
+                                        영상
+                                      </span>
                                       {m.youtubeKey ? (
                                         <span
                                           onClick={()=>setTrailerKey(m.youtubeKey)
@@ -4624,171 +4627,156 @@ async function loadTMDB(movie){
                                             fontWeight:700
                                           }}
                                         >
-                                        🎬 영상 보기
+                                          🎬 영상 보기
                                         </span>
                                       ) : (
                                         <span>-</span>
                                       )}
                                     </div>
                                   </div>
-                                {/* 시놉시스 버튼 */}
-                                {m.overview && (
-                                  <button
-                                    onClick={() =>
-                                      setShowSynopsis(v => !v)
-                                    }
-                                    style={{
-                                      marginTop:10,
-                                      border:'none',
-                                      background:'none',
-                                      padding:0,
-                                      textAlign:'left',
-                                      fontSize:'0.8rem',
-                                      fontWeight:800,
-                                      color:'#666',
-                                      cursor:'pointer'
-                                    }}
-                                  >
-                                    {showSynopsis
-                                      ? '줄거리 ▲'
-                                      : '줄거리 ▼'}
-                                  </button>
-                                )}
 
+                                  {/* 시놉시스 버튼 */}
+                                  {m.overview && (
+                                    <button
+                                      onClick={() =>
+                                        setShowSynopsis(v => !v)
+                                      }
+                                      style={{
+                                        marginTop:10,
+                                        border:'none',
+                                        background:'none',
+                                        padding:0,
+                                        textAlign:'left',
+                                        fontSize:'0.8rem',
+                                        fontWeight:800,
+                                        color:'#666',
+                                        cursor:'pointer'
+                                      }}>
+                                      {showSynopsis
+                                        ? '줄거리 ▲'
+                                        : '줄거리 ▼'}
+                                    </button>
+                                  )}
+                                </div>
+                                
                               </div>
+
+                              {/* 시놉시스 */}
+                              {showSynopsis && m.overview && (
+                                <div style={{
+                                  marginTop:18,
+                                  paddingTop:16,
+                                  borderTop:'1px solid #efebe5',
+                                  fontSize:'0.82rem',
+                                  lineHeight:1.7,
+                                  color:'#555'
+                                }}>
+                                  {m.overview}
+                                </div>
+                              )}
                             </div>
-
-                            {/* 시놉시스 */}
-                            {showSynopsis && m.overview && (
-
-                              <div style={{
-                                marginTop:18,
-                                paddingTop:16,
-                                borderTop:'1px solid #efebe5',
-                                fontSize:'0.82rem',
-                                lineHeight:1.7,
-                                color:'#555'
-                              }}>
-                                {m.overview}
-                              </div>
-
-                            )}
-
                           </div>
-                        </div>
-                      )}
-                      <button
-                        onClick={nextQ}
-                        style={{
-                          width:'100%',
-                          height:46,
-                          borderRadius:12,
-                          background:'#4a4a4a',
-                          color:'#fff',
-                          fontWeight:800,
-                          fontSize:'0.8rem',
-                          border:'none'
-                        }}>
-                        {qi+1<pool.length ? '다음 문제' : '결과 보기'}
-                      </button>
-                    </>
-                  )}
+                        )}
+                        
+                        {/* 하단 버튼 */}
+                        <button
+                          onClick={nextQ}
+                          style={{
+                            width:'100%',
+                            height:46,
+                            borderRadius:12,
+                            background:'#4a4a4a',
+                            color:'#fff',
+                            fontWeight:800,
+                            fontSize:'0.8rem',
+                            border:'none'
+                          }}>
+                          {qi+1<pool.length ? '다음 문제' : '결과 보기'}
+                        </button>
+                      </>
+                    )}
+                  </div>
                 </div>
               </div>
-            </div>
 
 
-            {/* 신고 toast */}
-            {showReportToast && (
-              <div style={{
-                position:'fixed',
-                left:'50%',
-                bottom:90,
-                transform:'translateX(-50%)',
-                background:'rgba(30,30,30,0.92)',
-                color:'#fff',
-                padding:'12px 18px',
-                borderRadius:999,
-                fontSize:'0.78rem',
-                fontWeight:700,
-                zIndex:9999,
-                boxShadow:'0 8px 24px rgba(0,0,0,0.18)',
-                backdropFilter:'blur(8px)'
-              }}>
-                신고가 접수되었어요
-              </div>
-            )}
-            
-            <style jsx>{`
-              @keyframes comboPulse {
-                0%   { transform: scale(1) }
-                50%  { transform: scale(1.06) }
-                100% { transform: scale(1) }
-              }
-            `}</style>
-
-            <style jsx>{`
-              @keyframes hintSlideDown {
-                from {
-                  opacity: 0;
-                  transform: translateY(-10px);
+              {/* 신고 toast */}
+              {showReportToast && (
+                <div style={{
+                  position:'fixed',
+                  left:'50%',
+                  bottom:90,
+                  transform:'translateX(-50%)',
+                  background:'rgba(30,30,30,0.92)',
+                  color:'#fff',
+                  padding:'12px 18px',
+                  borderRadius:999,
+                  fontSize:'0.78rem',
+                  fontWeight:700,
+                  zIndex:9999,
+                  boxShadow:'0 8px 24px rgba(0,0,0,0.18)',
+                  backdropFilter:'blur(8px)'
+                }}>
+                  신고가 접수되었어요
+                </div>
+              )}
+              
+              <style jsx>{`
+                @keyframes comboPulse {
+                  0%   { transform: scale(1) }
+                  50%  { transform: scale(1.06) }
+                  100% { transform: scale(1) }
                 }
-                to {
-                  opacity: 1;
-                  transform: translateY(0);
-                }
-              }
-            `}</style>
-
-            <style jsx>{`
-              @keyframes popLife {
-                0% {
-                  opacity: 0;
-                  transform: translateY(6px) scale(0.8);
-                }
-                40% {
-                  opacity: 1;
-                  transform: translateY(-4px) scale(1.1);
-                }
-                100% {
-                  opacity: 0;
-                  transform: translateY(-10px) scale(1);
-                }
-              }
-
-            `}</style>
-
-            <style jsx>{`
-
-              @keyframes menuFade{
-
-                from{
-
-                  opacity:0;
-
-                  transform:translateY(-6px);
-
-                }
-
-                to{
-
-                  opacity:1;
-
-                  transform:translateY(0);
-
-                }
-
-              }
-
               `}</style>
 
-          </AppLayout>
-        )
+              <style jsx>{`
+                @keyframes hintSlideDown {
+                  from {
+                    opacity: 0;
+                    transform: translateY(-10px);
+                  }
+                  to {
+                    opacity: 1;
+                    transform: translateY(0);
+                  }
+                }
+              `}</style>
+
+              <style jsx>{`
+                @keyframes popLife {
+                  0% {
+                    opacity: 0;
+                    transform: translateY(6px) scale(0.8);
+                  }
+                  40% {
+                    opacity: 1;
+                    transform: translateY(-4px) scale(1.1);
+                  }
+                  100% {
+                    opacity: 0;
+                    transform: translateY(-10px) scale(1);
+                  }
+                }
+              `}</style>
+
+              <style jsx>{`
+                @keyframes menuFade{
+                  from{
+                    opacity:0;
+                    transform:translateY(-6px);
+                  }
+
+                  to{
+                    opacity:1;
+                    transform:translateY(0);
+                  }
+                }
+              `}</style>
+
+            </AppLayout>
+          )
         })()
       )}
-
-
-
 
 
 
@@ -4828,7 +4816,7 @@ async function loadTMDB(movie){
                 padding:'12px 0 8px',
               }}>
 
-                {/* 상단영역*/}
+                {/* 상단 영역 */}
                 <div style={{
                 flexShrink:0,
                 paddingTop:12,
@@ -4859,26 +4847,26 @@ async function loadTMDB(movie){
                     </div>
 
                     {/* 🔥 프로필 배지 */}
-                      <div style={{
-                        position:'absolute',
-                        right:-2,
-                        bottom:6,
-                        width:22,
-                        height:22,
-                        borderRadius:'50%',
-                        background:'#fff8f9',
-                        border:'1.5px solid #e8e4dd',
-                        boxShadow:`
-                          0 0 0 3px rgba(255,107,122,0.10),
-                          0 4px 12px rgba(255,107,122,0.12)`,
-                        display:'flex',
-                        alignItems:'center',
-                        justifyContent:'center',
-                        fontSize:'0.72rem',
-                        boxShadow:'0 2px 6px rgba(0,0,0,0.08)'
-                      }}>
-                        📊
-                      </div>
+                    <div style={{
+                      position:'absolute',
+                      right:-2,
+                      bottom:6,
+                      width:22,
+                      height:22,
+                      borderRadius:'50%',
+                      background:'#fff8f9',
+                      border:'1.5px solid #e8e4dd',
+                      boxShadow:`
+                        0 0 0 3px rgba(255,107,122,0.10),
+                        0 4px 12px rgba(255,107,122,0.12)`,
+                      display:'flex',
+                      alignItems:'center',
+                      justifyContent:'center',
+                      fontSize:'0.72rem',
+                      boxShadow:'0 2px 6px rgba(0,0,0,0.08)'
+                    }}>
+                      📊
+                    </div>
                   </div>
 
                   <div style={{
@@ -4934,11 +4922,10 @@ async function loadTMDB(movie){
                     </div>
                   )}
                 </div>
-
             
-                {/* 🔥 결과 전체 wrapper */}
+                {/* 리스트 영역  */}
                 <div style={{ position:'relative' }}>
-                  {/* 🔥 버튼 */}
+                  {/* 정답보기-AD 버튼 */}
                   {resultView === 'score' && hasFail && !showAnswers && (
                     <button
                       onClick={handleShowAnswers}
@@ -4973,7 +4960,7 @@ async function loadTMDB(movie){
                     </button>
                   )}
 
-                  {/*결과리스트 영역*/}
+                  {/* 점수_랭킹 리스트 */}
                   <div style={{
                     padding:'7px 20px 0',
                     // 🔥 핵심 1: score 기준 높이 고정
@@ -5439,7 +5426,7 @@ async function loadTMDB(movie){
                   </div>
                 </div>
 
-                {/* 하단 버튼 */}
+                {/* 하단 영역 */}
                 {visibleResults > results.length && (
                   <div style={{
                     flexShrink:0,
@@ -5489,9 +5476,10 @@ async function loadTMDB(movie){
                 )}
 
 
+
+
                 {/* 🔥 프로필 팝업 */}
                 {showProfile && (
-
                   <div style={{
                     position:'fixed',
                     inset:0,
@@ -5501,12 +5489,10 @@ async function loadTMDB(movie){
                     justifyContent:'center',
                     zIndex:99
                   }}>
-
                     <div style={{
                       transform:'scale(0.88)',
                       transformOrigin:'center center'
                     }}>
-
                       <div style={{
                         width:'92vw',
                         maxWidth:420,
@@ -5519,7 +5505,6 @@ async function loadTMDB(movie){
                         boxShadow:'0 10px 30px rgba(0,0,0,0.1)',
                         position:'relative'
                       }}>
-
                         {/* 닫기 */}
                         <div
                           onClick={()=>setShowProfile(false)}
@@ -5536,8 +5521,7 @@ async function loadTMDB(movie){
                             alignItems:'center',
                             justifyContent:'center',
                             cursor:'pointer'
-                          }}
-                        >
+                          }}>
                           <span style={{
                             color:'#1a1814',
                             fontSize:16,
@@ -5547,53 +5531,53 @@ async function loadTMDB(movie){
                           </span>
                         </div>
 
-                        {/* 타이틀 */}
+
+                        {/* 상단텍스트 영역 */}
+                        <div style={{
+                          textAlign:'center',
+                          marginBottom:7
+                        }}>
+
+                          {/* 작은 라벨 */}
                           <div style={{
-                            textAlign:'center',
-                            marginBottom:7
+                            fontSize:'0.62rem',
+                            letterSpacing:'0.24em',
+                            color:'#b8b1a8',
+                            fontWeight:700,
+                            marginBottom:8
                           }}>
-
-                            {/* 작은 라벨 */}
-                            <div style={{
-                              fontSize:'0.62rem',
-                              letterSpacing:'0.24em',
-                              color:'#b8b1a8',
-                              fontWeight:700,
-                              marginBottom:8
-                            }}>
-                              CINECLUE TITLE
-                            </div>
-
-                            {/* 타이틀 */}
-                            <div style={{
-                              fontSize:'1.6rem',
-                              fontWeight:900,
-                              color:'#1a1814',
-                              letterSpacing:'-0.04em',
-                              lineHeight:1.08
-                            }}>
-                              {LEVEL_TITLES[
-                                Math.min(
-                                  Math.floor((user.score || 0) / 50000) + 1,
-                                  100
-                                )
-                              ]}
-                            </div>
-
-                            {/* 닉네임 */}
-                            <div style={{
-                              fontSize:'0.9rem',
-                              color:'#8d857c',
-                              marginTop:10,
-                              fontWeight:600
-                            }}>
-                              {profileUser?.nickname || currentUser?.nickname || '-'}
-                            </div>
-
+                            CINECLUE TITLE
                           </div>
 
+                          {/* 타이틀 */}
+                          <div style={{
+                            fontSize:'1.6rem',
+                            fontWeight:900,
+                            color:'#1a1814',
+                            letterSpacing:'-0.04em',
+                            lineHeight:1.08
+                          }}>
+                            {LEVEL_TITLES[
+                              Math.min(
+                                Math.floor((user.score || 0) / 50000) + 1,
+                                100
+                              )
+                            ]}
+                          </div>
 
-                        {/* 레벨 */}
+                          {/* 닉네임 */}
+                          <div style={{
+                            fontSize:'0.9rem',
+                            color:'#8d857c',
+                            marginTop:10,
+                            fontWeight:600
+                          }}>
+                            {profileUser?.nickname || currentUser?.nickname || '-'}
+                          </div>
+                        </div>
+
+
+                        {/* 레벨바 영역 */}
                         <div style={{
                           marginBottom:15
                         }}>
@@ -5637,50 +5621,41 @@ async function loadTMDB(movie){
                             {' '}
                             / 50,000 EXP
                           </div>
-
                         </div>
 
-                        {/* 정보 카드 */}
+
+                        {/* 그래프 영역 */}
                         <div style={{
                           display:'grid',
                           gridTemplateColumns:'1fr 1fr',
                           gap:7,
                           marginBottom:7
                         }}>
-
                           {[
                             [
                               '총 점수',
                               profileStats?.totalScore?.toLocaleString() || '0'
                             ],
-
                             [
                               '플레이 시간',
-
                               `${Math.floor((profileStats?.totalSeconds || 0)/3600)}h ${
                                 Math.floor(
                                   ((profileStats?.totalSeconds || 0)%3600)/60
                                 )
                               }m`
                             ],
-
                             [
                               '선호 장르',
-
                               profileStats?.favoriteGenres?.[0] || '-'
                             ],
-
                             [
                               '최근 플레이',
-
                               profileStats?.lastPlayed
                                 ? new Date(profileStats.lastPlayed)
                                     .toLocaleDateString('ko-KR')
                                 : '-'
                             ]
-
                           ].map(([k,v],i)=>(
-
                             <div
                               key={i}
                               style={{
@@ -5688,9 +5663,7 @@ async function loadTMDB(movie){
                                 border:'1px solid #ece7df',
                                 borderRadius:14,
                                 padding:'12px 12px'
-                              }}
-                            >
-
+                              }}>
                               <div style={{
                                 fontSize:'0.66rem',
                                 color:'#999',
@@ -5699,7 +5672,6 @@ async function loadTMDB(movie){
                               }}>
                                 {k}
                               </div>
-
                               <div style={{
                                 fontSize:'1rem',
                                 fontWeight:800,
@@ -5708,14 +5680,12 @@ async function loadTMDB(movie){
                               }}>
                                 {v}
                               </div>
-
                             </div>
-
                           ))}
-
                         </div>
 
-                        {/* 장르 숙련도 */}
+
+                        {/* 장르숙련도  영역*/}
                         <div style={{
                           background:'#fff',
                           border:'1px solid #ece7df',
@@ -5730,9 +5700,7 @@ async function loadTMDB(movie){
                             alignItems:'center',
                             marginBottom:14
                           }}>
-
                             <div>
-
                               <div style={{
                                 fontSize:'01.0rem',
                                 fontWeight:900,
@@ -5740,7 +5708,6 @@ async function loadTMDB(movie){
                               }}>
                                 🎬 장르 숙련도
                               </div>
-
                               <div style={{
                                 fontSize:'0.68rem',
                                 color:'#999',
@@ -5748,9 +5715,7 @@ async function loadTMDB(movie){
                               }}>
                                 정답 기록 기반 영화 성향 분석
                               </div>
-
                             </div>
-
                             <div style={{
                               fontSize:'0.72rem',
                               fontWeight:800,
@@ -5758,7 +5723,6 @@ async function loadTMDB(movie){
                             }}>
                               TOP 3
                             </div>
-
                           </div>
 
                           {/* 리스트 */}
@@ -5767,47 +5731,30 @@ async function loadTMDB(movie){
                             flexDirection:'column',
                             gap:10
                           }}>
-
                             {[...(profileStats?.genreStats || [])]
-
                               .sort((a,b)=>
                                 b.percent - a.percent
                               )
-
                               .slice(0,3)
-
                               .map((g,i)=>{
-
                                 let rankLabel = 'BEGINNER'
-
                                 if(g.percent >= 80){
-
                                   rankLabel = 'MASTER'
-
                                 }else if(g.percent >= 60){
-
                                   rankLabel = 'EXPERT'
-
                                 }else if(g.percent >= 40){
-
                                   rankLabel = 'ADVANCED'
-
                                 }else if(g.percent >= 20){
-
                                   rankLabel = 'INTERMEDIATE'
-
                                 }
-
                                 return(
-
                                   <div
                                     key={i}
                                     style={{
                                       display:'flex',
                                       alignItems:'center',
                                       gap:10
-                                    }}
-                                  >
+                                    }}>
 
                                     {/* 장르명 */}
                                     <div style={{
@@ -5831,39 +5778,22 @@ async function loadTMDB(movie){
                                       borderRadius:999,
                                       overflow:'hidden'
                                     }}>
-
                                       <div style={{
-
                                         width:'100%',
-
                                         height:'100%',
-
                                         background:
-
                                           'linear-gradient(90deg,#ff8a95,#ff5f73)',
-
                                         borderRadius:999,
-
                                         boxShadow:
-
                                           '0 0 10px rgba(255,95,115,0.35)',
-
                                         transformOrigin:'left center',
-
                                         transform:
-
                                           animateStats
-
                                             ? `scaleX(${g.percent / 100})`
-
                                             : 'scaleX(0)',
-
                                         transition:
-
                                           `transform 0.8s cubic-bezier(.22,.61,.36,1) ${i * 0.08}s`
-
                                       }}/>
-
                                     </div>
 
                                     {/* 퍼센트 */}
@@ -5902,16 +5832,14 @@ async function loadTMDB(movie){
                                       {rankLabel}
                                     </div>
                                   </div>
-
-
                                 )
-                              })}
-
+                              })
+                            }
                           </div>
-
                         </div>
 
-                        {/* 추천 영화 CTA */}
+
+                        {/* 추천 영화 영역 */}
                         <div style={{
                           marginTop:7,
                           paddingTop:0
@@ -5929,8 +5857,7 @@ async function loadTMDB(movie){
                               alignItems:'center',
                               justifyContent:'space-between',
                               cursor:'pointer'
-                            }}
-                          >
+                          }}>
 
                             <div style={{
                               textAlign:'left'
@@ -5952,7 +5879,6 @@ async function loadTMDB(movie){
                               }}>
                                 장르 숙련도 기반 랜덤 추천
                               </div>
-
                             </div>
 
                             <div style={{
@@ -5970,6 +5896,7 @@ async function loadTMDB(movie){
                             </div>
                           </button>
                         </div>
+
                       </div>
                     </div>
                   </div>
@@ -5989,264 +5916,148 @@ async function loadTMDB(movie){
                     alignItems:'center',
                     justifyContent:'center',
                     padding:24
-                  }}
-                >
+                  }}>
+
                   <div
-
                     onClick={(e)=>
-
                       e.stopPropagation()
-
                     }
-
                     style={{
-
                       position:'relative',
-
                       width:'100%',
-
                       maxWidth:320,
-
                       borderRadius:24,
-
                       background:'#fff',
-
                       padding:18,
-
                       boxShadow:'0 18px 48px rgba(0,0,0,0.18)'
-
-                    }}
-
-                  >
-
-                    {/* 🎬 버튼 */}
-
-                    <div style={{
-
-                      position:'absolute',
-
-                      top:14,
-
-                      right:14,
-
-                      zIndex:5
-
                     }}>
 
-                      <div
+                    {/* 🎬 버튼 */}
+                    {recommendMovie?.youtubeKey && (
+                      <div style={{
+                        position:'absolute',
+                        top:14,
+                        right:14,
+                        zIndex:5
+                      }}>
 
-                        onClick={()=>{
-                          console.log('CLICK')
-
-console.log(recommendMovie?.youtubeKey)
-
-                          if(recommendMovie?.youtubeKey){
-
+                        <div onClick={()=>{
                             setTrailerKey(recommendMovie.youtubeKey)
-
-                          }
-
-                        }}
-
-                        style={{
-
-                          width:38,
-
-                          height:38,
-
-                          borderRadius:'50%',
-
-                          background:'rgba(255,255,255,0.9)',
-
-                          border:'1px solid #ece7df',
-
-                          display:'flex',
-
-                          alignItems:'center',
-
-                          justifyContent:'center',
-
-                          cursor:'pointer',
-
-                          fontSize:'1.05rem',
-
-                          boxShadow:'0 4px 14px rgba(0,0,0,0.12)'
-
-                        }}
-
-                      >
-
+                          }}
+                          
+                          style={{
+                            width:38,
+                            height:38,
+                            borderRadius:'50%',
+                            background:'rgba(255,255,255,0.9)',
+                            border:'1px solid #ece7df',
+                            display:'flex',
+                            alignItems:'center',
+                            justifyContent:'center',
+                            cursor:'pointer',
+                            fontSize:'1.05rem',
+                            boxShadow:'0 4px 14px rgba(0,0,0,0.12)'
+                        }}>
                         🎬
-
+                        </div>
                       </div>
+                    )}
 
-                    </div>
+
+
                     {/* 포스터 카드 재사용 */}
                     <div style={{
-
                       textAlign:'center'
-
                     }}>
 
                       {/* 포스터 */}
-
                       <img
-
                         src={`https://image.tmdb.org/t/p/w500${recommendMovie.poster_path}`}
-
                         alt=""
-
                         style={{
-
                           width:'60%',
-
                           maxWidth:220,
-
                           borderRadius:18,
-
                           marginBottom:10,
-
                           boxShadow:'0 14px 34px rgba(0,0,0,0.18)'
+                        }}/>
 
-                        }}
-
-                      />
 
                       {/* 제목 */}
-
                       <div style={{
-
                         fontSize:'1.18rem',
-
                         fontWeight:900,
-
                         color:'#1a1814',
-
                         lineHeight:1.3,
-
                         marginBottom:8
-
                       }}>
 
                         {recommendMovie.title}
-
                       </div>
+
 
                       {/* 평점 */}
-
                       <div style={{
-
                         fontSize:'0.82rem',
-
                         fontWeight:700,
-
                         color:'#ff5f73',
-
                         marginBottom:10
-
                       }}>
-
                         ★ {Number(recommendMovie.vote_average).toFixed(1)} / 10
-
                       </div>
 
+
                       {/* 감독 */}
-
                       <div style={{
-
                         fontSize:'0.8rem',
-
                         color:'#666',
-
                         marginBottom:2,
-
                         lineHeight:1.5
-
                       }}>
 
                         감독 · {
-
                           recommendMovie.credits?.crew
-
                             ?.find(p => p.job === 'Director')
-
                             ?.name || '-'
-
                         }
-
                       </div>
 
+
                       {/* 배우 */}
-
                       <div style={{
-
                         fontSize:'0.8rem',
-
                         color:'#666',
-
                         marginBottom:15,
-
                         lineHeight:1.5
-
                       }}>
 
                         출연 · {
-
                           recommendMovie.credits?.cast
-
                             ?.slice(0,3)
-
                             ?.map(a => a.name)
-
                             ?.join(' · ')
-
                           || '-'
-
                         }
-
                       </div>
 
+
                       {/* 시놉시스 */}
-
                       <div style={{
-
                         fontSize:'0.7rem',
-
                         color:'#666',
-
                         lineHeight:1.75,
-
                         display:'-webkit-box',
-
                         WebkitLineClamp:3,
-
                         WebkitBoxOrient:'vertical',
-
                         overflow:'hidden'
-
                       }}>
 
                         {recommendMovie.overview}
-
                       </div>
-
                     </div>
                   </div>
                 </div>
-              )}
-
-                <style jsx>{`
-                  @keyframes fadeUp {
-                    from {
-                      transform: translateY(10px);
-                      opacity: 0;
-                    }
-                    to {
-                      transform: translateY(0);
-                      opacity: 1;
-                    }
-                  }
-                `}</style>
+                )}
 
                 {/* 🎬 영화 카드 팝업 */}
                 {showMovieCard && movieCard && (
@@ -6381,9 +6192,9 @@ console.log(recommendMovie?.youtubeKey)
                             }}>
                               {movieCard.release_date?.slice(0,4)}
                             </div>
-
                           </div>
                         </div>
+
 
                         {/* 뒷면 */}
                         <div style={{
@@ -6543,7 +6354,6 @@ console.log(recommendMovie?.youtubeKey)
                                   ) : (
                                     v || '-'
                                   )}
-
                                 </div>
                               </div>
                             ))}
@@ -6570,20 +6380,26 @@ console.log(recommendMovie?.youtubeKey)
                               }}>
                                 {movieCard.overview || '시놉시스 정보 없음'}
                               </div>
-
                             </div>
-
                           </div>
-
                         </div>
-
                       </div>
-
                     </div>
-
                   </div>
-
                 )}
+
+                <style jsx>{`
+                  @keyframes fadeUp {
+                    from {
+                      transform: translateY(10px);
+                      opacity: 0;
+                    }
+                    to {
+                      transform: translateY(0);
+                      opacity: 1;
+                    }
+                  }
+                `}</style>
 
               </div>
             </AppLayout>
@@ -6591,127 +6407,68 @@ console.log(recommendMovie?.youtubeKey)
         )
       })()}
 
+
+
       {/* 유튜브 플레이어 모달 */}
+        {trailerKey && (
+          console.log('TRAILER MODAL', trailerKey),
+          <div
+            onClick={()=>setTrailerKey(null)}
+            style={{
+              position:'fixed',
+              inset:0,
+              background:'rgba(0,0,0,0.5)',
+              display:'flex',
+              alignItems:'center',
+              justifyContent:'center',
+              zIndex:99999,
+              padding:'20px'
+          }}>
+            <div
+              onClick={(e)=>e.stopPropagation()}
+              style={{
+                width:'100%',
+                maxWidth:'820px',
+                aspectRatio:'16 / 9',
+                background:'#000',
+                borderRadius:'20px',
+                overflow:'hidden',
+                position:'relative',
+                boxShadow:'0 10px 40px rgba(0,0,0,0.45)'
+            }}>
 
-              {trailerKey && (
+              {/* 닫기 버튼 */}
+              <button
+                onClick={()=>setTrailerKey(null)}
+                style={{
+                  position:'absolute',
+                  top:10,
+                  right:10,
+                  zIndex:10,
+                  width:36,
+                  height:36,
+                  border:'none',
+                  borderRadius:'50%',
+                  background:'rgba(0,0,0,0.55)',
+                  color:'#fff',
+                  fontSize:'18px',
+                  cursor:'pointer'
+              }}>
+                ✕
+              </button>
 
-                console.log('TRAILER MODAL', trailerKey),
-
-                <div
-
-                  onClick={()=>setTrailerKey(null)}
-
-                  style={{
-
-                    position:'fixed',
-
-                    inset:0,
-
-                    background:'rgba(0,0,0,0.5)',
-
-                    display:'flex',
-
-                    alignItems:'center',
-
-                    justifyContent:'center',
-
-                    zIndex:99999,
-
-                    padding:'20px'
-
-                  }}
-
-                >
-
-                  <div
-
-                    onClick={(e)=>e.stopPropagation()}
-
-                    style={{
-
-                      width:'100%',
-
-                      maxWidth:'820px',
-
-                      aspectRatio:'16 / 9',
-
-                      background:'#000',
-
-                      borderRadius:'20px',
-
-                      overflow:'hidden',
-
-                      position:'relative',
-
-                      boxShadow:'0 10px 40px rgba(0,0,0,0.45)'
-
-                    }}
-
-                  >
-
-                    {/* 닫기 버튼 */}
-
-                    <button
-
-                      onClick={()=>setTrailerKey(null)}
-
-                      style={{
-
-                        position:'absolute',
-
-                        top:10,
-
-                        right:10,
-
-                        zIndex:10,
-
-                        width:36,
-
-                        height:36,
-
-                        border:'none',
-
-                        borderRadius:'50%',
-
-                        background:'rgba(0,0,0,0.55)',
-
-                        color:'#fff',
-
-                        fontSize:'18px',
-
-                        cursor:'pointer'
-
-                      }}
-
-                    >
-
-                      ✕
-
-                    </button>
-
-                    <iframe
-
-                      width="100%"
-
-                      height="100%"
-
-                      src={`https://www.youtube.com/embed/${trailerKey}?autoplay=1&rel=0`}
-
-                      title="YouTube player"
-
-                      frameBorder="0"
-
-                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-
-                      allowFullScreen
-
-                    />
-
-                </div>
-
-              </div>
-
-            )}
+              <iframe
+                width="100%"
+                height="100%"
+                src={`https://www.youtube.com/embed/${trailerKey}?autoplay=1&rel=0`}
+                title="YouTube player"
+                frameBorder="0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+              />
+          </div>
+        </div>
+      )}
     </>
   )
 }
