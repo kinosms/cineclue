@@ -895,7 +895,7 @@ export default function CineClue()  {
 
 
   const [isFlashing, setIsFlashing] = useState(false)
-  const suggestRef = useRef(null)
+  const inputRef = useRef(null)
   const [showReportToast, setShowReportToast] = useState(false)
   const [showSettings, setShowSettings] = useState(false)
   const [settingsPage, setSettingsPage] = useState(null)
