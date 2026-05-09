@@ -2043,6 +2043,12 @@ async function loadTMDB(movie){
           genre: m.final_genre || '',
           grade: primaryGrade
         }])
+        setTimeout(()=>{
+          scrollRef.current?.scrollTo({
+            top: scrollRef.current.scrollHeight,
+            behavior:'smooth'
+          })
+        }, 120)
         setFbt('ok')
         setAnswered(true)
         setScoreFlash(true)
