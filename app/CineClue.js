@@ -2614,6 +2614,7 @@ async function loadTMDB(movie){
                       '게임 규칙',
                       '이메일',
                       '개인정보 처리방침',
+                      '영화데이터 사용안내',
                       '신고하기'
                     ].map((item,i)=>(
                       <div
@@ -2788,6 +2789,34 @@ async function loadTMDB(movie){
                         • Google AdMob
                         <br/>
                         • TMDB API
+                      </div>
+                    )}
+
+                    {settingsPage === '영화데이터 사용안내' && (
+                      <div style={{
+                        fontSize:'0.82rem',
+                        lineHeight:1.9,
+                        color:'#5f5a55'
+                      }}>
+                        CineClue는 영화 정보 제공을 위해 TMDB(The Movie Database) API를 사용하고 있습니다.
+                        <br/>
+                        일부 영화 포스터, 줄거리, 배우 및 영상 정보는 TMDB 데이터를 기반으로 제공됩니다.
+
+                        <br/>
+                        <br/>
+                        This product uses the TMDB API but is not endorsed or certified by TMDB.
+                        <div style={{
+                          display:'flex',
+                          justifyContent:'flex-end'
+                        }}>
+                          <img
+                            src="/tmdb.webp"
+                            alt="TMDB"
+                            style={{
+                              width:80
+                            }}
+                              />
+                        </div>
                       </div>
                     )}
 
@@ -3134,6 +3163,7 @@ async function loadTMDB(movie){
                     '게임 규칙',
                     '이메일',
                     '개인정보 처리방침',
+                    '영화데이터 사용안내',
                     '신고하기'
                   ].map((item,i)=>(
                     <div
@@ -3312,6 +3342,36 @@ async function loadTMDB(movie){
 
                       </div>
                     )}
+
+
+                    {settingsPage === '영화데이터 사용안내' && (
+                      <div style={{
+                        fontSize:'0.82rem',
+                        lineHeight:1.9,
+                        color:'#5f5a55'
+                      }}>
+                        CineClue는 영화 정보 제공을 위해 TMDB(The Movie Database) API를 사용하고 있습니다.
+                        <br/>
+                        일부 영화 포스터, 줄거리, 배우 및 영상 정보는 TMDB 데이터를 기반으로 제공됩니다.
+
+                        <br/>
+                        <br/>
+                        This product uses the TMDB API but is not endorsed or certified by TMDB.
+                        <div style={{
+                          display:'flex',
+                          justifyContent:'flex-end'
+                        }}>
+                          <img
+                            src="/tmdb.webp"
+                            alt="TMDB"
+                            style={{
+                              width:80
+                            }}
+                              />
+                        </div>
+                      </div>
+                    )}
+
 
                     {settingsPage === '신고하기' && (
                       <div style={{
