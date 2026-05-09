@@ -983,7 +983,6 @@ export default function CineClue()  {
   const [recommendMovie, setRecommendMovie] = useState(null)
   const [questionReady, setQuestionReady] = useState(false)
   const [trailerKey, setTrailerKey] = useState(null)
-  const hasAutoScrolled = useRef(false)
   const [animateStats, setAnimateStats]
   = useState(false)
   const UI = {
@@ -1204,26 +1203,6 @@ export default function CineClue()  {
       setAllMovies(data)
     })
   }, [supabase])
-
-
- // 자동완성리스트 화면 포커스 처리
-  useEffect(()=>{
-    if(
-      suggestions.length > 0 &&
-      !hasAutoScrolled.current
-    ){
-      setTimeout(()=>{
-        suggestRef.current?.scrollIntoView({
-          behavior:'auto',
-          block:'end'
-        })
-      }, 120)
-      hasAutoScrolled.current = true
-    }
-    if(suggestions.length === 0){
-      hasAutoScrolled.current = false
-    }
-  }, [suggestions])
 
 
 
@@ -1638,7 +1617,6 @@ async function loadTMDB(movie){
 
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isLevelCompleted, setIsLevelCompleted] = useState(false)
-  const inputRef = useRef(null)
   const char = CHARS.find(c=>c.id===selChar)
   const g    = GRADES.find(x=>x.id===selGrade)
 
@@ -4298,9 +4276,7 @@ async function loadTMDB(movie){
 
                               {/* 입력 자동완성 */}
                               {suggestions.length > 0 && (
-                                <div 
-                                ref={suggestRef}
-                                  style={{
+                                <div style={{
                                     position:'absolute',
                                     left:0,
                                     right:0,
@@ -4309,7 +4285,6 @@ async function loadTMDB(movie){
                                     border:'1px solid #ddd',
                                     borderRadius:10,
                                     overflow:'hidden',
-                                    minHeight:210,
                                     zIndex:50
                                 }}>
                                   {suggestions.map((s, i)=>(
