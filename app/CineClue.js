@@ -6453,10 +6453,10 @@ async function loadTMDB(movie){
               onClick={(e)=>e.stopPropagation()}
               style={{
                 width:'100%',
-                maxWidth:'820px',
+                maxWidth:'960px',
                 aspectRatio:'16 / 9',
                 background:'#000',
-                borderRadius:'20px',
+                borderRadius:'10px',
                 overflow:'hidden',
                 position:'relative',
                 boxShadow:'0 10px 40px rgba(0,0,0,0.45)'
