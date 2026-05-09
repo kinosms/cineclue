@@ -1214,7 +1214,7 @@ export default function CineClue()  {
     ){
     setTimeout(()=>{
       suggestRef.current?.scrollIntoView({
-        behavior:'smooth',
+        behavior:'auto',
         block:'end'
       })
     }, 120)
@@ -5744,11 +5744,11 @@ async function loadTMDB(movie){
                             display:'flex',
                             justifyContent:'space-between',
                             alignItems:'center',
-                            marginBottom:14
+                            marginBottom:12
                           }}>
                             <div>
                               <div style={{
-                                fontSize:'01.0rem',
+                                fontSize:'0.9rem',
                                 fontWeight:900,
                                 color:'#1a1814'
                               }}>
