@@ -4248,17 +4248,13 @@ async function loadTMDB(movie){
                               {suggestions.length > 0 && (
                                 <div 
                                 ref={suggestRef}
+                                onTouchMove={(e)=>e.stopPropagation()}
                                   style={{
-                                    position:'absolute',
-                                    left:0,
-                                    right:0,
-                                    top:52, 
+                                    marginTop:8,
                                     background:'#fff',
                                     border:'1px solid #ddd',
                                     borderRadius:10,
-                                    overflow:'auto',
-                                    maxHeight:240,
-                                    WebkitOverflowScrolling:'touch',
+                                    overflow:'hidden',
                                     zIndex:50
                                 }}>
                                   {suggestions.map((s, i)=>(
