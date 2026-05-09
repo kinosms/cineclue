@@ -4652,9 +4652,15 @@ async function loadTMDB(movie){
                                   {/* 시놉시스 버튼 */}
                                   {m.overview && (
                                     <button
-                                      onClick={() =>
+                                      onClick={() => {
                                         setShowSynopsis(v => !v)
-                                      }
+                                        setTimeout(()=>{
+                                          scrollRef.current?.scrollTo({
+                                            top: scrollRef.current.scrollHeight,
+                                            behavior:'smooth'
+                                          })
+                                        }, 120)
+                                      }}
                                       style={{
                                         marginTop:10,
                                         border:'none',
