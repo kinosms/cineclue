@@ -261,142 +261,84 @@ function CharacterSpinner({ fadeOut }){
 
 }
 
+
+
 //인트로//
 
 function IntroScreen({ onEnter }) {
-  
+
   const [mounted, setMounted] = useState(false)
 
-useEffect(() => {
-
-  setMounted(true)
-
-}, [])
-
+  useEffect(() => {
+    setMounted(true)
+  }, [])
   return (
-
     <div style={{
-
-      position:'fixed',
-
-      inset:0,
-
-      background:'#0a0a0a',
-
-      overflow:'hidden',
-
-      display:'flex',
-
-      alignItems:'center',
-
-      justifyContent:'center',
-
-      flexDirection:'column'
-
+        position:'fixed',
+        inset:0,
+        background:'#0a0a0a',
+        overflow:'hidden',
+        display:'flex',
+        alignItems:'center',
+        justifyContent:'center',
+        flexDirection:'column'
     }}>
 
       {/* 🔥 실루엣 레이어 */}
-
       <div style={{
-
         position:'absolute',
-
         inset:0,
-
         pointerEvents:'none'
-
       }}>
 
         {/* 레이어 1 */}
-
         <div style={{
-
           position:'absolute',
-
           top:'20%',
-
           left:'10%',
-
           width:120,
-
           opacity:0.08,
-
           filter:'blur(6px)',
-
           animation:'float1 12s linear infinite'
-
         }}>
-
           <svg viewBox="0 0 80 80" fill="#fff">
-
             <circle cx="40" cy="40" r="30"/>
-
           </svg>
-
         </div>
 
         {/* 레이어 2 */}
-
         <div style={{
-
           position:'absolute',
-
           bottom:'15%',
-
           right:'15%',
-
           width:140,
-
           opacity:0.06,
-
           filter:'blur(8px)',
-
           animation:'float2 16s linear infinite'
-
         }}>
-
           <svg viewBox="0 0 80 80" fill="#fff">
-
             <rect x="10" y="10" width="60" height="60"/>
-
           </svg>
-
         </div>
 
         {/* 레이어 3 */}
-
         <div style={{
-
           position:'absolute',
-
           top:'50%',
-
           left:'70%',
-
           width:100,
-
           opacity:0.07,
-
           filter:'blur(5px)',
-
           animation:'fadeFloat 10s ease-in-out infinite'
-
         }}>
-
           <svg viewBox="0 0 80 80" fill="#fff">
-
             <ellipse cx="40" cy="40" rx="28" ry="20"/>
-
           </svg>
-
         </div>
-
       </div>
 
       {/* 🔥 텍스트 */}
-
       <div style={{
-
         color:'#fff',
         textAlign:'center',
         zIndex:10,
@@ -405,7 +347,6 @@ useEffect(() => {
         justifyContent:'center',
         flexDirection:'column'
       }}>
-
         <div style={{
           width:'320px',
           textAlign:'center',
@@ -416,135 +357,97 @@ useEffect(() => {
           opacity:0.9,
           marginBottom:70,
           whiteSpace: 'nowrap'
-}}>
-  
+        }}>
+          <div
+            className="typing"
+            style={{
+              visibility: mounted ? 'visible' : 'hidden'
+          }}>
 
-  <div
+            Houston... we have a problem.
 
-  className="typing"
+          </div>
+        </div>
 
-  style={{
+        <div style={{
+          fontSize:'2.2rem',
+          fontWeight:900,
+          letterSpacing:'-1px',
+          marginBottom:30,
+          opacity: 0,
+          animation: 'fadeIn 1s ease forwards',
+          animationDelay: '5s'
+        }}>
+          Cine <span style={{color:'#e8808c'}}>CLUE</span>
+        </div>
 
-    visibility: mounted ? 'visible' : 'hidden'
+        <button
+          onClick={onEnter}
+          style={{
+            height:48,
+            padding:'0 28px',
+            borderRadius:12,
+            background:'#fff',
+            color:'#000',
+            fontWeight:700,
+            border:'none',
+            cursor:'pointer',
+            opacity: 0,
+            animation: 'fadeIn 1s ease forwards',
+            animationDelay: '5s'
 
-  }}
-
->
-
-  Houston... we have a problem.
-
-</div>
-
-</div>
-
-<div style={{
-
-  fontSize:'2.2rem',
-
-  fontWeight:900,
-
-  letterSpacing:'-1px',
-
-  marginBottom:30,
-
-  opacity: 0,
-
-animation: 'fadeIn 1s ease forwards',
-
-animationDelay: '5s'
-
-}}>
-
-  Cine <span style={{color:'#e8808c'}}>CLUE</span>
-
-</div>
-
-<button
-
-  onClick={onEnter}
-
-  style={{
-
-    height:48,
-
-    padding:'0 28px',
-
-    borderRadius:12,
-
-    background:'#fff',
-
-    color:'#000',
-
-    fontWeight:700,
-
-    border:'none',
-
-    cursor:'pointer',
-
-    opacity: 0,
-
-animation: 'fadeIn 1s ease forwards',
-
-animationDelay: '5s'
-
-  }}
-
->
-
-  들어가기
-
-</button>
-
+        }}>
+          들어가기
+        </button>
       </div>
 
       {/* 🔥 애니메이션 */}
 
       <style jsx>{`
+        @keyframes float1 {
+          0% { transform:translateX(0); }
+          100% { transform:translateX(40px); }
+        }
 
-@keyframes float1 {
-  0% { transform:translateX(0); }
-  100% { transform:translateX(40px); }
-}
+        @keyframes float2 {
+          0% { transform:translateY(0); }
+          100% { transform:translateY(-40px); }
+        }
 
-@keyframes float2 {
-  0% { transform:translateY(0); }
-  100% { transform:translateY(-40px); }
-}
+        @keyframes fadeFloat {
+          0% { opacity:0.05; }
+          50% { opacity:0.12; }
+          100% { opacity:0.05; }
+        }
 
-@keyframes fadeFloat {
-  0% { opacity:0.05; }
-  50% { opacity:0.12; }
-  100% { opacity:0.05; }
-}
+        .typing {
+          width: 30ch;
+          white-space: nowrap;
+          overflow: hidden;
 
-/* 🔥 여기 추가 */
-.typing {
-  width: 30ch;
-  white-space: nowrap;
-  overflow: hidden;
+          font-family: 'Courier New', monospace;
+          letter-spacing: 0.5px;
+          font-size: 1rem;
+          color: #9ef7c0;
 
-  font-family: 'Courier New', monospace;
-  letter-spacing: 0.5px;
-  font-size: 1rem;
-  color: #9ef7c0;
+          border-right: 2px solid #9ef7c0;
 
-  border-right: 2px solid #9ef7c0;
+          animation:
+            typing 4s steps(30) forwards,
+            blink 1s step-end infinite;
+        }
 
-  animation:
-    typing 4s steps(30) forwards,
-    blink 1s step-end infinite;
-}
+        @keyframes typing {
+          from { width: 0 }
+          to { width: 30ch }
+        }
 
-@keyframes typing {
-  from { width: 0 }
-  to { width: 30ch }
-}
+        @keyframes blink {
+          50% { border-color: transparent }
+        }
 
-@keyframes blink {
-  50% { border-color: transparent }
-}
-
-`}</style>
+        `}
+      </style>
     </div>
   )
 }
@@ -891,7 +794,6 @@ export default function CineClue()  {
   = useState(null)
   const [movieCardFlipped,setMovieCardFlipped]
   = useState(false)
-
 
 
   const [isFlashing, setIsFlashing] = useState(false)
@@ -2064,6 +1966,10 @@ async function loadTMDB(movie){
         }, 300)
 
       } else {
+        const wrongSound = new Audio('/false.mp3')
+          wrongSound.volume = 0.5
+          wrongSound.play().catch(()=>{})
+
         // 객관식: 첫 오답 클릭이면 콤보 해제
         if(quizMode === 'objective' && wrongCount === 0){
           setComboStreak(0)
@@ -2261,6 +2167,10 @@ async function loadTMDB(movie){
 
 
   function nextH(){
+    const hintSound = new Audio('/hint.mp3')
+    hintSound.volume = 0.5
+    hintSound.play().catch(()=>{})
+
     if(sh < 5){
       setSh(v => v + 1)
       setFb('')
@@ -2333,6 +2243,14 @@ async function loadTMDB(movie){
     setSelectedChoice(null)
 
   }
+
+
+  function playClick(){
+    const clickSound = new Audio('/click.mp3')
+    clickSound.volume = 0.3
+    clickSound.play().catch(()=>{})
+  }
+
 
   useEffect(()=>{
     if(!pool?.length) return
@@ -2990,7 +2908,10 @@ async function loadTMDB(movie){
 
               {/* 입장하기 버튼 */}
               <button
-                onClick={enterGame}
+                onClick={()=>{
+                  playClick()
+                  enterGame()
+                }}
                 disabled={!users.find(u=>u.charId===selChar)}
                 style={{
                   width:'100%',
@@ -3046,8 +2967,11 @@ async function loadTMDB(movie){
                     }}/>
 
                   <div style={{display:'flex',gap:8}}>
-                    <button
-                      onClick={()=>setShowNameModal(false)}
+                    <button 
+                      onClick={()=>{
+                        playClick()
+                        setShowNameModal(false)
+                      }}
                       style={{
                         flex:1,
                         height:40,
@@ -3059,7 +2983,10 @@ async function loadTMDB(movie){
                     </button>
 
                     <button
-                      onClick={saveNickname}
+                      onClick={()=>{
+                      playClick()
+                      saveNickname()
+                    }}
                       style={{
                         flex:1,
                         height:40,
@@ -3402,7 +3329,10 @@ async function loadTMDB(movie){
               </div>
               <div style={{display:'flex', gap:8, marginBottom:16}}>
                 <button
-                  onClick={()=>setQuizMode('subjective')}
+                  onClick={()=>{
+                    playClick()
+                    setQuizMode('subjective')
+                  }}
                   style={{
                     flex:1,
                     height:40,
@@ -3414,7 +3344,10 @@ async function loadTMDB(movie){
                   주관식
                 </button>
                 <button
-                  onClick={()=>setQuizMode('objective')}
+                  onClick={()=>{
+                    playClick()
+                    setQuizMode('objective')
+                  }}
                   style={{
                     flex:1,
                     height:40,
@@ -3552,7 +3485,9 @@ async function loadTMDB(movie){
                     cursor: selGrade !== null && !loading ? 'pointer' : 'default'
                   }}
                   disabled={selGrade === null || loading}
-                  onClick={()=>loadMovies()}>
+                  onClick={()=>{if(selGrade === null || loading) return
+                    playClick()
+                    loadMovies()}}>
 
                   {loading ? '로딩 중...' : '퀴즈시작'}
                 </button> 
@@ -3570,7 +3505,10 @@ async function loadTMDB(movie){
                     border:'1.5px solid #e8e4dd',
                     cursor:'pointer'
                   }}
-                  onClick={()=>setScreen('char')}>
+                    onClick={()=>{
+                    playClick()
+                    setScreen('char')
+                  }}>
                   캐릭터 선택
                 </button>
               </div>
@@ -4153,7 +4091,10 @@ async function loadTMDB(movie){
                           </button>
 
                           <button
-                            onClick={doSkip}
+                            onClick={()=>{
+                              playClick()
+                              doSkip()
+                            }}
                             style={{
                               flex:1,
                               height:40,
@@ -4319,7 +4260,10 @@ async function loadTMDB(movie){
                                   }}
                                 />
                                  <button
-                                  onClick={()=>submit()}
+                                  onClick={()=>{
+                                    playClick()
+                                    submit()
+                                  }}
                                   style={{
                                     width:72,
                                     height:46,
@@ -4765,7 +4709,10 @@ async function loadTMDB(movie){
                         
                         {/* 하단 버튼 */}
                         <button
-                          onClick={nextQ}
+                          onClick={()=>{
+                            playClick()
+                            nextQ()
+                          }}
                           style={{
                             width:'100%',
                             height:46,
@@ -5535,7 +5482,10 @@ async function loadTMDB(movie){
                           fontWeight:700,
                           border:'none'
                         }}
-                        onClick={()=>loadMovies()}
+                        onClick={()=>{
+                          playClick()
+                          loadMovies()
+                        }}
                       >
                         계속하기
                       </button>
@@ -5553,7 +5503,10 @@ async function loadTMDB(movie){
                         fontWeight:500,
                         border:'1.5px solid #e8e4dd'
                       }}
-                      onClick={()=>setScreen('char')}
+                      onClick={()=>{
+                        playClick()
+                        setScreen('char')
+                      }}
                     >
                       홈으로
                     </button>
