@@ -3877,7 +3877,6 @@ async function loadTMDB(movie){
                   WebkitOverflowScrolling:'touch',
                   padding:'12px 16px 24px',
                   overflowAnchor:'none',
-                  overscrollBehavior:'contain',
                   scrollBehavior:'auto',
                   touchAction:'pan-y'
                 }}>
@@ -4160,97 +4159,117 @@ async function loadTMDB(movie){
                             {/* 주관식 모드 답 입력영역 */}
                             <div style={{
                               position:'relative',
-                              display:'flex',
-                              gap:8,
                               marginBottom:8
                             }}>
-                              <input
-                                ref={inputRef}
-                                value={input}
-                                onChange={e=>{
-                                  const v = e.target.value
-                                  setInput(v)
+                              <div style={{
+                                display:'flex',
+                                gap:8,
+                                marginBottom:8
+                              }}>
+                                <input
+                                  ref={inputRef}
+                                  value={input}
+                                  onChange={e=>{
+                                    const v = e.target.value
+                                    setInput(v)
 
-                                  // 입력 없으면 초기화
-                                  if(!v.trim()){
-                                    setSuggestions([])
-                                  return
-                                  }
-
-                                  // 전체 영화 아직 로딩 안됐으면 중단
-                                  if(!allMovies.length) return
-                                  const keyword = normalize(v)
-                                  const starts = []
-                                  const includes = []
-
-                                  allMovies.forEach(m => {
-                                    const title = normalize(m.title)
-
-                                    if(title.startsWith(keyword)){
-                                      starts.push(m)
-                                    } else if(title.includes(keyword)){
-                                      includes.push(m)
-                                    }
-                                  })
-
-                                  const filtered = [
-                                    ...starts.sort((a,b)=>a.title.localeCompare(b.title)),
-                                    ...includes.sort((a,b)=>a.title.localeCompare(b.title))
-                                  ].slice(0,5)
-                                  setSuggestions(filtered)
-                                }}
-                                onKeyDown={e=>{
-                                  // ↓ 아래 이동
-                                  if(e.key === 'ArrowDown'){
-                                    e.preventDefault()
-                                    setSelectedSuggestion(prev =>
-                                      Math.min(prev + 1, suggestions.length - 1)
-                                    )
-                                    return
-                                  }
-                                  // ↑ 위 이동
-                                  if(e.key === 'ArrowUp'){
-                                    e.preventDefault()
-                                    setSelectedSuggestion(prev =>
-                                      Math.max(prev - 1, 0)
-                                    )
-                                    return
-                                  }
-                                  // 엔터 선택
-                                  if(e.key === 'Enter'){
-                                    e.preventDefault()
-                                    // 자동완성 선택
-                                    if(
-                                      selectedSuggestion >= 0 &&
-                                      suggestions[selectedSuggestion]
-                                    ){
-                                      setInput(suggestions[selectedSuggestion].title)
+                                    // 입력 없으면 초기화
+                                    if(!v.trim()){
                                       setSuggestions([])
-                                      setSelectedSuggestion(-1)
+                                    return
+                                    }
+
+                                    // 전체 영화 아직 로딩 안됐으면 중단
+                                    if(!allMovies.length) return
+                                    const keyword = normalize(v)
+                                    const starts = []
+                                    const includes = []
+
+                                    allMovies.forEach(m => {
+                                      const title = normalize(m.title)
+
+                                      if(title.startsWith(keyword)){
+                                        starts.push(m)
+                                      } else if(title.includes(keyword)){
+                                        includes.push(m)
+                                      }
+                                    })
+
+                                    const filtered = [
+                                      ...starts.sort((a,b)=>a.title.localeCompare(b.title)),
+                                      ...includes.sort((a,b)=>a.title.localeCompare(b.title))
+                                    ].slice(0,5)
+                                    setSuggestions(filtered)
+                                  }}
+                                  onKeyDown={e=>{
+                                    // ↓ 아래 이동
+                                    if(e.key === 'ArrowDown'){
+                                      e.preventDefault()
+                                      setSelectedSuggestion(prev =>
+                                        Math.min(prev + 1, suggestions.length - 1)
+                                      )
                                       return
                                     }
-                                    // 일반 제출
-                                    submit()
-                                  }
-                                }}
-                                placeholder="영화 제목 입력"
-                                style={{
-                                  flex:1,
-                                  height:46,
-                                  borderRadius:11,
-                                  border:'1.5px solid #e8e4dd',
-                                  background:'#faf9f7',
-                                  padding:'0 14px'
-                                }}
-                              />
+                                    // ↑ 위 이동
+                                    if(e.key === 'ArrowUp'){
+                                      e.preventDefault()
+                                      setSelectedSuggestion(prev =>
+                                        Math.max(prev - 1, 0)
+                                      )
+                                      return
+                                    }
+                                    // 엔터 선택
+                                    if(e.key === 'Enter'){
+                                      e.preventDefault()
+                                      // 자동완성 선택
+                                      if(
+                                        selectedSuggestion >= 0 &&
+                                        suggestions[selectedSuggestion]
+                                      ){
+                                        setInput(suggestions[selectedSuggestion].title)
+                                        setSuggestions([])
+                                        setSelectedSuggestion(-1)
+                                        return
+                                      }
+                                      // 일반 제출
+                                      submit()
+                                    }
+                                  }}
+                                  placeholder="영화 제목 입력"
+                                  style={{
+                                    flex:1,
+                                    height:46,
+                                    borderRadius:11,
+                                    border:'1.5px solid #e8e4dd',
+                                    background:'#faf9f7',
+                                    padding:'0 14px'
+                                  }}
+                                />
+                                 <button
+                                  onClick={()=>submit()}
+                                  style={{
+                                    width:72,
+                                    height:46,
+                                    borderRadius:11,
+                                    background:'#e8808c',
+                                    color:'#fff',
+                                    fontWeight:700,
+                                    fontSize:'0.8rem',
+                                    border:'none'
+                                  }}>
+                                    정답
+                                </button>
+                              </div>
 
                               {/* 입력 자동완성 */}
                               {suggestions.length > 0 && (
                                 <div 
                                 ref={suggestRef}
-                                onTouchMove={(e)=>e.stopPropagation()}
                                   style={{
-                                    marginTop:8,
+                                    position:'absolute',
+                                    left:0,
+                                    right:0,
+                                    top:52,
                                     background:'#fff',
                                     border:'1px solid #ddd',
                                     borderRadius:10,
@@ -4290,20 +4309,7 @@ async function loadTMDB(movie){
                                 </div>
                               )}
 
-                                <button
-                                  onClick={()=>submit()}
-                                  style={{
-                                    width:72,
-                                    height:46,
-                                    borderRadius:11,
-                                    background:'#e8808c',
-                                    color:'#fff',
-                                    fontWeight:700,
-                                    fontSize:'0.8rem',
-                                    border:'none'
-                                  }}>
-                                    정답
-                                </button>
+                               
                             </div>
                           </>
                         )}
