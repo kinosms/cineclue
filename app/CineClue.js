@@ -983,6 +983,7 @@ export default function CineClue()  {
   const [recommendMovie, setRecommendMovie] = useState(null)
   const [questionReady, setQuestionReady] = useState(false)
   const [trailerKey, setTrailerKey] = useState(null)
+  const hasAutoScrolled = useRef(false)
   const prevSuggestionCount = useRef(0)
   const [animateStats, setAnimateStats]
   = useState(false)
@@ -1208,19 +1209,22 @@ export default function CineClue()  {
 
  // 자동완성리스트 화면 포커스 처리
   useEffect(()=>{
-  if(
-    prevSuggestionCount.current === 0 &&
-    suggestions.length > 0
+    if(
+      suggestions.length > 0 &&
+      !hasAutoScrolled.current
     ){
-    setTimeout(()=>{
-      suggestRef.current?.scrollIntoView({
-        behavior:'auto',
-        block:'end'
-      })
-    }, 120)
-  }
-  prevSuggestionCount.current = suggestions.length
-}, [suggestions])
+      setTimeout(()=>{
+        suggestRef.current?.scrollIntoView({
+          behavior:'auto',
+          block:'end'
+        })
+      }, 120)
+      hasAutoScrolled.current = true
+    }
+    if(suggestions.length === 0){
+      hasAutoScrolled.current = false
+    }
+  }, [suggestions])
 
 
 
