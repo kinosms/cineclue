@@ -1361,13 +1361,13 @@ console.log('AUTH', authUser)
 
     }
 
-    document.addEventListener(
+    //document.addEventListener(
 
-      'visibilitychange',
+      //'visibilitychange',
 
-      onVisible
+      //onVisible
 
-    )
+    //)
 
     return () =>
 
