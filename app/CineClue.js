@@ -1786,22 +1786,52 @@ useEffect(() => {
 
 
   useEffect(() => {
-    const onVisible = () => {
-      if(document.hidden){
-        clearInterval(timerRef.current)
-      }
+
+  const onVisible = () => {
+
+    if(document.hidden){
+
+      clearInterval(timerRef.current)
+
+    } else {
+
+      setShowSpinner(true)
+
+      setQuestionReady(false)
+
+      setTimeout(() => {
+
+        setQuestionReady(true)
+
+        setShowSpinner(false)
+
+      }, 1200)
+
     }
-    document.addEventListener(
+
+  }
+
+  document.addEventListener(
+
+    'visibilitychange',
+
+    onVisible
+
+  )
+
+  return () => {
+
+    document.removeEventListener(
+
       'visibilitychange',
+
       onVisible
+
     )
-    return () => {
-      document.removeEventListener(
-        'visibilitychange',
-        onVisible
-      )
-    }
-  }, [])
+
+  }
+
+}, [])
 
 
   async function fetchGenreStats(user_id, character_id){
