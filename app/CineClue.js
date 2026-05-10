@@ -3026,8 +3026,12 @@ console.log('AUTH', authUser)
                               return
                             }
                           if(item === '로그아웃'){
-                            logout()
                             setShowSettings(false)
+                            setTimeout(() => {
+
+                            logout()
+
+                          }, 0)
                             return
                           }
                           setSettingsPage(item)
