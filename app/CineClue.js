@@ -1986,6 +1986,18 @@ export default function CineClue()  {
       Promise.all(
         sel.map(async movie => {
           const tmdb = await loadTMDB(movie)
+          const posterUrl = tmdb?.poster_path
+            ? `https://image.tmdb.org/t/p/w300${tmdb.poster_path}`
+            : null
+          if(posterUrl){
+            await new Promise(resolve => {
+              const img = new Image()
+              img.src = posterUrl
+              img.onload = resolve
+              img.onerror = resolve
+            })
+
+          }
           return {
             ...movie,
             tmdbLoaded:true,
