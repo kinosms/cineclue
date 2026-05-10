@@ -2248,9 +2248,14 @@ console.log('LOAD STEP 2', logs)
     }
   
     catch(e){
-      console.error(e)
-      alert('오류 발생')
-    }
+
+  console.error(e)
+
+  alert('연결 상태를 다시 복구합니다')
+
+  window.location.reload()
+
+}
       
   
     finally{
