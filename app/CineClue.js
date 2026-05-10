@@ -850,16 +850,17 @@ export default function CineClue()  {
   const [authUser, setAuthUser] = useState(null)
 
   const loginGoogle = async () => {
+    setUsers([])
 
-  await supabase.auth.signOut()
+    await supabase.auth.signOut()
 
-    localStorage.setItem(
+      localStorage.setItem(
 
-      'cineclue_oauth_start',
+        'cineclue_oauth_start',
 
-      'true'
+        'true'
 
-    )
+      )
 
     saveCurrentSession({
 
@@ -878,6 +879,7 @@ export default function CineClue()  {
   }
 
   const loginKakao = async () => {
+    setUsers([])
 
     await supabase.auth.signOut()
 
@@ -939,16 +941,17 @@ export default function CineClue()  {
   ]
 
   const logout = async () => {
+    setUsers([])
+    setSelChar(null)
     await supabase.auth.signOut()
     sessionStorage.removeItem(
       'cineclue_guest_users'
     )
-    setUsers(loadUsers(null))
-    setSelChar(null)
-    setScreen('char')
     setAuthUser(null)
-    alert('게스트 모드로 전환되었습니다')
+    setScreen('intro')
+    window.location.href = '/'
   }
+
 
   const [authChecked, setAuthChecked] = useState(false)
   const [showMergeModal, setShowMergeModal] = useState(false)
@@ -1245,7 +1248,7 @@ export default function CineClue()  {
 
     const { data: { subscription } } =
       supabase.auth.onAuthStateChange(
-        (_event, session) => {
+        async (_event, session) => {
           const user =
             session?.user ?? null
           setAuthUser(user)
@@ -1257,7 +1260,7 @@ export default function CineClue()  {
                 'cineclue_oauth_start'
               )
             // 🔥 OAuth 로그인 직후에만 화면 복원
-            if(
+            if (
               _event === 'SIGNED_IN' &&
               oauthStart === 'true'
             ){
@@ -1269,11 +1272,29 @@ export default function CineClue()  {
             // 🔥 정책 변경:
             // 게스트 기록은 승계하지 않고,
             // 로그인 계정 데이터만 불러온다
-            const loadedUsers =
-              loadUsers(user)
+            const { data, error } =
+              await supabase
+                .from('characters')
+                .select('*')
+                .eq('auth_user_id', user.id)
+            if(data){
+              const loadedUsers = (data || []).map(c => ({
 
-            setUsers(loadedUsers)
+                charId: c.char_id,
 
+                nickname: c.nickname,
+
+                score: c.score,
+
+                lives: c.lives,
+
+                userId: c.auth_user_id,
+
+                isGuest:false
+
+              }))
+              setUsers(loadedUsers)
+            }
             return
           }
           // 🔥 로그아웃 / 비로그인 상태
@@ -2204,7 +2225,11 @@ export default function CineClue()  {
             }
             return u
           })
-          saveUsers(updated)
+          if(!authUser){
+
+            saveUsers(updated)
+
+          }
           return updated
         })
 
@@ -2384,7 +2409,11 @@ export default function CineClue()  {
         return u
       })
 
-      saveUsers(updated)
+      if(!authUser){
+
+        saveUsers(updated)
+
+      }
       return updated
     })
 
@@ -2510,7 +2539,11 @@ export default function CineClue()  {
             }
             return u
           })
-          saveUsers(updated)
+          if(!authUser){
+
+            saveUsers(updated)
+
+          }
           return updated
         })
       }
@@ -2602,28 +2635,74 @@ export default function CineClue()  {
     setScreen('grade')
   }
 
-  function saveNickname(){
+  async function saveNickname(){
+
     if(!nickname.trim()) return
 
     const newUser = {
+
       charId: tempChar,
+
       nickname,
-      score: 0,
-      lives: 30,
+
+      score:0,
+
+      lives:30,
+
       userId: authUser?.id || Date.now().toString(),
+
       isGuest: !authUser
+
     }
 
     const updated = [...users, newUser]
+
     setUsers(updated)
-    saveUsers(updated)
+
+    if(authUser){
+
+      await supabase
+
+        .from('characters')
+
+        .delete()
+
+        .eq('auth_user_id', authUser.id)
+
+        .eq('char_id', tempChar)
+
+      await supabase
+
+        .from('characters')
+
+        .insert({
+
+          auth_user_id: authUser.id,
+
+          char_id: tempChar,
+
+          nickname,
+
+          score:0,
+
+          lives:30
+
+        })
+
+    } else {
+
+      saveUsers(updated)
+
+    }
 
     setShowNameModal(false)
+
     setNickname('')
+
   }
 
   // 👉캐릭터 대화명 지우기
-  function deleteUser(charId){
+  async function deleteUser(charId){
 
     const ok = confirm('대화명과 점수가 초기화됩니다. 계속할까요?')
 
@@ -2632,10 +2711,29 @@ export default function CineClue()  {
     const updated = users.filter(u => u.charId !== charId)
 
     setUsers(updated)
-    saveUsers(updated)
+
+    if(authUser){
+
+      await supabase
+
+        .from('characters')
+
+        .delete()
+
+        .eq('auth_user_id', authUser.id)
+
+        .eq('char_id', charId)
+
+    } else {
+
+      saveUsers(updated)
+
+    }
 
     if(selChar === charId){
+
       setSelChar(null)
+
     }
   }
 
@@ -3257,7 +3355,11 @@ export default function CineClue()  {
                                     }
                                     return x
                                   })
-                                  saveUsers(updated)
+                                  if(!authUser){
+
+                                    saveUsers(updated)
+
+                                  }
                                   return updated
                                 })
                               } else{
