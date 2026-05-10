@@ -642,7 +642,8 @@ async function recoverConnection(){
     onEnter,
     onLogin,
     authUser,
-    introDone
+    introDone,
+    authChecked
   }) {
 
     const [mounted, setMounted] = useState(false)
@@ -3209,7 +3210,8 @@ await safeQuery(
       {/* 인트로화면 */}
       {screen === 'intro' && (
         <IntroScreen 
-            onEnter={()=>{
+          authChecked={authChecked}
+          onEnter={()=>{
               setScreen('char')
               setIntroDone(true)
               localStorage.setItem(
