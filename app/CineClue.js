@@ -7,6 +7,11 @@ import FlashLetterHint from './FlashLetterHint'
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || ''
 const SUPABASE_KEY = process.env.NEXT_PUBLIC_SUPABASE_KEY || ''
 
+const supabase = createClient(
+  SUPABASE_URL,
+  SUPABASE_KEY
+)
+
 
 const LEVEL_TITLES = {
   1: '스크린 입문자',
@@ -263,197 +268,6 @@ function CharacterSpinner({ fadeOut }){
 
 
 
-//인트로//
-
-function IntroScreen({ onEnter }) {
-
-  const [mounted, setMounted] = useState(false)
-
-  useEffect(() => {
-    setMounted(true)
-  }, [])
-  return (
-    <div style={{
-        position:'fixed',
-        inset:0,
-        background:'#0a0a0a',
-        overflow:'hidden',
-        display:'flex',
-        alignItems:'center',
-        justifyContent:'center',
-        flexDirection:'column'
-    }}>
-
-      {/* 🔥 실루엣 레이어 */}
-      <div style={{
-        position:'absolute',
-        inset:0,
-        pointerEvents:'none'
-      }}>
-
-        {/* 레이어 1 */}
-        <div style={{
-          position:'absolute',
-          top:'20%',
-          left:'10%',
-          width:120,
-          opacity:0.08,
-          filter:'blur(6px)',
-          animation:'float1 12s linear infinite'
-        }}>
-          <svg viewBox="0 0 80 80" fill="#fff">
-            <circle cx="40" cy="40" r="30"/>
-          </svg>
-        </div>
-
-        {/* 레이어 2 */}
-        <div style={{
-          position:'absolute',
-          bottom:'15%',
-          right:'15%',
-          width:140,
-          opacity:0.06,
-          filter:'blur(8px)',
-          animation:'float2 16s linear infinite'
-        }}>
-          <svg viewBox="0 0 80 80" fill="#fff">
-            <rect x="10" y="10" width="60" height="60"/>
-          </svg>
-        </div>
-
-        {/* 레이어 3 */}
-        <div style={{
-          position:'absolute',
-          top:'50%',
-          left:'70%',
-          width:100,
-          opacity:0.07,
-          filter:'blur(5px)',
-          animation:'fadeFloat 10s ease-in-out infinite'
-        }}>
-          <svg viewBox="0 0 80 80" fill="#fff">
-            <ellipse cx="40" cy="40" rx="28" ry="20"/>
-          </svg>
-        </div>
-      </div>
-
-      {/* 🔥 텍스트 */}
-      <div style={{
-        color:'#fff',
-        textAlign:'center',
-        zIndex:10,
-        display:'flex',
-        alignItems:'center',
-        justifyContent:'center',
-        flexDirection:'column'
-      }}>
-        <div style={{
-          width:'320px',
-          textAlign:'center',
-          fontFamily:"'Courier New', monospace",
-          letterSpacing:'0.5px',
-          fontSize:'1rem',
-          color:'#9ef7c0',
-          opacity:0.9,
-          marginBottom:70,
-          whiteSpace: 'nowrap'
-        }}>
-          <div
-            className="typing"
-            style={{
-              visibility: mounted ? 'visible' : 'hidden'
-          }}>
-
-            Houston... we have a problem.
-
-          </div>
-        </div>
-
-        <div style={{
-          fontSize:'2.2rem',
-          fontWeight:900,
-          letterSpacing:'-1px',
-          marginBottom:30,
-          opacity: 0,
-          animation: 'fadeIn 1s ease forwards',
-          animationDelay: '5s'
-        }}>
-          Cine <span style={{color:'#e8808c'}}>CLUE</span>
-        </div>
-
-        <button
-          onClick={onEnter}
-          style={{
-            height:48,
-            padding:'0 28px',
-            borderRadius:12,
-            background:'#fff',
-            color:'#000',
-            fontWeight:700,
-            border:'none',
-            cursor:'pointer',
-            opacity: 0,
-            animation: 'fadeIn 1s ease forwards',
-            animationDelay: '5s'
-
-        }}>
-          들어가기
-        </button>
-      </div>
-
-      {/* 🔥 애니메이션 */}
-
-      <style jsx>{`
-        @keyframes float1 {
-          0% { transform:translateX(0); }
-          100% { transform:translateX(40px); }
-        }
-
-        @keyframes float2 {
-          0% { transform:translateY(0); }
-          100% { transform:translateY(-40px); }
-        }
-
-        @keyframes fadeFloat {
-          0% { opacity:0.05; }
-          50% { opacity:0.12; }
-          100% { opacity:0.05; }
-        }
-
-        .typing {
-          width: 30ch;
-          white-space: nowrap;
-          overflow: hidden;
-
-          font-family: 'Courier New', monospace;
-          letter-spacing: 0.5px;
-          font-size: 1rem;
-          color: #9ef7c0;
-
-          border-right: 2px solid #9ef7c0;
-
-          animation:
-            typing 4s steps(30) forwards,
-            blink 1s step-end infinite;
-        }
-
-        @keyframes typing {
-          from { width: 0 }
-          to { width: 30ch }
-        }
-
-        @keyframes blink {
-          50% { border-color: transparent }
-        }
-
-        `}
-      </style>
-    </div>
-  )
-}
-
-
-
 
 async function saveLog({
   supabase,
@@ -694,7 +508,242 @@ function AppLayout({ children }) {
 }
 
 
+
+//인트로//
+
+  function IntroScreen({
+    onEnter,
+    onLogin,
+    authUser,
+    introDone
+  }) {
+
+    const [mounted, setMounted] = useState(false)
+
+    useEffect(() => {
+      setMounted(true)
+    }, [])
+    return (
+      <div style={{
+          position:'fixed',
+          inset:0,
+          background:'#0a0a0a',
+          overflow:'hidden',
+          display:'flex',
+          alignItems:'center',
+          justifyContent:'center',
+          flexDirection:'column'
+      }}>
+
+        {/* 🔥 실루엣 레이어 */}
+        <div style={{
+          position:'absolute',
+          inset:0,
+          pointerEvents:'none'
+        }}>
+
+          {/* 레이어 1 */}
+          <div style={{
+            position:'absolute',
+            top:'20%',
+            left:'10%',
+            width:120,
+            opacity:0.08,
+            filter:'blur(6px)',
+            animation:'float1 12s linear infinite'
+          }}>
+            <svg viewBox="0 0 80 80" fill="#fff">
+              <circle cx="40" cy="40" r="30"/>
+            </svg>
+          </div>
+
+          {/* 레이어 2 */}
+          <div style={{
+            position:'absolute',
+            bottom:'15%',
+            right:'15%',
+            width:140,
+            opacity:0.06,
+            filter:'blur(8px)',
+            animation:'float2 16s linear infinite'
+          }}>
+            <svg viewBox="0 0 80 80" fill="#fff">
+              <rect x="10" y="10" width="60" height="60"/>
+            </svg>
+          </div>
+
+          {/* 레이어 3 */}
+          <div style={{
+            position:'absolute',
+            top:'50%',
+            left:'70%',
+            width:100,
+            opacity:0.07,
+            filter:'blur(5px)',
+            animation:'fadeFloat 10s ease-in-out infinite'
+          }}>
+            <svg viewBox="0 0 80 80" fill="#fff">
+              <ellipse cx="40" cy="40" rx="28" ry="20"/>
+            </svg>
+          </div>
+        </div>
+
+        {/* 🔥 텍스트 */}
+        <div style={{
+          color:'#fff',
+          textAlign:'center',
+          zIndex:10,
+          display:'flex',
+          alignItems:'center',
+          justifyContent:'center',
+          flexDirection:'column'
+        }}>
+          <div style={{
+            width:'320px',
+            textAlign:'center',
+            fontFamily:"'Courier New', monospace",
+            letterSpacing:'0.5px',
+            fontSize:'1rem',
+            color:'#9ef7c0',
+            opacity:0.9,
+            marginBottom:70,
+            whiteSpace: 'nowrap'
+          }}>
+            <div
+              className={!introDone ? "typing" : ""}
+              style={{
+                visibility:'visible'
+            }}>
+
+              Houston... we have a problem.
+
+            </div>
+          </div>
+          <div
+            style={{
+              opacity:introDone ? 1 : 0,
+              animation:introDone
+                ? 'none'
+                : 'fadeIn 1s ease forwards',
+              animationDelay:introDone
+                ? '0s'
+                : '5s'
+          }}>
+
+            <div style={{
+              fontSize:'2.2rem',
+              fontWeight:900,
+              letterSpacing:'-1px',
+              marginBottom:30,
+            }}>
+              Cine <span style={{color:'#e8808c'}}>CLUE</span>
+            </div>
+
+            <button
+              onClick={onEnter}
+              style={{
+                height:48,
+                padding:'0 28px',
+                borderRadius:12,
+                background:'#fff',
+                color:'#000',
+                fontWeight:700,
+                border:'none',
+                cursor:'pointer',
+            }}>
+              들어가기
+            </button>
+
+            {/* 로그인 */}
+            <div style={{ 
+              marginTop: 18, 
+              textAlign: 'center',
+            }}>
+
+              {!authUser ? (
+                <button
+                  onClick={onLogin}
+                  style={{
+                    border:'none',
+                    background:'transparent',
+                    fontSize:'0.9rem',
+                    color:'#8f8f8f',
+                    textDecoration:'underline',
+                    cursor:'pointer'
+                }}>
+                  로그인
+                </button>
+              ) : (
+                <div
+                  style={{
+                    fontSize:'0.9rem',
+                    color:'#8f8f8f'
+                }}>
+                  🎬 {authUser.user_metadata?.name}님 반가워요
+                </div>
+              )}
+            </div>  
+          </div>
+        </div>
+
+
+        {/* 🔥 애니메이션 */}
+
+        <style jsx>{`
+          @keyframes float1 {
+            0% { transform:translateX(0); }
+            100% { transform:translateX(40px); }
+          }
+
+          @keyframes float2 {
+            0% { transform:translateY(0); }
+            100% { transform:translateY(-40px); }
+          }
+
+          @keyframes fadeFloat {
+            0% { opacity:0.05; }
+            50% { opacity:0.12; }
+            100% { opacity:0.05; }
+          }
+
+          .typing {
+            width: 30ch;
+            white-space: nowrap;
+            overflow: hidden;
+
+            font-family: 'Courier New', monospace;
+            letter-spacing: 0.5px;
+            font-size: 1rem;
+            color: #9ef7c0;
+
+            border-right: 2px solid #9ef7c0;
+
+            animation:
+              typing 4s steps(30) forwards,
+              blink 1s step-end infinite;
+          }
+
+          @keyframes typing {
+            from { width: 0 }
+            to { width: 30ch }
+          }
+
+          @keyframes blink {
+            50% { border-color: transparent }
+          }
+
+          `}
+        </style>
+      </div>
+    )
+  }
+
+
+
+
+
 export default function CineClue()  {
+
   const infoBox = {
     background:'#fff',
     border:'1px solid #e8e4dd',
@@ -796,6 +845,82 @@ export default function CineClue()  {
   = useState(false)
 
 
+
+  const [showLogin, setShowLogin] = useState(false)
+  const [authUser, setAuthUser] = useState(null)
+
+  const loginGoogle = async () => {
+
+    localStorage.setItem(
+    'cineclue_oauth_start',
+    'true'
+    )
+
+    saveCurrentSession({
+      screen,
+      selChar
+    })
+    await supabase.auth.signInWithOAuth({
+      provider:'google'
+    })
+  }
+
+  const isGuestLocked = (mode) => {
+    if(authUser) return false
+    const allowed = ['2020s', '2010s', '2000s']
+    return !allowed.includes(mode.key)
+  }
+
+  const isGuestLockedChar = (char) => {
+    if(authUser) return false
+    const allowed = ['yoda', 'immortan', 'leon']
+    return !allowed.includes(char.id)
+  }
+
+  const menuItems = [
+  '소개',
+  '게임 규칙',
+  '이메일',
+  '개인정보 처리방침',
+  '영화데이터 사용안내',
+  '신고하기',
+  authUser ? '로그아웃' : '로그인'
+  ]
+
+  const logout = async () => {
+    await supabase.auth.signOut()
+    sessionStorage.removeItem(
+      'cineclue_guest_users'
+    )
+    setUsers(loadUsers(null))
+    setSelChar(null)
+    setScreen('char')
+    setAuthUser(null)
+    alert('게스트 모드로 전환되었습니다')
+  }
+
+  const [authChecked, setAuthChecked] = useState(false)
+  const [showMergeModal, setShowMergeModal] = useState(false)
+
+  function saveCurrentSession({
+    screen,
+    selChar
+  }){
+    localStorage.setItem(
+      'cineclue_session',
+      JSON.stringify({
+        screen,
+        selChar
+      })
+    )
+  }
+
+
+
+
+
+
+
   const [isFlashing, setIsFlashing] = useState(false)
   const inputRef = useRef(null)
   const [showReportToast, setShowReportToast] = useState(false)
@@ -827,7 +952,6 @@ export default function CineClue()  {
   const [ready, setReady] = useState(false)
   const [showSpinner, setShowSpinner] = useState(false)
   const [users, setUsers] = useState([]) 
-  const [authUser, setAuthUser] = useState(null)
   const safeUsers = Array.isArray(users) ? users : []
   const currentUser = safeUsers.find(u => u.charId === selChar) || null
   const currentUserId = currentUser?.userId
@@ -838,7 +962,6 @@ export default function CineClue()  {
   const [forceFill, setForceFill] = useState(false)
   const [tempChar, setTempChar] = useState(null)
   const [nickname, setNickname] = useState('')
-  const [supabase, setSupabase] = useState(null)
   const [ranking, setRanking] = useState([])
   const resultSavedRef = useRef(false)
   const [hitEffect, setHitEffect] = useState(null)
@@ -862,6 +985,11 @@ export default function CineClue()  {
   const profileChar =
   CHARS.find(
     c => c.id === profileCharId
+  )
+  const [introDone, setIntroDone] = useState(
+    localStorage.getItem(
+      'cineclue_intro_done'
+    ) === 'true'
   )
   const [rankingRevealDone, setRankingRevealDone] = useState(false)
   const primaryGrade = selGrade || null
@@ -1023,6 +1151,123 @@ export default function CineClue()  {
         setIsLoadingRecommend(false)
       }
     }
+
+
+  function loadUsers(authUser){
+    if(authUser){
+      const saved =
+        localStorage.getItem('cineclue_users')
+      return saved
+        ? JSON.parse(saved)
+        : []
+    } else {
+      const saved =
+        sessionStorage.getItem(
+          'cineclue_guest_users'
+        )
+      return saved
+        ? JSON.parse(saved)
+        : []
+    }
+  }
+
+
+
+  // 로그인 //
+  useEffect(() => {
+    if(!supabase) return
+
+    supabase.auth.getUser().then(({ data }) => {
+      setAuthUser(data.user)
+      setUsers(prev => {
+        if(prev?.length){
+          return prev
+        }
+        return loadUsers(data.user)
+      })
+      setAuthChecked(true)
+    })
+
+    const { data: { subscription } } =
+      supabase.auth.onAuthStateChange(
+        (_event, session) => {
+          const user =
+            session?.user ?? null
+          setAuthUser(user)
+
+          // 🔥 로그인 상태
+          if(user){
+            const oauthStart =
+              localStorage.getItem(
+                'cineclue_oauth_start'
+              )
+            // 🔥 OAuth 로그인 직후에만 화면 복원
+            if(
+              _event === 'SIGNED_IN' &&
+              oauthStart === 'true'
+            ){
+              localStorage.removeItem(
+                'cineclue_oauth_start'
+              )
+            }
+
+            // 🔥 정책 변경:
+            // 게스트 기록은 승계하지 않고,
+            // 로그인 계정 데이터만 불러온다
+            const loadedUsers =
+              loadUsers(user)
+
+            setUsers(loadedUsers)
+
+            return
+          }
+          // 🔥 로그아웃 / 비로그인 상태
+          const loadedUsers =
+            loadUsers(null)
+          setUsers(loadedUsers)
+        }
+      )
+
+    return () =>
+      subscription.unsubscribe()
+  }, [supabase])
+
+
+
+
+  function saveUsers(users){
+    const hasAuth =
+      users.some(u => !u.isGuest)
+    if(hasAuth){
+      localStorage.setItem(
+        'cineclue_users',
+        JSON.stringify(users)
+      )
+    } else {
+      sessionStorage.setItem(
+        'cineclue_guest_users',
+        JSON.stringify(users)
+      )
+    }
+  }
+
+
+  // 퀴즈 시작 종료시 현재 세션에 저장
+  useEffect(()=>{
+    if(screen === 'quiz'){
+      saveCurrentSession({
+        screen:'quiz',
+        selChar
+        })
+      }
+    if(screen === 'result'){
+      saveCurrentSession({
+        screen:'result',
+        selChar
+      })
+    }
+  }, [screen, selChar])
+
 
 
   useEffect(()=>{
@@ -1219,75 +1464,75 @@ export default function CineClue()  {
 
 
 
-async function loadMovieDetail(movie){
+  async function loadMovieDetail(movie){
 
-  setShowRecommendModal(false)
+    setShowRecommendModal(false)
 
-  const TMDB_KEY =
-    process.env.NEXT_PUBLIC_TMDB_KEY
+    const TMDB_KEY =
+      process.env.NEXT_PUBLIC_TMDB_KEY
 
-  try{
+    try{
 
-    const res = await fetch(
-      `https://api.themoviedb.org/3/search/movie?api_key=${TMDB_KEY}&query=${encodeURIComponent(movie.title)}&language=ko-KR`
-    )
-    if(!res.ok){
-      console.error(
-        'TMDB SEARCH ERROR',
-        res.status
+      const res = await fetch(
+        `https://api.themoviedb.org/3/search/movie?api_key=${TMDB_KEY}&query=${encodeURIComponent(movie.title)}&language=ko-KR`
       )
-      return
-    }
-    const data = await res.json()
-    const found = data.results.find(m => {
-      const tmdbYear =
-        m.release_date?.slice(0,4)
-      const sameYear =
-        String(tmdbYear) === String(movie.year)
-      const sameOriginal =
-        (m.original_title || '')
-          .toLowerCase()
-          .trim()
-        ===
-        (movie.title_en || '')
-          .toLowerCase()
-          .trim()
-      const sameTitle =
-        (m.title || '').trim()
-        ===
-        (movie.title || '').trim()
-      return sameYear && (
-        sameOriginal || sameTitle
+      if(!res.ok){
+        console.error(
+          'TMDB SEARCH ERROR',
+          res.status
+        )
+        return
+      }
+      const data = await res.json()
+      const found = data.results.find(m => {
+        const tmdbYear =
+          m.release_date?.slice(0,4)
+        const sameYear =
+          String(tmdbYear) === String(movie.year)
+        const sameOriginal =
+          (m.original_title || '')
+            .toLowerCase()
+            .trim()
+          ===
+          (movie.title_en || '')
+            .toLowerCase()
+            .trim()
+        const sameTitle =
+          (m.title || '').trim()
+          ===
+          (movie.title || '').trim()
+        return sameYear && (
+          sameOriginal || sameTitle
+        )
+      })
+
+      if(!found){
+        alert('영화 정보를 찾을 수 없어요')
+        return
+      }
+
+      const detailRes = await fetch(
+        `https://api.themoviedb.org/3/movie/${found.id}?api_key=${TMDB_KEY}&language=ko-KR&append_to_response=credits,videos`
       )
-    })
+      if(!detailRes.ok){
+        console.error(
+          'TMDB DETAIL ERROR',
+          detailRes.status
+        )
+        alert('영화 정보를 불러오지 못했어요')
+        return
+      }
+      const detail = await detailRes.json()
 
-    if(!found){
-      alert('영화 정보를 찾을 수 없어요')
-      return
-    }
+      console.log('🎬 TMDB VIDEOS CHECK', {
 
-    const detailRes = await fetch(
-      `https://api.themoviedb.org/3/movie/${found.id}?api_key=${TMDB_KEY}&language=ko-KR&append_to_response=credits,videos`
-    )
-    if(!detailRes.ok){
-      console.error(
-        'TMDB DETAIL ERROR',
-        detailRes.status
-      )
-      alert('영화 정보를 불러오지 못했어요')
-      return
-    }
-    const detail = await detailRes.json()
+    title: detail.title,
 
-    console.log('🎬 TMDB VIDEOS CHECK', {
+    tmdbId: detail.id,
 
-  title: detail.title,
+    videos: detail.videos?.results || []
 
-  tmdbId: detail.id,
-
-  videos: detail.videos?.results || []
-
-})
+  })
 
     const trailer =
       detail.videos?.results?.find(v =>
@@ -1312,7 +1557,7 @@ async function loadMovieDetail(movie){
 
   v.site === 'YouTube'
 
-)
+  )
 
     const youtubeKey = trailer?.key || null
     console.log('🎬 YOUTUBE KEY', {
@@ -1323,7 +1568,7 @@ async function loadMovieDetail(movie){
 
   pickedVideo: trailer || null
 
-})
+  })
 
     const movieData = {
       ...detail,
@@ -1338,119 +1583,119 @@ async function loadMovieDetail(movie){
     }
   }
 
-async function loadTMDB(movie){
+  async function loadTMDB(movie){
 
-  const TMDB_KEY =
-    process.env.NEXT_PUBLIC_TMDB_KEY
-  try{
+    const TMDB_KEY =
+      process.env.NEXT_PUBLIC_TMDB_KEY
+    try{
 
-    const res = await fetch(
-      `https://api.themoviedb.org/3/search/movie?api_key=${TMDB_KEY}&query=${encodeURIComponent(movie.title)}&language=ko-KR`
-    )
+      const res = await fetch(
+        `https://api.themoviedb.org/3/search/movie?api_key=${TMDB_KEY}&query=${encodeURIComponent(movie.title)}&language=ko-KR`
+      )
 
-    if(!res.ok){
+      if(!res.ok){
+
+        return {}
+
+      }
+
+      const data = await res.json()
+
+      const found = data.results?.find(tmdb => {
+
+        const tmdbYear =
+          tmdb.release_date?.slice(0,4)
+
+        const sameYear =
+          String(tmdbYear) === String(movie.year)
+
+        const sameOriginal =
+          (tmdb.original_title || '')
+            .toLowerCase()
+            .trim()
+
+          ===
+
+          (movie.title_en || '')
+            .toLowerCase()
+            .trim()
+
+        const sameTitle =
+          (tmdb.title || '')
+            .trim()
+
+          ===
+
+          (movie.title || '')
+            .trim()
+
+        return sameYear && (
+          sameOriginal || sameTitle
+        )
+
+      })
+
+      if(!found){
+        return {}
+          }
+          const detailRes = await fetch(
+            `https://api.themoviedb.org/3/movie/${found.id}?api_key=${TMDB_KEY}&language=ko-KR&append_to_response=credits,videos`
+          )
+          if(!detailRes.ok){
+            return found || {}
+          }
+          const detail = await detailRes.json()
+        
+          const trailer =
+
+            detail.videos?.results?.find(v =>
+
+              v.site === 'YouTube' &&
+
+              v.type === 'Trailer'
+
+            ) ||
+
+            detail.videos?.results?.find(v =>
+
+              v.site === 'YouTube'
+
+            )
+
+          const youtubeKey =
+
+            trailer?.key || null
+
+          console.log('🎬 YOUTUBE KEY', {
+
+            title: detail.title,
+
+            youtubeKey,
+
+            pickedVideo: trailer || null
+
+          })
+
+          return {
+
+            ...detail,
+
+            youtubeKey
+
+          }
+
+    }catch(e){
+
+      console.error(
+        'TMDB preload 실패',
+        e
+      )
 
       return {}
 
     }
 
-    const data = await res.json()
-
-    const found = data.results?.find(tmdb => {
-
-      const tmdbYear =
-        tmdb.release_date?.slice(0,4)
-
-      const sameYear =
-        String(tmdbYear) === String(movie.year)
-
-      const sameOriginal =
-        (tmdb.original_title || '')
-          .toLowerCase()
-          .trim()
-
-        ===
-
-        (movie.title_en || '')
-          .toLowerCase()
-          .trim()
-
-      const sameTitle =
-        (tmdb.title || '')
-          .trim()
-
-        ===
-
-        (movie.title || '')
-          .trim()
-
-      return sameYear && (
-        sameOriginal || sameTitle
-      )
-
-    })
-
-    if(!found){
-      return {}
-        }
-        const detailRes = await fetch(
-          `https://api.themoviedb.org/3/movie/${found.id}?api_key=${TMDB_KEY}&language=ko-KR&append_to_response=credits,videos`
-        )
-        if(!detailRes.ok){
-          return found || {}
-        }
-        const detail = await detailRes.json()
-       
-        const trailer =
-
-          detail.videos?.results?.find(v =>
-
-            v.site === 'YouTube' &&
-
-            v.type === 'Trailer'
-
-          ) ||
-
-          detail.videos?.results?.find(v =>
-
-            v.site === 'YouTube'
-
-          )
-
-        const youtubeKey =
-
-          trailer?.key || null
-
-        console.log('🎬 YOUTUBE KEY', {
-
-          title: detail.title,
-
-          youtubeKey,
-
-          pickedVideo: trailer || null
-
-        })
-
-        return {
-
-          ...detail,
-
-          youtubeKey
-
-        }
-
-  }catch(e){
-
-    console.error(
-      'TMDB preload 실패',
-      e
-    )
-
-    return {}
-
   }
-
-}
 
 
 
@@ -1522,23 +1767,6 @@ async function loadTMDB(movie){
   const char = CHARS.find(c=>c.id===selChar)
   const g    = GRADES.find(x=>x.id===selGrade)
 
-  // ✅ supabase 생성
-  useEffect(()=>{
-    if(SUPABASE_URL){
-      const client = createClient(SUPABASE_URL, SUPABASE_KEY)
-      setSupabase(client)
-    }
-  },[])
-
-
-  useEffect(()=>{
-    if(!supabase) return;
-    const getUser = async () => {
-      const { data } = await supabase.auth.getUser()
-      setAuthUser(data.user) 
-    }
-    getUser()
-  }, [supabase])
 
 
 
@@ -1593,13 +1821,6 @@ async function loadTMDB(movie){
     run()
   }, [screen, resultView, supabase])
 
-
-  useEffect(()=>{
-    const saved = localStorage.getItem('cineclue_users')
-    if(saved){
-      setUsers(JSON.parse(saved))
-    }
-  },[])
 
 
   function handleCharClick(charId){
@@ -1904,7 +2125,7 @@ async function loadTMDB(movie){
             if(u.charId === selChar){
               const prevLives = u.lives ?? 30
               const nextLives = Math.min(prevLives + 1, 30)
-              // 🔥 이거 하나만 남겨
+
               if(nextLives > prevLives && prevLives < 30){
                 setLifeDelta(1)
               }
@@ -1916,7 +2137,7 @@ async function loadTMDB(movie){
             }
             return u
           })
-          localStorage.setItem('cineclue_users', JSON.stringify(updated))
+          saveUsers(updated)
           return updated
         })
 
@@ -2096,7 +2317,7 @@ async function loadTMDB(movie){
         return u
       })
 
-      localStorage.setItem('cineclue_users', JSON.stringify(updated))
+      saveUsers(updated)
       return updated
     })
 
@@ -2222,7 +2443,7 @@ async function loadTMDB(movie){
             }
             return u
           })
-          localStorage.setItem('cineclue_users', JSON.stringify(updated))
+          saveUsers(updated)
           return updated
         })
       }
@@ -2254,80 +2475,44 @@ async function loadTMDB(movie){
 
   useEffect(()=>{
     if(!pool?.length) return
-
     async function preloadCurrentMovie(){
-
       const movie = pool[qi]
-
       if(!movie) return
-
       // 이미 불러왔으면 패스
-
       if(movie.tmdbLoaded) return
-
       try{
-
         const tmdb = await loadTMDB(movie)
-
         setPool(prev =>
-
           prev.map((m, idx) => {
-
             if(idx !== qi) return m
-
             return {
-
               ...m,
-
               tmdbLoaded:true,
-
               poster_path:
-
                 tmdb?.poster_path || null,
-
               backdrop_path:
-
                 tmdb?.backdrop_path || null,
-
               overview:
-
                 tmdb?.overview || '',
-
               tmdb_id:
-
                 tmdb?.id || null,
-
               release_date:
-
                 tmdb?.release_date || '',
-
               vote_average:
-
                 tmdb?.vote_average || null
-
             }
-
           })
-
         )
-
       }catch(e){
-
         console.error(
-
           'TMDB preload 실패',
-
           e
-
         )
-
       }
-
     }
-
     preloadCurrentMovie()
-
   }, [pool, qi])
+
 
 
   function enterGame(){
@@ -2357,13 +2542,14 @@ async function loadTMDB(movie){
       charId: tempChar,
       nickname,
       score: 0,
-      lives: 15,
-      userId: Date.now().toString()
+      lives: 30,
+      userId: authUser?.id || Date.now().toString(),
+      isGuest: !authUser
     }
 
     const updated = [...users, newUser]
     setUsers(updated)
-    localStorage.setItem('cineclue_users', JSON.stringify(updated))
+    saveUsers(updated)
 
     setShowNameModal(false)
     setNickname('')
@@ -2379,7 +2565,7 @@ async function loadTMDB(movie){
     const updated = users.filter(u => u.charId !== charId)
 
     setUsers(updated)
-    localStorage.setItem('cineclue_users', JSON.stringify(updated))
+    saveUsers(updated)
 
     if(selChar === charId){
       setSelChar(null)
@@ -2387,19 +2573,116 @@ async function loadTMDB(movie){
   }
 
 
-
-
+  if(!authChecked){
+    return null
+  }
 
   return (
     <>
       {/* 인트로화면 */}
       {screen === 'intro' && (
-       <IntroScreen onEnter={()=>setScreen('char')} />
+        <IntroScreen 
+            onEnter={()=>{
+              setScreen('char')
+              setIntroDone(true)
+              localStorage.setItem(
+                'cineclue_intro_done',
+                'true'
+              )
+            }}
+            onLogin={()=>setShowLogin(true)}
+            authUser={authUser}
+            introDone={introDone}
+            />
+        )}
+
+      {showLogin && (
+        <div
+        onClick={()=>setShowLogin(false)}
+        style={{
+          position:'fixed',
+          inset:0,
+          background:'rgba(0,0,0,0.7)',
+          backdropFilter:'blur(5px)',
+          display:'flex',
+          alignItems:'center',
+          justifyContent:'center',
+          zIndex:999
+        }}>
+          <div 
+          onClick={(e)=>e.stopPropagation()}
+          style={{
+            width:280,
+            padding:24,
+            borderRadius:20,
+            background:'#1a1a1a',
+            textAlign:'center'
+          }}>
+
+            <div style={{
+              color:'#fff',
+              marginBottom:20,
+              fontWeight:700,
+              fontSize:'0.95rem',
+              letterSpacing:'0.3px',
+              opacity:0.8
+            }}>
+              로그인
+            </div>
+            
+            {/* Google */}
+            <button
+              onClick={loginGoogle}
+              style={{
+                width:'100%',
+                height:48,
+                borderRadius:12,
+                border:'none',
+                background:'#fff',
+                color:'#111',
+                fontWeight:700,
+                fontSize:'0.9rem',
+                cursor:'pointer',
+                marginBottom:12
+              }}>
+              Google로 계속하기
+            </button>
+            {/* Kakao */}
+            <button
+              style={{
+                width:'100%',
+                height:48,
+                borderRadius:12,
+                border:'none',
+                background:'#FEE500',
+                color:'#111',
+                fontWeight:700,
+                fontSize:'0.9rem',
+                cursor:'pointer',
+                marginBottom:12,
+                opacity:0.8
+            }}>
+              카카오톡으로 계속하기
+            </button>
+            {/* Naver */}
+            <button
+              style={{
+                width:'100%',
+                height:48,
+                borderRadius:12,
+                border:'none',
+                background:'#03C75A',
+                color:'#ffffff',
+                fontWeight:700,
+                fontSize:'0.9rem',
+                cursor:'pointer',
+                opacity:0.9
+            }}>
+              네이버로 계속하기
+            </button>
+          </div>
+        </div>
       )}
-
-
-
-
 
 
       {/* 🔥 Death Overlay (항상 최상단) */}
@@ -2448,25 +2731,16 @@ async function loadTMDB(movie){
       {screen === 'char' && (
         <AppLayout>
           <div style={{
-
             width:'100%',
-
             background:'#fff',
-
             position:'relative',
-
             display:'flex',
-
             height:'100dvh',
-
             flexDirection:'column',
-
             padding:'48px 0 40px',
-
             overflowY:'auto'
-
           }}>
-                      <div style={{
+              <div style={{
               position:'absolute',
               top:20,
               right:24,
@@ -2484,8 +2758,7 @@ async function loadTMDB(movie){
                   justifyContent:'center',
                   cursor:'pointer',
                   padding:0
-                }}
-              >
+                }}>
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   width="18"
@@ -2527,28 +2800,37 @@ async function loadTMDB(movie){
                     zIndex:100,
                     animation:'menuFade .18s ease'
                   }}>
-                    {[
-                      '소개',
-                      '게임 규칙',
-                      '이메일',
-                      '개인정보 처리방침',
-                      '영화데이터 사용안내',
-                      '신고하기'
-                    ].map((item,i)=>(
+                    {menuItems.map((item,i)=>(
                       <div
                         key={i}
                         onClick={()=>{
+                            if(item === '로그인'){
+                              setShowSettings(false)
+                              const guestUser =
+                                users.find(u => u.isGuest)
+                              // 🔥 guest 진행중이면 승계 팝업
+                              if(guestUser){
+                                setShowMergeModal(true)
+                                return
+                              }
+                              // 🔥 그냥 로그인
+                              setShowLogin(true)
+                              return
+                            }
+                          if(item === '로그아웃'){
+                            logout()
+                            setShowSettings(false)
+                            return
+                          }
                           setSettingsPage(item)
+                          setShowSettings(false)
                         }}
                         style={{
                           padding:'14px 16px',
                           fontSize:'0.82rem',
                           fontWeight:600,
                           color:'#1a1814',
-                          borderBottom:
-                            i !== 3
-                              ? '1px solid #f3f0eb'
-                              : 'none',
+                          borderBottom:'1px solid #f3f0eb',
                           cursor:'pointer',
                           background:'#fff'
                         }}
@@ -2641,17 +2923,50 @@ async function loadTMDB(movie){
                         lineHeight:1.9,
                         color:'#5f5a55'
                       }}>
-                        • 힌트를 보고 영화 제목을 맞혀보세요.
+                        <div style={{
+                          borderTop:'1px solid #ece8e2',
+                          margin:15
+                        }} />
+                        • 주관식 모드 : 
                         <br/>
-                        • 주관식과 객관식 모드를 선택할 수 있습니다.
+                        <div style={{paddingLeft:16}}>
+                        힌트 보기 중간에 한글자 또는 초성을 힌트로 제공합니다.
                         <br/>
-                        • 주관식모드는 한글자 또는 초성을 힌트로 제공합니다.
+                        정답 입력시 영화제목 자동완성을 이용할 수 있습니다.
                         <br/>
-                        • 연속 정답 시 콤보 보너스가 적용됩니다.
+                        획득 점수는 100pt 부터 시작합니다.
+                        </div>
+                        • 객관식 모드 : 
                         <br/>
-                        • 목숨이 모두 소진되면 캐릭터가 사망합니다.
+                        <div style={{paddingLeft:16}}>
+                        정답 선택은 2회까지 가능합니다.
                         <br/>
-                        • 캐릭터를 삭제하여도 랭킹에는 기록이 남습니다.
+                        획득 점수는 100pt 부터 시작합니다. 
+                        </div>
+                        • 콤보 모드 : 
+                        <br/>
+                        <div style={{paddingLeft:16}}>
+                        연속3회 퀴즈를 맞출 경우 다음 문제부터 콤보모드가 발동됩니다.
+                        <br/>
+                        첫 콤보모드시 점수X3, 최대 점수X3 까지 점수를 얻습니다.
+                        </div>
+                        <div style={{
+                          borderTop:'1px solid #ece8e2',
+                          margin:15
+                        }} />
+                        • 목숨은 30개로 시작하고, 부활시 15개로 시작합니다.
+                        <br/>
+                        • 캐릭터가 죽어도 랭킹에는 기록이 남습니다.
+                        <br/>
+                        • 로그인 유저는 
+                        <br/>
+                        <div style={{paddingLeft:16}}>
+                        1. 전체 캐릭터, 전체 게임 모드 이용이 가능합니다. 
+                        <br/>
+                        2. 캐릭터가 죽을 경우 부활이 가능합니다. 
+                        <br/>
+                        3. 랭킹 화면에서 캐릭터를 누르면 프로필을 볼 수 있습니다.
+                        </div>
                       </div>
                     )}
 
@@ -2673,31 +2988,24 @@ async function loadTMDB(movie){
                         lineHeight:1.9,
                         color:'#5f5a55'
                       }}>
-                        CineCLUE는 게임 진행 및 랭킹 제공을 위해
-                        일부 데이터를 저장할 수 있습니다.
-
+                        CineCLUE는 게임 진행을 위해 일부 데이터를 저장할 수 있습니다.
+                        <br/>
+                        게스트 플레이의 경우 데이터는 브라우저 저장소에 저장될 수 있습니다.
                         <br/><br/>
-
-                        저장될 수 있는 정보:
+                        저장될 수 있는 정보 :
                         <br/>
                         • 닉네임
                         <br/>
                         • 게임 기록 및 점수
                         <br/>
-                        • 랭킹 정보
+                        • 로그인 정보
                         <br/>
-                        • 로그인 정보(추후 지원 시)
-
-                        <br/>
-
-                        게스트 플레이의 경우 일부 데이터는
-                        브라우저 저장소에 저장될 수 있습니다.
-                        <br/>
-                        CineCLUE는 서비스 개선 및 광고 제공을 위해
-                        외부 서비스를 사용할 수 있습니다.
-
+                        <div style={{
+                          borderTop:'1px solid #ece8e2',
+                          margin:'18px 0'
+                        }} />
+                        CineCLUE는 서비스 및 광고를 위해 외부 서비스를 사용할 수 있습니다.
                         <br/><br/>
-
                         사용될 수 있는 서비스:
                         <br/>
                         • Supabase
@@ -2773,11 +3081,17 @@ async function loadTMDB(movie){
                 {CHARS.map((c) => {
                   const sel = selChar===c.id
                   const u = users.find(x=>x.charId===c.id)
+                  const locked = isGuestLockedChar(c)
 
                   return (
                     <div
                       key={c.id}
-                      onClick={()=>handleCharClick(c.id)}
+                      onClick={()=>{
+                        if(locked){
+                        setShowLogin(true)
+                        return
+                      }
+                      handleCharClick(c.id)}}
                       style={{
                         borderRadius:18,
                         border:sel?`3px solid ${c.color}`:'1.5px solid #e8e4dd',
@@ -2791,7 +3105,9 @@ async function loadTMDB(movie){
                         transition:'all .18s cubic-bezier(.34,1.56,.64,1)',
                         boxShadow:sel?`0 6px 22px ${c.color}50`:'0 1px 4px rgba(0,0,0,0.06)',
                         transform: sel && !u?.isDead ? 'scale(1.06)' : 'scale(1)',
-                        position:'relative'
+                        position:'relative',
+                        opacity: locked ? 0.35 : 1,
+                        filter: locked ? 'grayscale(1)' : 'none'
                     }}>
                       <div style={{
                         width:'100%',
@@ -2802,7 +3118,7 @@ async function loadTMDB(movie){
                         opacity: u?.isDead ? 0.45 : 1,
                         filter: u?.isDead ? 'grayscale(100%)' : 'none',
                       }}>
-                        {sel && !u?.isDead && (
+                        {sel && !locked && !u?.isDead && (
                           <div style={{
                             position:'absolute',
                             top:8,
@@ -2818,7 +3134,17 @@ async function loadTMDB(movie){
                             <span style={{color:'#fff',fontSize:'0.95rem',fontWeight:900}}>✓</span>
                           </div>
                         )}
-                        {u?.isDead && (
+                        {locked && (
+                          <div style={{
+                            position:'absolute',
+                            top:8,
+                            right:8,
+                            fontSize:'0.9rem'
+                          }}>
+                            🔒
+                          </div>
+                        )}
+                        {!locked && u?.isDead && (
                           <div style={{
                             position:'absolute',
                             top:6,
@@ -2851,18 +3177,18 @@ async function loadTMDB(movie){
                           textAlign:'center',
                           lineHeight:1.3,
                         }}>
-                          {u ? u.nickname : c.name}
+                          {!locked && u ? u.nickname : c.name}
                           <div style={{
                             fontSize:'0.6rem',
                             fontWeight:500,
                             marginTop:2,
                             color:'#72685e'
                           }}>
-                            {u ? (u.score || 0) : ''}
+                            {!locked && u ? (u.score || 0) : ''}
                           </div>
                         </div>
                       </div>
-                        {u && (
+                        {!locked && u && (authUser || !u.isDead) && (
                           <div
                             onClick={(e)=>{
                               e.stopPropagation()
@@ -2879,7 +3205,7 @@ async function loadTMDB(movie){
                                     }
                                     return x
                                   })
-                                  localStorage.setItem('cineclue_users', JSON.stringify(updated))
+                                  saveUsers(updated)
                                   return updated
                                 })
                               } else{
@@ -2927,6 +3253,95 @@ async function loadTMDB(movie){
                 입장하기
               </button>
             </div>
+
+            {/* 로그인시 승계 모달 */}
+            {showMergeModal && (
+              <div style={{
+                position:'fixed',
+                inset:0,
+                background:'rgba(0,0,0,0.35)',
+                zIndex:300,
+                display:'flex',
+                alignItems:'center',
+                justifyContent:'center'
+              }}>
+
+                <div style={{
+                  width:'86%',
+                  maxWidth:360,
+                  background:'#fff',
+                  borderRadius:22,
+                  padding:'24px 20px'
+                }}>
+
+                  <div style={{
+                    fontSize:'1rem',
+                    fontWeight:800,
+                    marginBottom:16,
+                    color:'#1a1814'
+                  }}>
+                    로그인 후 시작하기
+                  </div>
+
+                  <div style={{
+                    fontSize:'0.82rem',
+                    lineHeight:1.8,
+                    color:'#5f5a55',
+                    whiteSpace:'pre-line'
+                  }}>
+                    현재 게스트 플레이 기록은
+                    로그인 시 삭제됩니다.
+                    <br/>
+                    계속 이용하시겠습니까?
+                  </div>
+
+                  <div style={{
+                    display:'flex',
+                    gap:10,
+                    marginTop:22
+                  }}>
+
+                    <button
+                      onClick={()=>{
+                        setShowMergeModal(false)
+                      }}
+                      style={{
+                        flex:1,
+                        height:44,
+                        borderRadius:12,
+                        border:'1px solid #e7e1d8',
+                        background:'#fff',
+                        color:'#6f6e6e',
+                        fontWeight:700
+                    }}>
+                      취소
+                    </button>
+
+                    <button
+                      onClick={()=>{
+                        sessionStorage.removeItem(
+                          'cineclue_guest_users'
+                        )
+                        setUsers([])
+                        setSelChar(null)
+                        setShowMergeModal(false)
+                        setShowLogin(true)
+                      }}
+                      style={{
+                        flex:1,
+                        height:44,
+                        borderRadius:12,
+                        border:'none',
+                        background:'#ed4b5e',
+                        color:'#fff',
+                        fontWeight:700
+                    }}>
+                      로그인 하기
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
 
             {/* 닉네임 입력 모달 */}
             {showNameModal && (
@@ -3020,302 +3435,11 @@ async function loadTMDB(movie){
             display:'flex',
             height:'100dvh',
             flexDirection:'column',
-            padding:'48px 0 40px',
+            padding:'40px 0 40px',
             overflowY:'auto'
 
           }}>
-            <div style={{
-              position:'absolute',
-              top:20,
-              right:24,
-              zIndex:20
-            }}>
-              <button
-                onClick={()=>setShowSettings(true)}
-                style={{
-                  width:32,
-                  height:32,
-                  border:'none',
-                  background:'transparent',
-                  display:'flex',
-                  alignItems:'center',
-                  justifyContent:'center',
-                  cursor:'pointer',
-                  padding:0
-                }}
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="18"
-                  height="18"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="#b0aaa3"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <circle cx="12" cy="12" r="3"></circle>
-                  <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33h0A1.65 1.65 0 0 0 10 3.09V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51h0a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82v0A1.65 1.65 0 0 0 20.91 10H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
-                </svg>
-              </button>
-              {showSettings && (
-              <>
-                {/* 배경 클릭 닫기 */}
-                <div
-                  onClick={()=>setShowSettings(false)}
-                  style={{
-                    position:'fixed',
-                    inset:0,
-                    background:'rgba(0,0,0,0.18)',
-                    zIndex:80
-                  }}
-                />
-                {/* 메뉴 */}
-                <div style={{
-                  position:'absolute',
-                  top:34,
-                  right:0,
-                  width:220,
-                  background:'#fff',
-                  border:'1px solid #ece8e2',
-                  borderRadius:18,
-                  overflow:'hidden',
-                  boxShadow:'0 10px 30px rgba(0,0,0,0.08)',
-                  zIndex:200,
-                  animation:'menuFade .18s ease'
-                }}>
-                  {[
-                    '소개',
-                    '게임 규칙',
-                    '이메일',
-                    '개인정보 처리방침',
-                    '영화데이터 사용안내',
-                    '신고하기'
-                  ].map((item,i)=>(
-                    <div
-                      key={i}
-                      onClick={()=>{
-                        setSettingsPage(item)
-                        setShowSettings(false)
-                      }}
-                      style={{
-                        padding:'14px 16px',
-                        fontSize:'0.82rem',
-                        fontWeight:600,
-                        color:'#1a1814',
-                        borderBottom:
-                          i !== 3
-                            ? '1px solid #f3f0eb'
-                            : 'none',
-                        cursor:'pointer',
-                        background:'#fff'
-                      }}
-                    >
-                      {item}
-                    </div>
-                  ))}
-                </div>
-              </>
-              )}
-              {settingsPage && (
-                <div style={{
-                  position:'fixed',
-                  inset:0,
-                  background:'rgba(0,0,0,0.28)',
-                  zIndex:120,
-                  display:'flex',
-                  justifyContent:'center',
-                  alignItems:'center'
-                }}>
-
-                  <div style={{
-                    width:'88%',
-                    maxWidth:420,
-                    background:'#fff',
-                    borderRadius:22,
-                    padding:'24px 20px',
-                    boxShadow:'0 20px 40px rgba(0,0,0,0.12)',
-                    position:'relative'
-                  }}>
-
-                    {/* 닫기 */}
-                    <button
-                      onClick={()=>setSettingsPage(null)}
-                      style={{
-                        position:'absolute',
-                        top:14,
-                        right:14,
-                        border:'none',
-                        background:'transparent',
-                        fontSize:'1.2rem',
-                        color:'#999',
-                        cursor:'pointer'
-                      }}
-                    >
-                      ×
-                    </button>
-
-                    {/* 제목 */}
-                    <div style={{
-                      fontSize:'1rem',
-                      fontWeight:800,
-                      marginBottom:18,
-                      color:'#1a1814'
-                    }}>
-                      {settingsPage}
-                    </div>
-
-                    {/* 내용 */}
-                    {settingsPage === '소개' && (
-                      <div style={{
-                        fontSize:'0.82rem',
-                        lineHeight:1.8,
-                        color:'#5f5a55'
-                      }}>
-                        <div style={{
-                          fontSize:'1.2rem',
-                          fontWeight:900,
-                          marginBottom:14,
-                          color:'#1a1814'
-                        }}>
-                          CineCLUE
-                        </div>
-
-                        영화를 기억하는 방식은
-                        제목보다 장면에 가깝습니다.
-
-                        <br/><br/>
-
-                        CineCLUE는
-                        장면의 단서를 통해 영화를 맞히는
-                        영화 퀴즈 게임입니다.
-
-                      </div>
-                    )}
-
-                    {settingsPage === '게임 규칙' && (
-                      <div style={{
-                        fontSize:'0.82rem',
-                        lineHeight:1.9,
-                        color:'#5f5a55'
-                      }}>
-                        • 힌트를 보고 영화 제목을 맞혀보세요.
-                        <br/>
-                        • 주관식과 객관식 모드를 선택할 수 있습니다.
-                        <br/>
-                        • 주관식모드는 한글자 또는 초성을 힌트로 제공합니다.
-                        <br/>
-                        • 연속 정답 시 콤보 보너스가 적용됩니다.
-                        <br/>
-                        • 목숨이 모두 소진되면 캐릭터가 사망합니다.
-                        <br/>
-                        • 캐릭터를 삭제하여도 랭킹에는 기록이 남습니다.
-                      </div>
-                    )}
-
-                    {settingsPage === '이메일' && (
-                      <div style={{
-                        fontSize:'0.82rem',
-                        lineHeight:1.8,
-                        color:'#5f5a55'
-                      }}>
-                        Contact Us
-                        <br/>
-                        cinecluegame@gmail.com
-                      </div>
-                    )}
-
-                    {settingsPage === '개인정보 처리방침' && (
-                      <div style={{
-                        fontSize:'0.82rem',
-                        lineHeight:1.9,
-                        color:'#5f5a55'
-                      }}>
-                        CineCLUE는 게임 진행 및 랭킹 제공을 위해
-                        일부 데이터를 저장할 수 있습니다.
-
-                        <br/><br/>
-
-                        저장될 수 있는 정보:
-                        <br/>
-                        • 닉네임
-                        <br/>
-                        • 게임 기록 및 점수
-                        <br/>
-                        • 랭킹 정보
-                        <br/>
-                        • 로그인 정보(추후 지원 시)
-
-                        <br/>
-
-                        게스트 플레이의 경우 일부 데이터는
-                        브라우저 저장소에 저장될 수 있습니다.
-                        <br/>
-                        CineCLUE는 서비스 개선 및 광고 제공을 위해
-                        외부 서비스를 사용할 수 있습니다.
-
-                        <br/><br/>
-
-                        사용될 수 있는 서비스:
-                        <br/>
-                        • Supabase
-                        <br/>
-                        • Vercel
-                        <br/>
-                        • Google AdMob
-                        <br/>
-                        • TMDB API
-
-                      </div>
-                    )}
-
-
-                    {settingsPage === '영화데이터 사용안내' && (
-                      <div style={{
-                        fontSize:'0.82rem',
-                        lineHeight:1.9,
-                        color:'#5f5a55'
-                      }}>
-                        CineClue는 영화 정보 제공을 위해 TMDB(The Movie Database) API를 사용하고 있습니다.
-                        <br/>
-                        일부 영화 포스터, 줄거리, 배우 및 영상 정보는 TMDB 데이터를 기반으로 제공됩니다.
-
-                        <br/>
-                        <br/>
-                        This product uses the TMDB API but is not endorsed or certified by TMDB.
-                        <div style={{
-                          display:'flex',
-                          justifyContent:'flex-end'
-                        }}>
-                          <img
-                            src="/tmdb.webp"
-                            alt="TMDB"
-                            style={{
-                              width:80
-                            }}
-                              />
-                        </div>
-                      </div>
-                    )}
-
-
-                    {settingsPage === '신고하기' && (
-                      <div style={{
-                        fontSize:'0.82rem',
-                        lineHeight:1.8,
-                        color:'#5f5a55'
-                      }}>
-                        힌트오류 / 제목오류는 퀴즈화면 내 신고버튼을 이용해주세요. <br/>
-                        기타 신고사항은 이메일을 이용해주시기 바랍니다. 
-                        
-                      </div>
-                    )}
-
-                  </div>
-                </div>
-              )}
-            </div>
+            
             <div style={{padding:'0 20px',flexShrink:0}}>
               <div style={{
                 fontSize:'0.7rem',
@@ -3323,7 +3447,8 @@ async function loadTMDB(movie){
                 color:'#6f6e6e',
                 letterSpacing:'0.15em',
                 textTransform:'uppercase',
-                marginBottom:14
+                marginBottom:14,
+                paddingLeft:4
               }}>
                 도전할 모드를 선택하세요.
               </div>
@@ -3377,30 +3502,37 @@ async function loadTMDB(movie){
                 }}>
                   {ERA_MODES.map(m => {
                     const sel = selGrade === m.key
+                    const locked = isGuestLocked(m)
                     return (
                       <div
                         key={m.key}
-                        onClick={()=>toggleGrade(m.key)}
+                        onClick={()=>{
+                          if(locked){
+                            alert('로그인 후 이용 가능합니다.')
+                            return
+                          }
+                          toggleGrade(m.key)
+                        }}
                         style={{
                           height:80,
                           borderRadius:16,
                           overflow:'hidden',
                           position:'relative',
                           cursor:'pointer',
+                          opacity: locked ? 0.35 : 1,
+                          filter: locked ? 'grayscale(1)' : 'none',
                           transform: sel ? 'scale(1.05)' : 'scale(1)',
                           boxShadow: sel
                             ? '0 6px 18px rgba(0,0,0,0.2)'
                             : '0 2px 6px rgba(0,0,0,0.08)'
-                        }}
-                      >
+                        }}>
                         <img
                           src={m.image}
                           style={{
                             width:'100%',
                             height:'100%',
                             objectFit:'cover'
-                          }}
-                        />
+                          }}/>
                         {sel && (
                           <div style={{
                             position:'absolute',
@@ -3422,30 +3554,36 @@ async function loadTMDB(movie){
                 }}>
                   {THEME_MODES.map(m => {
                     const sel = selGrade === m.key
+                    const locked = isGuestLocked(m)
                     return (
                       <div
                         key={m.key}
-                        onClick={()=>toggleGrade(m.key)}
+                        onClick={()=>{
+                        if(locked){
+                          setShowLogin(true)
+                          return
+                        }  
+                        toggleGrade(m.key)}}
                         style={{
                           height:80,
                           borderRadius:16,
                           overflow:'hidden',
                           position:'relative',
                           cursor:'pointer',
+                          opacity: locked ? 0.35 : 1,
+                          filter: locked ? 'grayscale(1)' : 'none',
                           transform: sel ? 'scale(1.05)' : 'scale(1)',
                           boxShadow: sel
                             ? '0 6px 18px rgba(0,0,0,0.2)'
                             : '0 2px 6px rgba(0,0,0,0.08)'
-                        }}
-                      >
+                        }}>
                         <img
                           src={m.image}
                           style={{
                             width:'100%',
                             height:'100%',
                             objectFit:'cover'
-                          }}
-                        />
+                          }}/>
                         {sel && (
                           <div style={{
                             position:'absolute',
@@ -3509,7 +3647,7 @@ async function loadTMDB(movie){
                     playClick()
                     setScreen('char')
                   }}>
-                  캐릭터 선택
+                  캐릭터 선택 돌아가기
                 </button>
               </div>
             </div>
@@ -4872,7 +5010,14 @@ async function loadTMDB(movie){
                     justifyContent:'center',
                     marginBottom:10
                   }}>
-                    <div onClick={()=>setShowProfile(true)} style={{cursor:'pointer'}}>
+                    <div onClick={()=>{
+                      if(!authUser)
+                      {
+                        alert('로그인 후 이용 가능합니다.')
+                        return
+                      }
+                      setShowProfile(true)}} 
+                      style={{cursor:'pointer'}}>
                       <svg viewBox="0 0 80 80" style={{width:68,height:68}}>
                         {char?.svg?.props?.children}
                       </svg>
@@ -5298,6 +5443,10 @@ async function loadTMDB(movie){
                                         {/* 캐릭터 */}
                                         <div
                                           onClick={()=>{
+                                            if(!authUser){
+                                              alert('로그인 후 이용 가능합니다.')
+                                              return
+                                            }
                                             setAnimateStats(false)
                                             requestAnimationFrame(()=>{
                                               setAnimateStats(true)
