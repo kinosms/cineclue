@@ -830,7 +830,7 @@ async function recoverConnection(){
           }
 
           .typing {
-            width: 0;
+            width: 30ch;
             white-space: nowrap;
             overflow: hidden;
 
@@ -3183,6 +3183,7 @@ await safeQuery(
       {/* 인트로화면 */}
       {screen === 'intro' && (
         <IntroScreen 
+          key={authUser ? 'login' : 'guest'}
           onEnter={()=>{
               setScreen('char')
             }}
