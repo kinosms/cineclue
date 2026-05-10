@@ -1977,6 +1977,29 @@ console.log('AUTH', authUser)
 
 
   async function loadMovies(){
+     if(!currentUser?.userId){
+
+    console.warn('NO CURRENT USER', {
+
+      authUser,
+
+      currentUser,
+
+      selChar,
+
+      users
+
+    })
+
+    setScreen('char')
+
+    setLoading(false)
+
+    setShowSpinner(false)
+
+    return
+
+  }
     setLoading(true)
     setShowSpinner(true)
     setProgress(0)
