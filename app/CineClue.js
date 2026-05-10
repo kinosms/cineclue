@@ -1256,6 +1256,7 @@ await safeQuery(
   const [showReportMenu, setShowReportMenu] = useState(false)
   const [showRecommendModal, setShowRecommendModal] = useState(false)
   const [recommendMovie, setRecommendMovie] = useState(null)
+  const [timerStartedAt, setTimerStartedAt] = useState(null)
   const [questionReady, setQuestionReady] = useState(false)
   const [trailerKey, setTrailerKey] = useState(null)
   const [animateStats, setAnimateStats]
@@ -1814,7 +1815,15 @@ useEffect(() => {
 
   clearInterval(timerRef.current)
 
-  const start = Date.now()
+  const start =
+
+    timerStartedAt || Date.now()
+
+  if(!timerStartedAt){
+
+    setTimerStartedAt(start)
+
+  }
 
   timerRef.current = setInterval(() => {
 
@@ -1850,21 +1859,22 @@ useEffect(() => {
     clearInterval(timerRef.current)
   }
 
-}, [
+  }, [
 
-  qi,
+    qi,
 
-  screen,
+    screen,
 
-  quizMode,
+    quizMode,
 
-  answered,
+    answered,
 
-  questionReady,
+    questionReady,
 
-  resumeTick
+    resumeTick,
+    timerStartedAt
 
-])
+  ])
 
 
 
@@ -2485,6 +2495,8 @@ useEffect(() => {
       setInput('')
       setCrazyStreak(0)
       setRoundStartScore(score) 
+      setTimerStartedAt(null)
+      
     
     }
   
@@ -2987,7 +2999,8 @@ await safeQuery(
     setWrongCount(0)
     setLockChoice(false)
     setSelectedChoice(null)
-
+    setTimerStartedAt(null)
+    
   }
 
 
