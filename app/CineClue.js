@@ -950,6 +950,7 @@ export default function CineClue()  {
   } catch(e){
 
     console.error(e)
+    alert('연결이 끊어졌습니다')
 
   }
 
@@ -2040,13 +2041,47 @@ export default function CineClue()  {
       const userId = String(currentUser?.userId)
       // 2️⃣ 로그 가져오기
       console.log('LOAD STEP 1')
-      const { data: logs } = await supabase
-      .from('game_logs')
-      .select('movie_id')
-      .eq('user_id', userId)
-      .not('movie_id', 'is', null)
-      .order('id', { ascending: false })
-      console.log('LOAD STEP 2', logs)
+      const logsPromise = supabase
+
+  .from('game_logs')
+
+  .select('movie_id')
+
+  .eq('user_id', userId)
+
+  .not('movie_id', 'is', null)
+
+  .order('id', { ascending: false })
+
+const timeoutPromise =
+
+  new Promise((_, reject) =>
+
+    setTimeout(
+
+      () => reject(
+
+        new Error('logs timeout')
+
+      ),
+
+      3000
+
+    )
+
+  )
+
+const { data: logs } =
+
+  await Promise.race([
+
+    logsPromise,
+
+    timeoutPromise
+
+  ])
+
+console.log('LOAD STEP 2', logs)
 
       const HISTORY_LIMIT = {
         '2020s': 900,
