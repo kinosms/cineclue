@@ -737,7 +737,7 @@ async function recoverConnection(){
             whiteSpace: 'nowrap'
           }}>
             <div
-              className={!introDone ? "typing" : ""}
+              className="typing"
               style={{
                 visibility:'visible'
             }}>
