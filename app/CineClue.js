@@ -850,12 +850,10 @@ export default function CineClue()  {
   const [authUser, setAuthUser] = useState(null)
 
   const loginGoogle = async () => {
-
     localStorage.setItem(
     'cineclue_oauth_start',
     'true'
     )
-
     saveCurrentSession({
       screen,
       selChar
@@ -864,6 +862,27 @@ export default function CineClue()  {
       provider:'google'
     })
   }
+
+  const loginKakao = async () => {
+    localStorage.setItem(
+      'cineclue_oauth_start',
+      'true'
+    )
+    await supabase.auth.signInWithOAuth({
+      provider:'kakao'
+    })
+  }
+
+
+
+
+
+
+
+
+
+
+
 
   const isGuestLocked = (mode) => {
     if(authUser) return false
@@ -2665,6 +2684,7 @@ export default function CineClue()  {
             </button>
             {/* Kakao */}
             <button
+              onClick={loginKakao}
               style={{
                 width:'100%',
                 height:48,
@@ -2678,7 +2698,7 @@ export default function CineClue()  {
                 marginBottom:12,
                 opacity:0.8
             }}>
-              카카오톡으로 계속하기 - 준비중
+              카카오톡으로 계속하기
             </button>
             {/* Naver */}
             <button
