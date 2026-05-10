@@ -1548,8 +1548,16 @@ useEffect(() => {
       setSelChar(parsed.selChar)
     }
 
-    if(parsed.screen){
+    if(
+
+      parsed.screen &&
+
+      introDone
+
+    ){
+
       setScreen(parsed.screen)
+
     }
 
   } catch(e){
@@ -1558,7 +1566,7 @@ useEffect(() => {
 
   }
 
-}, [authChecked, users])
+}, [authChecked, users, introDone])
 
 
 
