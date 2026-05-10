@@ -737,7 +737,7 @@ async function recoverConnection(){
             whiteSpace: 'nowrap'
           }}>
             <div
-              className="typing"
+              className={!authUser ? "typing" : ""}
               style={{
                 visibility:'visible'
             }}>
@@ -748,9 +748,13 @@ async function recoverConnection(){
           </div>
           <div
             style={{
-              opacity:0,
-              animation:'fadeIn 1s ease forwards',
-              animationDelay:'5s'
+              opacity: authUser ? 1 : 0,
+              animation: authUser
+                ? 'none'
+                : 'fadeIn 1s ease forwards',
+              animationDelay: authUser
+                ? '0s'
+                : '5s'
           }}>
 
             <div style={{
