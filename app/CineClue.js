@@ -748,13 +748,9 @@ async function recoverConnection(){
           </div>
           <div
             style={{
-              opacity:introDone ? 1 : 0,
-              animation:introDone
-                ? 'none'
-                : 'fadeIn 1s ease forwards',
-              animationDelay:introDone
-                ? '0s'
-                : '5s'
+              opacity:0,
+              animation:'fadeIn 1s ease forwards',
+              animationDelay:'5s'
           }}>
 
             <div style={{
