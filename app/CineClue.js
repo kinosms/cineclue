@@ -941,15 +941,9 @@ export default function CineClue()  {
   ]
 
   const logout = async () => {
-    setUsers([])
-    setSelChar(null)
-    await supabase.auth.signOut()
-    sessionStorage.removeItem(
-      'cineclue_guest_users'
-    )
-    setAuthUser(null)
-    setScreen('intro')
-    window.location.href = '/'
+
+  await supabase.auth.signOut()
+
   }
 
 
