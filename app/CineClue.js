@@ -642,8 +642,6 @@ async function recoverConnection(){
     onEnter,
     onLogin,
     authUser,
-    introDone,
-    authChecked
   }) {
 
     const [mounted, setMounted] = useState(false)
@@ -738,7 +736,7 @@ async function recoverConnection(){
             whiteSpace: 'nowrap'
           }}>
             <div
-              className={!authUser ? "typing" : ""}
+              className="typing"
               style={{
                 visibility:'visible'
             }}>
@@ -749,13 +747,9 @@ async function recoverConnection(){
           </div>
           <div
             style={{
-              opacity: authUser ? 1 : 0,
-              animation: authUser
-                ? 'none'
-                : 'fadeIn 1s ease forwards',
-              animationDelay: authUser
-                ? '0s'
-                : '5s'
+              opacity:0,
+              animation: 'fadeIn 1s ease forwards',
+              animationDelay: '5s'
           }}>
 
             <div style={{
@@ -1153,19 +1147,6 @@ await safeQuery(
       })
     )
   }
-
-
-
-  const [introDone, setIntroDone] = useState(false)
-  useEffect(()=>{
-    const saved =
-      localStorage.getItem(
-        'cineclue_intro_done'
-      )
-    if(saved === 'true'){
-      setIntroDone(true)
-    }
-  },[])
 
 
 
@@ -3210,18 +3191,11 @@ await safeQuery(
       {/* 인트로화면 */}
       {screen === 'intro' && (
         <IntroScreen 
-          authChecked={authChecked}
           onEnter={()=>{
               setScreen('char')
-              setIntroDone(true)
-              localStorage.setItem(
-                'cineclue_intro_done',
-                'true'
-              )
             }}
             onLogin={()=>setShowLogin(true)}
             authUser={authUser}
-            introDone={introDone}
             />
         )}
 
