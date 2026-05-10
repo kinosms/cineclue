@@ -2700,22 +2700,6 @@ export default function CineClue()  {
             }}>
               카카오톡으로 계속하기
             </button>
-            {/* Naver */}
-            <button
-              style={{
-                width:'100%',
-                height:48,
-                borderRadius:12,
-                border:'none',
-                background:'#03C75A',
-                color:'#ffffff',
-                fontWeight:700,
-                fontSize:'0.9rem',
-                cursor:'pointer',
-                opacity:0.9
-            }}>
-              네이버로 계속하기 - 준비중
-            </button>
           </div>
         </div>
       )}
