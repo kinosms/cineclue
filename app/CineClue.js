@@ -964,13 +964,7 @@ export default function CineClue()  {
 
     ])
 
-    console.log('LOGOUT SUCCESS')
-
-    window.location.href = '/'
-
   } catch(e){
-
-    console.error('LOGOUT ERROR', e)
 
     window.location.href = '/'
 
