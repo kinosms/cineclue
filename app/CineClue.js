@@ -1758,7 +1758,6 @@ useEffect(() => {
 
     setShowSpinner(true)
 
-    setQuestionReady(false)
 
     try {
 
@@ -1778,7 +1777,6 @@ useEffect(() => {
 
     } finally {
 
-      setQuestionReady(true)
 
       setShowSpinner(false)
 
