@@ -830,7 +830,7 @@ async function recoverConnection(){
           }
 
           .typing {
-            width: 30ch;
+            width: 0;
             white-space: nowrap;
             overflow: hidden;
 
