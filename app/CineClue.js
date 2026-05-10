@@ -1179,6 +1179,7 @@ await safeQuery(
 
   const [selChar,  setSelChar]  = useState(null)
   const [users, setUsers] = useState([])
+  const [resumeTick, setResumeTick] = useState(0)
 
 
 
@@ -1777,7 +1778,8 @@ useEffect(() => {
 
     } finally {
 
-
+      setProgress(0)
+      setResumeTick(v => v + 1)
       setShowSpinner(false)
 
     }
@@ -1801,23 +1803,70 @@ useEffect(() => {
 }, [screen])
 
 
-  useEffect(() => {
-    const onVisible = () => {
-      if(document.hidden){
-        clearInterval(timerRef.current)
-      }
-    }
-    document.addEventListener(
-      'visibilitychange',
-      onVisible
+
+useEffect(() => {
+
+  if(screen !== 'quiz') return
+
+  if(!questionReady) return
+
+  if(answered) return
+
+  clearInterval(timerRef.current)
+
+  const start = Date.now()
+
+  timerRef.current = setInterval(() => {
+
+    const elapsed =
+      (Date.now() - start) / 1000
+
+    const percent = Math.min(
+      (elapsed / duration) * 100,
+      100
     )
-    return () => {
-      document.removeEventListener(
-        'visibilitychange',
-        onVisible
-      )
+
+    setProgress(percent)
+
+    // 🔥 넘기기 버튼 활성화
+    if(percent >= 100){
+      setButtonActive(true)
+    } else {
+      setButtonActive(false)
     }
-  }, [])
+
+    if(elapsed >= duration){
+
+      if(!answered){
+        doSkip()
+      }
+
+      clearInterval(timerRef.current)
+    }
+
+  }, 100)
+
+  return () => {
+    clearInterval(timerRef.current)
+  }
+
+}, [
+
+  qi,
+
+  screen,
+
+  quizMode,
+
+  answered,
+
+  questionReady,
+
+  resumeTick
+
+])
+
+
 
 
   async function fetchGenreStats(user_id, character_id){
