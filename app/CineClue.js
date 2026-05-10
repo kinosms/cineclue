@@ -850,27 +850,59 @@ export default function CineClue()  {
   const [authUser, setAuthUser] = useState(null)
 
   const loginGoogle = async () => {
+
+  await supabase.auth.signOut()
+
     localStorage.setItem(
-    'cineclue_oauth_start',
-    'true'
+
+      'cineclue_oauth_start',
+
+      'true'
+
     )
+
     saveCurrentSession({
+
       screen,
+
       selChar
+
     })
+
     await supabase.auth.signInWithOAuth({
+
       provider:'google'
+
     })
+
   }
 
   const loginKakao = async () => {
+
+    await supabase.auth.signOut()
+
     localStorage.setItem(
+
       'cineclue_oauth_start',
+
       'true'
+
     )
-    await supabase.auth.signInWithOAuth({
-      provider:'kakao'
+
+    saveCurrentSession({
+
+      screen,
+
+      selChar
+
     })
+
+    await supabase.auth.signInWithOAuth({
+
+      provider:'kakao'
+
+    })
+
   }
 
 
