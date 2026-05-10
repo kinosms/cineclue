@@ -1004,24 +1004,29 @@ export default function CineClue()  {
   const THEME_MODES = MODES.filter(m => m.type === 'theme')
   const [screen,   setScreen]   = useState('intro')
 
+  const [selChar,  setSelChar]  = useState(null)
+  const [users, setUsers] =
+
+  useState([])
+
   console.log('SCREEN', screen)
 
-console.log('AUTH', authUser)
-console.log('SELCHAR', selChar)
+  console.log('AUTH', authUser)
+  console.log('SELCHAR', selChar)
 
-console.log('USERS', users)
+  console.log('USERS', users)
 
-console.log(
+  console.log(
 
-  'CURRENT',
+    'CURRENT',
 
-  users.find(u => u.charId === selChar)
+    users.find(u => u.charId === selChar)
 
-)
+  )
 
 
 
-  const [selChar,  setSelChar]  = useState(null)
+
   const [selGrade, setSelGrade] = useState(null)
   const [pool,     setPool]     = useState([])
   const [qi,       setQi]       = useState(0)
@@ -1041,7 +1046,6 @@ console.log(
   const [displayScore,   setDisplayScore]   = useState(0)
   const [ready, setReady] = useState(false)
   const [showSpinner, setShowSpinner] = useState(false)
-  const [users, setUsers] = useState([]) 
   const safeUsers = Array.isArray(users) ? users : []
   const currentUser = safeUsers.find(u => u.charId === selChar) || null
   const currentUserId = currentUser?.userId
@@ -2035,12 +2039,14 @@ console.log(
       // 1️⃣ 현재 유저
       const userId = String(currentUser?.userId)
       // 2️⃣ 로그 가져오기
+      console.log('LOAD STEP 1')
       const { data: logs } = await supabase
       .from('game_logs')
       .select('movie_id')
       .eq('user_id', userId)
       .not('movie_id', 'is', null)
       .order('id', { ascending: false })
+      console.log('LOAD STEP 2', logs)
 
       const HISTORY_LIMIT = {
         '2020s': 900,
@@ -2087,6 +2093,7 @@ console.log(
         let from = 0
 
         while(true){
+          console.log('FETCH PAGE', from)
           const { data, error } = await query.range(from, from + pageSize - 1)
           if(error) throw error
           if(!data || data.length === 0) break
@@ -2097,10 +2104,12 @@ console.log(
         return all
       }
       const delayPromise = new Promise(r => setTimeout(r, 500))
+      console.log('BEFORE FETCH MOVIES')
       const [movies] = await Promise.all([
         fetchMoviesByYears(),
         delayPromise
       ])
+      console.log('AFTER FETCH MOVIES', movies?.length)
       const error = null
       if(error){
         console.error(error)
