@@ -1720,24 +1720,88 @@ useEffect(() => {
 
 
 
+useEffect(() => {
+
+  if(screen !== 'quiz') return
+
+  if(!questionReady) return
+
+  if(answered) return
+
+  const start = Date.now()
+
+  timerRef.current = setInterval(() => {
+
+    // 🔥 백그라운드 상태면 타이머 정지
+
+    if(document.hidden) return
+
+    const elapsed =
+
+      (Date.now() - start) / 1000
+
+    const percent = Math.min(
+
+      (elapsed / duration) * 100,
+
+      100
+
+    )
+
+    setProgress(percent)
+
+    if(elapsed >= duration){
+
+      if(!answered){
+
+        doSkip()
+
+      }
+
+      clearInterval(timerRef.current)
+
+    }
+
+  }, 100)
+
+  return () => {
+
+    clearInterval(timerRef.current)
+
+  }
+
+}, [
+
+  qi,
+
+  screen,
+
+  quizMode,
+
+  answered,
+
+  questionReady
+
+])
+
+
   useEffect(() => {
-    if(screen !== 'quiz') return
-    if(!questionReady) return
-    if(answered) return   // 🔥 추가 (핵심)
-    const start = Date.now()
-    timerRef.current = setInterval(() => {
-      const elapsed = (Date.now() - start) / 1000
-      const percent = Math.min((elapsed / duration) * 100, 100)
-      setProgress(percent)
-      if (elapsed >= duration) {
-        if(!answered){     // 🔥 추가 (이중 안전장치)
-          doSkip()
-        }
+    const onVisible = () => {
+      if(document.hidden){
         clearInterval(timerRef.current)
       }
-    }, 100)
-    return () => clearInterval(timerRef.current)
-  }, [qi, screen, quizMode, answered,questionReady])  
+    }
+    document.addEventListener(
+      'visibilitychange',
+      onVisible
+    )
+    return () => {
+      document.removeEventListener(
+        'visibilitychange',
+        onVisible
+      )
+    }
+  }, [])
 
 
   async function fetchGenreStats(user_id, character_id){
