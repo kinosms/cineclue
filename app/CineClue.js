@@ -3202,10 +3202,6 @@ await safeQuery(
   }
 
 
-  if(!authChecked){
-    return null
-  }
-
   return (
     <>
       {/* 인트로화면 */}
