@@ -787,27 +787,29 @@ async function recoverConnection(){
               textAlign: 'center',
             }}>
 
-              {!authUser ? (
-                <button
-                  onClick={onLogin}
-                  style={{
-                    border:'none',
-                    background:'transparent',
-                    fontSize:'0.9rem',
-                    color:'#8f8f8f',
-                    textDecoration:'underline',
-                    cursor:'pointer'
-                }}>
-                  로그인
-                </button>
-              ) : (
-                <div
-                  style={{
-                    fontSize:'0.9rem',
-                    color:'#8f8f8f'
-                }}>
-                  🎬 {authUser.user_metadata?.name}님 반가워요
-                </div>
+              {authChecked && (
+                !authUser ? (
+                  <button
+                    onClick={onLogin}
+                    style={{
+                      border:'none',
+                      background:'transparent',
+                      fontSize:'0.9rem',
+                      color:'#8f8f8f',
+                      textDecoration:'underline',
+                      cursor:'pointer'
+                  }}>
+                    로그인
+                  </button>
+                ) : (
+                  <div
+                    style={{
+                      fontSize:'0.9rem',
+                      color:'#8f8f8f'
+                  }}>
+                    🎬 {authUser.user_metadata?.name}님 반가워요
+                  </div>
+                )
               )}
             </div>  
           </div>
