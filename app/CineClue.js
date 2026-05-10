@@ -1462,22 +1462,44 @@ useEffect(() => {
             )
           }
 
-          const { data = [] } =
+          const result =
+
             await safeQuery(
+
               supabase
+
                 .from('characters')
+
                 .select('*')
+
                 .eq('auth_user_id', user.id),
+
               'load auth characters'
+
             )
 
+          const data = result?.data || []
+
+          if(data.length === 0){
+
+            return
+
+          }
+
           const loadedUsers = data.map(c => ({
+
             charId: c.char_id,
+
             nickname: c.nickname,
+
             score: c.score,
+
             lives: c.lives,
+
             userId: c.auth_user_id,
+
             isGuest:false
+
           }))
 
           setUsers(loadedUsers)
