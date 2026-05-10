@@ -942,9 +942,23 @@ export default function CineClue()  {
 
   const logout = async () => {
 
-  await supabase.auth.signOut()
+  try {
+
+    console.log('LOGOUT START')
+
+    const { error } =
+
+      await supabase.auth.signOut()
+
+    console.log('LOGOUT RESULT', error)
+
+  } catch(e){
+
+    console.error(e)
 
   }
+
+}
 
 
   const [authChecked, setAuthChecked] = useState(false)
@@ -3330,9 +3344,13 @@ export default function CineClue()  {
                             fontSize:'0.6rem',
                             fontWeight:500,
                             marginTop:2,
-                            color:'#72685e'
+                            color:'#72685e',
+                            height:14,          
+                            display:'flex',
+                            alignItems:'center',
+                            justifyContent:'center'
                           }}>
-                            {!locked && u ? (u.score || 0) : ''}
+                            {!locked && u ? (u.score || 0) : ' '}
                           </div>
                         </div>
                       </div>
