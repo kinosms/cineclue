@@ -782,6 +782,10 @@ export default function CineClue()  {
     return all
   }   
 
+  console.log('SCREEN', screen)
+
+  console.log('AUTH', authUser)
+
   const MODES = [
     { key:'2020s', label:'2020년대', type:'era', image:'/mode/20s.webp' },
     { key:'2010s', label:'2010년대', type:'era', image:'/mode/10s.webp' },
