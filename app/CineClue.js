@@ -915,7 +915,13 @@ export default function CineClue()  {
 
 
 
+const logout = async () => {
 
+  await supabase.auth.signOut()
+
+  window.location.reload()
+
+}
 
 
   const isGuestLocked = (mode) => {
