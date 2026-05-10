@@ -1007,6 +1007,20 @@ export default function CineClue()  {
   console.log('SCREEN', screen)
 
 console.log('AUTH', authUser)
+console.log('SELCHAR', selChar)
+
+console.log('USERS', users)
+
+console.log(
+
+  'CURRENT',
+
+  users.find(u => u.charId === selChar)
+
+)
+
+
+
   const [selChar,  setSelChar]  = useState(null)
   const [selGrade, setSelGrade] = useState(null)
   const [pool,     setPool]     = useState([])
