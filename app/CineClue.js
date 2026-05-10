@@ -782,8 +782,7 @@ async function recoverConnection(){
               textAlign: 'center',
             }}>
 
-              {authChecked && (
-                !authUser ? (
+              {!authUser ? (
                   <button
                     onClick={onLogin}
                     style={{
@@ -805,7 +804,7 @@ async function recoverConnection(){
                     🎬 {authUser.user_metadata?.name}님 반가워요
                   </div>
                 )
-              )}
+              }
             </div>  
           </div>
         </div>
