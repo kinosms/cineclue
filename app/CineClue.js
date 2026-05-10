@@ -1212,22 +1212,30 @@ export default function CineClue()  {
 
 
   function loadUsers(authUser){
-    if(authUser){
-      const saved =
-        localStorage.getItem('cineclue_users')
-      return saved
-        ? JSON.parse(saved)
-        : []
-    } else {
-      const saved =
-        sessionStorage.getItem(
-          'cineclue_guest_users'
-        )
-      return saved
-        ? JSON.parse(saved)
-        : []
-    }
+
+  if(authUser){
+
+    return []
+
+  } else {
+
+    const saved =
+
+      sessionStorage.getItem(
+
+        'cineclue_guest_users'
+
+      )
+
+    return saved
+
+      ? JSON.parse(saved)
+
+      : []
+
   }
+
+}
 
 
 
@@ -1312,20 +1320,16 @@ export default function CineClue()  {
 
 
   function saveUsers(users){
-    const hasAuth =
-      users.some(u => !u.isGuest)
-    if(hasAuth){
-      localStorage.setItem(
-        'cineclue_users',
-        JSON.stringify(users)
-      )
-    } else {
-      sessionStorage.setItem(
-        'cineclue_guest_users',
-        JSON.stringify(users)
-      )
-    }
-  }
+
+  sessionStorage.setItem(
+
+    'cineclue_guest_users',
+
+    JSON.stringify(users)
+
+  )
+
+}
 
 
   // 퀴즈 시작 종료시 현재 세션에 저장
