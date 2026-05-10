@@ -1340,6 +1340,47 @@ export default function CineClue()  {
 }
 
 
+  // 백그라운드 이동 후 돌아올때 auth 유지
+
+  useEffect(() => {
+
+    const onVisible = async () => {
+
+      const {
+
+        data:{ session }
+
+      } = await supabase.auth.getSession()
+
+      setAuthUser(session?.user ?? null)
+
+    }
+
+    document.addEventListener(
+
+      'visibilitychange',
+
+      onVisible
+
+    )
+
+    return () =>
+
+      document.removeEventListener(
+
+        'visibilitychange',
+
+        onVisible
+
+      )
+
+  }, [])
+
+
+
+
+
+
   // 퀴즈 시작 종료시 현재 세션에 저장
   useEffect(()=>{
     if(screen === 'quiz'){
