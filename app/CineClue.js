@@ -917,7 +917,16 @@ export default function CineClue()  {
 
 
 
-
+  const [introDone, setIntroDone] = useState(false)
+  useEffect(()=>{
+    const saved =
+      localStorage.getItem(
+        'cineclue_intro_done'
+      )
+    if(saved === 'true'){
+      setIntroDone(true)
+    }
+  },[])
 
 
 
@@ -985,11 +994,6 @@ export default function CineClue()  {
   const profileChar =
   CHARS.find(
     c => c.id === profileCharId
-  )
-  const [introDone, setIntroDone] = useState(
-    localStorage.getItem(
-      'cineclue_intro_done'
-    ) === 'true'
   )
   const [rankingRevealDone, setRankingRevealDone] = useState(false)
   const primaryGrade = selGrade || null
@@ -2662,7 +2666,7 @@ export default function CineClue()  {
                 marginBottom:12,
                 opacity:0.8
             }}>
-              카카오톡으로 계속하기
+              카카오톡으로 계속하기 - 준비중
             </button>
             {/* Naver */}
             <button
@@ -2678,7 +2682,7 @@ export default function CineClue()  {
                 cursor:'pointer',
                 opacity:0.9
             }}>
-              네이버로 계속하기
+              네이버로 계속하기 - 준비중
             </button>
           </div>
         </div>
