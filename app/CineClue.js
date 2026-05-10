@@ -946,15 +946,33 @@ export default function CineClue()  {
 
     console.log('LOGOUT START')
 
-    const { error } =
+    await Promise.race([
 
-      await supabase.auth.signOut()
+      supabase.auth.signOut(),
 
-    console.log('LOGOUT RESULT', error)
+      new Promise((_, reject) =>
+
+        setTimeout(
+
+          () => reject(new Error('logout timeout')),
+
+          3000
+
+        )
+
+      )
+
+    ])
+
+    console.log('LOGOUT SUCCESS')
+
+    window.location.href = '/'
 
   } catch(e){
 
-    console.error(e)
+    console.error('LOGOUT ERROR', e)
+
+    window.location.href = '/'
 
   }
 
