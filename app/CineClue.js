@@ -1028,6 +1028,9 @@ export default function CineClue()  {
 
 
 
+
+
+
   const [selGrade, setSelGrade] = useState(null)
   const [pool,     setPool]     = useState([])
   const [qi,       setQi]       = useState(0)
@@ -1347,6 +1350,29 @@ export default function CineClue()  {
     return () =>
       subscription.unsubscribe()
   }, [supabase])
+
+
+
+
+  useEffect(() => {
+
+  async function restoreUsers(){
+
+    if(!authUser) return
+
+    const restored =
+
+      await loadUsers(authUser)
+
+    setUsers(restored)
+
+  }
+
+  restoreUsers()
+
+}, [authUser])
+
+
 
 
 
