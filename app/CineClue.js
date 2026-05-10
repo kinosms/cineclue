@@ -945,31 +945,19 @@ export default function CineClue()  {
 
   try {
 
-    console.log('LOGOUT START')
-
-    await Promise.race([
-
-      supabase.auth.signOut(),
-
-      new Promise((_, reject) =>
-
-        setTimeout(
-
-          () => reject(new Error('logout timeout')),
-
-          3000
-
-        )
-
-      )
-
-    ])
+    await supabase.auth.signOut()
 
   } catch(e){
 
-    window.location.href = '/'
+    console.error(e)
 
   }
+
+  localStorage.clear()
+
+  sessionStorage.clear()
+
+  window.location.reload()
 
 }
 
