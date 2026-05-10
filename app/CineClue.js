@@ -782,9 +782,6 @@ export default function CineClue()  {
     return all
   }   
 
-  console.log('SCREEN', screen)
-
-  console.log('AUTH', authUser)
 
   const MODES = [
     { key:'2020s', label:'2020년대', type:'era', image:'/mode/20s.webp' },
@@ -1018,6 +1015,10 @@ export default function CineClue()  {
   const ERA_MODES = MODES.filter(m => m.type === 'era')
   const THEME_MODES = MODES.filter(m => m.type === 'theme')
   const [screen,   setScreen]   = useState('intro')
+
+  console.log('SCREEN', screen)
+
+console.log('AUTH', authUser)
   const [selChar,  setSelChar]  = useState(null)
   const [selGrade, setSelGrade] = useState(null)
   const [pool,     setPool]     = useState([])
