@@ -285,8 +285,9 @@ async function saveLog({
   genre,
   log_type = 'play',
   quizMode
-}){
+})
 
+{
   if(!supabase) {
     alert('❌ supabase 없음')
     return
@@ -294,34 +295,65 @@ async function saveLog({
 
   const movieId = movie?.id ?? null
 
-  const { error } = await supabase.from('game_logs').insert({
-    user_id: userId,
-    character_id: charId,
-    movie_id: movieId,
-    hint_used: hintUsed,
-    score_earned: score,
-    combo_mode: comboMode,
-    is_correct: isCorrect,
-    is_skip: isSkip || false,
-    nickname: nickname, 
-    user_input: userInput,
-    genre: genre,
-    log_type: log_type,
-    mode: quizMode
-  })
+  await safeQuery(
 
-  if(error){
-  console.error('DB 에러:', error.message)
-}
+  supabase
+
+    .from('game_logs')
+
+    .insert({
+
+      user_id: userId,
+
+      character_id: charId,
+
+      movie_id: movieId,
+
+      hint_used: hintUsed,
+
+      score_earned: score,
+
+      combo_mode: comboMode,
+
+      is_correct: isCorrect,
+
+      is_skip: isSkip || false,
+
+      nickname: nickname,
+
+      user_input: userInput,
+
+      genre: genre,
+
+      log_type: log_type,
+
+      mode: quizMode
+
+    }),
+
+  'insert game log'
+
+)
 }
 
 
 
 async function getProfileStats(supabase, charId){
-  const { data: logs } = await supabase
-    .from('game_logs')
-    .select('*')
-    .eq('character_id', charId)
+  const { data: logs = [] } =
+
+  await safeQuery(
+
+    supabase
+
+      .from('game_logs')
+
+      .select('*')
+
+      .eq('character_id', charId),
+
+    'load profile stats'
+
+  )
   const totalScore = logs.reduce(
     (sum, l) => sum + (l.score_earned || 0),
     0
@@ -421,16 +453,25 @@ async function getProfileStats(supabase, charId){
 
 
 async function loadRanking({ supabase }){
-  const { data, error } = await supabase
-    .from('game_logs')
-    .select('id, user_id, character_id, score_earned, nickname')
-    .eq('log_type', 'result')  
-    .not('score_earned', 'is', null)
+  const {
 
-  if(error){
-    console.error('랭킹 에러:', error.message)
-    return []
-  }
+  data = []
+
+} = await safeQuery(
+
+  supabase
+
+    .from('game_logs')
+
+    .select('id, user_id, character_id, score_earned, nickname')
+
+    .eq('log_type', 'result')
+
+    .not('score_earned', 'is', null),
+
+  'load ranking'
+
+)
 
   const map = {}
 
@@ -451,7 +492,7 @@ async function loadRanking({ supabase }){
           user_id: d.user_id,  
           character_id: d.character_id,
           score: d.score_earned,
-          nickname: d.nickname || map[d.character_id].nickname,
+          nickname: d.nickname || map[key].nickname,
           id: d.id
         }
       }
@@ -506,6 +547,92 @@ function AppLayout({ children }) {
     </div>
   )
 }
+
+
+
+
+
+
+//=====================================================================================================================================
+
+//공통함수 만들기
+//1️⃣ timeout wrapper
+async function withTimeout(
+  promise,
+  label = 'request',
+  ms = 5000
+){
+  return Promise.race([
+    promise,
+    new Promise((_, reject) =>
+      setTimeout(
+        () => reject(
+          new Error(`${label} timeout`)
+        ),
+        ms
+      )
+    )
+  ])
+}
+
+
+//2️⃣ safe query wrapper
+async function safeQuery(promise, label='query'){
+  try {
+    const result = await withTimeout(
+      promise,
+      5000
+    )
+    if(result.error){
+      console.error(
+        `${label} error`,
+        result.error
+      )
+      return {
+        data:null,
+        error:result.error
+      }
+    }
+    return result
+  } catch(e){
+    console.error(
+      `${label} failed`,
+      e
+    )
+    return {
+      data:null,
+      error:e
+    }
+  }
+}
+
+
+//3️⃣ reconnect helper
+async function recoverConnection(){
+  try {
+    const {
+      data:{ session }
+    } = await supabase.auth.getSession()
+    return !!session
+  } catch(e){
+    console.error(
+      'recoverConnection failed',
+      e
+    )
+    return false
+  }
+}
+
+//=====================================================================================================================================
+
+
+
+
+
+
+
+
+
 
 
 
@@ -769,12 +896,24 @@ export default function CineClue()  {
     let from = 0
 
     while(true){
-      const { data, error } = await supabase
-        .from('movies')
-        .select('id, title')
-        .range(from, from + pageSize - 1)
-      if(error) throw error
-      if(!data || data.length === 0) break
+      const { data = [] } =
+
+  await safeQuery(
+
+    supabase
+      .from('movies')
+      .select('id, title')
+      .range(
+        from,
+        from + pageSize - 1
+      ),
+
+    `fetch all movies ${from}`
+
+  )
+
+if(data.length === 0) break
+      
       all.push(...data)
       if(data.length < pageSize) break
       from += pageSize
@@ -851,9 +990,14 @@ export default function CineClue()  {
   const [authUser, setAuthUser] = useState(null)
 
   const loginGoogle = async () => {
-    setUsers([])
 
-    await supabase.auth.signOut()
+    await safeQuery(
+
+  supabase.auth.signOut(),
+
+  'google login signout'
+
+)
 
       localStorage.setItem(
 
@@ -871,18 +1015,29 @@ export default function CineClue()  {
 
     })
 
-    await supabase.auth.signInWithOAuth({
+    await safeQuery(
 
-      provider:'google'
+  supabase.auth.signInWithOAuth({
 
-    })
+    provider:'google'
+
+  }),
+
+  'google oauth login'
+
+)
 
   }
 
   const loginKakao = async () => {
-    setUsers([])
 
-    await supabase.auth.signOut()
+    await safeQuery(
+
+  supabase.auth.signOut(),
+
+  'kakao login signout'
+
+)
 
     localStorage.setItem(
 
@@ -900,11 +1055,17 @@ export default function CineClue()  {
 
     })
 
-    await supabase.auth.signInWithOAuth({
+await safeQuery(
 
-      provider:'kakao'
+  supabase.auth.signInWithOAuth({
 
-    })
+    provider:'kakao'
+
+  }),
+
+  'kakao oauth login'
+
+)
 
   }
 
@@ -945,14 +1106,25 @@ export default function CineClue()  {
 
   try {
 
-    await supabase.auth.signOut()
+await safeQuery(
+
+  supabase.auth.signOut(),
+
+  'logout'
+
+)
 
   } catch(e){
 
-    console.error(e)
-    alert('연결이 끊어졌습니다')
+  console.error(
 
-  }
+    'logout failed',
+
+    e
+
+  )
+
+}
 
   localStorage.clear()
 
@@ -1006,28 +1178,7 @@ export default function CineClue()  {
   const [screen,   setScreen]   = useState('intro')
 
   const [selChar,  setSelChar]  = useState(null)
-  const [users, setUsers] =
-
-  useState([])
-
-  console.log('SCREEN', screen)
-
-  console.log('AUTH', authUser)
-  console.log('SELCHAR', selChar)
-
-  console.log('USERS', users)
-
-  console.log(
-
-    'CURRENT',
-
-    users.find(u => u.charId === selChar)
-
-  )
-
-
-
-
+  const [users, setUsers] = useState([])
 
 
 
@@ -1273,104 +1424,117 @@ export default function CineClue()  {
 }
 
 
+// 로그인 //
+useEffect(() => {
+  if(!supabase) return
 
-  // 로그인 //
-  useEffect(() => {
-    if(!supabase) return
+  safeQuery(
+    supabase.auth.getSession(),
+    'get auth user'
+  ).then(({ data }) => {
+    setAuthUser(
 
-    supabase.auth.getUser().then(({ data }) => {
-      setAuthUser(data.user)
-      setUsers(prev => {
-        if(prev?.length){
-          return prev
-        }
-        return loadUsers(data.user)
-      })
-      setAuthChecked(true)
-    })
+  data?.session?.user ?? null
 
-    const { data: { subscription } } =
-      supabase.auth.onAuthStateChange(
-        async (_event, session) => {
-          const user =
-            session?.user ?? null
-          setAuthUser(user)
+)
+    setAuthChecked(true)
+  })
 
-          // 🔥 로그인 상태
-          if(user){
-            const oauthStart =
-              localStorage.getItem(
-                'cineclue_oauth_start'
-              )
-            // 🔥 OAuth 로그인 직후에만 화면 복원
-            if (
-              _event === 'SIGNED_IN' &&
-              oauthStart === 'true'
-            ){
-              localStorage.removeItem(
-                'cineclue_oauth_start'
-              )
-            }
+  const { data: { subscription } } =
+    supabase.auth.onAuthStateChange(
+      async (_event, session) => {
+        const user = session?.user ?? null
 
-            // 🔥 정책 변경:
-            // 게스트 기록은 승계하지 않고,
-            // 로그인 계정 데이터만 불러온다
-            const { data, error } =
-              await supabase
+        setAuthUser(user)
+
+        if(user){
+          const oauthStart =
+            localStorage.getItem(
+              'cineclue_oauth_start'
+            )
+
+          if(
+            _event === 'SIGNED_IN' &&
+            oauthStart === 'true'
+          ){
+            localStorage.removeItem(
+              'cineclue_oauth_start'
+            )
+          }
+
+          const { data = [] } =
+            await safeQuery(
+              supabase
                 .from('characters')
                 .select('*')
-                .eq('auth_user_id', user.id)
-            if(data){
-              const loadedUsers = (data || []).map(c => ({
+                .eq('auth_user_id', user.id),
+              'load auth characters'
+            )
 
-                charId: c.char_id,
+          const loadedUsers = data.map(c => ({
+            charId: c.char_id,
+            nickname: c.nickname,
+            score: c.score,
+            lives: c.lives,
+            userId: c.auth_user_id,
+            isGuest:false
+          }))
 
-                nickname: c.nickname,
-
-                score: c.score,
-
-                lives: c.lives,
-
-                userId: c.auth_user_id,
-
-                isGuest:false
-
-              }))
-              setUsers(loadedUsers)
-            }
-            return
-          }
-          // 🔥 로그아웃 / 비로그인 상태
-          const loadedUsers =
-            loadUsers(null)
           setUsers(loadedUsers)
+
+          return
         }
+
+        const loadedUsers =
+          loadUsers(null)
+
+        setUsers(loadedUsers)
+      }
+    )
+
+  return () =>
+    subscription.unsubscribe()
+
+}, [supabase])
+
+
+
+useEffect(() => {
+
+  if(!authChecked) return
+
+  const saved =
+    localStorage.getItem(
+      'cineclue_current_session'
+    )
+
+  if(!saved) return
+
+  try {
+
+    const parsed = JSON.parse(saved)
+
+    // 🔥 users 준비 안됐으면 복원 금지
+    if(
+      parsed.selChar &&
+      users.some(
+        u => u.charId === parsed.selChar
       )
+    ){
+      setSelChar(parsed.selChar)
+    }
 
-    return () =>
-      subscription.unsubscribe()
-  }, [supabase])
+    if(parsed.screen){
+      setScreen(parsed.screen)
+    }
 
+  } catch(e){
 
-
-
-  useEffect(() => {
-
-  async function restoreUsers(){
-
-    if(!authUser) return
-
-    const restored =
-
-      await loadUsers(authUser)
-
-    setUsers(restored)
+    console.error(e)
 
   }
 
-  restoreUsers()
-
-}, [authUser])
+}, [authChecked, users])
 
 
 
@@ -1390,42 +1554,6 @@ export default function CineClue()  {
 }
 
 
-  // 백그라운드 이동 후 돌아올때 auth 유지
-
-  useEffect(() => {
-
-    const onVisible = async () => {
-
-      const {
-
-        data:{ session }
-
-      } = await supabase.auth.getSession()
-
-      setAuthUser(session?.user ?? null)
-
-    }
-
-    //document.addEventListener(
-
-      //'visibilitychange',
-
-      //onVisible
-
-    //)
-
-    return () =>
-
-      document.removeEventListener(
-
-        'visibilitychange',
-
-        onVisible
-
-      )
-
-  }, [])
-
 
 
 
@@ -1433,12 +1561,12 @@ export default function CineClue()  {
 
   // 퀴즈 시작 종료시 현재 세션에 저장
   useEffect(()=>{
-    if(screen === 'quiz'){
+    if(screen !== 'intro'){
       saveCurrentSession({
-        screen:'quiz',
+        screen,
         selChar
-        })
-      }
+      })
+    }
     if(screen === 'result'){
       saveCurrentSession({
         screen:'result',
@@ -1613,17 +1741,17 @@ export default function CineClue()  {
 
 
   async function fetchGenreStats(user_id, character_id){
-    const { data, error } = await supabase
-      .from('user_genre_stats')
-      .select('genre, attempt_count, correct_count, total_score')
-      .eq('user_id', user_id)
-      .eq('character_id', character_id)
-    if(error){
-      console.error('genreStats error 👉', error)
-      return []
+    const { data = [] } =
+      await safeQuery(
+        supabase
+          .from('user_genre_stats')
+          .select('genre, attempt_count, correct_count, total_score')
+          .eq('user_id', user_id)
+          .eq('character_id', character_id),
+        'fetch genre stats'
+      )
+      return data
     }
-    return data
-  }
 
   //객관식 선택지 생성 함수
   function buildChoices(correctMovie, allMovies){
@@ -1702,25 +1830,14 @@ export default function CineClue()  {
         return
       }
       const detail = await detailRes.json()
+      const trailer =
+        detail.videos?.results?.find(v =>
 
-      console.log('🎬 TMDB VIDEOS CHECK', {
+      v.site === 'YouTube' &&
 
-    title: detail.title,
+      v.type === 'Trailer'
 
-    tmdbId: detail.id,
-
-    videos: detail.videos?.results || []
-
-  })
-
-    const trailer =
-      detail.videos?.results?.find(v =>
-
-    v.site === 'YouTube' &&
-
-    v.type === 'Trailer'
-
-  ) ||
+    ) ||
 
   detail.videos?.results?.find(v =>
 
@@ -1739,15 +1856,7 @@ export default function CineClue()  {
   )
 
     const youtubeKey = trailer?.key || null
-    console.log('🎬 YOUTUBE KEY', {
 
-  title: detail.title,
-
-  youtubeKey,
-
-  pickedVideo: trailer || null
-
-  })
 
     const movieData = {
       ...detail,
@@ -1845,15 +1954,6 @@ export default function CineClue()  {
 
             trailer?.key || null
 
-          console.log('🎬 YOUTUBE KEY', {
-
-            title: detail.title,
-
-            youtubeKey,
-
-            pickedVideo: trailer || null
-
-          })
 
           return {
 
@@ -2044,7 +2144,7 @@ export default function CineClue()  {
 
     return
 
-  }
+   }
     setLoading(true)
     setShowSpinner(true)
     setProgress(0)
@@ -2066,48 +2166,27 @@ export default function CineClue()  {
       // 1️⃣ 현재 유저
       const userId = String(currentUser?.userId)
       // 2️⃣ 로그 가져오기
-      console.log('LOAD STEP 1')
-      const logsPromise = supabase
 
-  .from('game_logs')
+      const { data: logs = [] } =
 
-  .select('movie_id')
+        await safeQuery(
 
-  .eq('user_id', userId)
+          supabase
 
-  .not('movie_id', 'is', null)
+            .from('game_logs')
 
-  .order('id', { ascending: false })
+            .select('movie_id')
 
-const timeoutPromise =
+            .eq('user_id', userId)
 
-  new Promise((_, reject) =>
+            .not('movie_id', 'is', null)
 
-    setTimeout(
+            .order('id', { ascending: false }),
 
-      () => reject(
+          'load game logs'
 
-        new Error('logs timeout')
-
-      ),
-
-      3000
-
-    )
-
-  )
-
-const { data: logs } =
-
-  await Promise.race([
-
-    logsPromise,
-
-    timeoutPromise
-
-  ])
-
-console.log('LOAD STEP 2', logs)
+        )
+      
 
       const HISTORY_LIMIT = {
         '2020s': 900,
@@ -2154,10 +2233,23 @@ console.log('LOAD STEP 2', logs)
         let from = 0
 
         while(true){
-          console.log('FETCH PAGE', from)
-          const { data, error } = await query.range(from, from + pageSize - 1)
-          if(error) throw error
-          if(!data || data.length === 0) break
+          const { data = [] } =
+
+  await safeQuery(
+
+    query.range(
+
+      from,
+
+      from + pageSize - 1
+
+    ),
+
+    `load movies page ${from}`
+
+  )
+
+          if(data.length === 0) break
           all.push(...data)
           if(data.length < pageSize) break
           from += pageSize
@@ -2165,19 +2257,13 @@ console.log('LOAD STEP 2', logs)
         return all
       }
       const delayPromise = new Promise(r => setTimeout(r, 500))
-      console.log('BEFORE FETCH MOVIES')
+
       const [movies] = await Promise.all([
         fetchMoviesByYears(),
         delayPromise
       ])
-      console.log('AFTER FETCH MOVIES', movies?.length)
-      const error = null
-      if(error){
-        console.error(error)
-        alert('데이터 오류')
-        setLoading(false)
-        return
-      }
+
+
       if(!movies || movies.length===0){
         alert('영화 없음')
         setLoading(false)
@@ -2281,7 +2367,7 @@ console.log('LOAD STEP 2', logs)
 
   window.location.reload()
 
-}
+  }
       
   
     finally{
@@ -2418,13 +2504,25 @@ console.log('LOAD STEP 2', logs)
           log_type: 'play',
           quizMode
         })
-        await supabase.rpc('update_genre_stats', {
-          p_user_id: String(currentUser.userId),
-          p_character_id: selChar,
-          p_genre: m.final_genre || '기타',
-          p_is_correct: true,
-          p_score: gained
-        })
+await safeQuery(
+
+  supabase.rpc('update_genre_stats', {
+
+    p_user_id: String(currentUser.userId),
+
+    p_character_id: selChar,
+
+    p_genre: m.final_genre || '기타',
+
+    p_is_correct: true,
+
+    p_score: gained
+
+  }),
+
+  'update genre stats success'
+
+)
         setResults(r => [...r, {
           ...m,
           correct: true,
@@ -2502,13 +2600,27 @@ console.log('LOAD STEP 2', logs)
             quizMode
           })
 
-          await supabase.rpc('update_genre_stats', {
-            p_user_id: String(currentUser.userId),
-            p_character_id: selChar,
-            p_genre: m.final_genre || '기타',
-            p_is_correct: false,
-            p_score: 0
-          })
+          await safeQuery(
+
+  supabase.rpc('update_genre_stats', {
+
+    p_user_id: String(currentUser.userId),
+
+    p_character_id: selChar,
+
+    p_genre: m.final_genre || '기타',
+
+    p_is_correct: false,
+
+    p_score: 0
+
+  }),
+
+  'update genre stats fail'
+
+)
+
+
 
           setResults(r => [...r, {
             ...m,
@@ -2605,13 +2717,27 @@ console.log('LOAD STEP 2', logs)
 
     const genreValue = m?.final_genre || '기타'
 
-    await supabase.rpc('update_genre_stats', {
-      p_user_id: String(currentUser.userId),
-      p_character_id: selChar,
-      p_genre: genreValue,
-      p_is_correct: false,
-      p_score: 0
-    })
+    await safeQuery(
+
+  supabase.rpc('update_genre_stats', {
+
+    p_user_id: String(currentUser.userId),
+
+    p_character_id: selChar,
+
+    p_genre: genreValue,
+
+    p_is_correct: false,
+
+    p_score: 0
+
+  }),
+
+  'update genre stats skip'
+
+)
+
+
 
     setResults(r => [...r, {
       ...m,
@@ -2831,33 +2957,45 @@ console.log('LOAD STEP 2', logs)
 
     if(authUser){
 
-      await supabase
+      await safeQuery(
 
-        .from('characters')
+  supabase
 
-        .delete()
+    .from('characters')
 
-        .eq('auth_user_id', authUser.id)
+    .delete()
 
-        .eq('char_id', tempChar)
+    .eq('auth_user_id', authUser.id)
 
-      await supabase
+    .eq('char_id', tempChar),
 
-        .from('characters')
+  'delete existing character'
 
-        .insert({
+)
 
-          auth_user_id: authUser.id,
+      await safeQuery(
 
-          char_id: tempChar,
+  supabase
 
-          nickname,
+    .from('characters')
 
-          score:0,
+    .insert({
 
-          lives:30
+      auth_user_id: authUser.id,
 
-        })
+      char_id: tempChar,
+
+      nickname,
+
+      score:0,
+
+      lives:30
+
+    }),
+
+  'insert character'
+
+)
 
     } else {
 
@@ -2884,15 +3022,23 @@ console.log('LOAD STEP 2', logs)
 
     if(authUser){
 
-      await supabase
+      await safeQuery(
 
-        .from('characters')
+  supabase
 
-        .delete()
+    .from('characters')
 
-        .eq('auth_user_id', authUser.id)
+    .delete()
 
-        .eq('char_id', charId)
+    .eq('auth_user_id', authUser.id)
+
+    .eq('char_id', charId),
+
+  'delete character'
+
+)
+
+
 
     } else {
 
@@ -4473,15 +4619,29 @@ console.log('LOAD STEP 2', logs)
                                 <button
                                   onClick={async()=>{
                                     setShowReportMenu(false)
-                                    await supabase
+                                    await safeQuery(
+
+                                    supabase
+
                                       .from('hint_reports')
+
                                       .insert({
+
                                         movie_id:m.id,
+
                                         title:m.title,
+
                                         report_type:'title',
+
                                         user_id:String(currentUser.userId),
+
                                         nickname:currentUser.nickname
-                                      })
+
+                                      }),
+
+                                    'report title error'
+
+                                  )
                                     setShowReportToast(true)
                                       setTimeout(()=>{
                                         setShowReportToast(false)
@@ -4501,15 +4661,29 @@ console.log('LOAD STEP 2', logs)
                                 <button
                                   onClick={async()=>{
                                     setShowReportMenu(false)
-                                    await supabase
+                                    await safeQuery(
+
+                                    supabase
+
                                       .from('hint_reports')
+
                                       .insert({
+
                                         movie_id:m.id,
+
                                         title:m.title,
+
                                         report_type:'hint',
+
                                         user_id:String(currentUser.userId),
+
                                         nickname:currentUser.nickname
-                                      })
+
+                                      }),
+
+                                    'report hint error'
+
+                                  )
                                       setShowReportToast(true)
                                       setTimeout(()=>{
                                         setShowReportToast(false)
@@ -4869,15 +5043,27 @@ console.log('LOAD STEP 2', logs)
                                     <button
                                       onClick={async()=>{
                                         setShowReportMenu(false)
-                                        await supabase
-                                          .from('hint_reports')
-                                          .insert({
-                                            movie_id:m.id,
-                                            title:m.title,
-                                            report_type:'title',
-                                            user_id:String(currentUser.userId),
-                                            nickname:currentUser.nickname
-                                          })
+                                        await safeQuery(
+
+                                          supabase
+                                            .from('hint_reports')
+                                            .insert({
+
+                                              movie_id:m.id,
+
+                                              title:m.title,
+
+                                              report_type:'title',
+
+                                              user_id:String(currentUser.userId),
+
+                                              nickname:currentUser.nickname
+
+                                            }),
+
+                                          'report title error'
+
+                                        )
                                         setShowReportToast(true)
                                         setTimeout(()=>{
                                           setShowReportToast(false)
@@ -4900,15 +5086,29 @@ console.log('LOAD STEP 2', logs)
                                     <button
                                       onClick={async()=>{
                                         setShowReportMenu(false)
-                                        await supabase
-                                          .from('hint_reports')
-                                          .insert({
-                                            movie_id:m.id,
-                                            title:m.title,
-                                            report_type:'hint',
-                                            user_id:String(currentUser.userId),
-                                            nickname:currentUser.nickname
-                                          })
+                                        await safeQuery(
+
+                                          supabase
+
+                                            .from('hint_reports')
+
+                                            .insert({
+
+                                              movie_id:m.id,
+
+                                              title:m.title,
+
+                                              report_type:'hint',
+
+                                              user_id:String(currentUser.userId),
+
+                                              nickname:currentUser.nickname
+
+                                            }),
+
+                                          'report hint error'
+
+                                        )
                                           setShowReportToast(true)
                                           setTimeout(()=>{
                                             setShowReportToast(false)
