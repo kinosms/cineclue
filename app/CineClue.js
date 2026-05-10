@@ -6644,8 +6644,27 @@ export default function CineClue()  {
                 boxShadow:'0 10px 40px rgba(0,0,0,0.45)'
             }}>
 
+              <button
+                onClick={() => setTrailerKey(null)}
+                style={{
+                  position:'absolute',
+                  top:10,
+                  right:10,
+                  zIndex:10,
+                  width:32,
+                  height:32,
+                  borderRadius:'50%',
+                  border:'none',
+                  background:'rgba(0,0,0,0.7)',
+                  color:'#fff',
+                  fontSize:'1rem',
+                  cursor:'pointer'
+                }}>
+                ✕
+              </button>
+
               <iframe
-                width="100%"
+                width="720px"
                 height="100%"
                 src={`https://www.youtube.com/embed/${trailerKey}?autoplay=1&rel=0&modestbranding=1&playsinline=1`}
                 title="YouTube player"
