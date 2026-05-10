@@ -1722,116 +1722,82 @@ useEffect(() => {
 
 useEffect(() => {
 
-  if(screen !== 'quiz') return
+  const onVisible = async () => {
 
-  if(!questionReady) return
-
-  if(answered) return
-
-  const start = Date.now()
-
-  timerRef.current = setInterval(() => {
-
-    // 🔥 백그라운드 상태면 타이머 정지
-
-    if(document.hidden) return
-
-    const elapsed =
-
-      (Date.now() - start) / 1000
-
-    const percent = Math.min(
-
-      (elapsed / duration) * 100,
-
-      100
-
-    )
-
-    setProgress(percent)
-
-    if(elapsed >= duration){
-
-      if(!answered){
-
-        doSkip()
-
-      }
-
-      clearInterval(timerRef.current)
-
-    }
-
-  }, 100)
-
-  return () => {
-
-    clearInterval(timerRef.current)
-
-  }
-
-}, [
-
-  qi,
-
-  screen,
-
-  quizMode,
-
-  answered,
-
-  questionReady
-
-])
-
-
-  useEffect(() => {
-
-  const onVisible = () => {
+    if(screen !== 'quiz') return
 
     if(document.hidden){
 
       clearInterval(timerRef.current)
 
-    } else {
+      return
 
-      setShowSpinner(true)
+    }
 
-      setQuestionReady(false)
+    setShowSpinner(true)
 
-      setTimeout(() => {
+    setQuestionReady(false)
 
-        setQuestionReady(true)
+    try {
 
-        setShowSpinner(false)
+      await supabase.auth.getSession()
 
-      }, 1200)
+      await new Promise(r =>
+        requestAnimationFrame(r)
+      )
+
+      await new Promise(r =>
+        setTimeout(r, 300)
+      )
+
+    } catch(e){
+
+      console.error(e)
+
+    } finally {
+
+      setQuestionReady(true)
+
+      setShowSpinner(false)
 
     }
 
   }
 
   document.addEventListener(
-
     'visibilitychange',
-
     onVisible
-
   )
 
   return () => {
 
     document.removeEventListener(
-
       'visibilitychange',
-
       onVisible
-
     )
 
   }
 
-}, [])
+}, [screen])
+
+
+  useEffect(() => {
+    const onVisible = () => {
+      if(document.hidden){
+        clearInterval(timerRef.current)
+      }
+    }
+    document.addEventListener(
+      'visibilitychange',
+      onVisible
+    )
+    return () => {
+      document.removeEventListener(
+        'visibilitychange',
+        onVisible
+      )
+    }
+  }, [])
 
 
   async function fetchGenreStats(user_id, character_id){
