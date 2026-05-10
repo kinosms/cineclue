@@ -1778,8 +1778,6 @@ useEffect(() => {
       console.error(e)
 
     } finally {
-
-      setProgress(0)
       setResumeTick(v => v + 1)
       setShowSpinner(false)
 
