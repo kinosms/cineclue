@@ -339,6 +339,7 @@ async function saveLog({
 
 
 async function getProfileStats(supabase, charId){
+
   const { data: logs = [] } =
 
   await safeQuery(
