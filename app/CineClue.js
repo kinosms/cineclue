@@ -356,10 +356,23 @@ async function getProfileStats(supabase, charId){
     'load profile stats'
 
   )
-  const playLogs = logs
-  const totalScore = logs
+  const playLogs = logs.filter(
 
-  .filter(l => l.log_type === 'play')
+  l =>
+
+    l.log_type === 'play' &&
+
+    l.movie_id
+
+)
+
+const totalScore = playLogs.reduce(
+
+  (sum, l) => sum + (l.score_earned || 0),
+
+  0
+
+)
 
   .reduce(
 
