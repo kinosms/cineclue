@@ -354,17 +354,13 @@ async function getProfileStats(supabase, charId){
     'load profile stats'
 
   )
-  const totalScore = logs
+  const totalScore = logs.reduce(
 
-  .filter(l => l.character_id === selChar)
+  (sum, l) => sum + (l.score_earned || 0),
 
-  .reduce(
+  0
 
-    (sum, l) => sum + (l.score_earned || 0),
-
-    0
-
-  )
+)
   const level =
     Math.floor(totalScore / 50000) + 1
   const currentLevelScore =
