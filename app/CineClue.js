@@ -280,40 +280,103 @@ async function saveLog({
   comboMode,
   isCorrect,
   isSkip,
-  userInput,  
+  userInput,
   nickname,
   genre,
   log_type = 'play',
   quizMode
-})
+}) {
 
-{
-  if(!supabase) {
+  if(!supabase){
     alert('❌ supabase 없음')
     return
   }
 
   const movieId = movie?.id ?? null
 
+  // 1️⃣ 게임 로그 저장
   await safeQuery(
 
-  supabase
+    supabase
 
-    .from('characters')
+      .from('game_logs')
 
-    .update({
+      .insert({
 
-      score: score
+        user_id: userId,
 
-    })
+        character_id: charId,
 
-    .eq('char_id', charId)
+        movie_id: movieId,
 
-    .eq('auth_user_id', authUser.id),
+        hint_used: hintUsed,
 
-  'update character score'
+        score_earned: score,
 
-)
+        combo_mode: comboMode,
+
+        is_correct: isCorrect,
+
+        is_skip: isSkip || false,
+
+        nickname: nickname,
+
+        user_input: userInput,
+
+        genre: genre,
+
+        log_type: log_type,
+
+        mode: quizMode
+
+      }),
+
+    'insert game log'
+
+  )
+
+  // 2️⃣ 캐릭터 현재 점수 조회
+  const { data: charData } = await safeQuery(
+
+    supabase
+
+      .from('characters')
+
+      .select('score')
+
+      .eq('char_id', charId)
+
+      .eq('auth_user_id', userId)
+
+      .single(),
+
+    'load character score'
+
+  )
+
+  const currentScore = charData?.score || 0
+
+  // 3️⃣ 누적 점수 업데이트
+  await safeQuery(
+
+    supabase
+
+      .from('characters')
+
+      .update({
+
+        score: currentScore + score
+
+      })
+
+      .eq('char_id', charId)
+
+      .eq('auth_user_id', userId),
+
+    'update character score'
+
+  )
+
 }
 
 
