@@ -3010,7 +3010,7 @@ await safeQuery(
 
 )
 
-
+const roundScore = score - roundStartScore
 
     setResults(r => [...r, {
       ...m,
@@ -3029,7 +3029,7 @@ await safeQuery(
         charId: selChar,
         movie: { id: null },
         hintUsed: 0,
-        score: score,
+        score: roundScore,
         comboMode: null,
         isCorrect: true,
         nickname: currentUser.nickname,
