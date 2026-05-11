@@ -339,6 +339,7 @@ async function saveLog({
 
 
 async function getProfileStats(supabase, charId){
+  console.log('🔥 getProfileStats charId', charId)
 
   const { data: logs = [] } =
 
