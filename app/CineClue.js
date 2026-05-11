@@ -386,11 +386,7 @@ async function getProfileStats(supabase, charId){
       )[0]?.created_at
 
   const genreMap = {}
-  const playLogs = logs.filter(
-
-  l => l.log_type === 'play'
-
-)
+  const playLogs = logs
 
   playLogs.forEach(l=>{
 
