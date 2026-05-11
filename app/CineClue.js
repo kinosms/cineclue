@@ -356,6 +356,7 @@ async function getProfileStats(supabase, charId){
     'load profile stats'
 
   )
+  const playLogs = logs
   const totalScore = logs
 
   .filter(l => l.log_type === 'play')
@@ -387,7 +388,7 @@ async function getProfileStats(supabase, charId){
       )[0]?.created_at
 
   const genreMap = {}
-  const playLogs = logs
+  
 
   playLogs.forEach(l=>{
 
