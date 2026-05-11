@@ -416,37 +416,60 @@ async function getProfileStats(supabase, charId){
 
   })
 
-  const genreStats = Object.values(genreMap).map(g => {
+  const genreStats = await Promise.all(
 
-  const attempt_count =
+  Object.values(genreMap).map(async g => {
 
-    g.attemptedMovieIds.size
+    const attempt_count =
+      g.attemptedMovieIds.size
 
-  const correct_count =
+    const correct_count =
+      g.correctMovieIds.size
 
-    g.correctMovieIds.size
+    const { count: total_movies = 0 } =
+      await safeQuery(
 
-  return {
+        supabase
 
-    genre: g.genre,
+          .from('movies')
 
-    attempt_count,
+          .select('*', {
+            count:'exact',
+            head:true
+          })
 
-    correct_count,
+          .eq('genre', g.genre),
 
-    total_score: g.total_score,
+        `count movies ${g.genre}`
 
-    percent: Math.min(
+      )
 
-      Math.round(correct_count * 3),
+    return {
 
-      100
+      genre: g.genre,
 
-    )
+      attempt_count,
 
-  }
+      correct_count,
 
-})
+      total_movies,
+
+      total_score: g.total_score,
+
+      percent:
+        total_movies > 0
+
+          ? Math.round(
+              (correct_count / total_movies) * 100
+            )
+
+          : 0
+
+    }
+
+  })
+
+)
 
   const favoriteGenres =
   [...genreStats]
