@@ -2248,7 +2248,6 @@ useEffect(() => {
 
     const safeNickname = currentUser?.nickname || nickname || 'USER'
     const userId = String(currentUser?.userId)
-    const totalScore = score
     const run = async () => {
       await saveLog({
         supabase,
@@ -2256,7 +2255,7 @@ useEffect(() => {
         charId: selChar,
         movie: { id: null },
         hintUsed: 0,
-        score: totalScore,
+        score: score - roundStartScore,
         comboMode: null,
         isCorrect: true,
         nickname: currentUser.nickname,
