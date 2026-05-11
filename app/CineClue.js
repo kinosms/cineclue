@@ -374,20 +374,25 @@ async function getProfileStats(supabase, charId){
     Math.round(
     (currentLevelScore / 50000) * 100
   )
-  const totalSeconds = logs.reduce((sum, l) => {
+  const totalSeconds = playLogs.reduce((sum, l) => {
     return sum + (l.mode === 'objective' ? 15 : 30)
   }, 0)
 
   const lastPlayed =
-    logs
+  playLogs
       .filter(l => l.created_at)
       .sort((a,b)=>
         new Date(b.created_at) - new Date(a.created_at)
       )[0]?.created_at
 
   const genreMap = {}
+  const playLogs = logs.filter(
 
-  logs.forEach(l=>{
+  l => l.log_type === 'play'
+
+)
+
+  playLogs.forEach(l=>{
 
     if(!l.genre) return
 
@@ -442,8 +447,6 @@ async function getProfileStats(supabase, charId){
     .map(g => g.genre)
 
   return {
-    nickname:
-    logs?.[0]?.nickname || '-',
     totalScore,
     totalSeconds,
     lastPlayed,
@@ -1643,17 +1646,28 @@ useEffect(() => {
 
 
   useEffect(()=>{
-    if(!supabase || !selChar) return
-    const run = async()=>{
-      const profile =
-        await getProfileStats(
-          supabase,
-          profileTarget || selChar
-        )
-      setProfileStats(profile)
-    }
-    run()
-  }, [supabase, selChar, profileTarget])
+
+  if(!supabase || !selChar) return
+
+  const targetCharId = profileTarget || selChar
+
+  const run = async()=>{
+
+    const profile = await getProfileStats(
+
+      supabase,
+
+      targetCharId
+
+    )
+
+    setProfileStats(profile)
+
+  }
+
+  run()
+
+}, [supabase, selChar, profileTarget])
 
 
 
@@ -5665,23 +5679,48 @@ await safeQuery(
                     justifyContent:'center',
                     marginBottom:10
                   }}>
-                    <div onClick={()=>{
-                      if(!authUser)
-                      {
-                        alert('로그인 후 이용 가능합니다.')
-                        return
-                      }
-                      setProfileStats(null)
-                      setProfileTarget(selChar)
-                      setAnimateStats(false)
-                      requestAnimationFrame(()=>{
-                        setAnimateStats(true)
-                      })
-                      setShowProfile(true)}} 
-                      style={{cursor:'pointer'}}>
+                    <div
+
+                      onClick={()=>{
+
+                        if(!authUser){
+
+                          alert('로그인 후 이용 가능합니다.')
+
+                          return
+
+                        }
+
+                        setProfileStats(null)
+
+                        // 🔥 랭킹 프로필 target 제거
+
+                        setProfileTarget(null)
+
+                        setProfileUser(currentUser)
+
+                        setAnimateStats(false)
+
+                        requestAnimationFrame(()=>{
+
+                          setAnimateStats(true)
+
+                        })
+
+                        setShowProfile(true)
+
+                      }}
+
+                      style={{cursor:'pointer'}}
+
+                    >
+
                       <svg viewBox="0 0 80 80" style={{width:68,height:68}}>
+
                         {char?.svg?.props?.children}
+
                       </svg>
+
                     </div>
 
                     {/* 🔥 프로필 배지 */}
@@ -6102,24 +6141,49 @@ await safeQuery(
                                       }}>
 
                                         {/* 캐릭터 */}
+
                                         <div
+
                                           onClick={()=>{
+
                                             if(!authUser){
+
                                               alert('로그인 후 이용 가능합니다.')
+
                                               return
+
                                             }
+
+                                            // 🔥 이전 프로필 초기화
+
                                             setProfileStats(null)
-                                            setAnimateStats(false)
-                                            requestAnimationFrame(()=>{
-                                              setAnimateStats(true)
-                                            })
+
+                                            // 🔥 랭킹 프로필 대상 지정
+
                                             setProfileTarget(r.character_id)
+
+                                            // 🔥 랭킹 row 자체 저장
+
                                             setProfileUser(r)
+
+                                            setAnimateStats(false)
+
+                                            requestAnimationFrame(()=>{
+
+                                              setAnimateStats(true)
+
+                                            })
+
                                             setShowProfile(true)
+
                                           }}
+
                                           style={{
+
                                             cursor:'pointer'
+
                                           }}
+
                                         >
                                           <CharAvatar
                                             charId={r.character_id}
