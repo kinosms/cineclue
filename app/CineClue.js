@@ -366,14 +366,6 @@ async function getProfileStats(supabase, charId){
 
 )
 
-const totalScore = playLogs.reduce(
-
-  (sum, l) => sum + (l.score_earned || 0),
-
-  0
-
-)
-
   const level =
     Math.floor(totalScore / 50000) + 1
   const currentLevelScore =
@@ -6466,139 +6458,162 @@ await safeQuery(
                             CINECLUE TITLE
                           </div>
 
-                          {/* 타이틀 */}
-                          <div style={{
-                            fontSize:'1.6rem',
-                            fontWeight:900,
-                            color:'#1a1814',
-                            letterSpacing:'-0.04em',
-                            lineHeight:1.08
-                          }}>
-                            {LEVEL_TITLES[
-                              Math.min(
-                                Math.floor((user.score || 0) / 50000) + 1,
-                                100
+                          {/* 🔥 점수 기반 계산 */}
+                          {(() => {
+
+                            const displayScore =
+                              profileUser?.score ??
+                              currentUser?.score ??
+                              user?.score ??
+                              0
+
+                            const displayLevel =
+                              Math.floor(displayScore / 50000) + 1
+
+                            const displayCurrentExp =
+                              displayScore % 50000
+
+                            const displayLevelPercent =
+                              Math.round(
+                                (displayCurrentExp / 50000) * 100
                               )
-                            ]}
-                          </div>
 
-                          {/* 닉네임 */}
-                          <div style={{
-                            fontSize:'0.9rem',
-                            color:'#8d857c',
-                            marginTop:10,
-                            fontWeight:600
-                          }}>
-                            {profileUser?.nickname || currentUser?.nickname || '-'}
-                          </div>
-                        </div>
+                            return (
+                              <>
 
+                                {/* 타이틀 */}
+                                <div style={{
+                                  fontSize:'1.6rem',
+                                  fontWeight:900,
+                                  color:'#1a1814',
+                                  letterSpacing:'-0.04em',
+                                  lineHeight:1.08
+                                }}>
+                                  {LEVEL_TITLES[
+                                    Math.min(displayLevel, 100)
+                                  ]}
+                                </div>
 
-                        {/* 레벨바 영역 */}
-                        <div style={{
-                          marginBottom:15
-                        }}>
+                                {/* 닉네임 */}
+                                <div style={{
+                                  fontSize:'0.9rem',
+                                  color:'#8d857c',
+                                  marginTop:10,
+                                  fontWeight:600
+                                }}>
+                                  {profileUser?.nickname || currentUser?.nickname || '-'}
+                                </div>
 
-                          <div style={{
-                            fontSize:'1.0rem',
-                            fontWeight:900,
-                            color:'#1a1814'
-                          }}>
-                            Lv. {profileStats?.level || 1}
-                          </div>
+                                {/* 레벨바 영역 */}
+                                <div style={{
+                                  marginBottom:15,
+                                  marginTop:18
+                                }}>
 
-                          <div style={{
-                            height:10,
-                            background:'#ece9e4',
-                            borderRadius:999,
-                            marginTop:10,
-                            overflow:'hidden'
-                          }}>
+                                  <div style={{
+                                    fontSize:'1.0rem',
+                                    fontWeight:900,
+                                    color:'#1a1814'
+                                  }}>
+                                    Lv. {displayLevel}
+                                  </div>
 
-                            <div style={{
-                              width:`${profileStats?.levelPercent || 0}%`,
-                              height:'100%',
-                              background:
-                                'linear-gradient(90deg,#ff8a95,#ff5f73)',
-                              borderRadius:999,
-                              boxShadow:'0 0 12px rgba(255,95,115,0.35)'
-                            }}/>
+                                  <div style={{
+                                    height:10,
+                                    background:'#ece9e4',
+                                    borderRadius:999,
+                                    marginTop:10,
+                                    overflow:'hidden'
+                                  }}>
 
-                          </div>
+                                    <div style={{
+                                      width:`${displayLevelPercent}%`,
+                                      height:'100%',
+                                      background:
+                                        'linear-gradient(90deg,#ff8a95,#ff5f73)',
+                                      borderRadius:999,
+                                      boxShadow:'0 0 12px rgba(255,95,115,0.35)'
+                                    }}/>
 
-                          <div style={{
-                            fontSize:'0.72rem',
-                            color:'#888',
-                            textAlign:'right',
-                            marginTop:6,
-                            fontWeight:600
-                          }}>
-                            {(profileStats?.currentLevelScore || 0)
-                              .toLocaleString()}
-                            {' '}
-                            / 50,000 EXP
-                          </div>
-                        </div>
+                                  </div>
 
+                                  <div style={{
+                                    fontSize:'0.72rem',
+                                    color:'#888',
+                                    textAlign:'right',
+                                    marginTop:6,
+                                    fontWeight:600
+                                  }}>
+                                    {displayCurrentExp.toLocaleString()}
+                                    {' '}
+                                    / 50,000 EXP
+                                  </div>
+                                </div>
 
-                        {/* 그래프 영역 */}
-                        <div style={{
-                          display:'grid',
-                          gridTemplateColumns:'1fr 1fr',
-                          gap:7,
-                          marginBottom:7
-                        }}>
-                          {[
-                            [
-                              '총 점수',
-                              profileStats?.totalScore?.toLocaleString() || '0'
-                            ],
-                            [
-                              '플레이 시간',
-                              `${Math.floor((profileStats?.totalSeconds || 0)/3600)}h ${
-                                Math.floor(
-                                  ((profileStats?.totalSeconds || 0)%3600)/60
-                                )
-                              }m`
-                            ],
-                            [
-                              '선호 장르',
-                              profileStats?.favoriteGenres?.[0] || '-'
-                            ],
-                            [
-                              '최근 플레이',
-                              profileStats?.lastPlayed
-                                ? new Date(profileStats.lastPlayed)
-                                    .toLocaleDateString('ko-KR')
-                                : '-'
-                            ]
-                          ].map(([k,v],i)=>(
-                            <div
-                              key={i}
-                              style={{
-                                background:'#fff',
-                                border:'1px solid #ece7df',
-                                borderRadius:14,
-                                padding:'12px 12px'
-                              }}>
-                              <div style={{
-                                fontSize:'0.66rem',
-                                color:'#999',
-                                marginBottom:5,
-                                fontWeight:600
-                              }}>
-                                {k}
-                              </div>
-                              <div style={{
-                                fontSize:'1rem',
-                                fontWeight:800,
-                                color:'#1a1814',
-                                lineHeight:1.3
-                              }}>
-                                {v}
-                              </div>
-                            </div>
-                          ))}
+                                {/* 그래프 영역 */}
+                                <div style={{
+                                  display:'grid',
+                                  gridTemplateColumns:'1fr 1fr',
+                                  gap:7,
+                                  marginBottom:7
+                                }}>
+                                  {[
+                                    [
+                                      '총 점수',
+                                      displayScore.toLocaleString()
+                                    ],
+                                    [
+                                      '플레이 시간',
+                                      `${Math.floor((profileStats?.totalSeconds || 0)/3600)}h ${
+                                        Math.floor(
+                                          ((profileStats?.totalSeconds || 0)%3600)/60
+                                        )
+                                      }m`
+                                    ],
+                                    [
+                                      '선호 장르',
+                                      profileStats?.favoriteGenres?.[0] || '-'
+                                    ],
+                                    [
+                                      '최근 플레이',
+                                      profileStats?.lastPlayed
+                                        ? new Date(profileStats.lastPlayed)
+                                            .toLocaleDateString('ko-KR')
+                                        : '-'
+                                    ]
+                                  ].map(([k,v],i)=>(
+                                    <div
+                                      key={i}
+                                      style={{
+                                        background:'#fff',
+                                        border:'1px solid #ece7df',
+                                        borderRadius:14,
+                                        padding:'12px 12px'
+                                      }}>
+                                      <div style={{
+                                        fontSize:'0.66rem',
+                                        color:'#999',
+                                        marginBottom:5,
+                                        fontWeight:600
+                                      }}>
+                                        {k}
+                                      </div>
+                                      <div style={{
+                                        fontSize:'1rem',
+                                        fontWeight:800,
+                                        color:'#1a1814',
+                                        lineHeight:1.3
+                                      }}>
+                                        {v}
+                                      </div>
+                                    </div>
+                                  ))}
+                                </div>
+
+                              </>
+                            )
+
+                          })()}
                         </div>
 
 
