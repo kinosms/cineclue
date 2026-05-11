@@ -358,22 +358,16 @@ async function getProfileStats(supabase, charId){
   )
   const playLogs = logs.filter(
 
-  l =>
+    l =>
 
-    l.log_type === 'play' &&
+      String(l.log_type || '')
 
-    l.movie_id
+        .trim()
 
-)
+        .toLowerCase() === 'play'
 
-  const level =
-    Math.floor(totalScore / 50000) + 1
-  const currentLevelScore =
-    totalScore % 50000
-  const levelPercent =
-    Math.round(
-    (currentLevelScore / 50000) * 100
   )
+
   const totalSeconds = playLogs.reduce((sum, l) => {
     return sum + (l.mode === 'objective' ? 15 : 30)
   }, 0)
@@ -446,9 +440,6 @@ async function getProfileStats(supabase, charId){
     totalScore,
     totalSeconds,
     lastPlayed,
-    level,
-    currentLevelScore,
-    levelPercent,
     favoriteGenres,
     genreStats
   }
