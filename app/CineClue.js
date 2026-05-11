@@ -374,13 +374,6 @@ const totalScore = playLogs.reduce(
 
 )
 
-  .reduce(
-
-    (sum, l) => sum + (l.score_earned || 0),
-
-    0
-
-  )
   const level =
     Math.floor(totalScore / 50000) + 1
   const currentLevelScore =
