@@ -3169,23 +3169,53 @@ await safeQuery(
 
   async function saveNickname(){
 
-    if(!nickname.trim()) return
+  if(!nickname.trim()) return
 
-    const newUser = {
+  const existingUser = users.find(
 
-      charId: tempChar,
+    u =>
 
-      nickname,
+      u.charId === tempChar &&
 
-      score:0,
+      u.userId === authUser?.id
 
-      lives:30,
+  )
 
-      userId: authUser?.id || Date.now().toString(),
+  if(existingUser){
 
-      isGuest: !authUser
+    setSelChar(existingUser.charId)
 
-    }
+    setShowNameModal(false)
+
+    return
+
+  }
+
+  if(existingUser){
+
+  setSelChar(existingUser.charId)
+
+  setScreen('game')
+
+  return
+
+}
+
+  const newUser = {
+
+    charId: tempChar,
+
+    nickname,
+
+    score:0,
+
+    lives:30,
+
+    userId: authUser?.id || Date.now().toString(),
+
+    isGuest: !authUser
+
+  }
 
     const updated = [...users, newUser]
 
