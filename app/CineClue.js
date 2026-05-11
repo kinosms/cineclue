@@ -303,7 +303,7 @@ async function saveLog({
 
     .update({
 
-      score: currentCharacter.score + score
+      score: score
 
     })
 
