@@ -355,9 +355,16 @@ async function getProfileStats(supabase, charId){
     'load profile stats'
 
   )
-  const totalScore = logs.reduce(
+  const totalScore = logs
+
+  .filter(l => l.log_type === 'play')
+
+  .reduce(
+
     (sum, l) => sum + (l.score_earned || 0),
+
     0
+
   )
   const level =
     Math.floor(totalScore / 50000) + 1
@@ -5664,6 +5671,12 @@ await safeQuery(
                         alert('로그인 후 이용 가능합니다.')
                         return
                       }
+                      setProfileStats(null)
+                      setProfileTarget(selChar)
+                      setAnimateStats(false)
+                      requestAnimationFrame(()=>{
+                        setAnimateStats(true)
+                      })
                       setShowProfile(true)}} 
                       style={{cursor:'pointer'}}>
                       <svg viewBox="0 0 80 80" style={{width:68,height:68}}>
@@ -6095,6 +6108,7 @@ await safeQuery(
                                               alert('로그인 후 이용 가능합니다.')
                                               return
                                             }
+                                            setProfileStats(null)
                                             setAnimateStats(false)
                                             requestAnimationFrame(()=>{
                                               setAnimateStats(true)
