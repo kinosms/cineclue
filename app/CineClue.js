@@ -1556,21 +1556,59 @@ useEffect(() => {
 
           }
 
-          const loadedUsers = data.map(c => ({
+          const loadedUsers = await Promise.all(
 
-            charId: c.char_id,
+  data.map(async c => {
 
-            nickname: c.nickname,
+    const resultLogs = await safeQuery(
 
-            score: c.score,
+      supabase
 
-            lives: c.lives,
+        .from('game_logs')
 
-            userId: c.auth_user_id,
+        .select('score_earned')
 
-            isGuest:false
+        .eq('user_id', user.id)
 
-          }))
+        .eq('character_id', c.char_id)
+
+        .eq('log_type', 'result'),
+
+      `load score ${c.char_id}`
+
+    )
+
+    const logs = resultLogs?.data || []
+
+    const totalScore = logs.reduce(
+
+      (sum, l) =>
+
+        sum + (l.score_earned || 0),
+
+      0
+
+    )
+
+    return {
+
+      charId: c.char_id,
+
+      nickname: c.nickname,
+
+      score: totalScore,
+
+      lives: c.lives,
+
+      userId: c.auth_user_id,
+
+      isGuest:false
+
+    }
+
+  })
+
+)
 
           setUsers(loadedUsers)
 
