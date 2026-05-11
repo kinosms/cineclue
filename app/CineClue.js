@@ -299,52 +299,11 @@ async function saveLog({
 
   supabase
 
-    .from('game_logs')
-
-    .insert({
-
-      user_id: userId,
-
-      character_id: charId,
-
-      movie_id: movieId,
-
-      hint_used: hintUsed,
-
-      score_earned: score,
-
-      combo_mode: comboMode,
-
-      is_correct: isCorrect,
-
-      is_skip: isSkip || false,
-
-      nickname: nickname,
-
-      user_input: userInput,
-
-      genre: genre,
-
-      log_type: log_type,
-
-      mode: quizMode
-
-    }),
-
-  'insert game log'
-
-)
-}
-
-await safeQuery(
-
-  supabase
-
     .from('characters')
 
     .update({
 
-      score: (currentUser?.score || 0) + score
+      score: currentCharacter.score + score
 
     })
 
@@ -355,6 +314,9 @@ await safeQuery(
   'update character score'
 
 )
+}
+
+
 
 
 
