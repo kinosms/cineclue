@@ -336,6 +336,26 @@ async function saveLog({
 )
 }
 
+await safeQuery(
+
+  supabase
+
+    .from('characters')
+
+    .update({
+
+      score: currentCharacter.score + score
+
+    })
+
+    .eq('char_id', charId)
+
+    .eq('auth_user_id', authUser.id),
+
+  'update character score'
+
+)
+
 
 
 async function getProfileStats(supabase, charId){
