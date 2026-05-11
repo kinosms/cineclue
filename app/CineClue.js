@@ -355,12 +355,9 @@ async function getProfileStats(supabase, charId){
 
   )
   const totalScore = logs.reduce(
-
-  (sum, l) => sum + (l.score_earned || 0),
-
-  0
-
-)
+    (sum, l) => sum + (l.score_earned || 0),
+    0
+  )
   const level =
     Math.floor(totalScore / 50000) + 1
   const currentLevelScore =
@@ -2301,7 +2298,7 @@ useEffect(() => {
 
             .select('movie_id')
 
-            .eq('character_id', charId)
+            .eq('user_id', userId)
 
             .not('movie_id', 'is', null)
 
