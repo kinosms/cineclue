@@ -335,48 +335,6 @@ async function saveLog({
 
   )
 
-  // 2️⃣ 캐릭터 현재 점수 조회
-  const { data: charData } = await safeQuery(
-
-    supabase
-
-      .from('characters')
-
-      .select('score')
-
-      .eq('char_id', charId)
-
-      .eq('auth_user_id', userId)
-
-      .single(),
-
-    'load character score'
-
-  )
-
-  const currentScore = charData?.score || 0
-
-  // 3️⃣ 누적 점수 업데이트
-  await safeQuery(
-
-    supabase
-
-      .from('characters')
-
-      .update({
-
-        score: currentScore + score
-
-      })
-
-      .eq('char_id', charId)
-
-      .eq('auth_user_id', userId),
-
-    'update character score'
-
-  )
-
 }
 
 
