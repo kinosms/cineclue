@@ -344,7 +344,7 @@ await safeQuery(
 
     .update({
 
-      score: currentCharacter.score + score
+      score: (currentUser?.score || 0) + score
 
     })
 
