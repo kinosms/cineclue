@@ -392,9 +392,9 @@ async function getProfileStats(supabase, charId){
 
         genre: l.genre,
 
-        attempt_count: 0,
+        attemptedMovieIds: new Set(),
 
-        correct_count: 0,
+        correctMovieIds: new Set(),
 
         total_score: 0
 
@@ -402,11 +402,11 @@ async function getProfileStats(supabase, charId){
 
     }
 
-    genreMap[l.genre].attempt_count += 1
+    genreMap[l.genre].attemptedMovieIds.add(l.movie_id)
 
     if(l.is_correct){
 
-      genreMap[l.genre].correct_count += 1
+      genreMap[l.genre].correctMovieIds.add(l.movie_id)
 
     }
 
@@ -416,17 +416,37 @@ async function getProfileStats(supabase, charId){
 
   })
 
-  const genreStats = Object.values(genreMap).map(g => ({
+  const genreStats = Object.values(genreMap).map(g => {
 
-  ...g,
+  const attempt_count =
 
-  percent: g.attempt_count > 0
+    g.attemptedMovieIds.size
 
-    ? Math.round((g.correct_count / g.attempt_count) * 100)
+  const correct_count =
 
-    : 0
+    g.correctMovieIds.size
 
-}))
+  return {
+
+    genre: g.genre,
+
+    attempt_count,
+
+    correct_count,
+
+    total_score: g.total_score,
+
+    percent: Math.min(
+
+      Math.round(correct_count * 3),
+
+      100
+
+    )
+
+  }
+
+})
 
   const favoriteGenres =
   [...genreStats]
@@ -1633,9 +1653,15 @@ useEffect(() => {
 
   useEffect(()=>{
 
+  if(!showProfile) return
+
   if(!supabase || !selChar) return
 
   const targetCharId = profileTarget || selChar
+
+  let cancelled = false
+
+  setProfileStats(null)
 
   const run = async()=>{
 
@@ -1647,13 +1673,23 @@ useEffect(() => {
 
     )
 
-    setProfileStats(profile)
+    if(!cancelled){
+
+      setProfileStats(profile)
+
+    }
 
   }
 
   run()
 
-}, [supabase, selChar, profileTarget])
+    return ()=>{
+
+      cancelled = true
+
+    }
+
+  }, [showProfile, supabase, selChar, profileTarget])
 
 
 
