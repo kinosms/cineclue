@@ -437,7 +437,6 @@ async function getProfileStats(supabase, charId){
     .map(g => g.genre)
 
   return {
-    totalScore,
     totalSeconds,
     lastPlayed,
     favoriteGenres,
