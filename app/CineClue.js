@@ -5786,7 +5786,7 @@ const roundScore = score - roundStartScore
                   }}>
                     <div
 
-                      onClick={()=>{
+                      onClick={async ()=>{
 
                         if(!authUser){
 
@@ -5795,6 +5795,8 @@ const roundScore = score - roundStartScore
                           return
 
                         }
+
+                        setProfileLoading(true)
 
                         setProfileStats(null)
 
@@ -5805,12 +5807,16 @@ const roundScore = score - roundStartScore
                         setProfileUser(currentUser)
 
                         setAnimateStats(false)
+                        const recMovies = await getRecommendMovies()
+                        setRecommendMovies(recMovies)
 
                         requestAnimationFrame(()=>{
 
                           setAnimateStats(true)
 
                         })
+
+                        setProfileLoading(false)
 
                         setShowProfile(true)
 
@@ -6249,7 +6255,7 @@ const roundScore = score - roundStartScore
 
                                         <div
 
-                                          onClick={()=>{
+                                          onClick={async ()=>{
 
                                             if(!authUser){
 
@@ -6259,19 +6265,21 @@ const roundScore = score - roundStartScore
 
                                             }
 
-                                            // 🔥 이전 프로필 초기화
+                                            setProfileLoading(true)
 
                                             setProfileStats(null)
 
-                                            // 🔥 랭킹 프로필 대상 지정
+                                            // 🔥 랭킹 프로필 target 제거
 
-                                            setProfileTarget(r.character_id)
+                                            setProfileTarget(null)
 
-                                            // 🔥 랭킹 row 자체 저장
-
-                                            setProfileUser(r)
+                                            setProfileUser(currentUser)
 
                                             setAnimateStats(false)
+
+                                            const recMovies = await getRecommendMovies()
+
+                                            setRecommendMovies(recMovies)
 
                                             requestAnimationFrame(()=>{
 
@@ -6279,15 +6287,13 @@ const roundScore = score - roundStartScore
 
                                             })
 
+                                            setProfileLoading(false)
+
                                             setShowProfile(true)
 
                                           }}
 
-                                          style={{
-
-                                            cursor:'pointer'
-
-                                          }}
+                                          style={{cursor:'pointer'}}
 
                                         >
                                           <CharAvatar
