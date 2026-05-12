@@ -5254,7 +5254,7 @@ const roundScore = score - roundStartScore
                                   style={{
                                     border:'none',
                                     background:'transparent',
-                                    color:'rgba(92, 91, 91, 0.72)',
+                                    color:'rgba(103, 103, 103, 0.7)',
                                     fontSize:'0.8rem',
                                     cursor:'pointer',
                                     padding:4,
@@ -5786,7 +5786,7 @@ const roundScore = score - roundStartScore
                   }}>
                     <div
 
-                      onClick={async ()=>{
+                      onClick={()=>{
 
                         if(!authUser){
 
@@ -5795,8 +5795,6 @@ const roundScore = score - roundStartScore
                           return
 
                         }
-
-                        setProfileLoading(true)
 
                         setProfileStats(null)
 
@@ -5807,16 +5805,12 @@ const roundScore = score - roundStartScore
                         setProfileUser(currentUser)
 
                         setAnimateStats(false)
-                        const recMovies = await getRecommendMovies()
-                        setRecommendMovies(recMovies)
 
                         requestAnimationFrame(()=>{
 
                           setAnimateStats(true)
 
                         })
-
-                        setProfileLoading(false)
 
                         setShowProfile(true)
 
@@ -6255,7 +6249,7 @@ const roundScore = score - roundStartScore
 
                                         <div
 
-                                          onClick={async ()=>{
+                                          onClick={()=>{
 
                                             if(!authUser){
 
@@ -6265,21 +6259,19 @@ const roundScore = score - roundStartScore
 
                                             }
 
-                                            setProfileLoading(true)
+                                            // 🔥 이전 프로필 초기화
 
                                             setProfileStats(null)
 
-                                            // 🔥 랭킹 프로필 target 제거
+                                            // 🔥 랭킹 프로필 대상 지정
 
-                                            setProfileTarget(null)
+                                            setProfileTarget(r.character_id)
 
-                                            setProfileUser(currentUser)
+                                            // 🔥 랭킹 row 자체 저장
+
+                                            setProfileUser(r)
 
                                             setAnimateStats(false)
-
-                                            const recMovies = await getRecommendMovies()
-
-                                            setRecommendMovies(recMovies)
 
                                             requestAnimationFrame(()=>{
 
@@ -6287,13 +6279,15 @@ const roundScore = score - roundStartScore
 
                                             })
 
-                                            setProfileLoading(false)
-
                                             setShowProfile(true)
 
                                           }}
 
-                                          style={{cursor:'pointer'}}
+                                          style={{
+
+                                            cursor:'pointer'
+
+                                          }}
 
                                         >
                                           <CharAvatar
