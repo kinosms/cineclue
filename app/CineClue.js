@@ -1030,14 +1030,6 @@ if(data.length === 0) break
 
   const loginGoogle = async () => {
 
-    await safeQuery(
-
-  supabase.auth.signOut(),
-
-  'google login signout'
-
-)
-
       localStorage.setItem(
 
         'cineclue_oauth_start',
@@ -1070,13 +1062,6 @@ if(data.length === 0) break
 
   const loginKakao = async () => {
 
-    await safeQuery(
-
-  supabase.auth.signOut(),
-
-  'kakao login signout'
-
-)
 
     localStorage.setItem(
 
@@ -3320,13 +3305,18 @@ const roundScore = score - roundStartScore
       {/* 인트로화면 */}
       {screen === 'intro' && (
         <IntroScreen 
-          key={authUser ? 'login' : 'guest'}
+
           onEnter={()=>{
-              setScreen('char')
-            }}
-            onLogin={()=>setShowLogin(true)}
-            authUser={authUser}
-            />
+
+            setScreen('char')
+
+          }}
+
+          onLogin={()=>setShowLogin(true)}
+
+          authUser={authUser}
+
+        />
         )}
 
       {showLogin && (
