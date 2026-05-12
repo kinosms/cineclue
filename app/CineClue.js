@@ -4841,7 +4841,7 @@ const roundScore = score - roundStartScore
                                 cursor:'pointer',
                                 padding:2
                             }}>
-                              이상한 부분이 있어요
+                              신고
                             </button>
 
                             {showReportMenu && (
@@ -5254,7 +5254,7 @@ const roundScore = score - roundStartScore
                                   style={{
                                     border:'none',
                                     background:'transparent',
-                                    color:'rgba(226, 7, 7, 0.7)',
+                                    color:'rgba(92, 91, 91, 0.72)',
                                     fontSize:'0.8rem',
                                     cursor:'pointer',
                                     padding:4,
@@ -5263,7 +5263,7 @@ const roundScore = score - roundStartScore
                                     justifyContent:'center'
                                   }}
                                 >
-                                  이상한 부분이 있어요
+                                  신고
                                 </button>
 
                                 {/* 신고 메뉴 */}
