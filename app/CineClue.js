@@ -4836,12 +4836,12 @@ const roundScore = score - roundStartScore
                               style={{
                                 border:'none',
                                 background:'transparent',
-                                color:'rgba(226,7,7,0.72)',
-                                fontSize:'1.2rem',
+                                color:'rgba(92, 91, 91, 0.72)',
+                                fontSize:'0.8rem',
                                 cursor:'pointer',
                                 padding:2
                             }}>
-                              ⚠
+                              이상한 부분이 있어요
                             </button>
 
                             {showReportMenu && (
@@ -5255,7 +5255,7 @@ const roundScore = score - roundStartScore
                                     border:'none',
                                     background:'transparent',
                                     color:'rgba(226, 7, 7, 0.7)',
-                                    fontSize:'1.2rem',
+                                    fontSize:'0.8rem',
                                     cursor:'pointer',
                                     padding:4,
                                     display:'flex',
@@ -5263,7 +5263,7 @@ const roundScore = score - roundStartScore
                                     justifyContent:'center'
                                   }}
                                 >
-                                  ⚠
+                                  이상한 부분이 있어요
                                 </button>
 
                                 {/* 신고 메뉴 */}
