@@ -109,6 +109,12 @@ export default function ResultScreen(props) {
   const currentGrade = selGrade
   const hasFail = results.some(r => !r.correct)
   const char = CHARS.find(c => c.id === selChar)
+  const sortedRanking = [...ranking].sort(
+
+  (a, b) => b.score - a.score
+
+)
+  
 
   let lastRank = 1
   const ranked = ranking.map((r, i) => {
