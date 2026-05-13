@@ -117,11 +117,11 @@ export default function ResultScreen(props) {
   
 
   let lastRank = 1
-  const ranked = ranking.map((r, i) => {
+  const ranked = sortedRanking.map((r, i) => {
     if (i === 0) {
       return { ...r, rank: 1 }
     }
-    const prev = ranking[i - 1]
+    const prev = sortedRanking[i - 1]
     if (r.score === prev.score) {
       return { ...r, rank: lastRank }
     }
