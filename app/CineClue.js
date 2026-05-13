@@ -8,6 +8,7 @@ import CharacterScreen from '../components/CharacterScreen'
 import ModeScreen from '../components/ModeScreen'
 import LoginModal from '../components/LoginModal'
 import QuizScreen from '../components/QuizScreen'
+import ResultScreen from '../components/ResultScreen'
 
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || ''
 const SUPABASE_KEY = process.env.NEXT_PUBLIC_SUPABASE_KEY || ''
