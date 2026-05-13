@@ -802,7 +802,7 @@ export default function ResultScreen(props) {
                             fontWeight: 900,
                             whiteSpace: 'nowrap'
                           }}>
-                            {myRankData?.score || 0}
+                            {(displayScore || 0).toLocaleString()}
                           </div>
                         </div>
                       )}
