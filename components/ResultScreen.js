@@ -160,6 +160,7 @@ export default function ResultScreen(props) {
             marginBottom: 10
           }}>
             <div
+              className="pressable"
 
               onClick={() => {
 
@@ -337,7 +338,9 @@ export default function ResultScreen(props) {
                   r.poster_path ||
                   r.overview
                 return (
-                  <div key={i}
+                  <div 
+                    className="pressable"
+                    key={i}
                     onClick={() => {
                       if (
                         (r.correct || showAnswers)
@@ -826,6 +829,7 @@ export default function ResultScreen(props) {
             {/* 🔥 조건 버튼 */}
             {!isLevelCompleted && (
               <button
+                className="pressable"
                 style={{
                   flex: 1,
                   height: 54,
@@ -847,6 +851,7 @@ export default function ResultScreen(props) {
 
             {/* 🔥 공통 버튼 (홈은 무조건 하나만) */}
             <button
+              className="pressable"
               style={{
                 flex: 1,
                 height: 54,

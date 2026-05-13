@@ -39,7 +39,7 @@ export default function RootLayout({ children }) {
     <html lang="ko">
       <body>
         <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9833499589161859"
-     crossorigin="anonymous"></script>
+          crossorigin="anonymous"></script>
         <div className="app-wrap">
           <div className="app-inner">
             {children}
