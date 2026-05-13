@@ -3388,6 +3388,7 @@ export default function CineClue() {
           currentUser={currentUser}
           selGrade={selGrade}
           authUser={authUser}
+          comboStreak={comboStreak}
 
           resultView={resultView}
           setResultView={setResultView}

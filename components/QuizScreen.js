@@ -14,6 +14,8 @@ export default function QuizScreen(props) {
 
     selGrade,
 
+    ResultScreen,
+
     getPts,
 
     mode,
@@ -78,6 +80,8 @@ export default function QuizScreen(props) {
     submit,
 
     playClick,
+
+    comboStreak,
 
     nextH,
 
