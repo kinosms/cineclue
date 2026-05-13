@@ -190,3 +190,18 @@ input { font-family: inherit; outline: none; }
 
 }
 
+/* 터치 인터랙션 */
+
+.pressable{
+  transition:
+    transform 0.12s ease,
+    opacity 0.12s ease;
+    
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+}
+
+.pressable:active{
+  transform: scale(0.96);
+  opacity: 0.9;
+}

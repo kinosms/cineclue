@@ -576,7 +576,7 @@ export default function CharacterScreen(props) {
 
         {/* 입장하기 버튼 */}
         <button
-          className="pressable"
+          
           onClick={() => {
             playClick()
             enterGame()

@@ -706,7 +706,7 @@ export default function QuizScreen(props) {
                 {/* 힌트보기 & 넘기기 버튼 영역*/}
                 <div style={{ display: 'flex', gap: 8, marginBottom: 16 }}>
                   <button
-                    className="pressable"
+                    
                     onClick={() => {
                       const el = scrollRef.current
                       const prev = el.scrollHeight
@@ -730,7 +730,7 @@ export default function QuizScreen(props) {
 
                   <button
                     onClick={() => {
-                      className="pressable"
+                      
                       playClick()
                       doSkip()
                     }}
@@ -778,7 +778,7 @@ export default function QuizScreen(props) {
                   }}>
                     {choices.map((c, i) => (
                       <button
-                        className="pressable"
+                        
                         key={i}
                         onClick={() => {
                           if (selectedChoice === c) return
@@ -900,7 +900,7 @@ export default function QuizScreen(props) {
                           }}
                         />
                         <button
-                          className="pressable"
+                          
                           onClick={() => {
                             playClick()
                             submit()
@@ -1376,7 +1376,7 @@ export default function QuizScreen(props) {
 
                 {/* 하단 버튼 */}
                 <button
-                  className="pressable"
+                  
                   onClick={() => {
                     playClick()
                     nextQ()

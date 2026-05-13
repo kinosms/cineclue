@@ -125,7 +125,7 @@ export default function IntroScreen({
           </div>
 
           <button
-            className="pressable"
+            
             onClick={onEnter}
             style={{
               height: 48,

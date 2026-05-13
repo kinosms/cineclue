@@ -70,7 +70,7 @@ export default function ModeScreen(props) {
           <div style={{ display: 'flex', gap: 8, marginBottom: 16 }}>
             <button
               onClick={() => {
-                className="pressable"
+                
                 playClick()
                 setQuizMode('subjective')
               }}
@@ -86,7 +86,7 @@ export default function ModeScreen(props) {
             </button>
             <button
               onClick={() => {
-                className="pressable"
+                
                 playClick()
                 setQuizMode('objective')
               }}
@@ -229,7 +229,7 @@ export default function ModeScreen(props) {
 
             {/* 퀴즈시작 버튼 */}
             <button
-              className="pressable"
+              
               style={{
                 flex: 1,
                 height: 54,
@@ -253,7 +253,7 @@ export default function ModeScreen(props) {
 
             {/* 뒤로가기 버튼 */}
             <button
-              className="pressable"
+              
               style={{
                 flex: 1,
                 height: 54,
