@@ -4,7 +4,16 @@
 import { useEffect, useRef, useState } from 'react'
 import MovieFlipCard from './MovieFlipCard'
 
-export default function Collection() {
+export default function Collection(props) {
+
+  const {
+
+    authUser,
+    supabase,
+    setScreen,
+    selChar
+
+  } = props
 
   const scrollRef = useRef(null)
   const [ready, setReady] = useState(false)
@@ -13,113 +22,43 @@ export default function Collection() {
   const [showMovieCard, setShowMovieCard] = useState(false)
   const [movieCardFlipped, setMovieCardFlipped] = useState(false)
   const [trailerKey, setTrailerKey] = useState(null)
-  const dummyPosters = [
-
-    {
-
-      id: 1,
-
-      title: 'Oldboy',
-
-      poster: 'https://image.tmdb.org/t/p/w500/8Q31DAtmFJjhftJRYmWanmxpzgE.jpg'
-
-    },
-
-    {
-
-      id: 2,
-
-      title: 'Inception',
-
-      poster: 'https://image.tmdb.org/t/p/w500/edv5CZvWj09upOsy2Y6IwDhK8bt.jpg'
-
-    },
-
-    {
-
-      id: 3,
-
-      title: 'The Dark Knight',
-
-      poster: 'https://image.tmdb.org/t/p/w500/qJ2tW6WMUDux911r6m7haRef0WH.jpg'
-
-    },
-
-    {
-
-      id: 4,
-
-      title: 'Parasite',
-
-      poster: 'https://image.tmdb.org/t/p/w500/7IiTTgloJzvGI1TAYymCfbfl3vT.jpg'
-
-    },
-
-    {
-
-      id: 5,
-
-      title: 'Whiplash',
-
-      poster: 'https://image.tmdb.org/t/p/w500/7fn624j5lj3xTme2SgiLCeuedmO.jpg'
-
-    }
-
-  ]
-
-  const preloadImage = (src) => {
-
-    return new Promise((resolve) => {
-
-      const img = new Image()
-
-      img.src = src
-
-      img.onload = resolve
-
-      img.onerror = resolve
-
-    })
-
-  }
+  
 
   useEffect(() => {
 
-    const load = async () => {
+  const loadCollections = async () => {
 
-      const firstBatch = Array.from({ length: 10 }).map((_, i) => {
+    if(!authUser) return
 
-        const base = dummyPosters[i % dummyPosters.length]
+    const { data, error } = await supabase
 
-        return {
+      .from('collections')
 
-          ...base,
+      .select('*')
 
-          uid: i
+      .eq('user_id', authUser.id)
 
-        }
+      .eq('character_id', selChar)
 
-      })
+      .order('viewed_at', { ascending:false })
 
-      await Promise.all(
+    if(error){
 
-        firstBatch.map(p =>
+      console.error(error)
 
-          preloadImage(p.poster || '/noposter.jpg')
-
-        )
-
-      )
-
-      setPosters(firstBatch)
-
-      setReady(true)
+      return
 
     }
 
-    load()
+    setPosters(data || [])
 
-  }, [])
+    setReady(true)
+
+  }
+
+  loadCollections()
+
+}, [])
 
 
   if (!ready) {
@@ -163,9 +102,6 @@ export default function Collection() {
 
 
   return (
-
-
-
     <div
 
       style={{
@@ -209,6 +145,67 @@ export default function Collection() {
         }}
 
       >
+        {/* CLOSE */}
+
+          <div
+
+            onClick={() => {
+
+              setScreen('result')
+
+            }}
+
+            style={{
+
+              position:'absolute',
+
+              top:24,
+
+              right:24,
+
+              width:42,
+
+              height:42,
+
+              borderRadius:'50%',
+
+              background:'rgba(255,255,255,0.08)',
+
+              border:'1px solid rgba(255,255,255,0.12)',
+
+              backdropFilter:'blur(10px)',
+
+              display:'flex',
+
+              alignItems:'center',
+
+              justifyContent:'center',
+
+              cursor:'pointer',
+
+              zIndex:20
+
+            }}
+
+          >
+
+            <span style={{
+
+              fontSize:20,
+
+              color:'#fff',
+
+              fontWeight:700,
+
+              lineHeight:1
+
+            }}>
+
+              ×
+
+            </span>
+
+          </div>
 
         <div
 
@@ -264,7 +261,7 @@ export default function Collection() {
 
         >
 
-          128 archived movies
+          archived movies
 
         </div>
 
@@ -353,35 +350,7 @@ export default function Collection() {
 
               onClick={() => {
 
-                setMovieCard({
-
-                  ...poster,
-
-                  // 임시 mock 데이터
-
-                  poster_path: '',
-
-                  backdrop_path: '',
-
-                  release_date: '2010-07-21',
-
-                  original_title: poster.title,
-
-                  overview: 'Movie overview...',
-
-                  genres: [],
-
-                  production_countries: [],
-
-                  credits: {
-
-                    cast: [],
-
-                    crew: []
-
-                  }
-
-                })
+                setMovieCard(poster.movie_data)
 
                 setMovieCardFlipped(false)
 
@@ -440,11 +409,19 @@ export default function Collection() {
 
             >
 
-              {/* fake poster image */}
+              {/* poster image */}
 
               <img
-                src={poster.poster || '/noposter.jpg'}
-                alt={poster.title}
+                src={
+
+                  poster.movie_data?.poster_path
+
+                    ? `https://image.tmdb.org/t/p/w500${poster.movie_data.poster_path}`
+
+                    : '/no_poster.webp'
+
+                }
+                alt={poster.movie_data?.title}
                 draggable={false}
                 style={{
                   width: '100%',
