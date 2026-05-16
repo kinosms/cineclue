@@ -2135,47 +2135,74 @@ export default function CineClue() {
 
 
   // 결과 화면 순차 노출 + 점수 카운트
-  useEffect(() => {
-      if (screen !== 'result') return
-      if (results.length === 0) return
-      if (!users || users.length === 0) return
-      if (!skipResultAnimation) {
-        setResultView('score')
-        setVisibleResults(1)
-      }
-    }, [screen])
+useEffect(() => {
 
-    const roundScore = score - roundStartScore
-    const startScore = roundStartScore
-    const tot = startScore + roundScore
+  if (screen !== 'result') return
 
-    setDisplayScore(startScore)
+  if (results.length === 0) return
 
-    let i = 0
+  if (!users || users.length === 0) return
 
-    const interval = setInterval(() => {
-      i++
-      setVisibleResults(i)
+  // 🔥 컬렉션 복귀 시 상태 유지
+  if (skipResultAnimation) return
 
-      if (i >= results.length) {
-        clearInterval(interval)
+  setResultView('score')
+
+  setVisibleResults(1)
+
+  const roundScore = score - roundStartScore
+
+  const startScore = roundStartScore
+
+  const tot = startScore + roundScore
+
+  setDisplayScore(startScore)
+
+  let i = 0
+
+  const interval = setInterval(() => {
+
+    i++
+
+    setVisibleResults(i)
+
+    if (i >= results.length) {
+
+      clearInterval(interval)
+
+      setTimeout(() => {
+
+        setVisibleResults(v => v + 1)
+
         setTimeout(() => {
-          setVisibleResults(v => v + 1) // 버튼 등장
-          // 👇 버튼 이후 카운트 시작
-          setTimeout(() => {
-            let cur = startScore
-            const step = Math.ceil((tot - startScore) / 60)
-            const iv = setInterval(() => {
-              cur = Math.min(cur + step, tot)
-              setDisplayScore(cur)
-              if (cur >= tot) clearInterval(iv)
-            }, 20)
-          }, 400)
+
+          let cur = startScore
+
+          const step = Math.ceil(
+            (tot - startScore) / 60
+          )
+
+          const iv = setInterval(() => {
+
+            cur = Math.min(cur + step, tot)
+
+            setDisplayScore(cur)
+
+            if (cur >= tot) clearInterval(iv)
+
+          }, 20)
+
         }, 400)
-      }
-    }, 400)
-    return () => clearInterval(interval)
-  }, [screen, results, users])
+
+      }, 400)
+
+    }
+
+  }, 400)
+
+  return () => clearInterval(interval)
+
+}, [screen, results, users, skipResultAnimation])
 
 
   useEffect(() => {
