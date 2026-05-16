@@ -1290,6 +1290,8 @@ export default function CineClue() {
 
             if (data.length === 0) {
 
+              setUsers([])
+
               return
 
             }
@@ -1310,7 +1312,15 @@ export default function CineClue() {
 
                     .eq('character_id', c.char_id)
 
-                    .eq('log_type', 'result'),
+                    .eq('log_type', 'result')
+
+                    .order('created_at', {
+
+                      ascending:false
+
+                    })
+
+                    .limit(1),
 
                   `load score ${c.char_id}`
 
@@ -1318,15 +1328,7 @@ export default function CineClue() {
 
                 const logs = resultLogs?.data || []
 
-                const totalScore = logs.reduce(
-
-                  (sum, l) =>
-
-                    sum + (l.score_earned || 0),
-
-                  0
-
-                )
+                const totalScore = logs?.[0]?.score_earned || 0
 
                 return {
 
@@ -1353,10 +1355,21 @@ export default function CineClue() {
             return
           }
 
-          const loadedUsers =
-            loadUsers(null)
+          if (!user) {
 
-          setUsers(loadedUsers)
+            const sessionResult = await supabase.auth.getSession()
+
+            const sessionUser =
+
+              sessionResult?.data?.session?.user
+
+            if (sessionUser) return
+
+            const loadedUsers = loadUsers(null)
+
+            setUsers(loadedUsers)
+
+          }
         }
       )
 
