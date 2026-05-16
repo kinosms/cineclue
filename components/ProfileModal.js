@@ -2,747 +2,732 @@
 
 import MovieFlipCard from './MovieFlipCard'
 
-export default function ProfileModal(props){
+export default function ProfileModal(props) {
 
   const {
-
     showProfile,
     setShowProfile,
     movieCard,
-
     showMovieCard,
-
     setShowMovieCard,
-
     movieCardFlipped,
-
     setMovieCardFlipped,
-
     profileUser,
     profileStats,
     animateStats,
-
     LEVEL_TITLES,
-
     recommendStatus,
     loadingDots,
-
     openMovieRecommend,
-
     showRecommendModal,
     setShowRecommendModal,
-
     recommendMovie,
-
     setTrailerKey,
-
     CharAvatar,
-
     currentUser
-
   } = props
 
 
-  
-  if(!showProfile) return null
+
+  if (!showProfile) return null
 
   return (
     <>
-       {/* 🔥 프로필 팝업 */}
-        {showProfile && (
+      {/* 🔥 프로필 팝업 */}
+      {showProfile && (
+        <div style={{
+          position: 'fixed',
+          inset: 0,
+          background: 'rgba(0,0,0,0.3)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 99
+        }}>
           <div style={{
-            position: 'fixed',
-            inset: 0,
-            background: 'rgba(0,0,0,0.3)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            zIndex: 99
+            transform: 'scale(0.88)',
+            transformOrigin: 'center center'
           }}>
             <div style={{
-              transform: 'scale(0.88)',
-              transformOrigin: 'center center'
+              width: '92vw',
+              maxWidth: 420,
+              maxHeight: '88vh',
+              overflowY: 'auto',
+              background: '#faf9f7',
+              borderRadius: 20,
+              border: '1.5px solid #e8e4dd',
+              padding: '20px 16px',
+              boxShadow: '0 10px 30px rgba(0,0,0,0.1)',
+              position: 'relative'
             }}>
+              {/* 닫기 */}
+              <div
+                onClick={() => setShowProfile(false)}
+                style={{
+                  position: 'absolute',
+                  top: 12,
+                  right: 12,
+                  width: 30,
+                  height: 30,
+                  borderRadius: '50%',
+                  background: '#f5f3ef',
+                  border: '1px solid #e8e4dd',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  cursor: 'pointer'
+                }}>
+                <span style={{
+                  color: '#1a1814',
+                  fontSize: 16,
+                  fontWeight: 700
+                }}>
+                  ×
+                </span>
+              </div>
+
+
+              {/* 상단텍스트 영역 */}
               <div style={{
-                width: '92vw',
-                maxWidth: 420,
-                maxHeight: '88vh',
-                overflowY: 'auto',
-                background: '#faf9f7',
-                borderRadius: 20,
-                border: '1.5px solid #e8e4dd',
-                padding: '20px 16px',
-                boxShadow: '0 10px 30px rgba(0,0,0,0.1)',
-                position: 'relative'
+                textAlign: 'center',
+                marginBottom: 7
               }}>
-                {/* 닫기 */}
-                <div
-                  onClick={() => setShowProfile(false)}
-                  style={{
-                    position: 'absolute',
-                    top: 12,
-                    right: 12,
-                    width: 30,
-                    height: 30,
-                    borderRadius: '50%',
-                    background: '#f5f3ef',
-                    border: '1px solid #e8e4dd',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    cursor: 'pointer'
-                  }}>
-                  <span style={{
-                    color: '#1a1814',
-                    fontSize: 16,
-                    fontWeight: 700
-                  }}>
-                    ×
-                  </span>
+
+                {/* 작은 라벨 */}
+                <div style={{
+                  fontSize: '0.62rem',
+                  letterSpacing: '0.24em',
+                  color: '#b8b1a8',
+                  fontWeight: 700,
+                  marginBottom: 8
+                }}>
+                  CINECLUE TITLE
                 </div>
 
+                {/* 🔥 점수 기반 계산 */}
+                {(() => {
 
-                {/* 상단텍스트 영역 */}
-                <div style={{
-                  textAlign: 'center',
-                  marginBottom: 7
-                }}>
+                  const displayScore =
+                    profileUser?.score ??
+                    currentUser?.score ??
+                    user?.score ??
+                    0
 
-                  {/* 작은 라벨 */}
-                  <div style={{
-                    fontSize: '0.62rem',
-                    letterSpacing: '0.24em',
-                    color: '#b8b1a8',
-                    fontWeight: 700,
-                    marginBottom: 8
-                  }}>
-                    CINECLUE TITLE
-                  </div>
+                  const displayLevel =
+                    Math.floor(displayScore / 50000) + 1
 
-                  {/* 🔥 점수 기반 계산 */}
-                  {(() => {
+                  const displayCurrentExp =
+                    displayScore % 50000
 
-                    const displayScore =
-                      profileUser?.score ??
-                      currentUser?.score ??
-                      user?.score ??
-                      0
+                  const displayLevelPercent =
+                    Math.round(
+                      (displayCurrentExp / 50000) * 100
+                    )
 
-                    const displayLevel =
-                      Math.floor(displayScore / 50000) + 1
+                  return (
+                    <>
 
-                    const displayCurrentExp =
-                      displayScore % 50000
+                      {/* 타이틀 */}
+                      <div style={{
+                        fontSize: '1.6rem',
+                        fontWeight: 900,
+                        color: '#1a1814',
+                        letterSpacing: '-0.04em',
+                        lineHeight: 1.08
+                      }}>
+                        {LEVEL_TITLES[
+                          Math.min(displayLevel, 100)
+                        ]}
+                      </div>
 
-                    const displayLevelPercent =
-                      Math.round(
-                        (displayCurrentExp / 50000) * 100
-                      )
+                      {/* 닉네임 */}
+                      <div style={{
+                        fontSize: '0.9rem',
+                        color: '#8d857c',
+                        marginTop: 10,
+                        fontWeight: 600
+                      }}>
+                        {profileUser?.nickname || currentUser?.nickname || '-'}
+                      </div>
 
-                    return (
-                      <>
+                      {/* 레벨바 영역 */}
+                      <div style={{
+                        marginBottom: 15,
+                        marginTop: 18
+                      }}>
 
-                        {/* 타이틀 */}
                         <div style={{
-                          fontSize: '1.6rem',
+                          fontSize: '1.0rem',
                           fontWeight: 900,
                           color: '#1a1814',
-                          letterSpacing: '-0.04em',
-                          lineHeight: 1.08
+                          textAlign: 'left',
+                          marginBottom: 6
                         }}>
-                          {LEVEL_TITLES[
-                            Math.min(displayLevel, 100)
-                          ]}
+
+                          Lv. {displayLevel}
+
                         </div>
 
-                        {/* 닉네임 */}
                         <div style={{
-                          fontSize: '0.9rem',
-                          color: '#8d857c',
+                          height: 8,
+                          background: '#ece9e4',
+                          borderRadius: 999,
                           marginTop: 10,
+                          overflow: 'hidden'
+                        }}>
+
+                          <div style={{
+                            width: `${displayLevelPercent}%`,
+                            height: '100%',
+                            background:
+                              'linear-gradient(90deg,#ff8a95,#ff5f73)',
+                            borderRadius: 999,
+                            boxShadow: '0 0 12px rgba(255,95,115,0.35)'
+                          }} />
+
+                        </div>
+
+                        <div style={{
+                          fontSize: '0.72rem',
+                          color: '#888',
+                          textAlign: 'right',
+                          marginTop: 6,
                           fontWeight: 600
                         }}>
-                          {profileUser?.nickname || currentUser?.nickname || '-'}
+                          {displayCurrentExp.toLocaleString()}
+                          {' '}
+                          / 50,000 EXP
                         </div>
+                      </div>
 
-                        {/* 레벨바 영역 */}
-                        <div style={{
-                          marginBottom: 15,
-                          marginTop: 18
-                        }}>
+                      {/* 그래프 영역 */}
+                      <div style={{
+                        display: 'grid',
+                        gridTemplateColumns: '1fr 1fr',
+                        gap: 7,
+                        marginBottom: 7
+                      }}>
+                        {[
+                          [
+                            '총 점수',
+                            displayScore.toLocaleString()
+                          ],
+                          [
+                            '플레이 시간',
+                            `${Math.floor((profileStats?.totalSeconds || 0) / 3600)}h ${Math.floor(
+                              ((profileStats?.totalSeconds || 0) % 3600) / 60
+                            )
+                            }m`
+                          ],
+                          [
+                            '선호 장르',
+                            profileStats?.favoriteGenres?.[0] || '-'
+                          ],
+                          [
+                            '최근 플레이',
+                            profileStats?.lastPlayed
+                              ? new Date(profileStats.lastPlayed)
+                                .toLocaleDateString('ko-KR')
+                              : '-'
+                          ]
+                        ].map(([k, v], i) => (
+                          <div
+                            key={i}
+                            style={{
+                              background: '#fff',
+                              border: '1px solid #ece7df',
+                              borderRadius: 14,
+                              padding: '12px 12px'
+                            }}>
+                            <div style={{
+                              fontSize: '0.66rem',
+                              color: '#999',
+                              marginBottom: 5,
+                              fontWeight: 600
+                            }}>
+                              {k}
+                            </div>
+                            <div style={{
+                              fontSize: '1rem',
+                              fontWeight: 800,
+                              color: '#1a1814',
+                              lineHeight: 1.3
+                            }}>
+                              {v}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
 
-                          <div style={{
-                            fontSize: '1.0rem',
-                            fontWeight: 900,
-                            color: '#1a1814',
-                            textAlign: 'left',
-                            marginBottom: 6
+                    </>
+                  )
+
+                })()}
+              </div>
+
+
+              {/* 장르숙련도  영역*/}
+              <div style={{
+                background: '#fff',
+                border: '1px solid #ece7df',
+                borderRadius: 18,
+                padding: '14px 14px'
+              }}>
+
+                {/* 헤더 */}
+                <div style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  marginBottom: 12
+                }}>
+                  <div>
+                    <div style={{
+                      fontSize: '0.9rem',
+                      fontWeight: 900,
+                      color: '#1a1814'
+                    }}>
+                      🎬 장르 숙련도
+                    </div>
+                    <div style={{
+                      fontSize: '0.68rem',
+                      color: '#999',
+                      marginTop: 2
+                    }}>
+                      정답 기록 기반 영화 성향 분석
+                    </div>
+                  </div>
+                  <div style={{
+                    fontSize: '0.72rem',
+                    fontWeight: 800,
+                    color: '#ff5f73'
+                  }}>
+                    TOP 3
+                  </div>
+                </div>
+
+                {/* 리스트 */}
+                <div style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: 10
+                }}>
+                  {[...(profileStats?.genreStats || [])]
+                    .sort((a, b) =>
+                      b.percent - a.percent
+                    )
+                    .slice(0, 3)
+                    .map((g, i) => {
+                      let rankLabel = 'BEGINNER'
+                      if (g.percent >= 80) {
+                        rankLabel = 'MASTER'
+                      } else if (g.percent >= 60) {
+                        rankLabel = 'EXPERT'
+                      } else if (g.percent >= 40) {
+                        rankLabel = 'ADVANCED'
+                      } else if (g.percent >= 20) {
+                        rankLabel = 'INTERMEDIATE'
+                      }
+                      return (
+                        <div
+                          key={i}
+                          style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: 10
                           }}>
 
-                            Lv. {displayLevel}
-
+                          {/* 장르명 */}
+                          <div style={{
+                            width: 82,
+                            fontSize: '0.78rem',
+                            fontWeight: 700,
+                            color: '#1a1814',
+                            flexShrink: 0,
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                            whiteSpace: 'nowrap'
+                          }}>
+                            {g.genre}
                           </div>
 
+                          {/* 바 */}
                           <div style={{
+                            flex: 1,
                             height: 8,
-                            background: '#ece9e4',
+                            background: '#f1efeb',
                             borderRadius: 999,
-                            marginTop: 10,
                             overflow: 'hidden'
                           }}>
-
                             <div style={{
-                              width: `${displayLevelPercent}%`,
+                              width: '100%',
                               height: '100%',
                               background:
                                 'linear-gradient(90deg,#ff8a95,#ff5f73)',
                               borderRadius: 999,
-                              boxShadow: '0 0 12px rgba(255,95,115,0.35)'
+                              boxShadow:
+                                '0 0 10px rgba(255,95,115,0.35)',
+                              transformOrigin: 'left center',
+                              transform:
+                                animateStats
+                                  ? `scaleX(${g.percent / 100})`
+                                  : 'scaleX(0)',
+                              transition:
+                                `transform 0.8s cubic-bezier(.22,.61,.36,1) ${i * 0.08}s`
                             }} />
-
                           </div>
 
+                          {/* 퍼센트 */}
                           <div style={{
-                            fontSize: '0.72rem',
-                            color: '#888',
+                            width: 40,
                             textAlign: 'right',
-                            marginTop: 6,
-                            fontWeight: 600
+                            fontSize: '0.78rem',
+                            fontWeight: 800,
+                            color: '#ff5f73',
+                            flexShrink: 0
                           }}>
-                            {displayCurrentExp.toLocaleString()}
-                            {' '}
-                            / 50,000 EXP
+                            {g.percent}%
+                          </div>
+
+                          {/* 티어 */}
+                          <div style={{
+                            width: 86,
+                            height: 24,
+                            borderRadius: 999,
+                            border: '1px solid #ece7df',
+                            background: '#faf8f5',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            fontSize: '0.62rem',
+                            fontWeight: 800,
+                            color:
+                              rankLabel === 'MASTER'
+                                ? '#ff8a00'
+                                : rankLabel === 'EXPERT'
+                                  ? '#ff5f73'
+                                  : rankLabel === 'ADVANCED'
+                                    ? '#7c63ff'
+                                    : '#7f8a99'
+                          }}>
+                            {rankLabel}
                           </div>
                         </div>
-
-                        {/* 그래프 영역 */}
-                        <div style={{
-                          display: 'grid',
-                          gridTemplateColumns: '1fr 1fr',
-                          gap: 7,
-                          marginBottom: 7
-                        }}>
-                          {[
-                            [
-                              '총 점수',
-                              displayScore.toLocaleString()
-                            ],
-                            [
-                              '플레이 시간',
-                              `${Math.floor((profileStats?.totalSeconds || 0) / 3600)}h ${Math.floor(
-                                ((profileStats?.totalSeconds || 0) % 3600) / 60
-                              )
-                              }m`
-                            ],
-                            [
-                              '선호 장르',
-                              profileStats?.favoriteGenres?.[0] || '-'
-                            ],
-                            [
-                              '최근 플레이',
-                              profileStats?.lastPlayed
-                                ? new Date(profileStats.lastPlayed)
-                                  .toLocaleDateString('ko-KR')
-                                : '-'
-                            ]
-                          ].map(([k, v], i) => (
-                            <div
-                              key={i}
-                              style={{
-                                background: '#fff',
-                                border: '1px solid #ece7df',
-                                borderRadius: 14,
-                                padding: '12px 12px'
-                              }}>
-                              <div style={{
-                                fontSize: '0.66rem',
-                                color: '#999',
-                                marginBottom: 5,
-                                fontWeight: 600
-                              }}>
-                                {k}
-                              </div>
-                              <div style={{
-                                fontSize: '1rem',
-                                fontWeight: 800,
-                                color: '#1a1814',
-                                lineHeight: 1.3
-                              }}>
-                                {v}
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-
-                      </>
-                    )
-
-                  })()}
+                      )
+                    })
+                  }
                 </div>
+              </div>
 
 
-                {/* 장르숙련도  영역*/}
-                <div style={{
+              {/* 추천 영화 */}
+
+              <button
+
+                onClick={openMovieRecommend}
+
+                style={{
+
+                  border: '1px solid #ece4dc',
+
                   background: '#fff',
-                  border: '1px solid #ece7df',
+
                   borderRadius: 18,
-                  padding: '14px 14px'
+
+                  padding: '16px 14px',
+
+                  display: 'flex',
+
+                  flexDirection: 'column',
+
+                  alignItems: 'flex-start',
+
+                  cursor: 'pointer'
+
                 }}>
 
-                  {/* 헤더 */}
-                  <div style={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                    marginBottom: 12
-                  }}>
-                    <div>
-                      <div style={{
-                        fontSize: '0.9rem',
-                        fontWeight: 900,
-                        color: '#1a1814'
-                      }}>
-                        🎬 장르 숙련도
-                      </div>
-                      <div style={{
-                        fontSize: '0.68rem',
-                        color: '#999',
-                        marginTop: 2
-                      }}>
-                        정답 기록 기반 영화 성향 분석
-                      </div>
-                    </div>
-                    <div style={{
-                      fontSize: '0.72rem',
-                      fontWeight: 800,
-                      color: '#ff5f73'
-                    }}>
-                      TOP 3
-                    </div>
-                  </div>
+                <div style={{
 
-                  {/* 리스트 */}
-                  <div style={{
-                    display: 'flex',
-                    flexDirection: 'column',
-                    gap: 10
-                  }}>
-                    {[...(profileStats?.genreStats || [])]
-                      .sort((a, b) =>
-                        b.percent - a.percent
-                      )
-                      .slice(0, 3)
-                      .map((g, i) => {
-                        let rankLabel = 'BEGINNER'
-                        if (g.percent >= 80) {
-                          rankLabel = 'MASTER'
-                        } else if (g.percent >= 60) {
-                          rankLabel = 'EXPERT'
-                        } else if (g.percent >= 40) {
-                          rankLabel = 'ADVANCED'
-                        } else if (g.percent >= 20) {
-                          rankLabel = 'INTERMEDIATE'
-                        }
-                        return (
-                          <div
-                            key={i}
-                            style={{
-                              display: 'flex',
-                              alignItems: 'center',
-                              gap: 10
-                            }}>
+                  fontSize: '0.85rem',
 
-                            {/* 장르명 */}
-                            <div style={{
-                              width: 82,
-                              fontSize: '0.78rem',
-                              fontWeight: 700,
-                              color: '#1a1814',
-                              flexShrink: 0,
-                              overflow: 'hidden',
-                              textOverflow: 'ellipsis',
-                              whiteSpace: 'nowrap'
-                            }}>
-                              {g.genre}
-                            </div>
+                  fontWeight: 800,
 
-                            {/* 바 */}
-                            <div style={{
-                              flex: 1,
-                              height: 8,
-                              background: '#f1efeb',
-                              borderRadius: 999,
-                              overflow: 'hidden'
-                            }}>
-                              <div style={{
-                                width: '100%',
-                                height: '100%',
-                                background:
-                                  'linear-gradient(90deg,#ff8a95,#ff5f73)',
-                                borderRadius: 999,
-                                boxShadow:
-                                  '0 0 10px rgba(255,95,115,0.35)',
-                                transformOrigin: 'left center',
-                                transform:
-                                  animateStats
-                                    ? `scaleX(${g.percent / 100})`
-                                    : 'scaleX(0)',
-                                transition:
-                                  `transform 0.8s cubic-bezier(.22,.61,.36,1) ${i * 0.08}s`
-                              }} />
-                            </div>
+                  color: '#1a1814',
 
-                            {/* 퍼센트 */}
-                            <div style={{
-                              width: 40,
-                              textAlign: 'right',
-                              fontSize: '0.78rem',
-                              fontWeight: 800,
-                              color: '#ff5f73',
-                              flexShrink: 0
-                            }}>
-                              {g.percent}%
-                            </div>
+                  marginBottom: 5
 
-                            {/* 티어 */}
-                            <div style={{
-                              width: 86,
-                              height: 24,
-                              borderRadius: 999,
-                              border: '1px solid #ece7df',
-                              background: '#faf8f5',
-                              display: 'flex',
-                              alignItems: 'center',
-                              justifyContent: 'center',
-                              fontSize: '0.62rem',
-                              fontWeight: 800,
-                              color:
-                                rankLabel === 'MASTER'
-                                  ? '#ff8a00'
-                                  : rankLabel === 'EXPERT'
-                                    ? '#ff5f73'
-                                    : rankLabel === 'ADVANCED'
-                                      ? '#7c63ff'
-                                      : '#7f8a99'
-                            }}>
-                              {rankLabel}
-                            </div>
-                          </div>
-                        )
-                      })
-                    }
-                  </div>
+                }}>
+
+                  🔍 추천 영화
+
                 </div>
 
+                <div style={{
 
-                {/* 추천 영화 */}
+                  fontSize: '0.68rem',
 
-                <button
+                  color: '#9b9389',
 
-                  onClick={openMovieRecommend}
+                  fontWeight: 600,
 
-                  style={{
+                  lineHeight: 1.4,
 
-                    border:'1px solid #ece4dc',
+                  textAlign: 'left'
 
-                    background:'#fff',
+                }}>
 
-                    borderRadius:18,
+                  장르 성향 기반 추천
 
-                    padding:'16px 14px',
+                </div>
 
-                    display:'flex',
+              </button>
 
-                    flexDirection:'column',
+              {/* 컬렉션 */}
 
-                    alignItems:'flex-start',
+              <button
 
-                    cursor:'pointer'
+                onClick={() => {
 
-                  }}>
+                  window.location.href = '/collection'
 
-                  <div style={{
+                }}
 
-                    fontSize:'0.85rem',
+                style={{
 
-                    fontWeight:800,
+                  border: '1px solid #ece4dc',
 
-                    color:'#1a1814',
+                  background: '#fff',
 
-                    marginBottom:5
+                  borderRadius: 18,
 
-                  }}>
+                  padding: '16px 14px',
 
-                    🔍 추천 영화
+                  display: 'flex',
 
-                  </div>
+                  flexDirection: 'column',
 
-                  <div style={{
+                  alignItems: 'flex-start',
 
-                    fontSize:'0.68rem',
+                  cursor: 'pointer'
 
-                    color:'#9b9389',
+                }}>
 
-                    fontWeight:600,
+                <div style={{
 
-                    lineHeight:1.4,
+                  fontSize: '0.85rem',
 
-                    textAlign:'left'
+                  fontWeight: 800,
 
-                  }}>
+                  color: '#1a1814',
 
-                    장르 성향 기반 추천
+                  marginBottom: 5
 
-                  </div>
+                }}>
 
-                </button>
+                  📚 컬렉션
 
-                {/* 컬렉션 */}
+                </div>
 
-                <button
+                <div style={{
 
-                  onClick={()=>{
+                  fontSize: '0.68rem',
 
-                    window.location.href='/collection'
+                  color: '#9b9389',
 
-                  }}
+                  fontWeight: 600,
 
-                  style={{
+                  lineHeight: 1.4,
 
-                    border:'1px solid #ece4dc',
+                  textAlign: 'left'
 
-                    background:'#fff',
+                }}>
 
-                    borderRadius:18,
+                  열어본 영화 보관함
 
-                    padding:'16px 14px',
+                </div>
 
-                    display:'flex',
+              </button>
 
-                    flexDirection:'column',
-
-                    alignItems:'flex-start',
-
-                    cursor:'pointer'
-
-                  }}>
-
-                  <div style={{
-
-                    fontSize:'0.85rem',
-
-                    fontWeight:800,
-
-                    color:'#1a1814',
-
-                    marginBottom:5
-
-                  }}>
-
-                    📚 컬렉션
-
-                  </div>
-
-                  <div style={{
-
-                    fontSize:'0.68rem',
-
-                    color:'#9b9389',
-
-                    fontWeight:600,
-
-                    lineHeight:1.4,
-
-                    textAlign:'left'
-
-                  }}>
-
-                    열어본 영화 보관함
-
-                  </div>
-
-                </button>
-
-              </div>
-
-              </div>
             </div>
-        )}
 
-        {showRecommendModal && recommendMovie && (
+          </div>
+        </div>
+      )}
+
+      {showRecommendModal && recommendMovie && (
+        <div
+          onClick={() =>
+            setShowRecommendModal(false)
+          }
+          style={{
+            position: 'fixed',
+            inset: 0,
+            background: 'rgba(0,0,0,0.22)',
+            zIndex: 3000,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: 24
+          }}>
+
           <div
-            onClick={() =>
-              setShowRecommendModal(false)
+            onClick={(e) =>
+              e.stopPropagation()
             }
             style={{
-              position: 'fixed',
-              inset: 0,
-              background: 'rgba(0,0,0,0.22)',
-              zIndex: 3000,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              padding: 24
+              position: 'relative',
+              width: '100%',
+              maxWidth: 320,
+              borderRadius: 24,
+              background: '#fff',
+              padding: 18,
+              boxShadow: '0 18px 48px rgba(0,0,0,0.18)'
             }}>
 
-            <div
-              onClick={(e) =>
-                e.stopPropagation()
-              }
-              style={{
-                position: 'relative',
-                width: '100%',
-                maxWidth: 320,
-                borderRadius: 24,
-                background: '#fff',
-                padding: 18,
-                boxShadow: '0 18px 48px rgba(0,0,0,0.18)'
-              }}>
-
-              {/* 🎬 버튼 */}
-              {recommendMovie?.youtubeKey && (
-                <div style={{
-                  position: 'absolute',
-                  top: 14,
-                  right: 14,
-                  zIndex: 5
-                }}>
-
-                  <div onClick={() => {
-                    setTrailerKey(recommendMovie.youtubeKey)
-                  }}
-
-                    style={{
-                      width: 38,
-                      height: 38,
-                      borderRadius: '50%',
-                      background: 'rgba(255,255,255,0.9)',
-                      border: '1px solid #ece7df',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      cursor: 'pointer',
-                      fontSize: '1.05rem',
-                      boxShadow: '0 4px 14px rgba(0,0,0,0.12)'
-                    }}>
-                    🎬
-                  </div>
-                </div>
-              )}
-
-
-
-              {/* 포스터 카드 재사용 */}
+            {/* 🎬 버튼 */}
+            {recommendMovie?.youtubeKey && (
               <div style={{
-                textAlign: 'center'
+                position: 'absolute',
+                top: 14,
+                right: 14,
+                zIndex: 5
               }}>
 
-                {/* 포스터 */}
-                <img
-                  src={`https://image.tmdb.org/t/p/w500${recommendMovie.poster_path}`}
-                  alt=""
+                <div onClick={() => {
+                  setTrailerKey(recommendMovie.youtubeKey)
+                }}
+
                   style={{
-                    width: '60%',
-                    maxWidth: 220,
-                    borderRadius: 18,
-                    marginBottom: 10,
-                    boxShadow: '0 14px 34px rgba(0,0,0,0.18)'
-                  }} />
-
-
-                {/* 제목 */}
-                <div style={{
-                  fontSize: '1.18rem',
-                  fontWeight: 900,
-                  color: '#1a1814',
-                  lineHeight: 1.3,
-                  marginBottom: 8
-                }}>
-
-                  {recommendMovie.title}
+                    width: 38,
+                    height: 38,
+                    borderRadius: '50%',
+                    background: 'rgba(255,255,255,0.9)',
+                    border: '1px solid #ece7df',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    cursor: 'pointer',
+                    fontSize: '1.05rem',
+                    boxShadow: '0 4px 14px rgba(0,0,0,0.12)'
+                  }}>
+                  🎬
                 </div>
+              </div>
+            )}
 
 
-                {/* 평점 */}
-                <div style={{
-                  fontSize: '0.82rem',
-                  fontWeight: 700,
-                  color: '#ff5f73',
-                  marginBottom: 10
-                }}>
-                  ★ {Number(recommendMovie.vote_average).toFixed(1)} / 10
-                </div>
+
+            {/* 포스터 카드 재사용 */}
+            <div style={{
+              textAlign: 'center'
+            }}>
+
+              {/* 포스터 */}
+              <img
+                src={`https://image.tmdb.org/t/p/w500${recommendMovie.poster_path}`}
+                alt=""
+                style={{
+                  width: '60%',
+                  maxWidth: 220,
+                  borderRadius: 18,
+                  marginBottom: 10,
+                  boxShadow: '0 14px 34px rgba(0,0,0,0.18)'
+                }} />
 
 
-                {/* 감독 */}
-                <div style={{
-                  fontSize: '0.8rem',
-                  color: '#666',
-                  marginBottom: 2,
-                  lineHeight: 1.5
-                }}>
+              {/* 제목 */}
+              <div style={{
+                fontSize: '1.18rem',
+                fontWeight: 900,
+                color: '#1a1814',
+                lineHeight: 1.3,
+                marginBottom: 8
+              }}>
 
-                  감독 · {
-                    recommendMovie.credits?.crew
-                      ?.find(p => p.job === 'Director')
-                      ?.name || '-'
-                  }
-                </div>
+                {recommendMovie.title}
+              </div>
 
 
-                {/* 배우 */}
-                <div style={{
-                  fontSize: '0.8rem',
-                  color: '#666',
-                  marginBottom: 15,
-                  lineHeight: 1.5
-                }}>
-
-                  출연 · {
-                    recommendMovie.credits?.cast
-                      ?.slice(0, 3)
-                      ?.map(a => a.name)
-                      ?.join(' · ')
-                    || '-'
-                  }
-                </div>
+              {/* 평점 */}
+              <div style={{
+                fontSize: '0.82rem',
+                fontWeight: 700,
+                color: '#ff5f73',
+                marginBottom: 10
+              }}>
+                ★ {Number(recommendMovie.vote_average).toFixed(1)} / 10
+              </div>
 
 
-                {/* 시놉시스 */}
-                <div style={{
-                  fontSize: '0.7rem',
-                  color: '#666',
-                  lineHeight: 1.75,
-                  display: '-webkit-box',
-                  WebkitLineClamp: 3,
-                  WebkitBoxOrient: 'vertical',
-                  overflow: 'hidden'
-                }}>
+              {/* 감독 */}
+              <div style={{
+                fontSize: '0.8rem',
+                color: '#666',
+                marginBottom: 2,
+                lineHeight: 1.5
+              }}>
 
-                  {recommendMovie.overview}
-                </div>
+                감독 · {
+                  recommendMovie.credits?.crew
+                    ?.find(p => p.job === 'Director')
+                    ?.name || '-'
+                }
+              </div>
+
+
+              {/* 배우 */}
+              <div style={{
+                fontSize: '0.8rem',
+                color: '#666',
+                marginBottom: 15,
+                lineHeight: 1.5
+              }}>
+
+                출연 · {
+                  recommendMovie.credits?.cast
+                    ?.slice(0, 3)
+                    ?.map(a => a.name)
+                    ?.join(' · ')
+                  || '-'
+                }
+              </div>
+
+
+              {/* 시놉시스 */}
+              <div style={{
+                fontSize: '0.7rem',
+                color: '#666',
+                lineHeight: 1.75,
+                display: '-webkit-box',
+                WebkitLineClamp: 3,
+                WebkitBoxOrient: 'vertical',
+                overflow: 'hidden'
+              }}>
+
+                {recommendMovie.overview}
               </div>
             </div>
           </div>
-        )}
+        </div>
+      )}
 
-        <MovieFlipCard
+      <MovieFlipCard
 
-          movieCard={movieCard}
+        movieCard={movieCard}
 
-          showMovieCard={showMovieCard}
+        showMovieCard={showMovieCard}
 
-          setShowMovieCard={setShowMovieCard}
+        setShowMovieCard={setShowMovieCard}
 
-          movieCardFlipped={movieCardFlipped}
+        movieCardFlipped={movieCardFlipped}
 
-          setMovieCardFlipped={setMovieCardFlipped}
+        setMovieCardFlipped={setMovieCardFlipped}
 
-          setTrailerKey={setTrailerKey}
+        setTrailerKey={setTrailerKey}
 
-        />
+      />
 
-        <style jsx>{`
+      <style jsx>{`
                   @keyframes fadeUp {
                     from {
                       transform: translateY(10px);

@@ -116,10 +116,10 @@ export default function ResultScreen(props) {
   const char = CHARS.find(c => c.id === selChar)
   const sortedRanking = [...ranking].sort(
 
-  (a, b) => b.score - a.score
+    (a, b) => b.score - a.score
 
-)
-  
+  )
+
 
   let lastRank = 1
   const ranked = sortedRanking.map((r, i) => {
@@ -171,7 +171,7 @@ export default function ResultScreen(props) {
             marginBottom: 10
           }}>
             <div
-              
+
 
               onClick={() => {
 
@@ -349,19 +349,20 @@ export default function ResultScreen(props) {
                   r.poster_path ||
                   r.overview
                 return (
-                  <div 
-                    
+                  <div
+
                     key={i}
                     onClick={() => {
                       if (
                         (r.correct || showAnswers)
                         &&
                         hasMovieInfo
-                      ) {console.log(
+                      ) {
+                        console.log(
 
-      'save collection click',
+                          'save collection click',
 
-      r)
+                          r)
                         saveCollection(r)
                         loadMovieDetail(r)
                       }
@@ -845,7 +846,7 @@ export default function ResultScreen(props) {
             {/* 🔥 조건 버튼 */}
             {!isLevelCompleted && (
               <button
-                
+
                 style={{
                   flex: 1,
                   height: 54,
@@ -867,7 +868,7 @@ export default function ResultScreen(props) {
 
             {/* 🔥 공통 버튼 (홈은 무조건 하나만) */}
             <button
-              
+
               style={{
                 flex: 1,
                 height: 54,
@@ -888,54 +889,71 @@ export default function ResultScreen(props) {
           </div>
         )}
 
-<ProfileModal
+        <ProfileModal
 
-  showProfile={showProfile}
+          showProfile={showProfile}
 
-  setShowProfile={setShowProfile}
+          setShowProfile={setShowProfile}
 
-  profileUser={profileUser}
+          profileUser={profileUser}
 
-  currentUser={currentUser}
+          currentUser={currentUser}
 
-  user={user}
+          user={user}
 
-  profileStats={profileStats}
+          profileStats={profileStats}
 
-  animateStats={animateStats}
+          animateStats={animateStats}
 
-  LEVEL_TITLES={LEVEL_TITLES}
+          LEVEL_TITLES={LEVEL_TITLES}
 
-  recommendStatus={recommendStatus}
+          recommendStatus={recommendStatus}
 
-  loadingDots={loadingDots}
+          loadingDots={loadingDots}
 
-  openMovieRecommend={openMovieRecommend}
+          openMovieRecommend={openMovieRecommend}
 
-  showRecommendModal={showRecommendModal}
+          showRecommendModal={showRecommendModal}
 
-  setShowRecommendModal={setShowRecommendModal}
+          setShowRecommendModal={setShowRecommendModal}
 
-  recommendMovie={recommendMovie}
+          recommendMovie={recommendMovie}
 
-  setTrailerKey={setTrailerKey}
+          setTrailerKey={setTrailerKey}
 
-  movieCard={movieCard}
+          movieCard={movieCard}
 
-  showMovieCard={showMovieCard}
+          showMovieCard={showMovieCard}
 
-  setShowMovieCard={setShowMovieCard}
+          setShowMovieCard={setShowMovieCard}
 
-  movieCardFlipped={movieCardFlipped}
+          movieCardFlipped={movieCardFlipped}
 
-  setMovieCardFlipped={setMovieCardFlipped}
+          setMovieCardFlipped={setMovieCardFlipped}
 
-  supabase={supabase}
+          supabase={supabase}
 
-/>
+        />
 
 
-       
+      <MovieFlipCard
+
+        movieCard={movieCard}
+
+        showMovieCard={showMovieCard}
+
+        setShowMovieCard={setShowMovieCard}
+
+        movieCardFlipped={movieCardFlipped}
+
+        setMovieCardFlipped={setMovieCardFlipped}
+
+        setTrailerKey={setTrailerKey}
+
+      />
+
+
+
 
       </div>
     </AppLayout>

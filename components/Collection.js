@@ -15,114 +15,114 @@ export default function Collection() {
   const [trailerKey, setTrailerKey] = useState(null)
   const dummyPosters = [
 
-  {
+    {
 
-    id: 1,
+      id: 1,
 
-    title: 'Oldboy',
+      title: 'Oldboy',
 
-    poster: 'https://image.tmdb.org/t/p/w500/8Q31DAtmFJjhftJRYmWanmxpzgE.jpg'
+      poster: 'https://image.tmdb.org/t/p/w500/8Q31DAtmFJjhftJRYmWanmxpzgE.jpg'
 
-  },
+    },
 
-  {
+    {
 
-    id: 2,
+      id: 2,
 
-    title: 'Inception',
+      title: 'Inception',
 
-    poster: 'https://image.tmdb.org/t/p/w500/edv5CZvWj09upOsy2Y6IwDhK8bt.jpg'
+      poster: 'https://image.tmdb.org/t/p/w500/edv5CZvWj09upOsy2Y6IwDhK8bt.jpg'
 
-  },
+    },
 
-  {
+    {
 
-    id: 3,
+      id: 3,
 
-    title: 'The Dark Knight',
+      title: 'The Dark Knight',
 
-    poster: 'https://image.tmdb.org/t/p/w500/qJ2tW6WMUDux911r6m7haRef0WH.jpg'
+      poster: 'https://image.tmdb.org/t/p/w500/qJ2tW6WMUDux911r6m7haRef0WH.jpg'
 
-  },
+    },
 
-  {
+    {
 
-    id: 4,
+      id: 4,
 
-    title: 'Parasite',
+      title: 'Parasite',
 
-    poster: 'https://image.tmdb.org/t/p/w500/7IiTTgloJzvGI1TAYymCfbfl3vT.jpg'
+      poster: 'https://image.tmdb.org/t/p/w500/7IiTTgloJzvGI1TAYymCfbfl3vT.jpg'
 
-  },
+    },
 
-  {
+    {
 
-    id: 5,
+      id: 5,
 
-    title: 'Whiplash',
+      title: 'Whiplash',
 
-    poster: 'https://image.tmdb.org/t/p/w500/7fn624j5lj3xTme2SgiLCeuedmO.jpg'
+      poster: 'https://image.tmdb.org/t/p/w500/7fn624j5lj3xTme2SgiLCeuedmO.jpg'
 
-  }
+    }
 
-]
+  ]
 
-const preloadImage = (src) => {
+  const preloadImage = (src) => {
 
-  return new Promise((resolve) => {
+    return new Promise((resolve) => {
 
-    const img = new Image()
+      const img = new Image()
 
-    img.src = src
+      img.src = src
 
-    img.onload = resolve
+      img.onload = resolve
 
-    img.onerror = resolve
-
-  })
-
-}
-
-useEffect(() => {
-
-  const load = async () => {
-
-    const firstBatch = Array.from({ length: 10 }).map((_, i) => {
-
-      const base = dummyPosters[i % dummyPosters.length]
-
-      return {
-
-        ...base,
-
-        uid: i
-
-      }
+      img.onerror = resolve
 
     })
 
-    await Promise.all(
+  }
 
-      firstBatch.map(p =>
+  useEffect(() => {
 
-        preloadImage(p.poster || '/noposter.jpg')
+    const load = async () => {
+
+      const firstBatch = Array.from({ length: 10 }).map((_, i) => {
+
+        const base = dummyPosters[i % dummyPosters.length]
+
+        return {
+
+          ...base,
+
+          uid: i
+
+        }
+
+      })
+
+      await Promise.all(
+
+        firstBatch.map(p =>
+
+          preloadImage(p.poster || '/noposter.jpg')
+
+        )
 
       )
 
-    )
+      setPosters(firstBatch)
 
-    setPosters(firstBatch)
+      setReady(true)
 
-    setReady(true)
+    }
 
-  }
+    load()
 
-  load()
-
-}, [])
+  }, [])
 
 
-if (!ready) {
+  if (!ready) {
 
     return (
 
@@ -130,23 +130,23 @@ if (!ready) {
 
         style={{
 
-          width:'100%',
+          width: '100%',
 
-          height:'100dvh',
+          height: '100dvh',
 
-          background:'#111',
+          background: '#111',
 
-          display:'flex',
+          display: 'flex',
 
-          alignItems:'center',
+          alignItems: 'center',
 
-          justifyContent:'center',
+          justifyContent: 'center',
 
-          color:'rgba(255,255,255,0.5)',
+          color: 'rgba(255,255,255,0.5)',
 
-          fontSize:14,
+          fontSize: 14,
 
-          letterSpacing:'0.08em'
+          letterSpacing: '0.08em'
 
         }}
 
@@ -164,7 +164,7 @@ if (!ready) {
 
   return (
 
-    
+
 
     <div
 
@@ -447,13 +447,13 @@ if (!ready) {
                 alt={poster.title}
                 draggable={false}
                 style={{
-                  width:'100%',
-                  height:'100%',
-                  objectFit:'cover',
-                  userSelect:'none',
-                  pointerEvents:'none'
+                  width: '100%',
+                  height: '100%',
+                  objectFit: 'cover',
+                  userSelect: 'none',
+                  pointerEvents: 'none'
                 }}
-                onError={(e)=>{
+                onError={(e) => {
                   e.currentTarget.src = '/noposter.jpg'
                 }}
               />
@@ -520,19 +520,19 @@ if (!ready) {
 
       <MovieFlipCard
 
-  movieCard={movieCard}
+        movieCard={movieCard}
 
-  showMovieCard={showMovieCard}
+        showMovieCard={showMovieCard}
 
-  setShowMovieCard={setShowMovieCard}
+        setShowMovieCard={setShowMovieCard}
 
-  movieCardFlipped={movieCardFlipped}
+        movieCardFlipped={movieCardFlipped}
 
-  setMovieCardFlipped={setMovieCardFlipped}
+        setMovieCardFlipped={setMovieCardFlipped}
 
-  setTrailerKey={setTrailerKey}
+        setTrailerKey={setTrailerKey}
 
-/>
+      />
 
     </div>
 

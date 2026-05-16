@@ -1746,64 +1746,64 @@ export default function CineClue() {
   ])
 
 
-async function saveCollection(movie){
+  async function saveCollection(movie) {
 
-  if(!authUser) return
+    if (!authUser) return
 
-  try{
+    try {
 
-    const { data, error } = await supabase
+      const { data, error } = await supabase
 
-      .from('collections')
+        .from('collections')
 
-      .upsert(
+        .upsert(
 
-        {
+          {
 
-          user_id: authUser.id,
+            user_id: authUser.id,
 
-          movie_id: movie.id || movie.tmdb_id,
+            movie_id: movie.id || movie.tmdb_id,
 
-          movie_data: movie,
+            movie_data: movie,
 
-          viewed_at: new Date()
+            viewed_at: new Date()
 
-        },
+          },
 
-        {
+          {
 
-          onConflict:'user_id,movie_id'
+            onConflict: 'user_id,movie_id'
 
-        }
+          }
+
+        )
+
+      console.log(
+
+        'collection save data',
+
+        data
 
       )
 
-    console.log(
+      console.log(
 
-      'collection save data',
+        'collection save error',
 
-      data
+        error
 
-    )
+      )
 
-    console.log(
+    } catch (err) {
 
-      'collection save error',
+      console.error(
+        'collection save error',
+        err
+      )
 
-      error
-
-    )
-
-  }catch(err){
-
-    console.error(
-      'collection save error',
-      err
-    )
+    }
 
   }
-
-}
 
 
 
