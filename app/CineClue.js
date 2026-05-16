@@ -3527,6 +3527,8 @@ export default function CineClue() {
 
           supabase={supabase}
 
+          setScreen={setScreen}
+
         />
 
       )}

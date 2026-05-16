@@ -11,6 +11,8 @@ export default function ResultScreen(props) {
 
     supabase,
 
+    setScreen,
+
     selChar,
 
     results,
@@ -893,6 +895,8 @@ export default function ResultScreen(props) {
 
           showProfile={showProfile}
 
+          setScreen={setScreen}
+
           setShowProfile={setShowProfile}
 
           profileUser={profileUser}
@@ -953,10 +957,25 @@ export default function ResultScreen(props) {
       />
 
 
-
+      <style jsx>{`
+                        @keyframes fadeUp {
+                          from {
+                            transform: translateY(10px);
+                            opacity: 0;
+                          }
+                          to {
+                            transform: translateY(0);
+                            opacity: 1;
+                          }
+                        }
+                      `}</style>
 
       </div>
+
+      
     </AppLayout>
+
+    
   )
 
 }
