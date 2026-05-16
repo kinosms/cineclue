@@ -502,23 +502,23 @@ export default function ProfileModal(props) {
 
               {/* 컬렉션 */}
 
-              <button
+                <button
 
-                onClick={(e) => {
+                  onClick={(e) => {
 
-                  e.stopPropagation()
+                    e.stopPropagation()
 
-                  setShowProfile(false)
-
-                  setCollectionReturnScreen('result')
-
-                  requestAnimationFrame(() => {
+                    setCollectionReturnScreen('result')
 
                     setScreen('collection')
 
-                  })
+                    setTimeout(() => {
 
-                }}
+                      setShowProfile(false)
+
+                    }, 0)
+
+                  }}
 
                 style={{
 
