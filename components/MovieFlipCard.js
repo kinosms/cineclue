@@ -214,9 +214,10 @@ export default function MovieFlipCard(props) {
                       {k === '영상' ? (
                         v ? (
                           <span
-                            onClick={() =>
+                            onClick={(e) => {
+                              e.stopPropagation()
                               setTrailerKey(movieCard.youtubeKey)
-                            }
+                            }}
                             style={{
                               color: '#ff7b8d',
                               fontWeight: 800,

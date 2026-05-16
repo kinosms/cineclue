@@ -311,14 +311,11 @@ export default function ResultScreen(props) {
                         &&
                         hasMovieInfo
                       ) {
-                        console.log(
-
-                          'save collection click',
-
-                          r)
                         setCollectionReturnScreen('result')
                         saveCollection(r)
-                        loadMovieDetail(r)
+                        setMovieCard(r)
+                        setMovieCardFlipped(false)
+                        setShowMovieCard(true)
                       }
                     }}
                     style={{
