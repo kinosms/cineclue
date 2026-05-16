@@ -9,21 +9,36 @@ export default function Collection(props) {
   const {
 
     authUser,
+
     supabase,
+
     setScreen,
+
     selChar,
+
     collectionReturnScreen,
+
     trailerKey,
-    setTrailerKey
+
+    setTrailerKey,
+
+    movieCard,
+
+    setMovieCard,
+
+    showMovieCard,
+
+    setShowMovieCard,
+
+    movieCardFlipped,
+
+    setMovieCardFlipped
 
   } = props
 
   const scrollRef = useRef(null)
   const [ready, setReady] = useState(false)
   const [posters, setPosters] = useState([])
-  const [movieCard, setMovieCard] = useState(null)
-  const [showMovieCard, setShowMovieCard] = useState(false)
-  const [movieCardFlipped, setMovieCardFlipped] = useState(false)
   const [collectionLayout, setCollectionLayout] = useState('stack')
 
   useEffect(() => {
