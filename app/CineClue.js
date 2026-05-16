@@ -3476,6 +3476,7 @@ useEffect(() => {
           rankingRevealDone={rankingRevealDone}
           skipResultAnimation={skipResultAnimation}
           setSkipResultAnimation={setSkipResultAnimation}
+          setCollectionReturnScreen={setCollectionReturnScreen}
         />
 
       )}

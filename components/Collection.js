@@ -410,7 +410,7 @@ export default function Collection(props) {
 
       alignItems: 'flex-start',
 
-      paddingTop: 60,
+      paddingTop: 50,
 
       overflowX: 'auto',
 
