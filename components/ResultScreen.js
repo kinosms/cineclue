@@ -932,8 +932,6 @@ export default function ResultScreen(props) {
 
   supabase={supabase}
 
-  MovieFlipCard={MovieFlipCard}
-
 />
 
 

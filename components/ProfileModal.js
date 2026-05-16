@@ -1,5 +1,7 @@
 'use client'
 
+import MovieFlipCard from './MovieFlipCard'
+
 export default function ProfileModal(props){
 
   const {
