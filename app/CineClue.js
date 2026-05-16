@@ -3499,6 +3499,8 @@ async function saveCollection(movie){
 
           recommendMovie={recommendMovie}
 
+          supabase={supabase}
+
           movieCard={movieCard}
           showMovieCard={showMovieCard}
           setShowMovieCard={setShowMovieCard}
