@@ -151,7 +151,7 @@ export default function Collection(props) {
 
             onClick={() => {
 
-              setScreen('result')
+              setScreen(collectionReturnScreen)
 
             }}
 
@@ -311,7 +311,7 @@ export default function Collection(props) {
 
           alignItems: 'flex-start',
 
-          paddingTop: 120,
+          paddingTop: 95,
 
           overflowX: 'auto',
 

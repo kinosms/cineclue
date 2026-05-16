@@ -988,6 +988,7 @@ export default function CineClue() {
   const [resumeTick, setResumeTick] = useState(0)
 
   const [skipResultAnimation, setSkipResultAnimation] = useState(false)
+  const [collectionReturnScreen, setCollectionReturnScreen] = useState('result')
 
 
 

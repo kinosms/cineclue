@@ -316,6 +316,7 @@ export default function ResultScreen(props) {
                           'save collection click',
 
                           r)
+                        setCollectionReturnScreen('result')
                         saveCollection(r)
                         loadMovieDetail(r)
                       }

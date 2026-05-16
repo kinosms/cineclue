@@ -67,6 +67,73 @@ export default function ModeScreen(props) {
           }}>
             도전할 모드를 선택하세요.
           </div>
+
+          {/* 컬렉션 */}
+          <div
+            onClick={() => {
+
+              if (!authUser) {
+
+                alert('로그인 후 이용 가능합니다.')
+
+                return
+              }
+
+              setScreen('collection')
+              setCollectionReturnScreen('mode')
+            }}
+
+            style={{
+              marginBottom: 22,
+              borderRadius: 18,
+              padding: '16px 18px',
+
+              background: `
+                linear-gradient(
+                  135deg,
+                  #2d2118,
+                  #151515
+                )
+              `,
+
+              color:'#fff',
+              position:'relative',
+              overflow:'hidden',
+              cursor:'pointer'
+            }}
+          >
+
+            <div style={{
+              fontSize:'0.72rem',
+              letterSpacing:'0.22em',
+              color:'rgba(255,255,255,0.45)',
+              marginBottom: authUser ? 8 : 0,
+              fontWeight:700
+            }}>
+              MY COLLECTION
+            </div>
+
+            {authUser && (
+              <>
+                <div style={{
+                  fontSize:'1.15rem',
+                  fontWeight:900,
+                  marginBottom:6
+                }}>
+                  Collected Posters
+                </div>
+
+                <div style={{
+                  fontSize:'0.78rem',
+                  color:'rgba(255,255,255,0.58)'
+                }}>
+                  {collections.length} archived movies
+                </div>
+              </>
+            )}
+
+          </div>
+
           <div style={{ display: 'flex', gap: 8, marginBottom: 16 }}>
             <button
               onClick={() => {
