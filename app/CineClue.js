@@ -2677,6 +2677,8 @@ useEffect(() => {
       }
     } finally {
 
+      skipLockRef.current = false
+
       setIsSubmitting(false)
       setLoading(false)
 
