@@ -24,7 +24,6 @@ export default function Collection(props) {
   const [movieCard, setMovieCard] = useState(null)
   const [showMovieCard, setShowMovieCard] = useState(false)
   const [movieCardFlipped, setMovieCardFlipped] = useState(false)
-  const [trailerKey, setTrailerKey] = useState(null)
   const [collectionLayout, setCollectionLayout] = useState('stack')
 
   useEffect(() => {
