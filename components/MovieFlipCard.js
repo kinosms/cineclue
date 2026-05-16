@@ -45,7 +45,7 @@ export default function MovieFlipCard(props) {
             perspective: '1200px',
             position: 'relative',
             zIndex: 2,
-            animation: 'fadeUp 0.22s ease'
+            animation: 'cardIntro 1.4s ease'
           }}
         >
 
@@ -89,21 +89,6 @@ export default function MovieFlipCard(props) {
                   objectFit: 'cover'
                 }}
               />
-
-              {/* 회전 버튼 */}
-              <div style={{
-                position: 'absolute',
-                top: 18,
-                right: 18,
-                fontSize: '1.4rem',
-                color: 'rgba(255,255,255,0.92)',
-                fontWeight: 700,
-                zIndex: 20,
-                textShadow: '0 2px 8px rgba(0,0,0,0.45)',
-                pointerEvents: 'none'
-              }}>
-                ↻
-              </div>
             </div>
 
 
@@ -142,27 +127,6 @@ export default function MovieFlipCard(props) {
                 inset: 0,
                 background: 'rgba(10,10,10,0.82)'
               }} />
-
-              {/* 회전 버튼 */}
-              <div style={{
-                position: 'absolute',
-                top: 14,
-                right: 14,
-                width: 38,
-                height: 38,
-                borderRadius: '50%',
-                background: 'rgba(255,255,255,0.14)',
-                backdropFilter: 'blur(10px)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                color: '#fff',
-                fontSize: '1rem',
-                fontWeight: 700,
-                border: '1px solid rgba(255,255,255,0.22)'
-              }}>
-                ↻
-              </div>
 
               {/* 내용 */}
               <div style={{
@@ -297,6 +261,72 @@ export default function MovieFlipCard(props) {
           </div>
         </div>
       </div>
+
+      <style jsx>{`
+
+@keyframes cardIntro {
+
+  0%{
+
+    opacity:0;
+
+    transform:
+
+      translateY(12px)
+
+      perspective(1200px)
+
+      rotateY(0deg);
+
+  }
+
+  18%{
+
+    opacity:1;
+
+    transform:
+
+      translateY(0)
+
+      perspective(1200px)
+
+      rotateY(-10deg);
+
+  }
+
+  34%{
+
+    transform:
+
+      perspective(1200px)
+
+      rotateY(8deg);
+
+  }
+
+  48%{
+
+    transform:
+
+      perspective(1200px)
+
+      rotateY(0deg);
+
+  }
+
+  100%{
+
+    transform:
+
+      perspective(1200px)
+
+      rotateY(0deg);
+
+  }
+
+}
+
+`}</style>
     </>
   )
 }
