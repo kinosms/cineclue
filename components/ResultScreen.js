@@ -112,25 +112,6 @@ export default function ResultScreen(props) {
   const currentGrade = selGrade
   const hasFail = results.some(r => !r.correct)
   const char = CHARS.find(c => c.id === selChar)
-  const saveCollection = async(movie)=>{
-
-  if(!authUser) return
-
-  await supabase
-
-    .from('collections')
-
-    .upsert({
-
-      user_id: authUser.id,
-
-      movie_id: movie.id,
-
-      viewed_at: new Date()
-
-    })
-
-}
   const sortedRanking = [...ranking].sort(
 
   (a, b) => b.score - a.score
