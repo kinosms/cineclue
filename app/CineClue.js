@@ -3486,16 +3486,15 @@ useEffect(() => {
         <Collection
 
           authUser={authUser}
-
           supabase={supabase}
-
           setScreen={setScreen}
-
           selChar={selChar}
-
           collectionReturnScreen={collectionReturnScreen}
           trailerKey={trailerKey}
           setTrailerKey={setTrailerKey}
+          setMovieCard={setMovieCard}
+          setMovieCardFlipped={setMovieCardFlipped}
+          setShowMovieCard={setShowMovieCard}
 
         />
 
