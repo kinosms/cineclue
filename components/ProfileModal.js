@@ -24,6 +24,7 @@ export default function ProfileModal(props) {
     recommendMovie,
     setTrailerKey,
     CharAvatar,
+    setScreen,
     currentUser
   } = props
 
@@ -733,18 +734,7 @@ export default function ProfileModal(props) {
       )}
 
 
-      <style jsx>{`
-                  @keyframes fadeUp {
-                    from {
-                      transform: translateY(10px);
-                      opacity: 0;
-                    }
-                    to {
-                      transform: translateY(0);
-                      opacity: 1;
-                    }
-                  }
-                `}</style>
+     
     </>
   )
 }
