@@ -292,7 +292,7 @@ export default function ResultScreen(props) {
           }}>
 
             {resultView === 'score' ? (
-              results.slice(0, visibleResults).map((r, i) => {
+              results.slice(0, Math.min(visibleResults, 5)).map((r, i) => {
                 const rg = GRADES.find(x => x.id === r.grade)
                 const isCorrect = r.correct === true
                 const hasMovieInfo =
@@ -514,6 +514,7 @@ export default function ResultScreen(props) {
                   const TOP_LIMIT = 10
                   const myRankIndex = safeRanking.findIndex(
                     r =>
+                      String(r.user_id) === String(currentUser?.userId) &&
                       String(r.character_id) === String(selChar)
                   )
                   const myRank =
@@ -532,6 +533,7 @@ export default function ResultScreen(props) {
                         const isDead = r && !safeUsers.find(u => u.charId === r.character_id)
                         const isMe =
                           r &&
+                          String(r.user_id) === String(currentUser?.userId) &&
                           String(r.character_id) === String(selChar)
                         const isAnimated = !skipResultAnimation && i < 5
 
