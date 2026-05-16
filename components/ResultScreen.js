@@ -99,6 +99,8 @@ export default function ResultScreen(props) {
 
     loadMovies,
 
+    saveCollection,
+
     setScreen
 
   } = props
