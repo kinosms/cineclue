@@ -261,7 +261,7 @@ export default function Collection(props) {
 
         >
 
-          archived movies
+          {posters.length} archived movies
 
         </div>
 
@@ -311,13 +311,13 @@ export default function Collection(props) {
 
           alignItems: 'flex-start',
 
-          paddingTop: 60,
+          paddingTop: 140,
 
           overflowX: 'auto',
 
           overflowY: 'hidden',
 
-          padding: '0 120px',
+          padding: '0 80px',
 
           gap: 0,
 

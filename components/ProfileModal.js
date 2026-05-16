@@ -505,7 +505,7 @@ export default function ProfileModal(props) {
                 onClick={() => {
 
                   setShowProfile(false)
-
+                  setSkipResultAnimation(true)
                   setScreen('collection')
 
                 }}

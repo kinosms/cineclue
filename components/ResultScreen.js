@@ -6,103 +6,55 @@ import ProfileModal from './ProfileModal'
 export default function ResultScreen(props) {
 
   const {
-
     users,
-
     supabase,
-
     setScreen,
-
     selChar,
-
     results,
-
     ranking,
-
     currentUser,
-
     selGrade,
-
     authUser,
-
     AppLayout,
-
     displayScore,
-
     resultView,
-
     setResultView,
-
     isLevelCompleted,
-
     visibleResults,
-
     showAnswers,
-
     handleShowAnswers,
-
     loadMovieDetail,
-
     GRADES,
-
     rankingRevealDone,
-
     CHARS,
-
     showProfile,
-
     setShowProfile,
-
     setProfileStats,
-
     setProfileTarget,
-
     setProfileUser,
-
     setAnimateStats,
-
     profileUser,
-
     animateStats,
-
     profileStats,
-
     LEVEL_TITLES,
-
     recommendStatus,
-
     loadingDots,
-
     CharAvatar,
-
     openMovieRecommend,
-
     showRecommendModal,
-
     setShowRecommendModal,
-
     recommendMovie,
-
     trailerKey,
-
     setTrailerKey,
-
     showMovieCard,
-
     setShowMovieCard,
-
     movieCard,
-
     movieCardFlipped,
-
     setMovieCardFlipped,
-
     playClick,
-
     loadMovies,
-
     saveCollection,
-
+    skipResultAnimation,
   } = props
 
   const safeUsers = Array.isArray(users) ? users : []
@@ -583,7 +535,7 @@ export default function ResultScreen(props) {
                           r &&
                           String(r.user_id) === String(currentUser.userId) &&
                           String(r.character_id) === String(selChar)
-                        const isAnimated = i < 5
+                        const isAnimated = !skipResultAnimation && i < 5
 
                         return (
                           <div

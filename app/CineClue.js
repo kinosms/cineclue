@@ -987,6 +987,8 @@ export default function CineClue() {
   const [users, setUsers] = useState([])
   const [resumeTick, setResumeTick] = useState(0)
 
+  const [skipResultAnimation, setSkipResultAnimation] = useState(false)
+
 
 
   const [selGrade, setSelGrade] = useState(null)
@@ -2134,11 +2136,14 @@ export default function CineClue() {
 
   // 결과 화면 순차 노출 + 점수 카운트
   useEffect(() => {
-    if (screen !== 'result') return
-    if (results.length === 0) return
-    if (!users || users.length === 0) return
-    setResultView('score')
-    setVisibleResults(1)
+      if (screen !== 'result') return
+      if (results.length === 0) return
+      if (!users || users.length === 0) return
+      if (!skipResultAnimation) {
+        setResultView('score')
+        setVisibleResults(1)
+      }
+    }, [screen])
 
     const roundScore = score - roundStartScore
     const startScore = roundStartScore
