@@ -30,7 +30,9 @@ export default function ModeScreen(props) {
 
     setScreen,
 
-    authUser
+    authUser,
+
+    setCollectionReturnScreen
 
   } = props
   console.log(props)
@@ -58,17 +60,7 @@ export default function ModeScreen(props) {
       }}>
 
         <div style={{ padding: '0 20px', flexShrink: 0 }}>
-          <div style={{
-            fontSize: '0.7rem',
-            fontWeight: 700,
-            color: '#6f6e6e',
-            letterSpacing: '0.15em',
-            textTransform: 'uppercase',
-            marginBottom: 14,
-            paddingLeft: 4
-          }}>
-            도전할 모드를 선택하세요.
-          </div>
+
 
           {/* 컬렉션 */}
           <div style={{
