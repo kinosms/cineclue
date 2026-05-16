@@ -420,6 +420,19 @@ export default function ProfileModal(props) {
               </div>
 
 
+
+
+              <div style={{
+
+                display: 'flex',
+
+                gap: 10,
+
+                marginTop: 7
+
+              }}>
+
+
               {/* 추천 영화 */}
 
               <button
@@ -427,6 +440,8 @@ export default function ProfileModal(props) {
                 onClick={openMovieRecommend}
 
                 style={{
+
+                  flex: 1,
 
                   border: '1px solid #ece4dc',
 
@@ -488,11 +503,15 @@ export default function ProfileModal(props) {
 
                 onClick={() => {
 
-                  window.location.href = '/collection'
+                  setShowProfile(false)
+
+                  setScreen('collection')
 
                 }}
 
                 style={{
+
+                  flex: 1,
 
                   border: '1px solid #ece4dc',
 
@@ -547,11 +566,13 @@ export default function ProfileModal(props) {
                 </div>
 
               </button>
-
+              </div>
             </div>
 
           </div>
+
         </div>
+
       )}
 
       {showRecommendModal && recommendMovie && (
@@ -711,21 +732,6 @@ export default function ProfileModal(props) {
         </div>
       )}
 
-      <MovieFlipCard
-
-        movieCard={movieCard}
-
-        showMovieCard={showMovieCard}
-
-        setShowMovieCard={setShowMovieCard}
-
-        movieCardFlipped={movieCardFlipped}
-
-        setMovieCardFlipped={setMovieCardFlipped}
-
-        setTrailerKey={setTrailerKey}
-
-      />
 
       <style jsx>{`
                   @keyframes fadeUp {

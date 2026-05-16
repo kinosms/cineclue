@@ -9,6 +9,7 @@ import ModeScreen from '../components/ModeScreen'
 import LoginModal from '../components/LoginModal'
 import QuizScreen from '../components/QuizScreen'
 import ResultScreen from '../components/ResultScreen'
+import Collection from '../components/Collection'
 
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || ''
 const SUPABASE_KEY = process.env.NEXT_PUBLIC_SUPABASE_KEY || ''
@@ -3513,6 +3514,19 @@ export default function CineClue() {
           AppLayout={AppLayout}
 
           rankingRevealDone={rankingRevealDone}
+        />
+
+      )}
+
+
+      {screen === 'collection' && (
+
+        <Collection
+
+          authUser={authUser}
+
+          supabase={supabase}
+
         />
 
       )}
