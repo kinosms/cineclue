@@ -91,7 +91,7 @@ export default function ModeScreen(props) {
                   return
                 }
 
-                setCollectionReturnScreen('mode')
+                setCollectionReturnScreen('grade')
                 setScreen('collection')
               }}
               style={{
