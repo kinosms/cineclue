@@ -28,7 +28,9 @@ export default function ModeScreen(props) {
 
     loadMovies,
 
-    setScreen
+    setScreen,
+
+    authUser
 
   } = props
   console.log(props)
@@ -69,68 +71,54 @@ export default function ModeScreen(props) {
           </div>
 
           {/* 컬렉션 */}
-          <div
-            onClick={() => {
-
-              if (!authUser) {
-
-                alert('로그인 후 이용 가능합니다.')
-
-                return
-              }
-
-              setScreen('collection')
-              setCollectionReturnScreen('mode')
-            }}
-
-            style={{
-              marginBottom: 22,
-              borderRadius: 18,
-              padding: '16px 18px',
-
-              background: `
-                linear-gradient(
-                  135deg,
-                  #2d2118,
-                  #151515
-                )
-              `,
-
-              color:'#fff',
-              position:'relative',
-              overflow:'hidden',
-              cursor:'pointer'
-            }}
-          >
+          <div style={{
+            display:'flex',
+            alignItems:'center',
+            justifyContent:'space-between',
+            marginBottom:14,
+            paddingLeft:4
+          }}>
 
             <div style={{
-              fontSize:'0.72rem',
-              letterSpacing:'0.22em',
-              color:'rgba(255,255,255,0.45)',
-              marginBottom: authUser ? 8 : 0,
-              fontWeight:700
+              fontSize:'0.7rem',
+              fontWeight:700,
+              color:'#6f6e6e',
+              letterSpacing:'0.15em',
+              textTransform:'uppercase'
             }}>
-              MY COLLECTION
+              도전할 모드를 선택하세요.
             </div>
 
-            {authUser && (
-              <>
-                <div style={{
-                  fontSize:'1.15rem',
-                  fontWeight:900,
-                  marginBottom:6
-                }}>
-                  Collected Posters
-                </div>
+            <button
+              onClick={() => {
 
-                <div style={{
-                  fontSize:'0.78rem',
-                  color:'rgba(255,255,255,0.58)'
-                }}>
-                  {collections.length} archived movies
-                </div>
-              </>
-            )}
+                if (!authUser) {
+
+                  alert('로그인 후 이용 가능합니다.')
+
+                  return
+                }
+
+                setCollectionReturnScreen('mode')
+                setScreen('collection')
+              }}
+              style={{
+                height:30,
+                padding:'0 13px',
+                borderRadius:999,
+                border:'1px solid #e5ddd5',
+                background:'#fff',
+                fontSize:'0.66rem',
+                fontWeight:800,
+                color:'#5f5a55',
+                letterSpacing:'0.08em',
+                display:'flex',
+                alignItems:'center',
+                gap:6
+              }}
+            >
+              📚 MY COLLECTION
+            </button>
 
           </div>
 

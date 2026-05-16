@@ -3281,6 +3281,8 @@ useEffect(() => {
 
           setScreen={setScreen}
 
+          authUser={authUser}
+
         />
 
       )}
