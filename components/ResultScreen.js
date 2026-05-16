@@ -1,8 +1,5 @@
 'use client'
 
-import MovieFlipCard from './MovieFlipCard'
-import ProfileModal from './ProfileModal'
-
 export default function ResultScreen(props) {
 
   const {
@@ -841,58 +838,6 @@ export default function ResultScreen(props) {
             </button>
           </div>
         )}
-
-        <ProfileModal
-
-          showProfile={showProfile}
-
-          setScreen={setScreen}
-
-          setShowProfile={setShowProfile}
-
-          profileUser={profileUser}
-
-          currentUser={currentUser}
-
-          user={user}
-
-          profileStats={profileStats}
-
-          animateStats={animateStats}
-
-          LEVEL_TITLES={LEVEL_TITLES}
-
-          recommendStatus={recommendStatus}
-
-          loadingDots={loadingDots}
-
-          openMovieRecommend={openMovieRecommend}
-
-          showRecommendModal={showRecommendModal}
-
-          setShowRecommendModal={setShowRecommendModal}
-
-          recommendMovie={recommendMovie}
-
-          setTrailerKey={setTrailerKey}
-
-          movieCard={movieCard}
-
-          showMovieCard={showMovieCard}
-
-          setShowMovieCard={setShowMovieCard}
-
-          movieCardFlipped={movieCardFlipped}
-
-          setMovieCardFlipped={setMovieCardFlipped}
-
-          supabase={supabase}
-
-          skipResultAnimation={skipResultAnimation}
-
-          setSkipResultAnimation={setSkipResultAnimation}     
-
-        />
 
 
 

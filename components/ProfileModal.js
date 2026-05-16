@@ -509,6 +509,8 @@ export default function ProfileModal(props) {
 
                     e.stopPropagation()
 
+                    setSkipResultAnimation(true)
+
                     setCollectionReturnScreen('result')
 
                     setScreen('collection')
