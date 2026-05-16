@@ -9,6 +9,8 @@ export default function ResultScreen(props) {
 
     users,
 
+    supabase,
+
     selChar,
 
     results,
@@ -944,6 +946,8 @@ export default function ResultScreen(props) {
   movieCardFlipped={movieCardFlipped}
 
   setMovieCardFlipped={setMovieCardFlipped}
+
+  supabase={supabase}
 
   MovieFlipCard={MovieFlipCard}
 
