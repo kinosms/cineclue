@@ -156,8 +156,8 @@ export default function ProfileModal(props) {
 
                       {/* 레벨바 영역 */}
                       <div style={{
-                        marginBottom: 15,
-                        marginTop: 13
+                        marginBottom: 13,
+                        marginTop: 12
                       }}>
 
                         <div style={{
@@ -241,7 +241,7 @@ export default function ProfileModal(props) {
                               background: '#fff',
                               border: '1px solid #ece7df',
                               borderRadius: 14,
-                              padding: '12px 12px'
+                              padding: '9px 12px'
                             }}>
                             <div style={{
                               fontSize: '0.66rem',
