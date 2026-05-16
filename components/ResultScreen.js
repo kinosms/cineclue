@@ -103,8 +103,6 @@ export default function ResultScreen(props) {
 
     saveCollection,
 
-    setScreen
-
   } = props
 
   const safeUsers = Array.isArray(users) ? users : []
