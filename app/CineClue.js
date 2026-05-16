@@ -1746,6 +1746,66 @@ export default function CineClue() {
   ])
 
 
+async function saveCollection(movie){
+
+  if(!authUser) return
+
+  try{
+
+    const { data, error } = await supabase
+
+      .from('collections')
+
+      .upsert(
+
+        {
+
+          user_id: authUser.id,
+
+          movie_id: movie.id || movie.tmdb_id,
+
+          movie_data: movie,
+
+          viewed_at: new Date()
+
+        },
+
+        {
+
+          onConflict:'user_id,movie_id'
+
+        }
+
+      )
+
+    console.log(
+
+      'collection save data',
+
+      data
+
+    )
+
+    console.log(
+
+      'collection save error',
+
+      error
+
+    )
+
+  }catch(err){
+
+    console.error(
+      'collection save error',
+      err
+    )
+
+  }
+
+}
+
+
 
 
   async function fetchGenreStats(user_id, character_id) {
@@ -3405,6 +3465,7 @@ export default function CineClue() {
           CharAvatar={CharAvatar}
 
           isLevelCompleted={isLevelCompleted}
+          saveCollection={saveCollection}
 
           playClick={playClick}
           loadMovies={loadMovies}
