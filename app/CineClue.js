@@ -1312,15 +1312,7 @@ export default function CineClue() {
 
                     .eq('character_id', c.char_id)
 
-                    .eq('log_type', 'result')
-
-                    .order('created_at', {
-
-                      ascending:false
-
-                    })
-
-                    .limit(1),
+                    .eq('log_type', 'result'),
 
                   `load score ${c.char_id}`
 
@@ -1328,7 +1320,15 @@ export default function CineClue() {
 
                 const logs = resultLogs?.data || []
 
-                const totalScore = logs?.[0]?.score_earned || 0
+                const totalScore = logs.reduce(
+
+                  (sum, l) =>
+
+                    sum + (l.score_earned || 0),
+
+                  0
+
+                )
 
                 return {
 
