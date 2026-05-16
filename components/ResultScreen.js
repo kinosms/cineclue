@@ -519,7 +519,7 @@ export default function ResultScreen(props) {
                   )
                   const myRank =
                     myRankIndex >= 0
-                      ? myRankIndex + 1
+                      ? safeRanking[myRankIndex]?.rank
                       : null
                   const myRankData =
                     myRankIndex >= 0
