@@ -10,6 +10,7 @@ import LoginModal from '../components/LoginModal'
 import QuizScreen from '../components/QuizScreen'
 import ResultScreen from '../components/ResultScreen'
 import Collection from '../components/Collection'
+import MovieFlipCard from '../components/MovieFlipCard'
 
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || ''
 const SUPABASE_KEY = process.env.NEXT_PUBLIC_SUPABASE_KEY || ''
@@ -3463,11 +3464,10 @@ useEffect(() => {
           supabase={supabase}
 
           movieCard={movieCard}
-          showMovieCard={showMovieCard}
-          setShowMovieCard={setShowMovieCard}
-
           movieCardFlipped={movieCardFlipped}
+          setMovieCard={setMovieCard}
           setMovieCardFlipped={setMovieCardFlipped}
+          setShowMovieCard={setShowMovieCard}
 
           trailerKey={trailerKey}
           setTrailerKey={setTrailerKey}
@@ -3565,6 +3565,23 @@ useEffect(() => {
           </div>
         </div>
       )}
+      <MovieFlipCard
+
+          movieCard={movieCard}
+
+          showMovieCard={showMovieCard}
+
+          setShowMovieCard={setShowMovieCard}
+
+          movieCardFlipped={movieCardFlipped}
+
+          setMovieCardFlipped={setMovieCardFlipped}
+
+          setTrailerKey={setTrailerKey}
+
+        />
     </>
+
+    
   )
 }

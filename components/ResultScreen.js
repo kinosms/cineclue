@@ -50,6 +50,7 @@ export default function ResultScreen(props) {
     setShowMovieCard,
     movieCard,
     movieCardFlipped,
+    setMovieCard,
     setMovieCardFlipped,
     playClick,
     loadMovies,
@@ -306,14 +307,18 @@ export default function ResultScreen(props) {
 
                     key={i}
                     onClick={() => {
+                      console.log('RESULT R DATA', r)
                       if (
                         (r.correct || showAnswers)
                         &&
                         hasMovieInfo
                       ) {
                         saveCollection(r)
+
                         setMovieCard(r)
+
                         setMovieCardFlipped(false)
+
                         setShowMovieCard(true)
                       }
                     }}
@@ -889,22 +894,6 @@ export default function ResultScreen(props) {
 
         />
 
-
-      <MovieFlipCard
-
-        movieCard={movieCard}
-
-        showMovieCard={showMovieCard}
-
-        setShowMovieCard={setShowMovieCard}
-
-        movieCardFlipped={movieCardFlipped}
-
-        setMovieCardFlipped={setMovieCardFlipped}
-
-        setTrailerKey={setTrailerKey}
-
-      />
 
 
       <style jsx>{`

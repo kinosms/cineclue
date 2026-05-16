@@ -650,22 +650,6 @@ export default function Collection(props) {
 
 )}
 
-      <MovieFlipCard
-
-        movieCard={movieCard}
-
-        showMovieCard={showMovieCard}
-
-        setShowMovieCard={setShowMovieCard}
-
-        movieCardFlipped={movieCardFlipped}
-
-        setMovieCardFlipped={setMovieCardFlipped}
-
-        setTrailerKey={setTrailerKey}
-
-      />
-
     </div>
 
   )
