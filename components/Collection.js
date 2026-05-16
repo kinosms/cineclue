@@ -256,7 +256,7 @@ export default function Collection(props) {
 
             lineHeight: 1.05,
 
-            marginBottom: 12
+            marginBottom: 10
 
           }}
 
@@ -352,7 +352,7 @@ export default function Collection(props) {
 
         {/* divider */}
         <div style={{
-          marginTop:18,
+          marginTop:10,
           height:1,
           width:'100%',
           background:'rgba(255,255,255,0.08)'
