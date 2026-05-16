@@ -519,7 +519,7 @@ export default function ProfileModal(props) {
 
                     }, 0)
 
-                  }}>
+                  }}
 
                 style={{
 
