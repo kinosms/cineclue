@@ -295,11 +295,19 @@ export default function Collection(props) {
 
             style={{
 
+              appearance:'none',
+
+              WebkitAppearance:'none',
+
               width:34,
 
               height:34,
 
-              borderRadius:'50%',
+              border:'none',
+              
+              background:'transparent',
+
+              padding:0,
 
               color:'rgba(255,255,255,0.82)',
 
@@ -309,9 +317,7 @@ export default function Collection(props) {
 
               justifyContent:'center',
 
-              fontSize:'0.92rem',
-
-              backdropFilter:'blur(10px)',
+              fontSize: '1rem',
 
               cursor:'pointer'
 

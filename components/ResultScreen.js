@@ -311,7 +311,6 @@ export default function ResultScreen(props) {
                         &&
                         hasMovieInfo
                       ) {
-                        setCollectionReturnScreen('result')
                         saveCollection(r)
                         setMovieCard(r)
                         setMovieCardFlipped(false)
