@@ -311,13 +311,11 @@ export default function Collection(props) {
 
           alignItems: 'flex-start',
 
-          paddingTop: 95,
+          paddingTop: 180,
 
           overflowX: 'auto',
 
           overflowY: 'hidden',
-
-          padding: '0 80px',
 
           gap: 0,
 
