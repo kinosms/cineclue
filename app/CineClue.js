@@ -3457,6 +3457,9 @@ useEffect(() => {
           showRecommendModal={showRecommendModal}
           setShowRecommendModal={setShowRecommendModal}
 
+          showProfile={showProfile}
+          setShowProfile={setShowProfile}
+
           recommendMovie={recommendMovie}
 
           supabase={supabase}
