@@ -276,18 +276,6 @@ export default function Collection(props) {
 
           </div>
 
-          <div style={{
-
-            marginTop:18,
-
-            height:1,
-
-            width:'100%',
-
-            background:'rgba(255,255,255,0.08)'
-
-          }} />
-
           <button
 
             onClick={() => {
@@ -339,6 +327,14 @@ export default function Collection(props) {
           </button>
 
         </div>
+
+        {/* divider */}
+        <div style={{
+          marginTop:18,
+          height:1,
+          width:'100%',
+          background:'rgba(255,255,255,0.08)'
+        }} />
 
         </div>
 
