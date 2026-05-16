@@ -8,6 +8,15 @@ export default function ProfileModal(props){
 
     showProfile,
     setShowProfile,
+    movieCard,
+
+    showMovieCard,
+
+    setShowMovieCard,
+
+    movieCardFlipped,
+
+    setMovieCardFlipped,
 
     profileUser,
     profileStats,
