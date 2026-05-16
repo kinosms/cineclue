@@ -11,6 +11,7 @@ import QuizScreen from '../components/QuizScreen'
 import ResultScreen from '../components/ResultScreen'
 import Collection from '../components/Collection'
 import MovieFlipCard from '../components/MovieFlipCard'
+import ProfileModal from '../components/ProfileModal'
 
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || ''
 const SUPABASE_KEY = process.env.NEXT_PUBLIC_SUPABASE_KEY || ''
