@@ -156,7 +156,7 @@ export default function ProfileModal(props) {
                       {/* 레벨바 영역 */}
                       <div style={{
                         marginBottom: 15,
-                        marginTop: 18
+                        marginTop: 13
                       }}>
 
                         <div style={{
