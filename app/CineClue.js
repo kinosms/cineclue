@@ -3493,6 +3493,8 @@ useEffect(() => {
 
           selChar={selChar}
 
+          collectionReturnScreen={collectionReturnScreen}
+
         />
 
       )}

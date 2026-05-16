@@ -11,7 +11,8 @@ export default function Collection(props) {
     authUser,
     supabase,
     setScreen,
-    selChar
+    selChar,
+    collectionReturnScreen
 
   } = props
 
