@@ -887,6 +887,10 @@ export default function ResultScreen(props) {
 
           supabase={supabase}
 
+          skipResultAnimation={skipResultAnimation}
+
+          setSkipResultAnimation={setSkipResultAnimation}     
+
         />
 
 

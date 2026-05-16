@@ -25,7 +25,9 @@ export default function ProfileModal(props) {
     setTrailerKey,
     CharAvatar,
     setScreen,
-    currentUser
+    currentUser,
+    skipResultAnimation,
+    setSkipResultAnimation,
   } = props
 
 
