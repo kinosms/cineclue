@@ -3494,6 +3494,8 @@ useEffect(() => {
           selChar={selChar}
 
           collectionReturnScreen={collectionReturnScreen}
+          trailerKey={trailerKey}
+          setTrailerKey={setTrailerKey}
 
         />
 

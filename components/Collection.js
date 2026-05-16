@@ -12,7 +12,9 @@ export default function Collection(props) {
     supabase,
     setScreen,
     selChar,
-    collectionReturnScreen
+    collectionReturnScreen,
+    trailerKey,
+    setTrailerKey
 
   } = props
 
