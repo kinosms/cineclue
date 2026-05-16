@@ -276,6 +276,18 @@ export default function Collection(props) {
 
           </div>
 
+          <div style={{
+
+            marginTop:18,
+
+            height:1,
+
+            width:'100%',
+
+            background:'rgba(255,255,255,0.08)'
+
+          }} />
+
           <button
 
             onClick={() => {
@@ -299,10 +311,6 @@ export default function Collection(props) {
               height:34,
 
               borderRadius:'50%',
-
-              border:'1px solid rgba(255,255,255,0.14)',
-
-              background:'rgba(255,255,255,0.05)',
 
               color:'rgba(255,255,255,0.82)',
 
@@ -384,7 +392,7 @@ export default function Collection(props) {
 
       alignItems: 'flex-start',
 
-      paddingTop: 95,
+      paddingTop: 72,
 
       overflowX: 'auto',
 
@@ -577,7 +585,7 @@ export default function Collection(props) {
       style={{
         display:'grid',
         gridTemplateColumns:'repeat(3, 1fr)',
-        gap:6
+        gap:3
       }}
     >
 
@@ -598,7 +606,7 @@ export default function Collection(props) {
 
           style={{
             aspectRatio:'2 / 3',
-            borderRadius:14,
+            borderRadius:6,
             overflow:'hidden',
             cursor:'pointer',
             position:'relative'
