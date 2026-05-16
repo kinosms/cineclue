@@ -3435,9 +3435,6 @@ useEffect(() => {
 
           loadMovieDetail={loadMovieDetail}
 
-          showProfile={showProfile}
-          setShowProfile={setShowProfile}
-
           setProfileStats={setProfileStats}
           setProfileTarget={setProfileTarget}
           setProfileUser={setProfileUser}
@@ -3506,7 +3503,6 @@ useEffect(() => {
 
 
 
-
       {/* 유튜브 플레이어 모달 */}
       {trailerKey && (
         console.log('TRAILER MODAL', trailerKey),
@@ -3565,6 +3561,52 @@ useEffect(() => {
           </div>
         </div>
       )}
+
+
+      <ProfileModal
+
+        showProfile={showProfile}
+        setShowProfile={setShowProfile}
+
+        movieCard={movieCard}
+        showMovieCard={showMovieCard}
+        setShowMovieCard={setShowMovieCard}
+
+        movieCardFlipped={movieCardFlipped}
+        setMovieCardFlipped={setMovieCardFlipped}
+
+        profileUser={profileUser}
+        profileStats={profileStats}
+
+        animateStats={animateStats}
+
+        LEVEL_TITLES={LEVEL_TITLES}
+
+        recommendStatus={recommendStatus}
+        loadingDots={loadingDots}
+
+        openMovieRecommend={openMovieRecommend}
+
+        showRecommendModal={showRecommendModal}
+        setShowRecommendModal={setShowRecommendModal}
+
+        recommendMovie={recommendMovie}
+
+        setTrailerKey={setTrailerKey}
+
+        CharAvatar={CharAvatar}
+
+        setScreen={setScreen}
+
+        setCollectionReturnScreen={setCollectionReturnScreen}
+
+        currentUser={currentUser}
+
+        skipResultAnimation={skipResultAnimation}
+        setSkipResultAnimation={setSkipResultAnimation}
+
+      />    
+
       <MovieFlipCard
 
           movieCard={movieCard}

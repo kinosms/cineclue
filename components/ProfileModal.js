@@ -28,6 +28,7 @@ export default function ProfileModal(props) {
     currentUser,
     skipResultAnimation,
     setSkipResultAnimation,
+    setCollectionReturnScreen
   } = props
 
 
