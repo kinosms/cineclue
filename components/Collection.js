@@ -256,7 +256,7 @@ export default function Collection(props) {
 
             lineHeight: 1.05,
 
-            marginBottom: 10
+            marginBottom: 7
 
           }}
 
@@ -457,9 +457,9 @@ export default function Collection(props) {
 
           style={{
 
-            width: 240,
+            width: 255,
 
-            height: 360,
+            height: 382,
 
             borderRadius: 22,
 
@@ -479,7 +479,7 @@ export default function Collection(props) {
 
             `,
 
-            marginLeft: index === 0 ? 0 : -110,
+            marginLeft: index === 0 ? 0 : -125,
 
             transform: `rotate(${rotate}deg)`,
 
