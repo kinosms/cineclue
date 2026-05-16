@@ -23,7 +23,7 @@ export default function Collection(props) {
   const [showMovieCard, setShowMovieCard] = useState(false)
   const [movieCardFlipped, setMovieCardFlipped] = useState(false)
   const [trailerKey, setTrailerKey] = useState(null)
-  
+  const [collectionLayout, setCollectionLayout] = useState('stack')
 
   useEffect(() => {
 
@@ -250,23 +250,89 @@ export default function Collection(props) {
 
         </div>
 
-        <div
+        <div style={{
 
-          style={{
+          display:'flex',
 
-            fontSize: 15,
+          alignItems:'center',
 
-            color: 'rgba(255,255,255,0.55)'
+          justifyContent:'space-between'
 
-          }}
+        }}>
 
-        >
+          <div
 
-          {posters.length} archived movies
+            style={{
+
+              fontSize:15,
+
+              color:'rgba(255,255,255,0.55)'
+
+            }}
+
+          >
+
+            {posters.length} archived movies
+
+          </div>
+
+          <button
+
+            onClick={() => {
+
+              setCollectionLayout(v =>
+
+                v === 'stack'
+
+                  ? 'grid'
+
+                  : 'stack'
+
+              )
+
+            }}
+
+            style={{
+
+              width:34,
+
+              height:34,
+
+              borderRadius:'50%',
+
+              border:'1px solid rgba(255,255,255,0.14)',
+
+              background:'rgba(255,255,255,0.05)',
+
+              color:'rgba(255,255,255,0.82)',
+
+              display:'flex',
+
+              alignItems:'center',
+
+              justifyContent:'center',
+
+              fontSize:'0.92rem',
+
+              backdropFilter:'blur(10px)',
+
+              cursor:'pointer'
+
+            }}
+
+          >
+
+            {collectionLayout === 'stack'
+
+              ? '☷'
+
+              : '⧉'}
+
+          </button>
 
         </div>
 
-      </div>
+        </div>
 
       {/* GLOW */}
 
@@ -298,201 +364,280 @@ export default function Collection(props) {
 
       />
 
+      
+
       {/* SCROLL AREA */}
 
-      <div
+      {collectionLayout === 'stack' ? (
 
-        ref={scrollRef}
+  /* STACK VIEW */
 
-        style={{
+  <div
 
-          flex: 1,
+    ref={scrollRef}
 
-          display: 'flex',
+    style={{
 
-          alignItems: 'flex-start',
+      flex: 1,
 
-          paddingTop: 95,
+      display: 'flex',
 
-          overflowX: 'auto',
+      alignItems: 'flex-start',
 
-          overflowY: 'hidden',
+      paddingTop: 95,
 
-          gap: 0,
+      overflowX: 'auto',
 
-          scrollBehavior: 'smooth',
+      overflowY: 'hidden',
 
-          msOverflowStyle: 'none',
+      gap: 0,
 
-          scrollbarWidth: 'none'
+      scrollBehavior: 'smooth',
 
-        }}
+      msOverflowStyle: 'none',
 
-        className="hide-scroll"
+      scrollbarWidth: 'none'
 
-      >
+    }}
 
-        {posters.map((poster, index) => {
+    className="hide-scroll"
 
-          const rotate =
+  >
 
-            index % 2 === 0
+    {posters.map((poster, index) => {
 
-              ? -4
+      const rotate =
 
-              : 4
+        index % 2 === 0
 
-          return (
+          ? -4
+
+          : 4
+
+      return (
+
+        <div
+          key={index}
+
+          onClick={() => {
+
+            setMovieCard(poster.movie_data)
+
+            setMovieCardFlipped(false)
+
+            setShowMovieCard(true)
+
+          }}
+
+          style={{
+
+            width: 240,
+
+            height: 360,
+
+            borderRadius: 22,
+
+            flexShrink: 0,
+
+            background: `
+
+              linear-gradient(
+
+                145deg,
+
+                #2f2f2f,
+
+                #191919
+
+              )
+
+            `,
+
+            marginLeft: index === 0 ? 0 : -110,
+
+            transform: `rotate(${rotate}deg)`,
+
+            transformOrigin: 'bottom center',
+
+            boxShadow: `
+
+              0 30px 60px rgba(0,0,0,0.45),
+
+              inset 0 1px 0 rgba(255,255,255,0.05)
+
+            `,
+
+            position: 'relative',
+
+            transition: '0.28s ease',
+
+            cursor: 'pointer',
+
+            overflow: 'hidden'
+
+          }}
+
+        >
+
+          <img
+            src={
+
+              poster.movie_data?.poster_path
+
+                ? `https://image.tmdb.org/t/p/w500${poster.movie_data.poster_path}`
+
+                : '/no_poster.webp'
+
+            }
+            alt={poster.movie_data?.title}
+            draggable={false}
+            style={{
+              width: '100%',
+              height: '100%',
+              objectFit: 'cover',
+              userSelect: 'none',
+              pointerEvents: 'none'
+            }}
+            onError={(e) => {
+              e.currentTarget.src = '/noposter.jpg'
+            }}
+          />
+
+          <div
+
+            style={{
+
+              position: 'absolute',
+
+              bottom: 24,
+
+              left: 20
+
+            }}
+
+          >
 
             <div
-              key={index}
-
-              onClick={() => {
-
-                setMovieCard(poster.movie_data)
-
-                setMovieCardFlipped(false)
-
-                setShowMovieCard(true)
-
-              }}
 
               style={{
 
-                width: 240,
+                width: 110,
 
-                height: 360,
+                height: 10,
 
-                borderRadius: 22,
+                borderRadius: 999,
 
-                flexShrink: 0,
+                background: 'rgba(255,255,255,0.14)',
 
-                background: `
-
-                  linear-gradient(
-
-                    145deg,
-
-                    #2f2f2f,
-
-                    #191919
-
-                  )
-
-                `,
-
-                border: '1px solid rgba(255,255,255,0.08)',
-
-                marginLeft: index === 0 ? 0 : -110,
-
-                transform: `rotate(${rotate}deg)`,
-                transformOrigin: 'bottom center',
-
-                boxShadow: `
-
-                  0 30px 60px rgba(0,0,0,0.45),
-
-                  inset 0 1px 0 rgba(255,255,255,0.05)
-
-                `,
-
-                position: 'relative',
-
-                transition: '0.28s ease',
-
-                cursor: 'pointer',
-
-                overflow: 'hidden'
+                marginBottom: 10
 
               }}
 
-            >
+            />
 
-              {/* poster image */}
+            <div
 
-              <img
-                src={
+              style={{
 
-                  poster.movie_data?.poster_path
+                width: 70,
 
-                    ? `https://image.tmdb.org/t/p/w500${poster.movie_data.poster_path}`
+                height: 8,
 
-                    : '/no_poster.webp'
+                borderRadius: 999,
 
-                }
-                alt={poster.movie_data?.title}
-                draggable={false}
-                style={{
-                  width: '100%',
-                  height: '100%',
-                  objectFit: 'cover',
-                  userSelect: 'none',
-                  pointerEvents: 'none'
-                }}
-                onError={(e) => {
-                  e.currentTarget.src = '/noposter.jpg'
-                }}
-              />
+                background: 'rgba(255,255,255,0.08)'
 
-              {/* placeholder text */}
+              }}
 
-              <div
+            />
 
-                style={{
+          </div>
 
-                  position: 'absolute',
+        </div>
 
-                  bottom: 24,
+      )
 
-                  left: 20
+    })}
 
-                }}
+  </div>
 
-              >
+) : (
 
-                <div
+  /* GRID VIEW */
 
-                  style={{
+  <div
+    style={{
+      flex:1,
+      overflowY:'auto',
+      padding:'26px 14px 40px'
+    }}
+  >
 
-                    width: 110,
+    <div
+      style={{
+        display:'grid',
+        gridTemplateColumns:'repeat(3, 1fr)',
+        gap:6
+      }}
+    >
 
-                    height: 10,
+      {posters.map((poster, index) => (
 
-                    borderRadius: 999,
+        <div
+          key={index}
 
-                    background: 'rgba(255,255,255,0.14)',
+          onClick={() => {
 
-                    marginBottom: 10
+            setMovieCard(poster.movie_data)
 
-                  }}
+            setMovieCardFlipped(false)
 
-                />
+            setShowMovieCard(true)
 
-                <div
+          }}
 
-                  style={{
+          style={{
+            aspectRatio:'2 / 3',
+            borderRadius:14,
+            overflow:'hidden',
+            cursor:'pointer',
+            position:'relative'
+          }}
+        >
 
-                    width: 70,
+          <img
+            src={
+              poster.movie_data?.poster_path
+                ? `https://image.tmdb.org/t/p/w500${poster.movie_data.poster_path}`
+                : '/no_poster.webp'
+            }
 
-                    height: 8,
+            alt={poster.movie_data?.title}
 
-                    borderRadius: 999,
+            draggable={false}
 
-                    background: 'rgba(255,255,255,0.08)'
+            style={{
+              width:'100%',
+              height:'100%',
+              objectFit:'cover',
+              userSelect:'none',
+              pointerEvents:'none'
+            }}
 
-                  }}
+            onError={(e) => {
+              e.currentTarget.src = '/noposter.jpg'
+            }}
+          />
 
-                />
+        </div>
 
-              </div>
+      ))}
 
-            </div>
+    </div>
 
-          )
+  </div>
 
-        })}
-
-      </div>
+)}
 
       <MovieFlipCard
 
