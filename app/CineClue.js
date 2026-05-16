@@ -3561,6 +3561,8 @@ useEffect(() => {
           AppLayout={AppLayout}
 
           rankingRevealDone={rankingRevealDone}
+          skipResultAnimation={skipResultAnimation}
+          setSkipResultAnimation={setSkipResultAnimation}
         />
 
       )}
