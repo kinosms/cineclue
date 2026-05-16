@@ -504,12 +504,19 @@ export default function ProfileModal(props) {
 
               <button
 
-                onClick={() => {
+                onClick={(e) => {
+
+                  e.stopPropagation()
 
                   setShowProfile(false)
-                  setSkipResultAnimation(true)
+
                   setCollectionReturnScreen('result')
-                  setScreen('collection')
+
+                  requestAnimationFrame(() => {
+
+                    setScreen('collection')
+
+                  })
 
                 }}
 
