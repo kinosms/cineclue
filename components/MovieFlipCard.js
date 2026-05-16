@@ -90,61 +90,19 @@ export default function MovieFlipCard(props) {
                 }}
               />
 
-              {/* 상단 그라데이션 */}
-              <div style={{
-                position: 'absolute',
-                inset: 0,
-                background:
-                  'linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.1) 45%, rgba(0,0,0,0.35) 100%)'
-              }} />
-
               {/* 회전 버튼 */}
               <div style={{
                 position: 'absolute',
-                top: 14,
-                right: 14,
-                width: 38,
-                height: 38,
-                borderRadius: '50%',
-                background: 'rgba(255,255,255,0.14)',
-                backdropFilter: 'blur(10px)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                color: '#fff',
-                fontSize: '1rem',
+                top: 18,
+                right: 18,
+                fontSize: '1.4rem',
+                color: 'rgba(255,255,255,0.92)',
                 fontWeight: 700,
-                border: '1px solid rgba(255,255,255,0.22)'
+                zIndex: 20,
+                textShadow: '0 2px 8px rgba(0,0,0,0.45)',
+                pointerEvents: 'none'
               }}>
                 ↻
-              </div>
-
-              {/* 하단 정보 */}
-              <div style={{
-                position: 'absolute',
-                left: 22,
-                right: 22,
-                bottom: 24
-              }}>
-
-                <div style={{
-                  fontSize: '1.6rem',
-                  fontWeight: 900,
-                  color: '#fff',
-                  lineHeight: 1.12,
-                  marginBottom: 8,
-                  textShadow: '0 4px 16px rgba(0,0,0,0.45)'
-                }}>
-                  {movieCard.title}
-                </div>
-
-                <div style={{
-                  fontSize: '0.92rem',
-                  color: 'rgba(255,255,255,0.78)',
-                  fontWeight: 500
-                }}>
-                  {movieCard.release_date?.slice(0, 4)}
-                </div>
               </div>
             </div>
 
