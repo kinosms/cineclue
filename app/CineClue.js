@@ -1775,7 +1775,7 @@ export default function CineClue() {
 
           {
 
-            onConflict: 'user_id,movie_id'
+            onConflict:'user_id,character_id,movie_id'
 
           }
 
