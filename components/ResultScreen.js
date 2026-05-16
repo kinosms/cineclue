@@ -55,6 +55,7 @@ export default function ResultScreen(props) {
     loadMovies,
     saveCollection,
     skipResultAnimation,
+    setSkipResultAnimation
   } = props
 
   const safeUsers = Array.isArray(users) ? users : []
