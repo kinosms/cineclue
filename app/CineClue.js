@@ -741,21 +741,27 @@ export default function CineClue() {
     let from = 0
 
     while (true) {
-      const { data = [] } =
+      const result = await safeQuery(
 
-        await safeQuery(
+      supabase
 
-          supabase
-            .from('movies')
-            .select('id, title')
-            .range(
-              from,
-              from + pageSize - 1
-            ),
+        .from('movies')
 
-          `fetch all movies ${from}`
+        .select('id, title')
 
-        )
+        .range(
+
+          from,
+
+          from + pageSize - 1
+
+        ),
+
+      `fetch all movies ${from}`
+
+    )
+
+    const data = result?.data || []
 
       if (data.length === 0) break
 
