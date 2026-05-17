@@ -1806,8 +1806,6 @@ export default function CineClue() {
 
             user_id: authUser.id,
 
-            character_id: selChar,
-
             movie_id: movie.id || movie.tmdb_id,
 
             movie_data: movie,
@@ -1818,7 +1816,7 @@ export default function CineClue() {
 
           {
 
-            onConflict:'user_id,character_id,movie_id'
+            onConflict:'user_id,movie_id'
 
           }
 

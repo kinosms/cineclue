@@ -125,8 +125,6 @@ export default function Collection(props) {
 
         .eq('user_id', authUser.id)
 
-        .eq('character_id', selChar)
-
         .order('viewed_at', { ascending: false })
 
       if (error) {
