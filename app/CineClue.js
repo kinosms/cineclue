@@ -658,7 +658,6 @@ async function safeQuery(promise, label = 'query') {
   try {
     const result = await withTimeout(
       promise,
-      label,
       5000
     )
     if (result.error) {
@@ -925,47 +924,43 @@ export default function CineClue() {
 
   const logout = async () => {
 
-  setIsLoggingOut(true)
+      setIsLoggingOut(true)
 
-  try {
+      setScreen('intro')
 
-    const { error } =
+      setAuthUser(null)
 
-      await supabase.auth.signOut()
+      setUsers([])
 
-    console.log('logout error', error)
+      setSelChar(null)
 
-  } catch (e) {
+      localStorage.clear()
 
-    console.error(
+      sessionStorage.clear()
 
-      'logout failed',
+    try {
 
-      e
+      await safeQuery(
 
-    )
+        supabase.auth.signOut(),
+
+        'logout'
+
+      )
+
+    } catch (e) {
+
+      console.error(
+
+        'logout failed',
+
+        e
+
+      )
+
+    }
 
   }
-
-  setAuthUser(null)
-
-  setUsers([])
-
-  setSelChar(null)
-
-  localStorage.clear()
-
-  sessionStorage.clear()
-
-  setScreen('intro')
-
-  setTimeout(() => {
-
-    setIsLoggingOut(false)
-
-  }, 1000)
-
-}
 
 
   const [authChecked, setAuthChecked] = useState(false)
@@ -1325,7 +1320,23 @@ export default function CineClue() {
 
               data.map(async c => {
 
+                const resultLogs = await safeQuery(
 
+                  supabase
+
+                    .from('game_logs')
+
+                    .select('score_earned')
+
+                    .eq('user_id', user.id)
+
+                    .eq('character_id', c.char_id)
+
+                    .eq('log_type', 'result'),
+
+                  `load score ${c.char_id}`
+
+                )
 
                 const { count } = await supabase
 
@@ -1343,13 +1354,27 @@ export default function CineClue() {
 
               setPosterCount(count || 0)
 
+                  
+
+                const logs = resultLogs?.data || []
+
+                const totalScore = logs.reduce(
+
+                  (sum, l) =>
+
+                    sum + (l.score_earned || 0),
+
+                  0
+
+                )
+
                 return {
 
                   charId: c.char_id,
 
                   nickname: c.nickname,
 
-                  score: c.score || 0,
+                  score: totalScore,
 
                   lives: c.lives,
 
@@ -2022,18 +2047,6 @@ export default function CineClue() {
     const safeNickname = currentUser?.nickname || nickname || 'USER'
     const userId = String(currentUser?.userId)
     const run = async () => {
-
-      console.log({
-
-    score,
-
-    roundStartScore,
-
-    nextScore: score,
-
-    savedScore: score - roundStartScore
-
-  })
       await saveLog({
         supabase,
         userId,
@@ -2047,47 +2060,8 @@ export default function CineClue() {
         log_type: 'result',
         quizMode
       })
-    const nextScore = score
-      await safeQuery(
-
-        supabase
-
-          .from('characters')
-
-          .update({
-
-            score: nextScore
-
-          })
-
-    .eq('auth_user_id', userId)
-
-    .eq('char_id', selChar),
-
-  'update character total score'
-
-)
-
-const check = await safeQuery(
-
-  supabase
-
-    .from('characters')
-
-    .select('*')
-
-    .eq('auth_user_id', userId)
-
-    .eq('char_id', selChar),
-
-  'check character'
-
-)
-
-console.log(check)
 
       const data = await loadRanking({ supabase })
-          
       setRanking(data)
     }
     run()
@@ -2537,9 +2511,6 @@ useEffect(() => {
         }
 
         gained = getPts(appliedMode)
-
-        const nextScore = score + gained
-
         setScore(v => v + gained)
         setUsers(prev => {
           const updated = prev.map(u => {
@@ -3012,22 +2983,6 @@ useEffect(() => {
 
     if (!nickname.trim()) return
 
-    const exists = users.find(
-
-    u => u.charId === tempChar
-
-  )
-
-  if (exists) {
-
-    setSelChar(tempChar)
-
-    setShowNameModal(false)
-
-    return
-
-  }
-
     const existingUser = users.find(
 
       u =>
@@ -3091,6 +3046,22 @@ useEffect(() => {
     newUser
 
   ])
+
+  await safeQuery(
+
+    supabase
+
+      .from('characters')
+
+      .delete()
+
+      .eq('auth_user_id', authUser.id)
+
+      .eq('char_id', tempChar),
+
+    'delete existing character'
+
+  )
 
   await safeQuery(
 
