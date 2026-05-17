@@ -838,6 +838,7 @@ export default function QuizScreen(props) {
                             }
 
                             // 전체 영화 아직 로딩 안됐으면 중단
+                            console.log('allMovies', allMovies.length)
                             if (!allMovies.length) return
                             const keyword = normalize(v)
                             const starts = []

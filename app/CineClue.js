@@ -2062,13 +2062,14 @@ export default function CineClue() {
         log_type: 'result',
         quizMode
       })
-
+      
+      if (!authUser) return
       const result = await safeQuery(
 
         supabase
 
           .from('characters')
-
+          
           .update({
 
             score: score
