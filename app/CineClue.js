@@ -1325,57 +1325,27 @@ export default function CineClue() {
 
             }
 
+
+            const { count } = await supabase
+
+              .from('collections')
+
+              .select('*', {
+
+                count:'exact',
+
+                head:true
+
+              })
+
+              .eq('user_id', user.id)
+
+            setPosterCount(count || 0)
+
+
             const loadedUsers = await Promise.all(
 
               data.map(async c => {
-
-                const resultLogs = await safeQuery(
-
-                  supabase
-
-                    .from('game_logs')
-
-                    .select('score_earned')
-
-                    .eq('user_id', user.id)
-
-                    .eq('character_id', c.char_id)
-
-                    .eq('log_type', 'result'),
-
-                  `load score ${c.char_id}`
-
-                )
-
-                const { count } = await supabase
-
-                .from('collections')
-
-                .select('*', {
-
-                  count:'exact',
-
-                  head:true
-
-                })
-
-                .eq('user_id', user.id)
-
-              setPosterCount(count || 0)
-
-                  
-
-                const logs = resultLogs?.data || []
-
-                const totalScore = logs.reduce(
-
-                  (sum, l) =>
-
-                    sum + (l.score_earned || 0),
-
-                  0
-
-                )
 
                 return {
 
