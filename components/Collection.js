@@ -76,7 +76,7 @@ export default function Collection(props) {
 
       callback?.()
 
-    }, 420)
+    }, 340)
 
     // 🔥 완전히 지나간 후 제거
     shuffleHideTimeoutRef.current = setTimeout(() => {
