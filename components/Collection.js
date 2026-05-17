@@ -40,6 +40,7 @@ export default function Collection(props) {
   const [ready, setReady] = useState(false)
   const [posters, setPosters] = useState([])
   const [collectionLayout, setCollectionLayout] = useState('stack')
+  const [sortType, setSortType] = useState('recent')
 
   useEffect(() => {
 
@@ -159,6 +160,32 @@ export default function Collection(props) {
     )
 
   }
+
+
+
+  const sortedPosters =
+
+    [...posters].sort((a, b) => {
+
+      if (sortType === 'name') {
+
+        return (a.movie_data?.title || '')
+
+          .localeCompare(
+
+            b.movie_data?.title || '',
+
+            'ko'
+
+          )
+
+      }
+
+      return new Date(b.viewed_at)
+
+        - new Date(a.viewed_at)
+
+    })
 
 
 
@@ -338,6 +365,56 @@ export default function Collection(props) {
 
           <button
 
+  onClick={() => {
+
+    setSortType(v =>
+
+      v === 'recent'
+
+        ? 'name'
+
+        : 'recent'
+
+    )
+
+        }}
+
+        style={{
+
+          appearance:'none',
+
+          WebkitAppearance:'none',
+
+          border:'none',
+
+          background:'transparent',
+
+          color:'rgba(255,255,255,0.72)',
+
+          fontSize:'0.9rem',
+
+          fontWeight:600,
+
+          letterSpacing:'-0.02em',
+
+          cursor:'pointer',
+
+          padding:'0 6px'
+
+        }}
+
+      >
+
+        {sortType === 'recent'
+
+          ? '등록순'
+
+          : '이름순'}
+
+      </button>
+
+          <button
+
             onClick={() => {
 
               setCollectionLayout(v =>
@@ -474,7 +551,7 @@ export default function Collection(props) {
 
   >
 
-    {posters.map((poster, index) => {
+    {sortedPosters.map((poster, index) => {
 
       const rotate =
 
@@ -651,7 +728,7 @@ export default function Collection(props) {
       }}
     >
 
-      {posters.map((poster, index) => (
+      {sortedPosters.map((poster, index) => (
 
         <div
           key={index}
