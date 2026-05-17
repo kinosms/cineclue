@@ -270,7 +270,7 @@ export default function Collection(props) {
               Math.random() > 0.5
 
             const top =
-              Math.random() * 100
+              -10 + Math.random() * 110
 
             const rotate =
               -25 + Math.random() * 50
@@ -498,7 +498,7 @@ export default function Collection(props) {
 
                   )
 
-                }, 180)
+                }, 350)
 
               }}
 
@@ -970,7 +970,7 @@ export default function Collection(props) {
 
   100% {
 
-    transform: translateX(140vw);
+    transform: translateX(-140vw);
 
     opacity:0;
 
