@@ -1012,7 +1012,7 @@ export default function CineClue() {
   const [skipResultAnimation, setSkipResultAnimation] = useState(false)
   const [collectionReturnScreen, setCollectionReturnScreen] = useState('result')
 
-
+  const [posterCount, setPosterCount] = useState(0)
 
   const [selGrade, setSelGrade] = useState(null)
   const [pool, setPool] = useState([])
@@ -1333,6 +1333,22 @@ export default function CineClue() {
                   `load score ${c.char_id}`
 
                 )
+
+                const { count } = await supabase
+
+                .from('collections')
+
+                .select('*', {
+
+                  count:'exact',
+
+                  head:true
+
+                })
+
+                .eq('user_id', user.id)
+
+              setPosterCount(count || 0)
 
                   
 
@@ -3311,6 +3327,8 @@ useEffect(() => {
           authUser={authUser}
 
           setCollectionReturnScreen={setCollectionReturnScreen}
+
+          posterCount={posterCount}
 
         />
 

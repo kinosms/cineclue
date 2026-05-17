@@ -32,19 +32,12 @@ export default function ModeScreen(props) {
 
     authUser,
 
+    posterCount,
+
     setCollectionReturnScreen
 
   } = props
-  console.log(props)
-  console.log({
-
-    ERA_MODES,
-
-    THEME_MODES,
-
-    selGrade
-
-  })
+  
   return (
     <div>
       <div style={{
@@ -64,55 +57,142 @@ export default function ModeScreen(props) {
 
           {/* 컬렉션 */}
           <div style={{
+
             display:'flex',
+
             alignItems:'center',
+
             justifyContent:'space-between',
-            marginBottom:14,
-            paddingLeft:4
+
+            marginBottom:18,
+
+            paddingLeft:4,
+
+            gap:10
+
           }}>
 
             <div style={{
-              fontSize:'0.7rem',
+
+              fontSize:'0.72rem',
+
               fontWeight:700,
+
               color:'#6f6e6e',
-              letterSpacing:'0.15em',
-              textTransform:'uppercase'
+
+              letterSpacing:'0.12em'
+
             }}>
               도전할 모드를 선택하세요.
             </div>
 
-            <button
-              onClick={() => {
+            {/* RIGHT */}
 
-                if (!authUser) {
+              <div style={{
 
-                  alert('로그인 후 이용 가능합니다.')
-
-                  return
-                }
-
-                setCollectionReturnScreen('grade')
-                setScreen('collection')
-              }}
-              style={{
-                height:30,
-                padding:'0 13px',
-                borderRadius:999,
-                border:'1px solid #e5ddd5',
-                background:'#fff',
-                fontSize:'0.66rem',
-                fontWeight:800,
-                color:'#5f5a55',
-                letterSpacing:'0.08em',
                 display:'flex',
-                alignItems:'center',
-                gap:6
-              }}
-            >
-              📚 MY COLLECTION
-            </button>
 
-          </div>
+                alignItems:'center',
+
+                gap:8
+
+              }}>
+
+                {/* 트로피 */}
+
+                <button
+
+                  style={{
+
+                    height:34,
+
+                    padding:'0 14px',
+
+                    borderRadius:999,
+
+                    border:'1px solid #e5ddd5',
+
+                    background:'#fff',
+
+                    fontSize:'0.72rem',
+
+                    fontWeight:800,
+
+                    color:'#5f5a55',
+
+                    display:'flex',
+
+                    alignItems:'center',
+
+                    gap:7,
+
+                    boxShadow:'0 1px 2px rgba(0,0,0,0.03)'
+
+                  }}
+
+                >
+
+                  🏆 트로피 0
+
+                </button>
+
+                {/* 컬렉션 */}
+
+                <button
+
+                  onClick={() => {
+
+                    if (!authUser) {
+
+                      alert('로그인 후 이용 가능합니다.')
+
+                      return
+
+                    }
+
+                    setCollectionReturnScreen('grade')
+
+                    setScreen('collection')
+
+                  }}
+
+                  style={{
+
+                    height:34,
+
+                    padding:'0 14px',
+
+                    borderRadius:999,
+
+                    border:'1px solid #e5ddd5',
+
+                    background:'#fff',
+
+                    fontSize:'0.72rem',
+
+                    fontWeight:800,
+
+                    color:'#5f5a55',
+
+                    display:'flex',
+
+                    alignItems:'center',
+
+                    gap:7,
+
+                    boxShadow:'0 1px 2px rgba(0,0,0,0.03)'
+
+                  }}
+
+                >
+
+                  📚 컬렉션 {posterCount}
+
+                </button>
+
+              </div>
+
+            </div>
 
           <div style={{ display: 'flex', gap: 8, marginBottom: 16 }}>
             <button
