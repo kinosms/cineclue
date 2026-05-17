@@ -1273,6 +1273,10 @@ export default function CineClue() {
               localStorage.removeItem(
                 'cineclue_oauth_start'
               )
+              
+              setShowLogin(false)
+              setScreen('char')
+
             }
 
             const result =
@@ -1323,6 +1327,8 @@ export default function CineClue() {
 
                 )
 
+                setUsers(loadedUsers)
+
                 const logs = resultLogs?.data || []
 
                 const totalScore = logs.reduce(
@@ -1355,7 +1361,7 @@ export default function CineClue() {
 
             )
 
-            setUsers(loadedUsers)
+            
 
             return
           }
