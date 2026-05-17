@@ -2030,7 +2030,7 @@ export default function CineClue() {
         log_type: 'result',
         quizMode
       })
-
+    const nextScore = score
       await safeQuery(
 
         supabase
@@ -2052,7 +2052,6 @@ export default function CineClue() {
 )
 
 console.log(result)
-
 
       const data = await loadRanking({ supabase })
           
@@ -2505,6 +2504,9 @@ useEffect(() => {
         }
 
         gained = getPts(appliedMode)
+
+        const nextScore = score + gained
+
         setScore(v => v + gained)
         setUsers(prev => {
           const updated = prev.map(u => {
