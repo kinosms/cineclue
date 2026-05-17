@@ -3088,71 +3088,53 @@ setNickname('')
   }
 
   // 👉캐릭터 대화명 지우기
-  async function deleteUser(charId) {
+  // 👉 캐릭터 삭제
+async function deleteUser(charId) {
 
-    const ok = confirm('대화명과 점수가 초기화됩니다. 계속할까요?')
-
-    if (!ok) return   // ❌ 취소하면 종료
-
-    const updated = [...users, newUser]
-
-setUsers(updated)
-
-if (authUser) {
-
-  await safeQuery(
-
-    supabase
-
-      .from('characters')
-
-      .delete()
-
-      .eq('auth_user_id', authUser.id)
-
-      .eq('char_id', tempChar),
-
-    'delete existing character'
-
+  const ok = confirm(
+    '대화명과 점수가 초기화됩니다. 계속할까요?'
   )
 
-  await safeQuery(
+  if (!ok) return
 
-    supabase
+  const updated =
+    users.filter(
+      u => u.charId !== charId
+    )
 
-      .from('characters')
+  setUsers(updated)
 
-      .insert({
+  if (authUser) {
 
-        auth_user_id: authUser.id,
+    await safeQuery(
 
-        char_id: tempChar,
+      supabase
 
-        nickname,
+        .from('characters')
 
-        score: 0,
+        .delete()
 
-        lives: 30
+        .eq('auth_user_id', authUser.id)
 
-      }),
+        .eq('char_id', charId),
 
-    'insert character'
+      'delete character'
 
-  )
+    )
 
-} else {
+  } else {
 
-  saveUsers(updated)
+    saveUsers(updated)
+
+  }
+
+  if (selChar === charId) {
+
+    setSelChar(null)
+
+  }
 
 }
-
-      if (selChar === charId) {
-
-        setSelChar(null)
-
-      }
-
-    }
 
 
   return (
