@@ -856,6 +856,15 @@ const sortedRanking = [...patchedRanking].sort(
                 border: '1.5px solid #e8e4dd'
               }}
               onClick={() => {
+                  console.log('HOME CLICK', {
+
+    authUser,
+
+    users,
+
+    selChar
+
+  })
                 playClick()
                 setScreen('char')
               }}
