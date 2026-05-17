@@ -1317,12 +1317,6 @@ export default function CineClue() {
               )
 
 
-              if (result?.success) {
-
-              return
-
-            }
-
             const data = result?.data || []
 
             if (data.length === 0) {
