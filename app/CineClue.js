@@ -982,27 +982,22 @@ export default function CineClue() {
   const [profileStats, setProfileStats] = useState(null)
   const ERA_MODES = MODES.filter(m => m.type === 'era')
   const THEME_MODES = MODES.filter(m => m.type === 'theme')
-  const [screen, setScreen] = useState(() => {
+  const [screen, setScreen] = useState('intro')
+  useEffect(() => {
 
-  const oauthStart =
+  const oauthStart = localStorage.getItem(
 
-    typeof window !== 'undefined'
+    'cineclue_oauth_start'
 
-      ? localStorage.getItem(
+  )
 
-          'cineclue_oauth_start'
+  if (oauthStart === 'true') {
 
-        )
+    setScreen('char')
 
-      : null
+  }
 
-  return oauthStart === 'true'
-
-    ? 'char'
-
-    : 'intro'
-
-})
+}, [])
 
   const [selChar, setSelChar] = useState(null)
   const [users, setUsers] = useState([])
@@ -3082,21 +3077,7 @@ useEffect(() => {
 
 } else {
 
-  setUsers(prev => {
-
-    const updated = [
-
-      ...prev,
-
-      newUser
-
-    ]
-
-    saveUsers(updated)
-
-    return updated
-
-  })
+  saveUsers(updated)
 
 }
 
@@ -3113,51 +3094,57 @@ setNickname('')
 
     if (!ok) return   // ❌ 취소하면 종료
 
-    if (authUser) {
+    const updated = [...users, newUser]
 
-        setUsers(prev =>
+setUsers(updated)
 
-          prev.filter(
+if (authUser) {
 
-            u => u.charId !== charId
+  await safeQuery(
 
-          )
+    supabase
 
-        )
+      .from('characters')
 
-        await safeQuery(
+      .delete()
 
-          supabase
+      .eq('auth_user_id', authUser.id)
 
-            .from('characters')
+      .eq('char_id', tempChar),
 
-            .delete()
+    'delete existing character'
 
-            .eq('auth_user_id', authUser.id)
+  )
 
-            .eq('char_id', charId),
+  await safeQuery(
 
-          'delete character'
+    supabase
 
-        )
+      .from('characters')
 
-      } else {
+      .insert({
 
-        setUsers(prev => {
+        auth_user_id: authUser.id,
 
-          const updated = prev.filter(
+        char_id: tempChar,
 
-            u => u.charId !== charId
+        nickname,
 
-          )
+        score: 0,
 
-          saveUsers(updated)
+        lives: 30
 
-          return updated
+      }),
 
-        })
+    'insert character'
 
-      }
+  )
+
+} else {
+
+  saveUsers(updated)
+
+}
 
       if (selChar === charId) {
 
