@@ -2061,27 +2061,27 @@ export default function CineClue() {
         quizMode
       })
 
-      let data = await loadRanking({ supabase })
+      await safeQuery(
 
-          // 🔥 신규 캐릭터 첫 점수 저장 시
+        supabase
 
-          // 이전 동일 캐릭터 랭킹 제거
+          .from('characters')
 
-          if (roundStartScore === 0) {
+          .update({
 
-            data = data.filter(r =>
+            score: score
 
-              !(
+          })
 
-                String(r.user_id) !== String(userId) &&
+    .eq('auth_user_id', userId)
 
-                String(r.character_id) === String(selChar)
+    .eq('char_id', selChar),
 
-              )
+  'update character total score'
 
-            )
-
-          }
+)
+      const data = await loadRanking({ supabase })
+          
       setRanking(data)
     }
     run()
