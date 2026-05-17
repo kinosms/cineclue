@@ -42,17 +42,24 @@ export default function Collection(props) {
   const [collectionLayout, setCollectionLayout] = useState('stack')
   const [sortType, setSortType] = useState('recent')
   const [showShuffleFx, setShowShuffleFx] = useState(false)
-  const triggerShuffleFx = () => {
+  const SHUFFLE_DURATION = 1200
+  const triggerShuffleFx = (callback) => {
 
-    setShowShuffleFx(true)
+  setShowShuffleFx(true)
 
-    setTimeout(() => {
+  setTimeout(() => {
 
-      setShowShuffleFx(false)
+    callback?.()
 
-    }, 1200)
+  }, SHUFFLE_DURATION - 120)
 
-  }
+  setTimeout(() => {
+
+    setShowShuffleFx(false)
+
+  }, SHUFFLE_DURATION)
+
+}
 
   useEffect(() => {
 
@@ -484,9 +491,7 @@ export default function Collection(props) {
 
               onClick={() => {
 
-                triggerShuffleFx()
-
-                setTimeout(() => {
+                triggerShuffleFx(() => {
 
                   setSortType(v =>
 
@@ -498,7 +503,7 @@ export default function Collection(props) {
 
                   )
 
-                }, 950)
+                })
 
               }}
 
@@ -640,8 +645,79 @@ export default function Collection(props) {
 
 
       {/* SCROLL AREA */}
+      {sortedPosters.length === 0 ? (
 
-      {collectionLayout === 'stack' ? (
+  <div
+
+    style={{
+
+      flex:1,
+
+      display:'flex',
+
+      flexDirection:'column',
+
+      alignItems:'center',
+
+      justifyContent:'flex-start',
+
+      paddingTop:'22vh',
+
+      textAlign:'center',
+
+      color:'rgba(255,255,255,0.62)',
+
+      position:'relative',
+
+      zIndex:5
+
+    }}
+
+  >
+
+    <div
+
+      style={{
+
+        fontSize:'1.08rem',
+
+        fontWeight:600,
+
+        marginBottom:14,
+
+        letterSpacing:'-0.02em'
+
+      }}
+
+    >
+
+      아직 수집된 포스터가 없습니다
+
+    </div>
+
+    <div
+
+      style={{
+
+        fontSize:'0.92rem',
+
+        lineHeight:1.75,
+
+        color:'rgba(255,255,255,0.38)'
+
+      }}
+
+    >
+
+      퀴즈를 플레이하고 정답 화면을 눌러 <br />
+
+      영화 포스터를 모아보세요
+
+    </div>
+
+  </div>
+
+) : collectionLayout === 'stack' ? (
 
         /* STACK VIEW */
 
