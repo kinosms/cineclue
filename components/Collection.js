@@ -42,41 +42,46 @@ export default function Collection(props) {
   const [collectionLayout, setCollectionLayout] = useState('stack')
   const [sortType, setSortType] = useState('recent')
   const [showShuffleFx, setShowShuffleFx] = useState(false)
-  const SHUFFLE_DURATION = 1200
   const [shuffleCards, setShuffleCards] = useState([])
-  const triggerShuffleFx = (callback) => {
+  const SHUFFLE_DURATION = 1150
 
-    const cards = fxPosters.map(src => ({
+const triggerShuffleFx = (callback) => {
 
-      src,
+  const cards = fxPosters.map(src => ({
 
-      fromLeft: Math.random() > 0.5,
+    src,
 
-      top: -10 + Math.random() * 110,
+    fromLeft: Math.random() > 0.5,
 
-      rotate: -25 + Math.random() * 50,
+    top: -15 + Math.random() * 115,
 
-      duration: 0.75 + Math.random() * 0.35
+    rotate: -25 + Math.random() * 50,
 
-    }))
+    duration: 0.9 + Math.random() * 0.2
 
-    setShuffleCards(cards)
+  }))
 
-    setShowShuffleFx(true)
+  setShuffleCards(cards)
 
-    setTimeout(() => {
+  setShowShuffleFx(true)
 
-      callback?.()
+  // 🔥 화면 거의 덮였을 때 정렬 변경
 
-    }, SHUFFLE_DURATION - 120)
+  setTimeout(() => {
 
-    setTimeout(() => {
+    callback?.()
 
-      setShowShuffleFx(false)
+  }, 420)
 
-    }, SHUFFLE_DURATION)
+  // 🔥 포스터가 완전히 밖으로 나간 후 제거
 
-  }
+  setTimeout(() => {
+
+    setShowShuffleFx(false)
+
+  }, SHUFFLE_DURATION)
+
+}
 
   useEffect(() => {
 
@@ -298,25 +303,27 @@ export default function Collection(props) {
 
               style={{
 
-                position: 'absolute',
+                position:'absolute',
 
-                width: 240,
+                width:240,
 
-                borderRadius: 12,
+                borderRadius:16,
 
-                top: `${p.top}%`,
+                top:`${p.top}%`,
 
-                left: p.fromLeft ? '-260px' : 'auto',
+                left:p.fromLeft ? '-280px' : 'auto',
 
-                right: !p.fromLeft ? '-260px' : 'auto',
+                right:!p.fromLeft ? '-280px' : 'auto',
 
-                rotate: `${p.rotate}deg`,
+                rotate:`${p.rotate}deg`,
 
-                animation: p.fromLeft
+                boxShadow:'0 18px 50px rgba(0,0,0,0.45)',
 
-                  ? `flyRight ${p.duration}s ease-out forwards`
+                animation:p.fromLeft
 
-                  : `flyLeft ${p.duration}s ease-out forwards`
+                  ? `flyRight ${p.duration}s cubic-bezier(.22,.61,.36,1) forwards`
+
+                  : `flyLeft ${p.duration}s cubic-bezier(.22,.61,.36,1) forwards`
 
               }}
 
@@ -1015,7 +1022,7 @@ export default function Collection(props) {
 
   100% {
 
-    transform: translateX(170vw);
+    transform: translateX(185vw);
 
     opacity:1;
 
@@ -1047,7 +1054,7 @@ export default function Collection(props) {
 
   100% {
 
-    transform: translateX(-170vw);
+    transform: translateX(-185vw);
 
     opacity:1;
 
