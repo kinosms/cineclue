@@ -2062,7 +2062,7 @@ export default function CineClue() {
         log_type: 'result',
         quizMode
       })
-      
+
       if (!authUser) return
       const result = await safeQuery(
 
@@ -3056,13 +3056,15 @@ useEffect(() => {
 
     }
 
-    setUsers(prev => [
+    const updated = [
 
-      ...prev,
+      ...users,
 
       newUser
 
-    ])
+    ]
+
+    setUsers(updated)
 
     if (authUser) {
 
