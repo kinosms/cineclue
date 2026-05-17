@@ -41,86 +41,98 @@ export default function Collection(props) {
   const [posters, setPosters] = useState([])
   const [collectionLayout, setCollectionLayout] = useState('stack')
   const [sortType, setSortType] = useState('recent')
+  const [showShuffleFx, setShowShuffleFx] = useState(false)
+  const triggerShuffleFx = () => {
 
-  useEffect(() => {
+    setShowShuffleFx(true)
 
-  const loadCollections = async () => {
+    setTimeout(() => {
 
-    if(!authUser) return
+      setShowShuffleFx(false)
 
-    async function preloadImages(urls = []) {
-
-      await Promise.all(
-
-        urls.map(src => {
-
-          return new Promise(resolve => {
-
-            const img = new Image()
-
-            img.src = src
-
-            img.onload = resolve
-
-            img.onerror = resolve
-
-          })
-
-        })
-
-      )
-
-    }
-
-    const { data, error } = await supabase
-
-      .from('collections')
-
-      .select('*')
-
-      .eq('user_id', authUser.id)
-
-      .eq('character_id', selChar)
-
-      .order('viewed_at', { ascending:false })
-
-    if(error){
-
-      console.error(error)
-
-      return
-
-    }
-
-    const postersData = data || []
-
-    const preloadTargets =
-
-      postersData
-
-        .slice(0, 30)
-
-        .map(p =>
-
-          p.movie_data?.poster_path
-
-            ? `https://image.tmdb.org/t/p/w500${p.movie_data.poster_path}`
-
-            : '/no_poster.webp'
-
-        )
-
-    await preloadImages(preloadTargets)
-
-    setPosters(postersData)
-
-    setReady(true)
+    }, 450)
 
   }
 
-  loadCollections()
+  useEffect(() => {
 
-}, [])
+    const loadCollections = async () => {
+
+      if (!authUser) return
+
+      async function preloadImages(urls = []) {
+
+        await Promise.all(
+
+          urls.map(src => {
+
+            return new Promise(resolve => {
+
+              const img = new Image()
+
+              img.src = src
+
+              img.onload = resolve
+
+              img.onerror = resolve
+
+            })
+
+          })
+
+        )
+
+      }
+
+      const { data, error } = await supabase
+
+        .from('collections')
+
+        .select('*')
+
+        .eq('user_id', authUser.id)
+
+        .eq('character_id', selChar)
+
+        .order('viewed_at', { ascending: false })
+
+      if (error) {
+
+        console.error(error)
+
+        return
+
+      }
+
+      const postersData = data || []
+
+      const preloadTargets =
+
+        postersData
+
+          .slice(0, 30)
+
+          .map(p =>
+
+            p.movie_data?.poster_path
+
+              ? `https://image.tmdb.org/t/p/w500${p.movie_data.poster_path}`
+
+              : '/no_poster.webp'
+
+          )
+
+      await preloadImages(preloadTargets)
+
+      setPosters(postersData)
+
+      setReady(true)
+
+    }
+
+    loadCollections()
+
+  }, [])
 
 
   if (!ready) {
@@ -187,6 +199,22 @@ export default function Collection(props) {
 
     })
 
+    const fxPosters =
+
+  [...posters]
+
+    .slice(0, 20)
+
+    .map(p =>
+
+      p.movie_data?.poster_path
+
+        ? `https://image.tmdb.org/t/p/w500${p.movie_data.poster_path}`
+
+        : '/no_poster.webp'
+
+    )
+
 
 
   return (
@@ -220,6 +248,78 @@ export default function Collection(props) {
 
     >
 
+      {showShuffleFx && (
+
+        <div style={{
+
+          position: 'fixed',
+
+          inset: 0,
+
+          overflow: 'hidden',
+
+          pointerEvents: 'none',
+
+          zIndex: 999
+
+        }}>
+
+          {fxPosters.map((p, i) => {
+
+            const fromLeft =
+              Math.random() > 0.5
+
+            const top =
+              Math.random() * 100
+
+            const rotate =
+              -25 + Math.random() * 50
+
+            const duration =
+              0.35 + Math.random() * 0.25
+
+            return (
+
+              <img
+
+                key={i}
+
+                src={p}
+
+                style={{
+
+                  position: 'absolute',
+
+                  width: 120,
+
+                  borderRadius: 12,
+
+                  top: `${top}%`,
+
+                  left: fromLeft ? '-140px' : 'auto',
+
+                  right: !fromLeft ? '-140px' : 'auto',
+
+                  rotate:`${rotate}deg`,
+
+                  animation: fromLeft
+
+                    ? `flyRight ${duration}s linear forwards`
+
+                    : `flyLeft ${duration}s linear forwards`
+
+                }}
+
+              />
+
+            )
+
+          })}
+
+        </div>
+
+      )}
+
       {/* TOP */}
 
       <div
@@ -235,65 +335,65 @@ export default function Collection(props) {
       >
         {/* CLOSE */}
 
-          <div
+        <div
 
-            onClick={() => {
+          onClick={() => {
 
-              setScreen(collectionReturnScreen)
+            setScreen(collectionReturnScreen)
 
-            }}
+          }}
 
-            style={{
+          style={{
 
-              position:'absolute',
+            position: 'absolute',
 
-              top:24,
+            top: 24,
 
-              right:24,
+            right: 24,
 
-              width:42,
+            width: 42,
 
-              height:42,
+            height: 42,
 
-              borderRadius:'50%',
+            borderRadius: '50%',
 
-              background:'rgba(255,255,255,0.08)',
+            background: 'rgba(255,255,255,0.08)',
 
-              border:'1px solid rgba(255,255,255,0.12)',
+            border: '1px solid rgba(255,255,255,0.12)',
 
-              backdropFilter:'blur(10px)',
+            backdropFilter: 'blur(10px)',
 
-              display:'flex',
+            display: 'flex',
 
-              alignItems:'center',
+            alignItems: 'center',
 
-              justifyContent:'center',
+            justifyContent: 'center',
 
-              cursor:'pointer',
+            cursor: 'pointer',
 
-              zIndex:20
+            zIndex: 20
 
-            }}
+          }}
 
-          >
+        >
 
-            <span style={{
+          <span style={{
 
-              fontSize:20,
+            fontSize: 20,
 
-              color:'#fff',
+            color: '#fff',
 
-              fontWeight:700,
+            fontWeight: 700,
 
-              lineHeight:1
+            lineHeight: 1
 
-            }}>
+          }}>
 
-              ×
+            ×
 
-            </span>
+          </span>
 
-          </div>
+        </div>
 
         <div
 
@@ -339,21 +439,22 @@ export default function Collection(props) {
 
         <div style={{
 
-          display:'flex',
+          display: 'flex',
 
-          alignItems:'center',
+          alignItems: 'center',
 
-          justifyContent:'space-between'
+          justifyContent: 'space-between'
 
         }}>
 
+          {/* LEFT */}
           <div
 
             style={{
 
-              fontSize:15,
+              fontSize: 15,
 
-              color:'rgba(255,255,255,0.55)'
+              color: 'rgba(255,255,255,0.55)'
 
             }}
 
@@ -363,123 +464,148 @@ export default function Collection(props) {
 
           </div>
 
-          <button
-
-  onClick={() => {
-
-    setSortType(v =>
-
-      v === 'recent'
-
-        ? 'name'
-
-        : 'recent'
-
-    )
-
-        }}
-
-        style={{
-
-          appearance:'none',
-
-          WebkitAppearance:'none',
-
-          border:'none',
-
-          background:'transparent',
-
-          color:'rgba(255,255,255,0.72)',
-
-          fontSize:'0.9rem',
-
-          fontWeight:600,
-
-          letterSpacing:'-0.02em',
-
-          cursor:'pointer',
-
-          padding:'0 6px'
-
-        }}
-
-      >
-
-        {sortType === 'recent'
-
-          ? '등록순'
-
-          : '이름순'}
-
-      </button>
-
-          <button
-
-            onClick={() => {
-
-              setCollectionLayout(v =>
-
-                v === 'stack'
-
-                  ? 'grid'
-
-                  : 'stack'
-
-              )
-
-            }}
+          {/* RIGHT CONTROLS */}
+          <div
 
             style={{
 
-              appearance:'none',
+              display: 'flex',
 
-              WebkitAppearance:'none',
+              alignItems: 'center',
 
-              width:34,
-
-              height:34,
-
-              border:'none',
-              
-              background:'transparent',
-
-              padding:0,
-
-              color:'rgba(255,255,255,0.82)',
-
-              display:'flex',
-
-              alignItems:'center',
-
-              justifyContent:'center',
-
-              fontSize: '1rem',
-
-              cursor:'pointer'
+              gap: 10
 
             }}
 
           >
 
-            {collectionLayout === 'stack'
+            {/* SORT */}
+            <button
 
-              ? '☷'
+              onClick={() => {
 
-              : '⧉'}
+                triggerShuffleFx()
 
-          </button>
+                setTimeout(() => {
+
+                  setSortType(v =>
+
+                    v === 'recent'
+
+                      ? 'name'
+
+                      : 'recent'
+
+                  )
+
+                }, 180)
+
+              }}
+
+              style={{
+
+                appearance: 'none',
+
+                WebkitAppearance: 'none',
+
+                border: 'none',
+
+                background: 'transparent',
+
+                color: 'rgba(255,255,255,0.58)',
+
+                fontSize: '0.82rem',
+
+                fontWeight: 500,
+
+                letterSpacing: '-0.01em',
+
+                cursor: 'pointer',
+
+                padding: 0
+
+              }}
+
+            >
+
+              {sortType === 'recent'
+
+                ? '등록순'
+
+                : '이름순'}
+
+            </button>
+
+            {/* LAYOUT */}
+            <button
+
+              onClick={() => {
+
+                setCollectionLayout(v =>
+
+                  v === 'stack'
+
+                    ? 'grid'
+
+                    : 'stack'
+
+                )
+
+              }}
+
+              style={{
+
+                appearance: 'none',
+
+                WebkitAppearance: 'none',
+
+                width: 28,
+
+                height: 28,
+
+                border: 'none',
+
+                background: 'transparent',
+
+                padding: 0,
+
+                color: 'rgba(255,255,255,0.65)',
+
+                display: 'flex',
+
+                alignItems: 'center',
+
+                justifyContent: 'center',
+
+                fontSize: '0.95rem',
+
+                cursor: 'pointer'
+
+              }}
+
+            >
+
+              {collectionLayout === 'stack'
+
+                ? '☷'
+
+                : '⧉'}
+
+            </button>
+
+          </div>
 
         </div>
 
         {/* divider */}
         <div style={{
-          marginTop:10,
-          height:1,
-          width:'100%',
-          background:'rgba(255,255,255,0.08)'
+          marginTop: 10,
+          height: 1,
+          width: '100%',
+          background: 'rgba(255,255,255,0.08)'
         }} />
 
-        </div>
+      </div>
 
       {/* GLOW */}
 
@@ -511,82 +637,82 @@ export default function Collection(props) {
 
       />
 
-      
+
 
       {/* SCROLL AREA */}
 
       {collectionLayout === 'stack' ? (
 
-  /* STACK VIEW */
-
-  <div
-
-    ref={scrollRef}
-
-    style={{
-
-      flex: 1,
-
-      display: 'flex',
-
-      alignItems: 'flex-start',
-
-      paddingTop: 50,
-
-      overflowX: 'auto',
-
-      overflowY: 'hidden',
-
-      gap: 0,
-
-      scrollBehavior: 'smooth',
-
-      msOverflowStyle: 'none',
-
-      scrollbarWidth: 'none'
-
-    }}
-
-    className="hide-scroll"
-
-  >
-
-    {sortedPosters.map((poster, index) => {
-
-      const rotate =
-
-        index % 2 === 0
-
-          ? -4
-
-          : 4
-
-      return (
+        /* STACK VIEW */
 
         <div
-          key={index}
 
-          onClick={() => {
-
-            setMovieCard(poster.movie_data)
-
-            setMovieCardFlipped(false)
-
-            setShowMovieCard(true)
-
-          }}
+          ref={scrollRef}
 
           style={{
 
-            width: 255,
+            flex: 1,
 
-            height: 382,
+            display: 'flex',
 
-            borderRadius: 22,
+            alignItems: 'flex-start',
 
-            flexShrink: 0,
+            paddingTop: 50,
 
-            background: `
+            overflowX: 'auto',
+
+            overflowY: 'hidden',
+
+            gap: 0,
+
+            scrollBehavior: 'smooth',
+
+            msOverflowStyle: 'none',
+
+            scrollbarWidth: 'none'
+
+          }}
+
+          className="hide-scroll"
+
+        >
+
+          {sortedPosters.map((poster, index) => {
+
+            const rotate =
+
+              index % 2 === 0
+
+                ? -4
+
+                : 4
+
+            return (
+
+              <div
+                key={index}
+
+                onClick={() => {
+
+                  setMovieCard(poster.movie_data)
+
+                  setMovieCardFlipped(false)
+
+                  setShowMovieCard(true)
+
+                }}
+
+                style={{
+
+                  width: 255,
+
+                  height: 382,
+
+                  borderRadius: 22,
+
+                  flexShrink: 0,
+
+                  background: `
 
               linear-gradient(
 
@@ -600,13 +726,13 @@ export default function Collection(props) {
 
             `,
 
-            marginLeft: index === 0 ? 0 : -125,
+                  marginLeft: index === 0 ? 0 : -125,
 
-            transform: `rotate(${rotate}deg)`,
+                  transform: `rotate(${rotate}deg)`,
 
-            transformOrigin: 'bottom center',
+                  transformOrigin: 'bottom center',
 
-            boxShadow: `
+                  boxShadow: `
 
               0 30px 60px rgba(0,0,0,0.45),
 
@@ -614,177 +740,221 @@ export default function Collection(props) {
 
             `,
 
-            position: 'relative',
+                  position: 'relative',
 
-            transition: '0.28s ease',
+                  transition: '0.28s ease',
 
-            cursor: 'pointer',
+                  cursor: 'pointer',
 
-            overflow: 'hidden'
+                  overflow: 'hidden'
 
+                }}
+
+              >
+
+                <img
+                  src={
+
+                    poster.movie_data?.poster_path
+
+                      ? `https://image.tmdb.org/t/p/w500${poster.movie_data.poster_path}`
+
+                      : '/no_poster.webp'
+
+                  }
+                  alt={poster.movie_data?.title}
+                  draggable={false}
+                  style={{
+                    width: '100%',
+                    height: '100%',
+                    objectFit: 'cover',
+                    userSelect: 'none',
+                    pointerEvents: 'none'
+                  }}
+                  onError={(e) => {
+                    e.currentTarget.src = '/noposter.jpg'
+                  }}
+                />
+
+                <div
+
+                  style={{
+
+                    position: 'absolute',
+
+                    bottom: 24,
+
+                    left: 20
+
+                  }}
+
+                >
+
+                  <div
+
+                    style={{
+
+                      width: 110,
+
+                      height: 10,
+
+                      borderRadius: 999,
+
+                      background: 'rgba(255,255,255,0.14)',
+
+                      marginBottom: 10
+
+                    }}
+
+                  />
+
+                  <div
+
+                    style={{
+
+                      width: 70,
+
+                      height: 8,
+
+                      borderRadius: 999,
+
+                      background: 'rgba(255,255,255,0.08)'
+
+                    }}
+
+                  />
+
+                </div>
+
+              </div>
+
+            )
+
+          })}
+
+        </div>
+
+      ) : (
+
+        /* GRID VIEW */
+
+        <div
+          style={{
+            flex: 1,
+            overflowY: 'auto',
+            padding: '26px 14px 40px'
           }}
-
         >
 
-          <img
-            src={
-
-              poster.movie_data?.poster_path
-
-                ? `https://image.tmdb.org/t/p/w500${poster.movie_data.poster_path}`
-
-                : '/no_poster.webp'
-
-            }
-            alt={poster.movie_data?.title}
-            draggable={false}
-            style={{
-              width: '100%',
-              height: '100%',
-              objectFit: 'cover',
-              userSelect: 'none',
-              pointerEvents: 'none'
-            }}
-            onError={(e) => {
-              e.currentTarget.src = '/noposter.jpg'
-            }}
-          />
-
           <div
-
             style={{
-
-              position: 'absolute',
-
-              bottom: 24,
-
-              left: 20
-
+              display: 'grid',
+              gridTemplateColumns: 'repeat(3, 1fr)',
+              gap: 3
             }}
-
           >
 
-            <div
+            {sortedPosters.map((poster, index) => (
 
-              style={{
+              <div
+                key={index}
 
-                width: 110,
+                onClick={() => {
 
-                height: 10,
+                  setMovieCard(poster.movie_data)
 
-                borderRadius: 999,
+                  setMovieCardFlipped(false)
 
-                background: 'rgba(255,255,255,0.14)',
+                  setShowMovieCard(true)
 
-                marginBottom: 10
+                }}
 
-              }}
+                style={{
+                  aspectRatio: '2 / 3',
+                  borderRadius: 6,
+                  overflow: 'hidden',
+                  cursor: 'pointer',
+                  position: 'relative'
+                }}
+              >
 
-            />
+                <img
+                  src={
+                    poster.movie_data?.poster_path
+                      ? `https://image.tmdb.org/t/p/w500${poster.movie_data.poster_path}`
+                      : '/no_poster.webp'
+                  }
 
-            <div
+                  alt={poster.movie_data?.title}
 
-              style={{
+                  draggable={false}
 
-                width: 70,
+                  style={{
+                    width: '100%',
+                    height: '100%',
+                    objectFit: 'cover',
+                    userSelect: 'none',
+                    pointerEvents: 'none'
+                  }}
 
-                height: 8,
+                  onError={(e) => {
+                    e.currentTarget.src = '/noposter.jpg'
+                  }}
+                />
 
-                borderRadius: 999,
+              </div>
 
-                background: 'rgba(255,255,255,0.08)'
-
-              }}
-
-            />
+            ))}
 
           </div>
 
         </div>
 
-      )
+      )}
 
-    })}
+      <style jsx>{`
 
-  </div>
+@keyframes flyRight {
 
-) : (
+  from {
 
-  /* GRID VIEW */
+    transform: translateX(0);
 
-  <div
-    style={{
-      flex:1,
-      overflowY:'auto',
-      padding:'26px 14px 40px'
-    }}
-  >
+    opacity:0;
 
-    <div
-      style={{
-        display:'grid',
-        gridTemplateColumns:'repeat(3, 1fr)',
-        gap:3
-      }}
-    >
+  }
 
-      {sortedPosters.map((poster, index) => (
+  to {
 
-        <div
-          key={index}
+    transform: translateX(140vw);
 
-          onClick={() => {
+    opacity:1;
 
-            setMovieCard(poster.movie_data)
+  }
 
-            setMovieCardFlipped(false)
+}
 
-            setShowMovieCard(true)
+@keyframes flyLeft {
 
-          }}
+  from {
 
-          style={{
-            aspectRatio:'2 / 3',
-            borderRadius:6,
-            overflow:'hidden',
-            cursor:'pointer',
-            position:'relative'
-          }}
-        >
+    transform: translateX(0);
 
-          <img
-            src={
-              poster.movie_data?.poster_path
-                ? `https://image.tmdb.org/t/p/w500${poster.movie_data.poster_path}`
-                : '/no_poster.webp'
-            }
+    opacity:0;
 
-            alt={poster.movie_data?.title}
+  }
 
-            draggable={false}
+  to {
 
-            style={{
-              width:'100%',
-              height:'100%',
-              objectFit:'cover',
-              userSelect:'none',
-              pointerEvents:'none'
-            }}
+    transform: translateX(-140vw);
 
-            onError={(e) => {
-              e.currentTarget.src = '/noposter.jpg'
-            }}
-          />
+    opacity:1;
 
-        </div>
+  }
 
-      ))}
+}
 
-    </div>
-
-  </div>
-
-)}
+`}</style>
 
     </div>
 
