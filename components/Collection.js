@@ -47,6 +47,30 @@ export default function Collection(props) {
 
     if(!authUser) return
 
+    async function preloadImages(urls = []) {
+
+      await Promise.all(
+
+        urls.map(src => {
+
+          return new Promise(resolve => {
+
+            const img = new Image()
+
+            img.src = src
+
+            img.onload = resolve
+
+            img.onerror = resolve
+
+          })
+
+        })
+
+      )
+
+    }
+
     const { data, error } = await supabase
 
       .from('collections')
@@ -67,7 +91,27 @@ export default function Collection(props) {
 
     }
 
-    setPosters(data || [])
+    const postersData = data || []
+
+    const preloadTargets =
+
+      postersData
+
+        .slice(0, 30)
+
+        .map(p =>
+
+          p.movie_data?.poster_path
+
+            ? `https://image.tmdb.org/t/p/w500${p.movie_data.poster_path}`
+
+            : '/no_poster.webp'
+
+        )
+
+    await preloadImages(preloadTargets)
+
+    setPosters(postersData)
 
     setReady(true)
 
