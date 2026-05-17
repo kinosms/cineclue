@@ -924,6 +924,8 @@ export default function CineClue() {
 
   const logout = async () => {
 
+    setIsLoggingOut(true)
+
     try {
 
       await safeQuery(
@@ -1100,6 +1102,8 @@ export default function CineClue() {
     textWeak: '#b0aaa3',
     accent: '#ff6b7a'
   }
+
+  const [isLoggingOut, setIsLoggingOut] = useState(false)
 
 
   const level =
@@ -1402,6 +1406,8 @@ export default function CineClue() {
           }
 
           if (!user) {
+
+            if (isLoggingOut) return
 
             const sessionResult = await supabase.auth.getSession()
 
