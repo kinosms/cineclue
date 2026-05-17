@@ -659,29 +659,28 @@ async function safeQuery(promise, label = 'query') {
     const result = await withTimeout(
       promise,
       label,
-      10000
+      5000
     )
+
     if (result.error) {
-      console.warn(
+      console.error(
         `${label} error`,
         result.error
       )
       return {
-        success:false,
         data: null,
         error: result.error
       }
     }
-    return {success:true,
-      ...result
-    }
+
+    return result
+
   } catch (e) {
-    console.warn(
-      `${label} timeout`,
+    console.error(
+      `${label} failed`,
       e
     )
     return {
-      success:false,
       data: null,
       error: e
     }
