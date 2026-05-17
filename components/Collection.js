@@ -46,35 +46,37 @@ export default function Collection(props) {
   const [shuffleCards, setShuffleCards] = useState([])
   const triggerShuffleFx = (callback) => {
 
-    const cards = fxPosters.map(p => ({
+    const cards = fxPosters.map(src => ({
 
-    src:p,
+      src,
 
-    top:-10 + Math.random() * 110,
+      fromLeft: Math.random() > 0.5,
 
-    rotate:-25 + Math.random() * 50,
+      top: -10 + Math.random() * 110,
 
-    duration:0.75 + Math.random() * 0.45
+      rotate: -25 + Math.random() * 50,
 
-      }))
+      duration: 0.75 + Math.random() * 0.35
 
-        setShuffleCards(cards)
+    }))
 
-        setShowShuffleFx(true)
+    setShuffleCards(cards)
 
-        setTimeout(() => {
+    setShowShuffleFx(true)
 
-          callback?.()
+    setTimeout(() => {
 
-        }, 820)
+      callback?.()
 
-        setTimeout(() => {
+    }, SHUFFLE_DURATION - 120)
 
-          setShowShuffleFx(false)
+    setTimeout(() => {
 
-        }, 950)
+      setShowShuffleFx(false)
 
-      }
+    }, SHUFFLE_DURATION)
+
+  }
 
   useEffect(() => {
 
@@ -286,45 +288,41 @@ export default function Collection(props) {
 
         }}>
 
-          {shuffleCards.map((p, i) => {
+          {shuffleCards.map((p, i) => (
 
-            return (
+            <img
 
-              <img
+              key={i}
 
-                key={i}
+              src={p.src}
 
-                src={p.src}
+              style={{
 
-                style={{
+                position: 'absolute',
 
-                  position: 'absolute',
+                width: 240,
 
-                  width: 240,
+                borderRadius: 12,
 
-                  borderRadius: 12,
+                top: `${p.top}%`,
 
-                  top: `${top}%`,
+                left: p.fromLeft ? '-260px' : 'auto',
 
-                  left: fromLeft ? '-140px' : 'auto',
+                right: !p.fromLeft ? '-260px' : 'auto',
 
-                  right: !fromLeft ? '-140px' : 'auto',
+                rotate: `${p.rotate}deg`,
 
-                  rotate:`${rotate}deg`,
+                animation: p.fromLeft
 
-                  animation: fromLeft
+                  ? `flyRight ${p.duration}s ease-out forwards`
 
-                    ? `flyRight ${duration}s linear forwards`
+                  : `flyLeft ${p.duration}s ease-out forwards`
 
-                    : `flyLeft ${duration}s linear forwards`
+              }}
 
-                }}
+            />
 
-              />
-
-            )
-
-          })}
+          ))}
 
         </div>
 
