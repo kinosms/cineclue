@@ -1847,17 +1847,32 @@ export default function CineClue() {
 
 
   async function fetchGenreStats(user_id, character_id) {
-    const { data = [] } =
-      await safeQuery(
-        supabase
-          .from('user_genre_stats')
-          .select('genre, attempt_count, correct_count, total_score')
-          .eq('user_id', user_id)
-          .eq('character_id', character_id),
-        'fetch genre stats'
-      )
-    return data
-  }
+
+  const result =
+
+    await safeQuery(
+
+      supabase
+
+        .from('user_genre_stats')
+
+        .select(
+
+          'genre, attempt_count, correct_count, total_score'
+
+        )
+
+        .eq('user_id', user_id)
+
+        .eq('character_id', character_id),
+
+      'fetch genre stats'
+
+    )
+
+  return result?.data || []
+
+}
 
   //객관식 선택지 생성 함수
   function buildChoices(correctMovie, allMovies) {
