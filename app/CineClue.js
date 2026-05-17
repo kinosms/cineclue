@@ -3029,13 +3029,23 @@ useEffect(() => {
 
     }
 
-    setUsers(prev => [
+    setUsers(prev => {
 
-      ...prev,
+  const filtered = prev.filter(
 
-      newUser
+    u => u.charId !== tempChar
 
-    ])
+  )
+
+  return [
+
+    ...filtered,
+
+    newUser
+
+  ]
+
+})
 
     if (authUser) {
 
