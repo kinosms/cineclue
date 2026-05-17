@@ -37,7 +37,7 @@ export default function ModeScreen(props) {
     setCollectionReturnScreen
 
   } = props
-  
+
   return (
     <div>
       <div style={{
@@ -132,7 +132,7 @@ export default function ModeScreen(props) {
 
                 >
 
-                  🏆 트로피 0
+                  🏆 0
 
                 </button>
 
@@ -186,7 +186,7 @@ export default function ModeScreen(props) {
 
                 >
 
-                  📚 컬렉션 {posterCount}
+                  🎬 컬렉션
 
                 </button>
 

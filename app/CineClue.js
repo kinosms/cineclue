@@ -377,7 +377,6 @@ async function saveLog({
 
 
 async function getProfileStats(supabase, charId) {
-  console.log('🔥 getProfileStats charId', charId)
 
   const { data: logs = [] } =
 
@@ -1838,21 +1837,6 @@ export default function CineClue() {
 
         )
 
-      console.log(
-
-        'collection save data',
-
-        data
-
-      )
-
-      console.log(
-
-        'collection save error',
-
-        error
-
-      )
 
     } catch (err) {
 
@@ -2168,18 +2152,10 @@ useEffect(() => {
 
 
   function handleCharClick(charId) {
-    console.log('캐릭터 클릭')
 
-    console.log('charId', charId)
-
-    console.log('selChar before', selChar)
-
-    console.log('screen before', screen)
 
     const target = users.find(u => u.charId === charId)
-    console.log('users', users)
 
-    console.log('target', target)
     // 🔥 1. 기존 캐릭터 있음
     if (target) {
       // 👉 죽은 캐릭터 → 부활 팝업
@@ -2199,18 +2175,6 @@ useEffect(() => {
 
   async function loadMovies() {
     if (!currentUser?.userId) {
-
-      console.warn('NO CURRENT USER', {
-
-        authUser,
-
-        currentUser,
-
-        selChar,
-
-        users
-
-      })
 
       setScreen('char')
 
@@ -3552,7 +3516,6 @@ useEffect(() => {
 
       {/* 유튜브 플레이어 모달 */}
       {trailerKey && (
-        console.log('TRAILER MODAL', trailerKey),
         <div
           onClick={() => setTrailerKey(null)}
           style={{
