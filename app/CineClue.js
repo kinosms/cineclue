@@ -668,12 +668,18 @@ async function safeQuery(promise, label = 'query') {
         result.error
       )
       return {
-        data: null,
+        data: [],
         error: result.error
       }
     }
 
-    return result
+    return {
+
+      ...result,
+
+      data: result.data ?? []
+
+    }
 
   } catch (e) {
     console.error(
@@ -681,7 +687,7 @@ async function safeQuery(promise, label = 'query') {
       e
     )
     return {
-      data: null,
+      data: [],
       error: e
     }
   }
@@ -1311,7 +1317,7 @@ export default function CineClue() {
               )
 
 
-              if (!result?.success) {
+              if (result?.success) {
 
               return
 
