@@ -2061,38 +2061,6 @@ export default function CineClue() {
         quizMode
       })
 
-        const nextScore = score
-
-          console.log({
-
-            UPDATE_USER: userId,
-
-            UPDATE_CHAR: selChar,
-
-            UPDATE_SCORE: nextScore
-
-          })
-
-      await safeQuery(
-
-        supabase
-
-          .from('characters')
-
-          .update({
-
-            score: nextScore
-
-          })
-
-          .eq('auth_user_id', userId)
-
-          .eq('char_id', selChar),
-
-        'update character total score'
-
-      )
-
       const data = await loadRanking({ supabase })
       setRanking(data)
     }
@@ -3061,23 +3029,13 @@ useEffect(() => {
 
     }
 
-    setUsers(prev => {
+    setUsers(prev => [
 
-  const filtered = prev.filter(
+      ...prev,
 
-    u => u.charId !== tempChar
+      newUser
 
-  )
-
-  return [
-
-    ...filtered,
-
-    newUser
-
-  ]
-
-})
+    ])
 
     if (authUser) {
 
