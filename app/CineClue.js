@@ -2050,6 +2050,10 @@ export default function CineClue() {
   'update character total score'
 
 )
+
+console.log(result)
+
+
       const data = await loadRanking({ supabase })
           
       setRanking(data)
