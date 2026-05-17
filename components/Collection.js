@@ -43,43 +43,47 @@ export default function Collection(props) {
   const [sortType, setSortType] = useState('recent')
   const [showShuffleFx, setShowShuffleFx] = useState(false)
   const [shuffleCards, setShuffleCards] = useState([])
+  const shuffleTimeoutRef = useRef(null)
+  const shuffleHideTimeoutRef = useRef(null)
   const SHUFFLE_DURATION = 1700
 
-const triggerShuffleFx = (callback) => {
+  const triggerShuffleFx = (callback) => {
 
-  const cards = fxPosters.map(src => ({
+    // 🔥 이전 타이머 제거
+    clearTimeout(shuffleTimeoutRef.current)
+    clearTimeout(shuffleHideTimeoutRef.current)
 
-    src,
+    const cards = fxPosters.map(src => ({
 
-    fromLeft: Math.random() > 0.5,
+      src,
 
-    top: -15 + Math.random() * 115,
+      fromLeft: Math.random() > 0.5,
 
-    rotate: -25 + Math.random() * 50,
+      top: -15 + Math.random() * 115,
 
-    duration: 1.25 + Math.random() * 0.35
+      rotate: -25 + Math.random() * 50,
 
-  }))
+      duration: 1.25 + Math.random() * 0.35
 
-  setShuffleCards(cards)
+    }))
 
-  setShowShuffleFx(true)
+    setShuffleCards(cards)
 
-  // 🔥 화면 거의 덮였을 때 정렬 변경
+    setShowShuffleFx(true)
 
-  setTimeout(() => {
+    // 🔥 화면 가려졌을 때 정렬 변경
+    shuffleTimeoutRef.current = setTimeout(() => {
 
-    callback?.()
+      callback?.()
 
-  }, 650)
+    }, 650)
 
-  // 🔥 포스터가 완전히 밖으로 나간 후 제거
+    // 🔥 완전히 지나간 후 제거
+    shuffleHideTimeoutRef.current = setTimeout(() => {
 
-  setTimeout(() => {
+      setShowShuffleFx(false)
 
-    setShowShuffleFx(false)
-
-  }, SHUFFLE_DURATION)
+    }, SHUFFLE_DURATION)
 
 }
 
@@ -230,19 +234,33 @@ const triggerShuffleFx = (callback) => {
 
     const fxPosters =
 
-  [...posters]
+      posters.length === 0
 
-    .slice(0, 36)
+        ? []
 
-    .map(p =>
+        : Array.from(
 
-      p.movie_data?.poster_path
+            { length: 36 },
 
-        ? `https://image.tmdb.org/t/p/w500${p.movie_data.poster_path}`
+            (_, i) => {
 
-        : '/no_poster.webp'
+              const poster =
 
-    )
+                posters[
+
+                  i % posters.length
+
+                ]
+
+              return poster?.movie_data?.poster_path
+
+                ? `https://image.tmdb.org/t/p/w500${poster.movie_data.poster_path}`
+
+                : '/no_poster.webp'
+
+            }
+
+          )
 
 
 
