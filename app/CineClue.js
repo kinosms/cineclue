@@ -761,8 +761,6 @@ export default function CineClue() {
 
     )
 
-    const data = result?.data || []
-
       if (data.length === 0) break
 
       all.push(...data)
