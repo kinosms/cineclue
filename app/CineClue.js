@@ -925,43 +925,47 @@ export default function CineClue() {
 
   const logout = async () => {
 
-      setIsLoggingOut(true)
+  setIsLoggingOut(true)
 
-      setScreen('intro')
+  try {
 
-      setAuthUser(null)
+    const result = await safeQuery(
 
-      setUsers([])
+      supabase.auth.signOut(),
 
-      setSelChar(null)
+      'logout'
 
-      localStorage.clear()
+    )
 
-      sessionStorage.clear()
+    console.log('LOGOUT RESULT', result)
 
-    try {
+  } catch (e) {
 
-      await safeQuery(
+    console.error(
 
-        supabase.auth.signOut(),
+      'logout failed',
 
-        'logout'
+      e
 
-      )
-
-    } catch (e) {
-
-      console.error(
-
-        'logout failed',
-
-        e
-
-      )
-
-    }
+    )
 
   }
+
+  // 🔥 로그아웃 성공 후 초기화
+
+  setScreen('intro')
+
+  setAuthUser(null)
+
+  setUsers([])
+
+  setSelChar(null)
+
+  localStorage.clear()
+
+  sessionStorage.clear()
+
+}
 
 
   const [authChecked, setAuthChecked] = useState(false)
