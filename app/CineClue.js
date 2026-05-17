@@ -1306,6 +1306,15 @@ export default function CineClue() {
 
               )
 
+
+              if (!result?.success) {
+
+              console.log('캐릭터 로드 실패 - 기존 users 유지')
+
+              return
+
+            }
+
             const data = result?.data || []
 
             if (data.length === 0) {
