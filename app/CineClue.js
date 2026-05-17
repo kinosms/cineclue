@@ -3022,61 +3022,87 @@ useEffect(() => {
 
     }
 
-    const updated = [...users, newUser]
+    setUsers(prev => [
 
-    setUsers(updated)
+      ...prev,
+
+      newUser
+
+    ])
 
     if (authUser) {
 
-      await safeQuery(
+  setUsers(prev => [
 
-        supabase
+    ...prev,
 
-          .from('characters')
+    newUser
 
-          .delete()
+  ])
 
-          .eq('auth_user_id', authUser.id)
+  await safeQuery(
 
-          .eq('char_id', tempChar),
+    supabase
 
-        'delete existing character'
+      .from('characters')
 
-      )
+      .delete()
 
-      await safeQuery(
+      .eq('auth_user_id', authUser.id)
 
-        supabase
+      .eq('char_id', tempChar),
 
-          .from('characters')
+    'delete existing character'
 
-          .insert({
+  )
 
-            auth_user_id: authUser.id,
+  await safeQuery(
 
-            char_id: tempChar,
+    supabase
 
-            nickname,
+      .from('characters')
 
-            score: 0,
+      .insert({
 
-            lives: 30
+        auth_user_id: authUser.id,
 
-          }),
+        char_id: tempChar,
 
-        'insert character'
+        nickname,
 
-      )
+        score: 0,
 
-    } else {
+        lives: 30
 
-      saveUsers(updated)
+      }),
 
-    }
+    'insert character'
 
-    setShowNameModal(false)
+  )
 
-    setNickname('')
+} else {
+
+  setUsers(prev => {
+
+    const updated = [
+
+      ...prev,
+
+      newUser
+
+    ]
+
+    saveUsers(updated)
+
+    return updated
+
+  })
+
+}
+
+setShowNameModal(false)
+
+setNickname('')
 
   }
 
@@ -3087,42 +3113,59 @@ useEffect(() => {
 
     if (!ok) return   // ❌ 취소하면 종료
 
-    const updated = users.filter(u => u.charId !== charId)
-
-    setUsers(updated)
-
     if (authUser) {
 
-      await safeQuery(
+        setUsers(prev =>
 
-        supabase
+          prev.filter(
 
-          .from('characters')
+            u => u.charId !== charId
 
-          .delete()
+          )
 
-          .eq('auth_user_id', authUser.id)
+        )
 
-          .eq('char_id', charId),
+        await safeQuery(
 
-        'delete character'
+          supabase
 
-      )
+            .from('characters')
 
+            .delete()
 
+            .eq('auth_user_id', authUser.id)
 
-    } else {
+            .eq('char_id', charId),
 
-      saveUsers(updated)
+          'delete character'
+
+        )
+
+      } else {
+
+        setUsers(prev => {
+
+          const updated = prev.filter(
+
+            u => u.charId !== charId
+
+          )
+
+          saveUsers(updated)
+
+          return updated
+
+        })
+
+      }
+
+      if (selChar === charId) {
+
+        setSelChar(null)
+
+      }
 
     }
-
-    if (selChar === charId) {
-
-      setSelChar(null)
-
-    }
-  }
 
 
   return (
