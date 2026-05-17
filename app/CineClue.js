@@ -924,7 +924,19 @@ export default function CineClue() {
 
   const logout = async () => {
 
-    setIsLoggingOut(true)
+      setIsLoggingOut(true)
+
+      setScreen('intro')
+
+      setAuthUser(null)
+
+      setUsers([])
+
+      setSelChar(null)
+
+      localStorage.clear()
+
+      sessionStorage.clear()
 
     try {
 
@@ -947,18 +959,6 @@ export default function CineClue() {
       )
 
     }
-
-    localStorage.clear()
-
-    sessionStorage.clear()
-
-    setScreen('intro')
-
-    setAuthUser(null)
-
-    setUsers([])
-
-    setSelChar(null)
 
   }
 
