@@ -43,23 +43,38 @@ export default function Collection(props) {
   const [sortType, setSortType] = useState('recent')
   const [showShuffleFx, setShowShuffleFx] = useState(false)
   const SHUFFLE_DURATION = 1200
+  const [shuffleCards, setShuffleCards] = useState([])
   const triggerShuffleFx = (callback) => {
 
-  setShowShuffleFx(true)
+    const cards = fxPosters.map(p => ({
 
-  setTimeout(() => {
+    src:p,
 
-    callback?.()
+    top:-10 + Math.random() * 110,
 
-  }, SHUFFLE_DURATION - 120)
+    rotate:-25 + Math.random() * 50,
 
-  setTimeout(() => {
+    duration:0.75 + Math.random() * 0.45
 
-    setShowShuffleFx(false)
+      }))
 
-  }, SHUFFLE_DURATION)
+        setShuffleCards(cards)
 
-}
+        setShowShuffleFx(true)
+
+        setTimeout(() => {
+
+          callback?.()
+
+        }, 820)
+
+        setTimeout(() => {
+
+          setShowShuffleFx(false)
+
+        }, 950)
+
+      }
 
   useEffect(() => {
 
@@ -271,19 +286,7 @@ export default function Collection(props) {
 
         }}>
 
-          {fxPosters.map((p, i) => {
-
-            const fromLeft =
-              Math.random() > 0.5
-
-            const top =
-              -10 + Math.random() * 110
-
-            const rotate =
-              -25 + Math.random() * 50
-
-            const duration =
-              0.75 + Math.random() * 0.45
+          {shuffleCards.map((p, i) => {
 
             return (
 
@@ -291,7 +294,7 @@ export default function Collection(props) {
 
                 key={i}
 
-                src={p}
+                src={p.src}
 
                 style={{
 
