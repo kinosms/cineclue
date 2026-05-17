@@ -2061,6 +2061,36 @@ export default function CineClue() {
         quizMode
       })
 
+      console.log({
+
+        userId,
+
+        selChar,
+
+        score
+
+      })
+
+      await safeQuery(
+
+        supabase
+
+          .from('characters')
+
+          .update({
+
+            score: score
+
+          })
+
+          .eq('auth_user_id', userId)
+
+          .eq('char_id', selChar),
+
+        'update character total score'
+
+      )
+
       const data = await loadRanking({ supabase })
       setRanking(data)
     }
