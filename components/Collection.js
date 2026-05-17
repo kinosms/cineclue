@@ -43,7 +43,7 @@ export default function Collection(props) {
   const [sortType, setSortType] = useState('recent')
   const [showShuffleFx, setShowShuffleFx] = useState(false)
   const [shuffleCards, setShuffleCards] = useState([])
-  const SHUFFLE_DURATION = 1150
+  const SHUFFLE_DURATION = 1700
 
 const triggerShuffleFx = (callback) => {
 
@@ -57,7 +57,7 @@ const triggerShuffleFx = (callback) => {
 
     rotate: -25 + Math.random() * 50,
 
-    duration: 0.9 + Math.random() * 0.2
+    duration: 1.25 + Math.random() * 0.35
 
   }))
 
@@ -71,7 +71,7 @@ const triggerShuffleFx = (callback) => {
 
     callback?.()
 
-  }, 420)
+  }, 650)
 
   // 🔥 포스터가 완전히 밖으로 나간 후 제거
 
@@ -232,7 +232,7 @@ const triggerShuffleFx = (callback) => {
 
   [...posters]
 
-    .slice(0, 20)
+    .slice(0, 36)
 
     .map(p =>
 
@@ -1022,7 +1022,7 @@ const triggerShuffleFx = (callback) => {
 
   100% {
 
-    transform: translateX(185vw);
+    transform: translateX(240vw);
 
     opacity:1;
 
@@ -1054,7 +1054,7 @@ const triggerShuffleFx = (callback) => {
 
   100% {
 
-    transform: translateX(-185vw);
+    transform: translateX(-240vw);
 
     opacity:1;
 
