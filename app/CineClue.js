@@ -3007,6 +3007,22 @@ useEffect(() => {
 
     if (!nickname.trim()) return
 
+    const exists = users.find(
+
+    u => u.charId === tempChar
+
+  )
+
+  if (exists) {
+
+    setSelChar(tempChar)
+
+    setShowNameModal(false)
+
+    return
+
+  }
+
     const existingUser = users.find(
 
       u =>
@@ -3070,22 +3086,6 @@ useEffect(() => {
     newUser
 
   ])
-
-  await safeQuery(
-
-    supabase
-
-      .from('characters')
-
-      .delete()
-
-      .eq('auth_user_id', authUser.id)
-
-      .eq('char_id', tempChar),
-
-    'delete existing character'
-
-  )
 
   await safeQuery(
 
