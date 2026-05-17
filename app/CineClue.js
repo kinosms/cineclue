@@ -1374,7 +1374,7 @@ export default function CineClue() {
 
                   nickname: c.nickname,
 
-                  score: totalScore,
+                  score: c.score || 0,
 
                   lives: c.lives,
 
