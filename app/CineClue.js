@@ -2063,7 +2063,23 @@ export default function CineClue() {
 
 )
 
-console.log(result)
+const check = await safeQuery(
+
+  supabase
+
+    .from('characters')
+
+    .select('*')
+
+    .eq('auth_user_id', userId)
+
+    .eq('char_id', selChar),
+
+  'check character'
+
+)
+
+console.log(check)
 
       const data = await loadRanking({ supabase })
           
