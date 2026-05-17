@@ -65,11 +65,35 @@ export default function ResultScreen(props) {
   const currentGrade = selGrade
   const hasFail = results.some(r => !r.correct)
   const char = CHARS.find(c => c.id === selChar)
-  const sortedRanking = [...ranking].sort(
+  const patchedRanking = ranking.map(r => {
 
-    (a, b) => b.score - a.score
+  const isMe =
 
-  )
+    String(r.user_id) === String(currentUser?.userId) &&
+
+    String(r.character_id) === String(selChar)
+
+  if (isMe) {
+
+    return {
+
+      ...r,
+
+      score: displayScore || r.score
+
+    }
+
+  }
+
+  return r
+
+})
+
+const sortedRanking = [...patchedRanking].sort(
+
+  (a, b) => b.score - a.score
+
+)
 
 
   let lastRank = 1
