@@ -3265,6 +3265,8 @@ async function deleteUser(charId) {
 
           selChar={selChar}
 
+          setScreen={setScreen}
+
           isGuestLockedChar={isGuestLockedChar}
 
         />

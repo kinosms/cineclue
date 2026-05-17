@@ -54,7 +54,9 @@ export default function CharacterScreen(props) {
 
     selChar,
 
-    isGuestLockedChar
+    isGuestLockedChar,
+
+    setScreen,
 
   } = props
 
@@ -148,6 +150,7 @@ export default function CharacterScreen(props) {
                     }
                     if (item === '로그아웃') {
                       setShowSettings(false)
+                      setScreen('intro')
                       setTimeout(() => {
 
                         logout()
