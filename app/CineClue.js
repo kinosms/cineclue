@@ -950,7 +950,13 @@ export default function CineClue() {
 
     sessionStorage.clear()
 
-    window.location.reload()
+    setAuthUser(null)
+
+    setUsers([])
+
+    setSelChar(null)
+
+    setScreen('intro')
 
   }
 
