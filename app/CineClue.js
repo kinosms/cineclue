@@ -983,7 +983,27 @@ export default function CineClue() {
   const [profileStats, setProfileStats] = useState(null)
   const ERA_MODES = MODES.filter(m => m.type === 'era')
   const THEME_MODES = MODES.filter(m => m.type === 'theme')
-  const [screen, setScreen] = useState('intro')
+  const [screen, setScreen] = useState(() => {
+
+  const oauthStart =
+
+    typeof window !== 'undefined'
+
+      ? localStorage.getItem(
+
+          'cineclue_oauth_start'
+
+        )
+
+      : null
+
+  return oauthStart === 'true'
+
+    ? 'char'
+
+    : 'intro'
+
+})
 
   const [selChar, setSelChar] = useState(null)
   const [users, setUsers] = useState([])
