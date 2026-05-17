@@ -929,15 +929,11 @@ export default function CineClue() {
 
   try {
 
-    const result = await safeQuery(
+    const { error } =
 
-      supabase.auth.signOut(),
+      await supabase.auth.signOut()
 
-      'logout'
-
-    )
-
-    console.log('LOGOUT RESULT', result)
+    console.log('logout error', error)
 
   } catch (e) {
 
@@ -951,10 +947,6 @@ export default function CineClue() {
 
   }
 
-  // 🔥 로그아웃 성공 후 초기화
-
-  setScreen('intro')
-
   setAuthUser(null)
 
   setUsers([])
@@ -964,6 +956,8 @@ export default function CineClue() {
   localStorage.clear()
 
   sessionStorage.clear()
+
+  setScreen('intro')
 
 }
 
