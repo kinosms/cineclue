@@ -753,6 +753,7 @@ export default function CharacterScreen(props) {
                 onClick={() => {
                   playClick()
                   saveNickname()
+                  setShowNameModal(false)
                 }}
                 style={{
                   flex: 1,
