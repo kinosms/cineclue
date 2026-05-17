@@ -1266,19 +1266,6 @@ export default function CineClue() {
                 'cineclue_oauth_start'
               )
 
-            if (
-              _event === 'SIGNED_IN' &&
-              oauthStart === 'true'
-            ) {
-              localStorage.removeItem(
-                'cineclue_oauth_start'
-              )
-              
-              setShowLogin(false)
-              setScreen('char')
-
-            }
-
             const result =
 
               await safeQuery(
@@ -1327,7 +1314,7 @@ export default function CineClue() {
 
                 )
 
-                setUsers(loadedUsers)
+                  
 
                 const logs = resultLogs?.data || []
 
@@ -1361,8 +1348,20 @@ export default function CineClue() {
 
             )
 
-            
+            setUsers(loadedUsers)
 
+            if (
+              _event === 'SIGNED_IN' &&
+              oauthStart === 'true'
+            ) {
+              localStorage.removeItem(
+                'cineclue_oauth_start'
+              )
+              setShowLogin(false)
+              setTimeout(() => {
+                setScreen('char')
+              }, 50)
+            }
             return
           }
 
