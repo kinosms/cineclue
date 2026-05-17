@@ -658,6 +658,7 @@ async function safeQuery(promise, label = 'query') {
   try {
     const result = await withTimeout(
       promise,
+      label,
       5000
     )
     if (result.error) {
