@@ -1001,13 +1001,13 @@ export default function Collection(props) {
 
   }
 
-  15% {
+  8% {
 
     opacity:1;
 
   }
 
-  85% {
+  92% {
 
     opacity:1;
 
@@ -1015,9 +1015,9 @@ export default function Collection(props) {
 
   100% {
 
-    transform: translateX(140vw);
+    transform: translateX(170vw);
 
-    opacity:0;
+    opacity:1;
 
   }
 
@@ -1033,13 +1033,13 @@ export default function Collection(props) {
 
   }
 
-  15% {
+  8% {
 
     opacity:1;
 
   }
 
-  85% {
+  92% {
 
     opacity:1;
 
@@ -1047,9 +1047,9 @@ export default function Collection(props) {
 
   100% {
 
-    transform: translateX(-140vw);
+    transform: translateX(-170vw);
 
-    opacity:0;
+    opacity:1;
 
   }
 
