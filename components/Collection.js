@@ -276,7 +276,7 @@ export default function Collection(props) {
               -25 + Math.random() * 50
 
             const duration =
-              0.35 + Math.random() * 0.25
+              0.75 + Math.random() * 0.45
 
             return (
 
@@ -290,7 +290,7 @@ export default function Collection(props) {
 
                   position: 'absolute',
 
-                  width: 120,
+                  width: 240,
 
                   borderRadius: 12,
 
@@ -916,7 +916,7 @@ export default function Collection(props) {
 
 @keyframes flyRight {
 
-  from {
+  0% {
 
     transform: translateX(0);
 
@@ -924,11 +924,23 @@ export default function Collection(props) {
 
   }
 
-  to {
+  15% {
+
+    opacity:1;
+
+  }
+
+  85% {
+
+    opacity:1;
+
+  }
+
+  100% {
 
     transform: translateX(140vw);
 
-    opacity:1;
+    opacity:0;
 
   }
 
@@ -936,7 +948,7 @@ export default function Collection(props) {
 
 @keyframes flyLeft {
 
-  from {
+  0% {
 
     transform: translateX(0);
 
@@ -944,11 +956,23 @@ export default function Collection(props) {
 
   }
 
-  to {
-
-    transform: translateX(-140vw);
+  15% {
 
     opacity:1;
+
+  }
+
+  85% {
+
+    opacity:1;
+
+  }
+
+  100% {
+
+    transform: translateX(140vw);
+
+    opacity:0;
 
   }
 
