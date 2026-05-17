@@ -637,7 +637,7 @@ function AppLayout({ children }) {
 async function withTimeout(
   promise,
   label = 'request',
-  ms = 5000
+  ms = 10000
 ) {
   return Promise.race([
     promise,
@@ -658,25 +658,30 @@ async function safeQuery(promise, label = 'query') {
   try {
     const result = await withTimeout(
       promise,
-      5000
+      label,
+      10000
     )
     if (result.error) {
-      console.error(
+      console.warn(
         `${label} error`,
         result.error
       )
       return {
+        success:false,
         data: null,
         error: result.error
       }
     }
-    return result
+    return {success:true,
+      ...result
+    }
   } catch (e) {
-    console.error(
-      `${label} failed`,
+    console.warn(
+      `${label} timeout`,
       e
     )
     return {
+      success:false,
       data: null,
       error: e
     }
@@ -1308,8 +1313,6 @@ export default function CineClue() {
 
 
               if (!result?.success) {
-
-              console.log('캐릭터 로드 실패 - 기존 users 유지')
 
               return
 
@@ -2038,16 +2041,6 @@ export default function CineClue() {
         nickname: currentUser.nickname,
         log_type: 'result',
         quizMode
-      })
-
-      console.log({
-
-        userId,
-
-        selChar,
-
-        score
-
       })
 
       const result = await safeQuery(

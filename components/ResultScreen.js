@@ -328,7 +328,6 @@ const sortedRanking = [...patchedRanking].sort(
 
                     key={i}
                     onClick={() => {
-                      console.log('RESULT R DATA', r)
                       if (
                         (r.correct || showAnswers)
                         &&
@@ -856,15 +855,6 @@ const sortedRanking = [...patchedRanking].sort(
                 border: '1.5px solid #e8e4dd'
               }}
               onClick={() => {
-                  console.log('HOME CLICK', {
-
-    authUser,
-
-    users,
-
-    selChar
-
-  })
                 playClick()
                 setScreen('char')
               }}
