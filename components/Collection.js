@@ -50,7 +50,7 @@ export default function Collection(props) {
 
       setShowShuffleFx(false)
 
-    }, 450)
+    }, 1200)
 
   }
 
@@ -498,7 +498,7 @@ export default function Collection(props) {
 
                   )
 
-                }, 350)
+                }, 950)
 
               }}
 
