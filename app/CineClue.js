@@ -2071,7 +2071,7 @@ export default function CineClue() {
 
       })
 
-      await safeQuery(
+      const result = await safeQuery(
 
         supabase
 
@@ -2085,11 +2085,15 @@ export default function CineClue() {
 
           .eq('auth_user_id', userId)
 
-          .eq('char_id', selChar),
+          .eq('char_id', selChar)
+
+          .select(),
 
         'update character total score'
 
       )
+
+      console.log(result)
 
       const data = await loadRanking({ supabase })
       setRanking(data)
