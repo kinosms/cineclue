@@ -959,6 +959,12 @@ export default function CineClue() {
 
   setScreen('intro')
 
+  setTimeout(() => {
+
+    setIsLoggingOut(false)
+
+  }, 1000)
+
 }
 
 
