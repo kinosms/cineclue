@@ -2017,6 +2017,18 @@ export default function CineClue() {
     const safeNickname = currentUser?.nickname || nickname || 'USER'
     const userId = String(currentUser?.userId)
     const run = async () => {
+
+      console.log({
+
+    score,
+
+    roundStartScore,
+
+    nextScore: score,
+
+    savedScore: score - roundStartScore
+
+  })
       await saveLog({
         supabase,
         userId,
@@ -2039,7 +2051,7 @@ export default function CineClue() {
 
           .update({
 
-            score: score
+            score: nextScore
 
           })
 
