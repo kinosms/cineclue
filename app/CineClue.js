@@ -741,7 +741,7 @@ export default function CineClue() {
     let from = 0
 
     while (true) {
-      const result = await safeQuery(
+      const { data = [] } = await safeQuery(
 
       supabase
 
