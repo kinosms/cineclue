@@ -1,4 +1,7 @@
 /** @type {import('next').NextConfig} */
-'use client';
-const nextConfig = {}
+
+const nextConfig = {
+  output: 'export',
+}
+
 module.exports = nextConfig

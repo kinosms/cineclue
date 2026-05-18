@@ -743,23 +743,23 @@ export default function CineClue() {
     while (true) {
       const { data = [] } = await safeQuery(
 
-      supabase
+        supabase
 
-        .from('movies')
+          .from('movies')
 
-        .select('id, title')
+          .select('id, title')
 
-        .range(
+          .range(
 
-          from,
+            from,
 
-          from + pageSize - 1
+            from + pageSize - 1
 
-        ),
+          ),
 
-      `fetch all movies ${from}`
+        `fetch all movies ${from}`
 
-    )
+      )
 
       if (data.length === 0) break
 
@@ -938,19 +938,19 @@ export default function CineClue() {
 
   const logout = async () => {
 
-      setIsLoggingOut(true)
+    setIsLoggingOut(true)
 
-      setScreen('intro')
+    setScreen('intro')
 
-      setAuthUser(null)
+    setAuthUser(null)
 
-      setUsers([])
+    setUsers([])
 
-      setSelChar(null)
+    setSelChar(null)
 
-      localStorage.clear()
+    localStorage.clear()
 
-      sessionStorage.clear()
+    sessionStorage.clear()
 
     try {
 
@@ -1007,19 +1007,19 @@ export default function CineClue() {
   const [screen, setScreen] = useState('intro')
   useEffect(() => {
 
-  const oauthStart = localStorage.getItem(
+    const oauthStart = localStorage.getItem(
 
-    'cineclue_oauth_start'
+      'cineclue_oauth_start'
 
-  )
+    )
 
-  if (oauthStart === 'true') {
+    if (oauthStart === 'true') {
 
-    setScreen('char')
+      setScreen('char')
 
-  }
+    }
 
-}, [])
+  }, [])
 
   const [selChar, setSelChar] = useState(null)
   const [users, setUsers] = useState([])
@@ -1248,31 +1248,26 @@ export default function CineClue() {
   }
 
 
+
+
   function loadUsers(authUser) {
 
     if (authUser) {
-
       return []
-
     } else {
 
       const saved =
-
         sessionStorage.getItem(
-
           'cineclue_guest_users'
-
         )
 
       return saved
-
         ? JSON.parse(saved)
-
         : []
-
     }
-
   }
+
+
 
 
   // 로그인 //
@@ -1305,30 +1300,18 @@ export default function CineClue() {
               )
 
             const result =
-
               await safeQuery(
-
                 supabase
-
                   .from('characters')
-
                   .select('*')
-
                   .eq('auth_user_id', user.id),
-
                 'load auth characters'
-
               )
 
-
             const data = result?.data || []
-
             if (data.length === 0) {
-
               setUsers([])
-
               return
-
             }
 
 
@@ -1338,9 +1321,9 @@ export default function CineClue() {
 
               .select('*', {
 
-                count:'exact',
+                count: 'exact',
 
-                head:true
+                head: true
 
               })
 
@@ -1418,18 +1401,14 @@ export default function CineClue() {
 
 
   useEffect(() => {
-
     if (!authChecked) return
 
     const saved =
       localStorage.getItem(
         'cineclue_current_session'
       )
-
     if (!saved) return
-
     try {
-
       const parsed = JSON.parse(saved)
 
       // 🔥 users 준비 안됐으면 복원 금지
@@ -1441,18 +1420,12 @@ export default function CineClue() {
       ) {
         setSelChar(parsed.selChar)
       }
-
       if (parsed.screen) {
         setScreen(parsed.screen)
-
       }
-
     } catch (e) {
-
       console.error(e)
-
     }
-
   }, [authChecked, users])
 
 
@@ -1461,18 +1434,11 @@ export default function CineClue() {
 
 
   function saveUsers(users) {
-
     sessionStorage.setItem(
-
       'cineclue_guest_users',
-
       JSON.stringify(users)
-
     )
-
   }
-
-
 
 
 
@@ -1510,7 +1476,6 @@ export default function CineClue() {
 
 
 
-
   useEffect(() => {
     if (lifeDelta === null) return
     const t = setTimeout(() => {
@@ -1518,6 +1483,7 @@ export default function CineClue() {
     }, 1000)   // 👉 시간 늘려도 됨
     return () => clearTimeout(t)
   }, [lifeDelta])
+
 
 
   useEffect(() => {
@@ -1528,6 +1494,7 @@ export default function CineClue() {
       }, 60)
     }
   }, [showProfile, profileTarget])
+
 
 
   useEffect(() => {
@@ -1545,44 +1512,27 @@ export default function CineClue() {
   }, [])
 
 
+
+
   useEffect(() => {
-
     if (!showProfile) return
-
     if (!supabase || !selChar) return
-
     const targetCharId = profileTarget || selChar
-
     let cancelled = false
-
     setProfileStats(null)
-
     const run = async () => {
-
       const profile = await getProfileStats(
-
         supabase,
-
         targetCharId
-
       )
-
       if (!cancelled) {
-
         setProfileStats(profile)
-
       }
-
     }
-
     run()
-
     return () => {
-
       cancelled = true
-
     }
-
   }, [showProfile, supabase, selChar, profileTarget])
 
 
@@ -1620,6 +1570,7 @@ export default function CineClue() {
     setChoices(pool[qi].choices || [])
   }, [screen, qi, quizMode, pool])
 
+  
 
   useEffect(() => {
     const t = setTimeout(() => {
@@ -1823,7 +1774,7 @@ export default function CineClue() {
 
           {
 
-            onConflict:'user_id,movie_id'
+            onConflict: 'user_id,movie_id'
 
           }
 
@@ -1846,31 +1797,31 @@ export default function CineClue() {
 
   async function fetchGenreStats(user_id, character_id) {
 
-  const result =
+    const result =
 
-    await safeQuery(
+      await safeQuery(
 
-      supabase
+        supabase
 
-        .from('user_genre_stats')
+          .from('user_genre_stats')
 
-        .select(
+          .select(
 
-          'genre, attempt_count, correct_count, total_score'
+            'genre, attempt_count, correct_count, total_score'
 
-        )
+          )
 
-        .eq('user_id', user_id)
+          .eq('user_id', user_id)
 
-        .eq('character_id', character_id),
+          .eq('character_id', character_id),
 
-      'fetch genre stats'
+        'fetch genre stats'
 
-    )
+      )
 
-  return result?.data || []
+    return result?.data || []
 
-}
+  }
 
   //객관식 선택지 생성 함수
   function buildChoices(correctMovie, allMovies) {
@@ -2067,7 +2018,7 @@ export default function CineClue() {
         supabase
 
           .from('characters')
-          
+
           .update({
 
             score: score
@@ -2101,84 +2052,84 @@ export default function CineClue() {
 
 
   // 결과 화면 순차 노출 + 점수 카운트
-useEffect(() => {
+  useEffect(() => {
 
-  if (screen !== 'result') return
+    if (screen !== 'result') return
 
-  if (results.length === 0) return
+    if (results.length === 0) return
 
-  if (!users || users.length === 0) return
+    if (!users || users.length === 0) return
 
 
-  // 🔥 컬렉션 복귀 시 상태 유지
-  
-  setResultView('score')
+    // 🔥 컬렉션 복귀 시 상태 유지
 
-  setVisibleResults(1)
+    setResultView('score')
 
-  const roundScore = score - roundStartScore
+    setVisibleResults(1)
 
-  const startScore = roundStartScore
+    const roundScore = score - roundStartScore
 
-  const tot = startScore + roundScore
+    const startScore = roundStartScore
 
-  setDisplayScore(startScore)
+    const tot = startScore + roundScore
 
-  let i = 0
+    setDisplayScore(startScore)
 
-  const interval = setInterval(() => {
+    let i = 0
 
-    i++
+    const interval = setInterval(() => {
 
-    setVisibleResults(i)
+      i++
 
-    if (i >= results.length) {
+      setVisibleResults(i)
 
-      clearInterval(interval)
+      if (i >= results.length) {
 
-      setTimeout(() => {
-
-        setVisibleResults(v => v + 1)
+        clearInterval(interval)
 
         setTimeout(() => {
 
-          let cur = startScore
+          setVisibleResults(v => v + 1)
 
-          const diff = tot - startScore
+          setTimeout(() => {
 
-              if (diff <= 0) {
+            let cur = startScore
 
-                setDisplayScore(tot)
-                return
-                 }
+            const diff = tot - startScore
 
-          const step = Math.ceil(diff / 60)
+            if (diff <= 0) {
 
-          const iv = setInterval(() => {
-
-            cur = Math.min(cur + step, tot)
-
-            setDisplayScore(cur)
-
-            if (cur >= tot) {
-
-              clearInterval(iv)
-
+              setDisplayScore(tot)
+              return
             }
 
-          }, 20)
+            const step = Math.ceil(diff / 60)
+
+            const iv = setInterval(() => {
+
+              cur = Math.min(cur + step, tot)
+
+              setDisplayScore(cur)
+
+              if (cur >= tot) {
+
+                clearInterval(iv)
+
+              }
+
+            }, 20)
+
+          }, 400)
 
         }, 400)
 
-      }, 400)
+      }
 
-    }
+    }, 400)
 
-  }, 400)
+    return () => clearInterval(interval)
 
-  return () => clearInterval(interval)
-
-}, [screen, results])
+  }, [screen, results])
 
 
   useEffect(() => {
@@ -3076,114 +3027,114 @@ useEffect(() => {
 
     if (authUser) {
 
-  setUsers(prev => [
+      setUsers(prev => [
 
-    ...prev,
+        ...prev,
 
-    newUser
+        newUser
 
-  ])
+      ])
 
-  await safeQuery(
+      await safeQuery(
 
-    supabase
+        supabase
 
-      .from('characters')
+          .from('characters')
 
-      .delete()
+          .delete()
 
-      .eq('auth_user_id', authUser.id)
+          .eq('auth_user_id', authUser.id)
 
-      .eq('char_id', tempChar),
+          .eq('char_id', tempChar),
 
-    'delete existing character'
+        'delete existing character'
 
-  )
+      )
 
-  await safeQuery(
+      await safeQuery(
 
-    supabase
+        supabase
 
-      .from('characters')
+          .from('characters')
 
-      .insert({
+          .insert({
 
-        auth_user_id: authUser.id,
+            auth_user_id: authUser.id,
 
-        char_id: tempChar,
+            char_id: tempChar,
 
-        nickname,
+            nickname,
 
-        score: 0,
+            score: 0,
 
-        lives: 30
+            lives: 30
 
-      }),
+          }),
 
-    'insert character'
+        'insert character'
 
-  )
+      )
 
-} else {
+    } else {
 
-  saveUsers(updated)
+      saveUsers(updated)
 
-}
+    }
 
-setShowNameModal(false)
+    setShowNameModal(false)
 
-setNickname('')
+    setNickname('')
 
   }
 
   // 👉캐릭터 대화명 지우기
   // 👉 캐릭터 삭제
-async function deleteUser(charId) {
+  async function deleteUser(charId) {
 
-  const ok = confirm(
-    '대화명과 점수가 초기화됩니다. 계속할까요?'
-  )
-
-  if (!ok) return
-
-  const updated =
-    users.filter(
-      u => u.charId !== charId
+    const ok = confirm(
+      '대화명과 점수가 초기화됩니다. 계속할까요?'
     )
 
-  setUsers(updated)
+    if (!ok) return
 
-  if (authUser) {
+    const updated =
+      users.filter(
+        u => u.charId !== charId
+      )
 
-    await safeQuery(
+    setUsers(updated)
 
-      supabase
+    if (authUser) {
 
-        .from('characters')
+      await safeQuery(
 
-        .delete()
+        supabase
 
-        .eq('auth_user_id', authUser.id)
+          .from('characters')
 
-        .eq('char_id', charId),
+          .delete()
 
-      'delete character'
+          .eq('auth_user_id', authUser.id)
 
-    )
+          .eq('char_id', charId),
 
-  } else {
+        'delete character'
 
-    saveUsers(updated)
+      )
+
+    } else {
+
+      saveUsers(updated)
+
+    }
+
+    if (selChar === charId) {
+
+      setSelChar(null)
+
+    }
 
   }
-
-  if (selChar === charId) {
-
-    setSelChar(null)
-
-  }
-
-}
 
 
   return (
@@ -3678,25 +3629,25 @@ async function deleteUser(charId) {
         skipResultAnimation={skipResultAnimation}
         setSkipResultAnimation={setSkipResultAnimation}
 
-      />    
+      />
 
       <MovieFlipCard
 
-          movieCard={movieCard}
+        movieCard={movieCard}
 
-          showMovieCard={showMovieCard}
+        showMovieCard={showMovieCard}
 
-          setShowMovieCard={setShowMovieCard}
+        setShowMovieCard={setShowMovieCard}
 
-          movieCardFlipped={movieCardFlipped}
+        movieCardFlipped={movieCardFlipped}
 
-          setMovieCardFlipped={setMovieCardFlipped}
+        setMovieCardFlipped={setMovieCardFlipped}
 
-          setTrailerKey={setTrailerKey}
+        setTrailerKey={setTrailerKey}
 
-        />
+      />
     </>
 
-    
+
   )
 }
