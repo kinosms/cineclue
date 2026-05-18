@@ -2111,11 +2111,18 @@ useEffect(() => {
 
 
   // 🔥 컬렉션 복귀 시 상태 유지
-  if (skipResultAnimation)
-  {
-  setSkipResultAnimation(false)
-  return
+  if (
+
+    skipResultAnimation &&
+
+    visibleResults > results.length
+
+  ) {
+
+    return
+
   }
+  
   setResultView('score')
 
   setVisibleResults(1)
@@ -2172,7 +2179,7 @@ useEffect(() => {
 
   return () => clearInterval(interval)
 
-}, [screen, results, users, skipResultAnimation])
+}, [screen, results, skipResultAnimation])
 
 
   useEffect(() => {
