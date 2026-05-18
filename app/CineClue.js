@@ -2109,9 +2109,13 @@ useEffect(() => {
 
   if (!users || users.length === 0) return
 
-  // 🔥 컬렉션 복귀 시 상태 유지
-  if (skipResultAnimation) return
 
+  // 🔥 컬렉션 복귀 시 상태 유지
+  if (skipResultAnimation)
+  {
+  setSkipResultAnimation(false)
+  return
+  }
   setResultView('score')
 
   setVisibleResults(1)
