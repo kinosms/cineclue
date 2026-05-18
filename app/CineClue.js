@@ -2111,17 +2111,6 @@ useEffect(() => {
 
 
   // 🔥 컬렉션 복귀 시 상태 유지
-  if (
-
-    skipResultAnimation &&
-
-    visibleResults > results.length
-
-  ) {
-
-    return
-
-  }
   
   setResultView('score')
 
@@ -2155,9 +2144,15 @@ useEffect(() => {
 
           let cur = startScore
 
-          const step = Math.ceil(
-            (tot - startScore) / 60
-          )
+          const diff = tot - startScore
+
+              if (diff <= 0) {
+
+                setDisplayScore(tot)
+                return
+                 }
+
+          const step = Math.ceil(diff / 60)
 
           const iv = setInterval(() => {
 
@@ -2165,7 +2160,11 @@ useEffect(() => {
 
             setDisplayScore(cur)
 
-            if (cur >= tot) clearInterval(iv)
+            if (cur >= tot) {
+
+              clearInterval(iv)
+
+            }
 
           }, 20)
 
@@ -2179,7 +2178,7 @@ useEffect(() => {
 
   return () => clearInterval(interval)
 
-}, [screen, results, skipResultAnimation])
+}, [screen, results])
 
 
   useEffect(() => {
