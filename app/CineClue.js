@@ -1895,31 +1895,31 @@ function restoreAppSnapshot(options = {}) {
   }
 
   useEffect(() => {
+  const pauseForBackground = () => {
+    isPausedRef.current = true
+
+    saveAppSnapshot()
+
+    clearInterval(timerRef.current)
+
+    stopBgm()
+  }
+
   const handleVisibilityChange = async () => {
     if (document.hidden) {
-      isPausedRef.current = true
-
-      saveAppSnapshot()
-
-      clearInterval(timerRef.current)
-
-      stopBgm()
-
+      pauseForBackground()
       return
     }
 
     setIsRestoring(true)
 
     try {
-
       await new Promise(r => setTimeout(r, 700))
 
       const authRestored = await restoreAuthCharacters()
 
       restoreAppSnapshot({
-
         keepUsers: authRestored
-
       })
 
       await new Promise(r => requestAnimationFrame(r))
@@ -1931,31 +1931,21 @@ function restoreAppSnapshot(options = {}) {
       setResumeTick(v => v + 1)
 
       const resumeAudioOnce = () => {
-
         resumeBgmByScreen()
 
         window.removeEventListener('pointerdown', resumeAudioOnce)
-
         window.removeEventListener('touchstart', resumeAudioOnce)
-
         window.removeEventListener('click', resumeAudioOnce)
-
       }
 
       window.addEventListener('pointerdown', resumeAudioOnce, { once: true })
-
       window.addEventListener('touchstart', resumeAudioOnce, { once: true })
-
       window.addEventListener('click', resumeAudioOnce, { once: true })
 
     } catch (e) {
-
       console.error('resume failed', e)
-
     } finally {
-
       setIsRestoring(false)
-
     }
   }
 
@@ -1966,7 +1956,12 @@ function restoreAppSnapshot(options = {}) {
 
   window.addEventListener(
     'pagehide',
-    saveAppSnapshot
+    pauseForBackground
+  )
+
+  window.addEventListener(
+    'blur',
+    pauseForBackground
   )
 
   return () => {
@@ -1977,7 +1972,12 @@ function restoreAppSnapshot(options = {}) {
 
     window.removeEventListener(
       'pagehide',
-      saveAppSnapshot
+      pauseForBackground
+    )
+
+    window.removeEventListener(
+      'blur',
+      pauseForBackground
     )
   }
 }, [
