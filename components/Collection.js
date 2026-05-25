@@ -124,8 +124,14 @@ export default function Collection(props) {
 
       const targetUserId = collectionTargetUserId || authUser?.id
 
-        if (!targetUserId) {
+      console.log('collectionTargetUserId', collectionTargetUserId)
 
+console.log('authUser.id', authUser?.id)
+
+console.log('targetUserId', targetUserId)
+
+        if (!targetUserId) {
+          setPosters([])
           setReady(true)
 
           return
@@ -748,9 +754,9 @@ export default function Collection(props) {
 
     >
 
-      퀴즈를 플레이하고 정답 화면을 눌러 <br />
+      결과 화면에서 포스터를 불러오면 <br />
 
-      영화 포스터를 모아보세요
+      영화 포스터를 모을 수 있어요
 
     </div>
 
