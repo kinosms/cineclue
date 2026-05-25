@@ -513,6 +513,18 @@ export default function ProfileModal(props) {
 
                     setCollectionReturnScreen('result')
 
+                    setCollectionTargetUserId(
+
+                      profileUser?.user_id || authUser?.id
+
+                    )
+
+                    setCollectionTargetCharId(
+
+                      profileUser?.character_id || selChar
+
+                    )
+
                     setScreen('collection')
 
                     setTimeout(() => {

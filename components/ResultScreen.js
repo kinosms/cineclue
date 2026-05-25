@@ -550,7 +550,12 @@ const sortedRanking = [...patchedRanking].sort(
                       {Array.from({ length: rankingRevealDone ? TOP_LIMIT : 5 }).map((_, i) => {
                         const r = safeRanking[i] || null
                         const char = r ? CHARS.find(c => c.id === r.character_id) : null
-                        const isDead = r && !safeUsers.find(u => u.charId === r.character_id)
+                        const isDead =
+                          r &&
+                          !safeUsers.find(u =>
+                            String(u.userId) === String(r.user_id) &&
+                            String(u.charId) === String(r.character_id)
+                          )
                         const isMe =
                           r &&
                           String(r.user_id) === String(currentUser?.userId) &&

@@ -127,7 +127,7 @@ export default function Collection(props) {
 
         .select('*')
 
-        .eq('user_id', authUser.id)
+        .eq('user_id', collectionTargetUserId)
 
         .order('viewed_at', { ascending: false })
 
