@@ -3722,6 +3722,7 @@ function restoreAppSnapshot(options = {}) {
           setMovieCard={setMovieCard}
           setMovieCardFlipped={setMovieCardFlipped}
           setShowMovieCard={setShowMovieCard}
+          collectionTargetUserId={collectionTargetUserId}
 
         />
 
