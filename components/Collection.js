@@ -528,6 +528,8 @@ export default function Collection(props) {
 
               onClick={() => {
 
+                playSound('arrange')
+
                 triggerShuffleFx(() => {
 
                   setSortType(v =>

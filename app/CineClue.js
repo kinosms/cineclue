@@ -1087,7 +1087,12 @@ function restoreAppSnapshot(options = {}) {
   const ERA_MODES = MODES.filter(m => m.type === 'era')
   const THEME_MODES = MODES.filter(m => m.type === 'theme')
   const [screen, setScreen] = useState('intro')
+  
+  const closeTrailer = () => {
+    setTrailerKey(null)
+    playBgm('mainBgm', 0.30)
 
+  }
 
 
 
@@ -3780,11 +3785,12 @@ function restoreAppSnapshot(options = {}) {
 
 
 
-
       {/* 유튜브 플레이어 모달 */}
       {trailerKey && (
+
+        
         <div
-          onClick={() => setTrailerKey(null)}
+          onClick={closeTrailer}
           style={{
             position: 'fixed',
             inset: 0,
@@ -3809,7 +3815,7 @@ function restoreAppSnapshot(options = {}) {
             }}>
 
             <button
-              onClick={() => setTrailerKey(null)}
+              onClick={closeTrailer}
               style={{
                 position: 'absolute',
                 top: 10,
