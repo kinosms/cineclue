@@ -1,5 +1,7 @@
 'use client'
 
+import { playSound } from '../library/audioManager'
+
 export default function ResultScreen(props) {
 
   const {
@@ -49,7 +51,6 @@ export default function ResultScreen(props) {
     movieCardFlipped,
     setMovieCard,
     setMovieCardFlipped,
-    playClick,
     loadMovies,
     saveCollection,
     skipResultAnimation,
@@ -143,6 +144,7 @@ const sortedRanking = [...patchedRanking].sort(
 
 
               onClick={() => {
+                playSound('click')
 
                 if (!authUser) {
 
@@ -232,6 +234,7 @@ const sortedRanking = [...patchedRanking].sort(
           }}>
             <button
               onClick={async () => {
+                playSound('click')
                 if (resultView === 'score') {
                   await loadRanking()
                   setResultView('ranking')
@@ -328,6 +331,7 @@ const sortedRanking = [...patchedRanking].sort(
 
                     key={i}
                     onClick={() => {
+                      playSound('click')
                       if (
                         (r.correct || showAnswers)
                         &&
@@ -624,6 +628,7 @@ const sortedRanking = [...patchedRanking].sort(
                                 <div
 
                                   onClick={() => {
+                                    playSound('click')
 
                                     if (!authUser) {
 
@@ -673,6 +678,7 @@ const sortedRanking = [...patchedRanking].sort(
                                 {/* 📊 배지 */}
                                 <div
                                   onClick={() => {
+                                    playSound('click')
                                     setAnimateStats(false)
                                     requestAnimationFrame(() => {
                                       setAnimateStats(true)
@@ -838,7 +844,7 @@ const sortedRanking = [...patchedRanking].sort(
                   border: 'none'
                 }}
                 onClick={() => {
-                  playClick()
+                  playSound('click')
                   loadMovies()
                 }}
               >
@@ -860,7 +866,7 @@ const sortedRanking = [...patchedRanking].sort(
                 border: '1.5px solid #e8e4dd'
               }}
               onClick={() => {
-                playClick()
+                playSound('click')
                 setScreen('char')
               }}
             >

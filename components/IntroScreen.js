@@ -1,5 +1,7 @@
 'use client'
 import { useEffect, useState } from 'react'
+import { playSound } from '../library/audioManager'
+import { playBgm, stopBgm } from '../library/audioManager'
 
 export default function IntroScreen({
   onEnter,
@@ -8,6 +10,19 @@ export default function IntroScreen({
 }) {
 
   const [mounted, setMounted] = useState(false)
+
+
+  useEffect(() => {
+
+  playBgm()
+
+  return () => {
+
+    stopBgm()
+
+  }
+
+}, [])
 
   useEffect(() => {
     setMounted(true)
@@ -126,7 +141,13 @@ export default function IntroScreen({
 
           <button
             
-            onClick={onEnter}
+            onClick={() => {
+
+              playSound('click')
+
+              onEnter()
+
+            }}
             style={{
               height: 48,
               padding: '0 28px',

@@ -427,6 +427,7 @@ export default function CharacterScreen(props) {
               <div
                 key={c.id}
                 onClick={() => {
+                  playSound('click')
                   if (locked) {
                     setShowLogin(true)
                     return

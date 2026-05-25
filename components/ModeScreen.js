@@ -1,12 +1,10 @@
 'use client'
-
+import { playSound } from '../library/audioManager'
 
 
 export default function ModeScreen(props) {
 
   const {
-
-    playClick,
 
     setQuizMode,
 
@@ -202,8 +200,7 @@ export default function ModeScreen(props) {
           <div style={{ display: 'flex', gap: 8, marginBottom: 16 }}>
             <button
               onClick={() => {
-                
-                playClick()
+                playSound('click')
                 setQuizMode('subjective')
               }}
               style={{
@@ -218,8 +215,7 @@ export default function ModeScreen(props) {
             </button>
             <button
               onClick={() => {
-                
-                playClick()
+                playSound('click')
                 setQuizMode('objective')
               }}
               style={{
@@ -376,7 +372,7 @@ export default function ModeScreen(props) {
               disabled={selGrade === null || loading}
               onClick={() => {
                 if (selGrade === null || loading) return
-                playClick()
+                playSound('click')
                 loadMovies()
               }}>
 
@@ -398,7 +394,7 @@ export default function ModeScreen(props) {
                 cursor: 'pointer'
               }}
               onClick={() => {
-                playClick()
+                playSound('click')
                 setScreen('char')
               }}>
               캐릭터 선택 돌아가기

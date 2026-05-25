@@ -1,5 +1,5 @@
 'use client'
-
+import { playSound } from '../library/audioManager'
 export default function QuizScreen(props) {
 
   const {
@@ -78,8 +78,6 @@ export default function QuizScreen(props) {
     inputRef,
 
     submit,
-
-    playClick,
 
     comboStreak,
 
@@ -712,6 +710,7 @@ export default function QuizScreen(props) {
                   <button
                     
                     onClick={() => {
+                      playSound('hint')
                       const el = scrollRef.current
                       const prev = el.scrollHeight
                       nextH()
@@ -734,8 +733,7 @@ export default function QuizScreen(props) {
 
                   <button
                     onClick={() => {
-                      
-                      playClick()
+                      playSound('click')
                       doSkip()
                     }}
                     style={{
@@ -782,9 +780,9 @@ export default function QuizScreen(props) {
                   }}>
                     {choices.map((c, i) => (
                       <button
-                        
                         key={i}
                         onClick={() => {
+
                           if (selectedChoice === c) return
                           setSelectedChoice(c)
                           submit(c)
@@ -907,7 +905,7 @@ export default function QuizScreen(props) {
                         <button
                           
                           onClick={() => {
-                            playClick()
+                            playSound('click')
                             submit()
                           }}
                           style={{
@@ -1383,7 +1381,7 @@ export default function QuizScreen(props) {
                 <button
                   
                   onClick={() => {
-                    playClick()
+                    playSound('click')
                     nextQ()
                   }}
                   style={{

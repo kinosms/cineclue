@@ -5,9 +5,10 @@ const SOUND_MAP = {
   correct: '/correct.mp3',
   wrong: '/false.mp3',
   hint: '/hint.mp3',
+  answer: '/answer.mp3',
   combo: '/combo.mp3',
   result: '/result.mp3',
-  bgm: '/introsound.mp3',
+  bgm: '/intro.mp3',
 }
 
 let bgmAudio = null
