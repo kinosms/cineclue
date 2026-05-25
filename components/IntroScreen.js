@@ -1,8 +1,16 @@
 'use client'
 import { useEffect, useState } from 'react'
-import { playSound } from '../library/audioManager'
-import { playBgm, stopBgm } from '../library/audioManager'
-import { preloadSounds } from '../library/audioManager'
+import {
+
+  playSound,
+
+  playBgm,
+
+  stopBgm,
+
+  preloadSounds
+
+} from '../library/audioManager'
 
 export default function IntroScreen({
   onEnter,

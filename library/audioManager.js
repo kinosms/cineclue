@@ -2,45 +2,66 @@ const SOUND_MAP = {
   click: '/click.mp3',
   modeclick: '/modeclick.mp3',
   correct: '/correct.mp3',
-  wrong: '/wrong.mp3',
+  wrong: '/false.mp3',
   hint: '/hint.mp3',
+  flip: '/flip.mp3',
   combo: '/combo.mp3',
   result: '/result.mp3',
   bgm: '/intro.mp3',
-  flip: '/flip.mp3',
 }
 
-const audioPool = {}
+const audioPools = {}
+const poolIndex = {}
 
 let bgmAudio = null
 
-function getAudio(name) {
-  if (typeof window === 'undefined') return null
+function createAudio(src) {
+  const audio = new Audio(src)
+  audio.preload = 'auto'
+  audio.load()
+  return audio
+}
 
-  if (!audioPool[name]) {
-    const audio = new Audio(SOUND_MAP[name])
-    audio.preload = 'auto'
-    audio.load()
-    audioPool[name] = audio
+function getPool(name, count = 4) {
+  if (typeof window === 'undefined') return []
+
+  if (!SOUND_MAP[name]) return []
+
+  if (!audioPools[name]) {
+    audioPools[name] = Array.from(
+      { length: count },
+      () => createAudio(SOUND_MAP[name])
+    )
+    poolIndex[name] = 0
   }
 
-  return audioPool[name]
+  return audioPools[name]
 }
 
 export function preloadSounds() {
   Object.keys(SOUND_MAP).forEach(name => {
-    if (name !== 'bgm') getAudio(name)
+    if (name === 'bgm') return
+    getPool(name, 4)
   })
 }
 
 export function playSound(name, volume = 0.45) {
-  const audio = getAudio(name)
-  if (!audio) return
+  if (typeof window === 'undefined') return
 
-  audio.pause()
-  audio.currentTime = 0
-  audio.volume = volume
-  audio.play().catch(() => {})
+  const pool = getPool(name, 4)
+  if (!pool.length) return
+
+  const index = poolIndex[name] || 0
+  const audio = pool[index]
+
+  poolIndex[name] = (index + 1) % pool.length
+
+  try {
+    audio.pause()
+    audio.currentTime = 0
+    audio.volume = volume
+    audio.play().catch(() => {})
+  } catch (e) {}
 }
 
 export function playBgm(volume = 0.40) {
@@ -65,4 +86,9 @@ export function stopBgm() {
   bgmAudio.pause()
   bgmAudio.currentTime = 0
   bgmAudio = null
+}
+
+export function setBgmVolume(volume = 0.40) {
+  if (!bgmAudio) return
+  bgmAudio.volume = volume
 }

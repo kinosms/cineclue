@@ -52,6 +52,7 @@ export default function MovieFlipCard(props) {
 
           <div
             onClick={() => {
+              e.stopPropagation()
               playSound('flip', 0.25)
               setMovieCardFlipped(v => !v)
             }}
