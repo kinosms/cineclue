@@ -1,5 +1,7 @@
 'use client'
 
+import { playSound } from './lib/audioManager'
+
 export default function CharacterScreen(props) {
 
   const {
@@ -78,7 +80,9 @@ export default function CharacterScreen(props) {
         zIndex: 20
       }}>
         <button
-          onClick={() => setShowSettings(true)}
+          onClick={() => {
+            playSound('click')
+            setShowSettings(true)}}
           style={{
             width: 32,
             height: 32,
@@ -200,7 +204,8 @@ export default function CharacterScreen(props) {
 
               {/* 닫기 */}
               <button
-                onClick={() => setSettingsPage(null)}
+                onClick={() => {
+                  setSettingsPage(null)}}
                 style={{
                   position: 'absolute',
                   top: 14,
@@ -581,6 +586,7 @@ export default function CharacterScreen(props) {
         <button
           
           onClick={() => {
+            playSound('click')
             playClick()
             enterGame()
           }}
