@@ -331,7 +331,6 @@ const sortedRanking = [...patchedRanking].sort(
 
                     key={i}
                     onClick={() => {
-                      playSound('click')
                       if (
                         (r.correct || showAnswers)
                         &&
