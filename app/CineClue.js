@@ -1031,7 +1031,9 @@ export default function CineClue() {
   )
 }
 
-function restoreAppSnapshot() {
+function restoreAppSnapshot(options = {}) {
+  const { keepUsers = false } = options
+
   const saved = localStorage.getItem(SNAPSHOT_KEY)
   if (!saved) return
 
@@ -1040,7 +1042,11 @@ function restoreAppSnapshot() {
 
     if (s.screen) setScreen(s.screen)
     if (s.selChar) setSelChar(s.selChar)
-    if (Array.isArray(s.users)) setUsers(s.users)
+
+    if (!keepUsers && Array.isArray(s.users)) {
+      setUsers(s.users)
+    }
+    
     if (s.selGrade) setSelGrade(s.selGrade)
     if (Array.isArray(s.pool)) setPool(s.pool)
 
@@ -1719,7 +1725,7 @@ function restoreAppSnapshot() {
     const sessionResult = await supabase.auth.getSession()
     const user = sessionResult?.data?.session?.user
 
-    if (!user) return
+    if (!user) return false
 
     setAuthUser(user)
 
@@ -1733,14 +1739,14 @@ function restoreAppSnapshot() {
 
     if (!result || result.error) {
       console.warn('복귀 캐릭터 로드 실패 - 기존 users 유지')
-      return
+      return false
     }
 
     const data = result.data || []
 
     if (data.length === 0) {
       console.warn('복귀 캐릭터 없음 - 기존 users 유지')
-      return
+      return false
     }
 
     setUsers(data.map(c => ({
@@ -1751,6 +1757,8 @@ function restoreAppSnapshot() {
       userId: c.auth_user_id,
       isGuest: false
     })))
+
+    return true
   }
 
   useEffect(() => {
@@ -1768,9 +1776,14 @@ function restoreAppSnapshot() {
     setIsRestoring(true)
 
     try {
-      await restoreAuthCharacters()
 
-      restoreAppSnapshot()
+      const authRestored = await restoreAuthCharacters()
+
+      restoreAppSnapshot({
+
+        keepUsers: !authRestored
+
+      })
 
       await new Promise(r => requestAnimationFrame(r))
 
@@ -1779,10 +1792,15 @@ function restoreAppSnapshot() {
       isPausedRef.current = false
 
       setResumeTick(v => v + 1)
+
     } catch (e) {
+
       console.error('resume failed', e)
+
     } finally {
+
       setIsRestoring(false)
+
     }
   }
 
