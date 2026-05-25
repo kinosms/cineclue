@@ -1104,8 +1104,20 @@ function restoreAppSnapshot(options = {}) {
   
   const closeTrailer = () => {
     setTrailerKey(null)
-    playBgm('mainBgm', 0.10)
+    if (screen === 'result') {
+      playBgm('resultBgm', 0.25)
+      return
+    }
 
+    if (screen === 'collection') {
+      if (collectionReturnScreen === 'result') {
+        playBgm('resultBgm', 0.25)
+      } else {
+        playBgm('mainBgm', 0.22)
+      }
+      return
+    }
+    playBgm('mainBgm', 0.22)
   }
 
   const [bgmOn, setBgmOn] = useState(true)
@@ -1264,7 +1276,7 @@ function restoreAppSnapshot(options = {}) {
 
   if (screen === 'result') {
 
-    playBgm('resultBgm', 0.32)
+    playBgm('resultBgm', 0.25)
 
     return
 
@@ -1274,11 +1286,11 @@ function restoreAppSnapshot(options = {}) {
 
     if (collectionReturnScreen === 'result') {
 
-      playBgm('resultBgm', 0.32)
+      playBgm('resultBgm', 0.25)
 
     } else {
 
-      playBgm('mainBgm', 0.30)
+      playBgm('mainBgm', 0.25)
 
     }
 
@@ -1286,9 +1298,9 @@ function restoreAppSnapshot(options = {}) {
 
   }
 
-  playBgm('mainBgm', 0.30)
+  playBgm('mainBgm', 0.25)
 
-}, [screen, collectionReturnScreen])
+}, [screen, collectionReturnScreen, resumeTick])
 
 
 
@@ -1853,6 +1865,8 @@ function restoreAppSnapshot(options = {}) {
       saveAppSnapshot()
 
       clearInterval(timerRef.current)
+
+      stopBgm()
 
       return
     }
