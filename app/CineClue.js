@@ -13,7 +13,15 @@ import Collection from '../components/Collection'
 import MovieFlipCard from '../components/MovieFlipCard'
 import ProfileModal from '../components/ProfileModal'
 import { playSound } from '../library/audioManager'
-import { playBgm, stopBgm } from '../library/audioManager'
+import {
+
+  playBgm,
+
+  stopBgm,
+
+  setBgmSpeed
+
+} from '../library/audioManager'
 
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || ''
 const SUPABASE_KEY = process.env.NEXT_PUBLIC_SUPABASE_KEY || ''
@@ -1726,6 +1734,20 @@ function restoreAppSnapshot(options = {}) {
     if (!pool[qi]) return
     setChoices(pool[qi].choices || [])
   }, [screen, qi, quizMode, pool])
+
+  useEffect(() => {
+
+  if (screen !== 'quiz') {
+    setBgmSpeed(1)
+    return
+  }
+
+  if (mode) {
+    setBgmSpeed(1.4)
+  } else {
+    setBgmSpeed(1)
+  }
+}, [screen, mode])
 
   
 
