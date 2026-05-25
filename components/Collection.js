@@ -94,10 +94,6 @@ export default function Collection(props) {
 
       const targetUserId = collectionTargetUserId || authUser?.id
 
-      console.log('collectionTargetUserId', collectionTargetUserId)
-      console.log('authUser.id', authUser?.id)
-      console.log('targetUserId', targetUserId)
-
         if (!targetUserId) {
 
           setPosters([])

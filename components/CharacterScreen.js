@@ -532,14 +532,6 @@ export default function CharacterScreen(props) {
                   
                   <div
                     onClick={(e) => {
-                      console.log({
-
-                        nickname:u.nickname,
-
-                        isDead:u.isDead,
-                        hasDeleteUser: typeof deleteUser
-
-                      })
                       e.stopPropagation()
                       if (u.isDead) {
                         // 🔥 부활 처리 (여기!)

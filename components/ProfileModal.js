@@ -33,14 +33,6 @@ export default function ProfileModal(props) {
     setCollectionTargetUserId
   } = props
 
-  const collectionCount =
-
-  profileUser?.collectionCount ??
-
-  currentUser?.collectionCount ??
-
-  0
-
 
   if (!showProfile) return null
 
@@ -517,8 +509,13 @@ export default function ProfileModal(props) {
                   onClick={(e) => {
 
                     e.stopPropagation()
-                    setCollectionTargetUserId(profileUser?.user_id || authUser?.id)
 
+                      const targetUserId =
+                      profileUser?.user_id ||
+                      profileUser?.userId ||
+                      currentUser?.userId ||
+                      authUser?.id
+                    setCollectionTargetUserId(profileUser?.user_id || authUser?.id)
                     setSkipResultAnimation(true)
                     setCollectionReturnScreen('result')
                     setScreen('collection')
@@ -562,21 +559,6 @@ export default function ProfileModal(props) {
                 }}>
 
                   📚 컬렉션
-                    <span style={{
-
-                      marginLeft: 6,
-
-                      fontSize: '0.72rem',
-
-                      fontWeight: 800,
-
-                      color: '#ff6b7a'
-
-                    }}>
-
-                      {collectionCount}
-
-                    </span>
 
                 </div>
 
