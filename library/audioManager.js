@@ -188,3 +188,35 @@ export function resumeBgm(name = 'mainBgm', volume = 0.25) {
 }
 
 
+export function resetSfxPool() {
+
+  Object.keys(audioPools).forEach(name => {
+
+    audioPools[name]?.forEach(audio => {
+
+      try {
+
+        audio.pause()
+
+        audio.src = ''
+
+        audio.load()
+
+      } catch (e) {}
+
+    })
+
+  })
+
+  Object.keys(audioPools).forEach(name => {
+
+    delete audioPools[name]
+
+    delete poolIndex[name]
+
+  })
+
+  preloadSounds()
+
+}
+

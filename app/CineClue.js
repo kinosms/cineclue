@@ -24,7 +24,9 @@ import {
 
   setBgmEnabled,
 
-  setSfxEnabled
+  setSfxEnabled, 
+
+  resetSfxPool
 
 } from '../library/audioManager'
 
@@ -1111,13 +1113,13 @@ function restoreAppSnapshot(options = {}) {
 
     if (screen === 'collection') {
       if (collectionReturnScreen === 'result') {
-        playBgm('resultBgm', 0.25)
+        playBgm('resultBgm', 0.12)
       } else {
-        playBgm('mainBgm', 0.22)
+        playBgm('mainBgm', 0.12)
       }
       return
     }
-    playBgm('mainBgm', 0.22)
+    playBgm('mainBgm', 0.12)
   }
 
   const [bgmOn, setBgmOn] = useState(true)
@@ -1276,7 +1278,7 @@ function restoreAppSnapshot(options = {}) {
 
   if (screen === 'result') {
 
-    playBgm('resultBgm', 0.25)
+    playBgm('resultBgm', 0.12)
 
     return
 
@@ -1286,11 +1288,11 @@ function restoreAppSnapshot(options = {}) {
 
     if (collectionReturnScreen === 'result') {
 
-      playBgm('resultBgm', 0.25)
+      playBgm('resultBgm', 0.12)
 
     } else {
 
-      playBgm('mainBgm', 0.25)
+      playBgm('mainBgm', 0.12)
 
     }
 
@@ -1298,7 +1300,7 @@ function restoreAppSnapshot(options = {}) {
 
   }
 
-  playBgm('mainBgm', 0.25)
+  playBgm('mainBgm', 0.12)
 
 }, [screen, collectionReturnScreen, resumeTick])
 
@@ -1462,7 +1464,7 @@ function restoreAppSnapshot(options = {}) {
 
     if (screen === 'result') {
 
-      playBgm('resultBgm', 0.25)
+      playBgm('resultBgm', 0.12)
 
       return
 
@@ -1472,11 +1474,11 @@ function restoreAppSnapshot(options = {}) {
 
       if (collectionReturnScreen === 'result') {
 
-        playBgm('resultBgm', 0.25)
+        playBgm('resultBgm', 0.12)
 
       } else {
 
-        playBgm('mainBgm', 0.22)
+        playBgm('mainBgm', 0.12)
 
       }
 
@@ -1484,7 +1486,7 @@ function restoreAppSnapshot(options = {}) {
 
     }
 
-    playBgm('mainBgm', 0.22)
+    playBgm('mainBgm', 0.12)
 
   }
 
@@ -1929,6 +1931,8 @@ function restoreAppSnapshot(options = {}) {
       isPausedRef.current = false
 
       setResumeTick(v => v + 1)
+
+      resetSfxPool()
 
       const resumeAudioOnce = () => {
         resumeBgmByScreen()
@@ -2955,6 +2959,7 @@ function restoreAppSnapshot(options = {}) {
             return
           }
           if (wrongCount === 1) {
+            playSound('wrong')
             setWrongCount(2)
             setLockChoice(true)
             setFb('기회를 더 줄 수가 없어요')
