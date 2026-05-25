@@ -1127,6 +1127,7 @@ function restoreAppSnapshot(options = {}) {
   const [forceFill, setForceFill] = useState(false)
   const [tempChar, setTempChar] = useState(null)
   const [nickname, setNickname] = useState('')
+  const [collectionTargetUserId, setCollectionTargetUserId] = useState(null)
   const [ranking, setRanking] = useState([])
 
     async function loadRanking({ supabase } = {}) {
