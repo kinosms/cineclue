@@ -269,7 +269,7 @@ export default function CharacterScreen(props) {
                     <br />
                     정답 입력시 영화제목 자동완성을 이용할 수 있습니다.
                     <br />
-                    획득 점수는 100pt 부터 시작합니다.
+                    획득 점수는 1000pt 부터 시작합니다.
                   </div>
                   • 객관식 모드 :
                   <br />
@@ -283,7 +283,7 @@ export default function CharacterScreen(props) {
                   <div style={{ paddingLeft: 16 }}>
                     연속3회 퀴즈를 맞출 경우 다음 문제부터 콤보모드가 발동됩니다.
                     <br />
-                    첫 콤보모드시 점수X3, 최대 점수X3 까지 점수를 얻습니다.
+                    콤보모드시 점수X3, 최대 점수X5 까지 점수를 얻습니다.
                   </div>
                   <div style={{
                     borderTop: '1px solid #ece8e2',
@@ -291,7 +291,7 @@ export default function CharacterScreen(props) {
                   }} />
                   • 목숨은 30개로 시작하고, 부활시 15개로 시작합니다.
                   <br />
-                  • 캐릭터가 죽어도 랭킹에는 기록이 남습니다.
+                  • 캐릭터가 죽어도 삭제되어도 랭킹에는 유지됩니다.
                   <br />
                   • 로그인 유저는
                   <br />
@@ -300,7 +300,7 @@ export default function CharacterScreen(props) {
                     <br />
                     2. 캐릭터가 죽을 경우 부활이 가능합니다.
                     <br />
-                    3. 랭킹 화면에서 캐릭터를 누르면 프로필을 볼 수 있습니다.
+                    3. 랭킹화면에서 캐릭터 클릭시 프로필을 볼 수 있습니다.
                   </div>
                 </div>
               )}
@@ -387,7 +387,7 @@ export default function CharacterScreen(props) {
                   lineHeight: 1.8,
                   color: '#5f5a55'
                 }}>
-                  힌트오류 / 제목오류는 퀴즈화면 내 신고버튼을 이용해주세요. <br />
+                  문제 오류는 퀴즈화면 내 신고버튼을 이용해주세요. <br />
                   기타 신고사항은 이메일을 이용해주시기 바랍니다.
                 </div>
               )}

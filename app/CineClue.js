@@ -1123,18 +1123,40 @@ function restoreAppSnapshot() {
   const [nickname, setNickname] = useState('')
   const [ranking, setRanking] = useState([])
 
-    async function loadRanking() {
-    if (!supabase) return
-    const { data, error } = await supabase
-      .from('game_logs')
-      .select('user_id, character_id, nickname, score')
-      .is('movie_id', null)
-    if (error) {
-      console.error('랭킹 불러오기 실패', error)
-      return
+    async function loadRanking({ supabase } = {}) {
+      if (!supabase) return []
+      const { data = [] } = await safeQuery(
+        supabase
+          .from('game_logs')
+          .select('id, user_id, character_id, score_earned, nickname')
+          .eq('log_type', 'result')
+          .not('score_earned', 'is', null),
+        'load ranking'
+      )
+
+      const map = {}
+      data.forEach(d => {
+        const key = `${d.user_id}_${d.character_id}`
+        if (!map[key] || d.id > map[key].id) {
+          map[key] = {
+            user_id: d.user_id,
+            character_id: d.character_id,
+            score: d.score_earned ?? 0,
+            nickname: d.nickname || null,
+            id: d.id
+          }
+        }
+      })
+
+      return Object.values(map)
+        .map(d => ({
+          user_id: d.user_id,
+          character_id: d.character_id,
+          score: d.score,
+          nickname: d.nickname
+        }))
+        .sort((a, b) => b.score - a.score)
     }
-    setRanking(data || [])
-    } 
 
   const resultSavedRef = useRef(false)
   const [hitEffect, setHitEffect] = useState(null)
