@@ -2731,7 +2731,7 @@ function restoreAppSnapshot(options = {}) {
       let gained = 0
 
       if (correct) {
-        playSound('correct', 0.10)
+        playSound('correct')
 
         const isFirstTry = wrongCount === 0
         const comboAllowed = quizMode === 'subjective' || isFirstTry
@@ -2866,7 +2866,7 @@ function restoreAppSnapshot(options = {}) {
           }
         }
         if (quizMode === 'subjective') {
-          playSound('wrong', 0.28)
+          playSound('wrong')
           setFb('다시 생각해봐')
           setFbt('ng')
           return

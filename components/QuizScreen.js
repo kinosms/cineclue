@@ -711,7 +711,7 @@ export default function QuizScreen(props) {
                     
                     onClick={(e) => {
                       e.stopPropagation()
-                      playSound('hint', 0.15)
+                      playSound('hint', 0.25)
                       const el = scrollRef.current
                       const prev = el.scrollHeight
                       nextH()
