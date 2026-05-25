@@ -1777,11 +1777,13 @@ function restoreAppSnapshot(options = {}) {
 
     try {
 
+      await new Promise(r => setTimeout(r, 700))
+
       const authRestored = await restoreAuthCharacters()
 
       restoreAppSnapshot({
 
-        keepUsers: !authRestored
+        keepUsers: authRestored
 
       })
 
