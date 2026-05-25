@@ -32,7 +32,8 @@ export default function Collection(props) {
 
     movieCardFlipped,
 
-    setMovieCardFlipped
+    setMovieCardFlipped, 
+    collectionTargetUserId
 
   } = props
 
@@ -120,6 +121,16 @@ export default function Collection(props) {
         )
 
       }
+
+      const targetUserId = collectionTargetUserId || authUser?.id
+
+        if (!targetUserId) {
+
+          setReady(true)
+
+          return
+
+        }
 
       const { data, error } = await supabase
 
