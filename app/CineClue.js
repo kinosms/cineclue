@@ -1713,7 +1713,45 @@ function restoreAppSnapshot() {
   }, [qi])
 
 
+  const restoreAuthCharacters = async () => {
+    if (!supabase) return
 
+    const sessionResult = await supabase.auth.getSession()
+    const user = sessionResult?.data?.session?.user
+
+    if (!user) return
+
+    setAuthUser(user)
+
+    const result = await safeQuery(
+      supabase
+        .from('characters')
+        .select('*')
+        .eq('auth_user_id', user.id),
+      'restore auth characters'
+    )
+
+    if (!result || result.error) {
+      console.warn('복귀 캐릭터 로드 실패 - 기존 users 유지')
+      return
+    }
+
+    const data = result.data || []
+
+    if (data.length === 0) {
+      console.warn('복귀 캐릭터 없음 - 기존 users 유지')
+      return
+    }
+
+    setUsers(data.map(c => ({
+      charId: c.char_id,
+      nickname: c.nickname,
+      score: c.score || 0,
+      lives: c.lives,
+      userId: c.auth_user_id,
+      isGuest: false
+    })))
+  }
 
   useEffect(() => {
   const handleVisibilityChange = async () => {
@@ -1730,7 +1768,7 @@ function restoreAppSnapshot() {
     setIsRestoring(true)
 
     try {
-      await supabase.auth.getSession()
+      await restoreAuthCharacters()
 
       restoreAppSnapshot()
 
@@ -1877,47 +1915,61 @@ function restoreAppSnapshot() {
 
   async function saveCollection(movie) {
 
-    if (!authUser) return
+  if (!authUser) return
 
-    try {
+  if (!supabase) return
 
-      const { data, error } = await supabase
+  // 포스터 없으면 컬렉션 저장 안 함
 
-        .from('collections')
+  if (!movie?.poster_path) {
 
-        .upsert(
+    console.log('포스터 없음 - 컬렉션 저장 제외', movie?.title)
 
-          {
+    return
 
-            user_id: authUser.id,
+  }
 
-            movie_id: movie.id || movie.tmdb_id,
+  try {
 
-            movie_data: movie,
+    const { data, error } = await supabase
 
-            viewed_at: new Date()
+      .from('collections')
 
-          },
+      .upsert(
 
-          {
+        {
 
-            onConflict: 'user_id,movie_id'
+          user_id: authUser.id,
 
-          }
+          movie_id: movie.id || movie.tmdb_id,
 
-        )
+          movie_data: movie,
 
+          viewed_at: new Date().toISOString()
 
-    } catch (err) {
+        },
 
-      console.error(
-        'collection save error',
-        err
+        {
+
+          onConflict: 'user_id,movie_id'
+
+        }
+
       )
+
+    if (error) {
+
+      console.error('collection save error', error)
 
     }
 
+  } catch (err) {
+
+    console.error('collection save error', err)
+
   }
+
+}
 
 
 

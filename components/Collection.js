@@ -91,7 +91,11 @@ export default function Collection(props) {
 
     const loadCollections = async () => {
 
-      if (!authUser) return
+      if (!authUser) {
+        setPosters([])
+        setReady(true)
+        return
+      }
 
       async function preloadImages(urls = []) {
 
