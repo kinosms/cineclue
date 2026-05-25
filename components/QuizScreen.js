@@ -709,8 +709,9 @@ export default function QuizScreen(props) {
                 <div style={{ display: 'flex', gap: 8, marginBottom: 16 }}>
                   <button
                     
-                    onClick={() => {
-                      playSound('hint')
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      playSound('hint', 0.15)
                       const el = scrollRef.current
                       const prev = el.scrollHeight
                       nextH()
@@ -781,8 +782,8 @@ export default function QuizScreen(props) {
                     {choices.map((c, i) => (
                       <button
                         key={i}
-                        onClick={() => {
-
+                        onClick={(e) => {
+                          e.stopPropagation()
                           if (selectedChoice === c) return
                           setSelectedChoice(c)
                           submit(c)
@@ -905,7 +906,6 @@ export default function QuizScreen(props) {
                         <button
                           
                           onClick={() => {
-                            playSound('click')
                             submit()
                           }}
                           style={{

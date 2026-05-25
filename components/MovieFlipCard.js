@@ -1,5 +1,6 @@
 'use client'
 
+import { playSound } from '../library/audioManager'
 export default function MovieFlipCard(props) {
 
   const {
@@ -50,7 +51,10 @@ export default function MovieFlipCard(props) {
         >
 
           <div
-            onClick={() => setMovieCardFlipped(v => !v)}
+            onClick={() => {
+              playSound('flip', 0.25)
+              setMovieCardFlipped(v => !v)
+            }}
             style={{
               width: '100%',
               height: '100%',

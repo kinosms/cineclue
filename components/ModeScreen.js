@@ -145,6 +145,8 @@ export default function ModeScreen(props) {
 
                   onClick={() => {
 
+                    playSound('click')
+
                     if (!authUser) {
 
                       alert('로그인 후 이용 가능합니다.')
@@ -256,6 +258,7 @@ export default function ModeScreen(props) {
                         alert('로그인 후 이용 가능합니다.')
                         return
                       }
+                      playSound('modeclick')
                       toggleGrade(m.key)
                     }}
                     style={{

@@ -2,6 +2,7 @@
 import { useEffect, useState } from 'react'
 import { playSound } from '../library/audioManager'
 import { playBgm, stopBgm } from '../library/audioManager'
+import { preloadSounds } from '../library/audioManager'
 
 export default function IntroScreen({
   onEnter,
@@ -10,6 +11,12 @@ export default function IntroScreen({
 }) {
 
   const [mounted, setMounted] = useState(false)
+
+  useEffect(() => {
+
+  preloadSounds()
+
+}, [])
 
 
   useEffect(() => {

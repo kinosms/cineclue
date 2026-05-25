@@ -3,6 +3,7 @@
 
 import { useEffect, useRef, useState } from 'react'
 import MovieFlipCard from './MovieFlipCard'
+import { playSound } from '../library/audioManager'
 
 export default function Collection(props) {
 
@@ -806,6 +807,8 @@ export default function Collection(props) {
 
                 onClick={() => {
 
+                  playSound('flip', 0.25)
+
                   setMovieCard(poster.movie_data)
 
                   setMovieCardFlipped(false)
@@ -972,6 +975,8 @@ export default function Collection(props) {
                 key={index}
 
                 onClick={() => {
+
+                  playSound('flip', 0.25)
 
                   setMovieCard(poster.movie_data)
 

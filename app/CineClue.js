@@ -12,6 +12,7 @@ import ResultScreen from '../components/ResultScreen'
 import Collection from '../components/Collection'
 import MovieFlipCard from '../components/MovieFlipCard'
 import ProfileModal from '../components/ProfileModal'
+import { playSound } from '../library/audioManager'
 
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || ''
 const SUPABASE_KEY = process.env.NEXT_PUBLIC_SUPABASE_KEY || ''
@@ -2679,6 +2680,8 @@ function restoreAppSnapshot(options = {}) {
       let gained = 0
 
       if (correct) {
+        playSound('correct', 0.10)
+
         const isFirstTry = wrongCount === 0
         const comboAllowed = quizMode === 'subjective' || isFirstTry
 
@@ -2782,9 +2785,6 @@ function restoreAppSnapshot(options = {}) {
         }, 300)
 
       } else {
-        const wrongSound = new Audio('/false.mp3')
-        wrongSound.volume = 0.5
-        wrongSound.play().catch(() => { })
 
         // 객관식: 첫 오답 클릭이면 콤보 해제
         if (quizMode === 'objective' && wrongCount === 0) {
@@ -2794,6 +2794,7 @@ function restoreAppSnapshot(options = {}) {
         // 주관식 오답은 여기서 콤보 해제 안 함
         if (quizMode === 'objective') {
           if (wrongCount === 0) {
+            playSound('wrong')
             setWrongCount(1)
             if (sh < 5) {
               nextH()
@@ -2814,6 +2815,7 @@ function restoreAppSnapshot(options = {}) {
           }
         }
         if (quizMode === 'subjective') {
+          playSound('wrong', 0.28)
           setFb('다시 생각해봐')
           setFbt('ng')
           return
@@ -3017,10 +3019,6 @@ function restoreAppSnapshot(options = {}) {
 
 
   function nextH() {
-    const hintSound = new Audio('/hint.mp3')
-    hintSound.volume = 0.5
-    hintSound.play().catch(() => { })
-
     if (sh < 5) {
       setSh(v => v + 1)
       setFb('')
