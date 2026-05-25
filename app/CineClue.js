@@ -1803,7 +1803,7 @@ function restoreAppSnapshot(options = {}) {
   }
 
   if (mode) {
-    setBgmSpeed(1.15)
+    setBgmSpeed(1.1)
   } else {
     setBgmSpeed(1)
   }
