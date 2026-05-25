@@ -1,6 +1,7 @@
 'use client'
 
 import MovieFlipCard from './MovieFlipCard'
+import { playSound } from '../library/audioManager'
 
 export default function ProfileModal(props) {
 
@@ -442,7 +443,10 @@ export default function ProfileModal(props) {
 
               <button
 
-                onClick={openMovieRecommend}
+                onClick={() => {
+                  playSound('click')
+                  openMovieRecommend()
+                }}
 
                 style={{
 
@@ -507,7 +511,7 @@ export default function ProfileModal(props) {
                 <button
 
                   onClick={(e) => {
-
+                    playSound('click')
                     e.stopPropagation()
 
                       const targetUserId =

@@ -627,8 +627,7 @@ const sortedRanking = [...patchedRanking].sort(
                                 <div
 
                                   onClick={() => {
-                                    playSound('click')
-
+                                    
                                     if (!authUser) {
 
                                       alert('로그인 후 이용 가능합니다.')
@@ -636,6 +635,8 @@ const sortedRanking = [...patchedRanking].sort(
                                       return
 
                                     }
+
+                                    playSound('click')
 
                                     // 🔥 이전 프로필 초기화
 
