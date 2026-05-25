@@ -1079,21 +1079,7 @@ function restoreAppSnapshot() {
   const ERA_MODES = MODES.filter(m => m.type === 'era')
   const THEME_MODES = MODES.filter(m => m.type === 'theme')
   const [screen, setScreen] = useState('intro')
-  useEffect(() => {
 
-    const oauthStart = localStorage.getItem(
-
-      'cineclue_oauth_start'
-
-    )
-
-    if (oauthStart === 'true') {
-
-      setScreen('char')
-
-    }
-
-  }, [])
 
 
 
@@ -1706,7 +1692,6 @@ function restoreAppSnapshot() {
     }
 
     setIsRestoring(true)
-    setShowSpinner(true)
 
     try {
       await supabase.auth.getSession()
@@ -1723,7 +1708,6 @@ function restoreAppSnapshot() {
     } catch (e) {
       console.error('resume failed', e)
     } finally {
-      setShowSpinner(false)
       setIsRestoring(false)
     }
   }
@@ -3246,6 +3230,10 @@ function restoreAppSnapshot() {
 
   return (
     <>
+      {isRestoring && (
+      <CharacterSpinner />
+        )}
+
       {/* 인트로화면 */}
       {screen === 'intro' && (
         <IntroScreen
