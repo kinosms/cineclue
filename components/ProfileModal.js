@@ -555,6 +555,21 @@ export default function ProfileModal(props) {
                 }}>
 
                   📚 컬렉션
+                    <span style={{
+
+                      marginLeft: 6,
+
+                      fontSize: '0.72rem',
+
+                      fontWeight: 800,
+
+                      color: '#ff6b7a'
+
+                    }}>
+
+                      {collectionCount}
+
+                    </span>
 
                 </div>
 
