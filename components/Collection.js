@@ -92,11 +92,21 @@ export default function Collection(props) {
 
     const loadCollections = async () => {
 
-      if (!authUser) {
-        setPosters([])
-        setReady(true)
-        return
-      }
+      const targetUserId = collectionTargetUserId || authUser?.id
+
+      console.log('collectionTargetUserId', collectionTargetUserId)
+      console.log('authUser.id', authUser?.id)
+      console.log('targetUserId', targetUserId)
+
+        if (!targetUserId) {
+
+          setPosters([])
+
+          setReady(true)
+
+          return
+
+        }
 
       async function preloadImages(urls = []) {
 
@@ -122,29 +132,13 @@ export default function Collection(props) {
 
       }
 
-      const targetUserId = collectionTargetUserId || authUser?.id
-
-      console.log('collectionTargetUserId', collectionTargetUserId)
-
-console.log('authUser.id', authUser?.id)
-
-console.log('targetUserId', targetUserId)
-
-        if (!targetUserId) {
-          setPosters([])
-          setReady(true)
-
-          return
-
-        }
-
       const { data, error } = await supabase
 
         .from('collections')
 
         .select('*')
 
-        .eq('user_id', collectionTargetUserId)
+        .eq('user_id', targetUserId)
 
         .order('viewed_at', { ascending: false })
 
@@ -152,15 +146,16 @@ console.log('targetUserId', targetUserId)
 
         console.error(error)
 
-        return
+        setPosters([])
 
+        setReady(true)
+
+        return
       }
 
       const postersData = data || []
 
-      const preloadTargets =
-
-        postersData
+      const preloadTargets = postersData
 
           .slice(0, 30)
 
@@ -184,7 +179,7 @@ console.log('targetUserId', targetUserId)
 
     loadCollections()
 
-  }, [])
+  }, [supabase, authUser?.id, collectionTargetUserId])
 
 
   if (!ready) {

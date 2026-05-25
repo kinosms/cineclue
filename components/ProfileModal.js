@@ -508,31 +508,19 @@ export default function ProfileModal(props) {
                   onClick={(e) => {
 
                     e.stopPropagation()
+                    setCollectionTargetUserId(profileUser?.user_id || authUser?.id)
 
                     setSkipResultAnimation(true)
-
                     setCollectionReturnScreen('result')
-
+                    
                     setCollectionTargetUserId(
-
                       profileUser?.user_id || authUser?.id
-
-                    )
-
-                    setCollectionTargetCharId(
-
-                      profileUser?.character_id || selChar
-
                     )
 
                     setScreen('collection')
-
                     setTimeout(() => {
-
                       setShowProfile(false)
-
                     }, 0)
-
                   }}
 
                 style={{

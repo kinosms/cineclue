@@ -54,7 +54,9 @@ export default function ResultScreen(props) {
     saveCollection,
     skipResultAnimation,
     setSkipResultAnimation,
-    loadRanking
+    loadRanking,
+    collectionTargetUserId,
+    setCollectionTargetUserId
   } = props
 
   const safeUsers = Array.isArray(users) ? users : []

@@ -3704,6 +3704,8 @@ function restoreAppSnapshot(options = {}) {
           setSkipResultAnimation={setSkipResultAnimation}
           setCollectionReturnScreen={setCollectionReturnScreen}
           loadRanking={loadRanking}
+          collectionTargetUserId={collectionTargetUserId}
+          setCollectionTargetUserId={setCollectionTargetUserId}
         />
 
       )}
