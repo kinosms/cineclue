@@ -1122,6 +1122,20 @@ function restoreAppSnapshot() {
   const [tempChar, setTempChar] = useState(null)
   const [nickname, setNickname] = useState('')
   const [ranking, setRanking] = useState([])
+
+    async function loadRanking() {
+    if (!supabase) return
+    const { data, error } = await supabase
+      .from('game_logs')
+      .select('user_id, character_id, nickname, score')
+      .is('movie_id', null)
+    if (error) {
+      console.error('랭킹 불러오기 실패', error)
+      return
+    }
+    setRanking(data || [])
+    } 
+
   const resultSavedRef = useRef(false)
   const [hitEffect, setHitEffect] = useState(null)
   const scrollRef = useRef(null)
@@ -3594,6 +3608,7 @@ function restoreAppSnapshot() {
           skipResultAnimation={skipResultAnimation}
           setSkipResultAnimation={setSkipResultAnimation}
           setCollectionReturnScreen={setCollectionReturnScreen}
+          loadRanking={loadRanking}
         />
 
       )}

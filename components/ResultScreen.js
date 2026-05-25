@@ -53,7 +53,8 @@ export default function ResultScreen(props) {
     loadMovies,
     saveCollection,
     skipResultAnimation,
-    setSkipResultAnimation
+    setSkipResultAnimation,
+    loadRanking
   } = props
 
   const safeUsers = Array.isArray(users) ? users : []
@@ -65,6 +66,7 @@ export default function ResultScreen(props) {
   const currentGrade = selGrade
   const hasFail = results.some(r => !r.correct)
   const char = CHARS.find(c => c.id === selChar)
+  const safeRankingSource = Array.isArray(ranking) ? ranking : []
   const patchedRanking = ranking.map(r => {
 
   const isMe =
@@ -237,9 +239,15 @@ const sortedRanking = [...patchedRanking].sort(
             justifyContent: 'center'
           }}>
             <button
-              onClick={() => {
-                setResultView(prev => prev === 'score' ? 'ranking' : 'score')
+              onClick={async () => {
+                if (resultView === 'score') {
+                  await loadRanking()
+                  setResultView('ranking')
+                  return
+                }
+                setResultView('score')
               }}
+
               style={{
                 padding: '6px 12px',
                 borderRadius: 20,
@@ -247,7 +255,7 @@ const sortedRanking = [...patchedRanking].sort(
                 background: '#fff',
                 fontSize: '0.8rem',
                 cursor: 'pointer'
-              }}>
+            }}>
               {resultView === 'score' ? '랭킹 보기' : '점수 보기'}
             </button>
           </div>
@@ -601,7 +609,7 @@ const sortedRanking = [...patchedRanking].sort(
                                 fontSize: '0.65rem',
                                 fontWeight: 800
                               }}>
-                                {r.rank}위
+                                {r ? `${r.rank}위` : '-'}
                               </span>
                             </div>
 
