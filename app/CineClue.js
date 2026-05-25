@@ -1899,11 +1899,8 @@ function restoreAppSnapshot(options = {}) {
   useEffect(() => {
   const pauseForBackground = () => {
     isPausedRef.current = true
-
     saveAppSnapshot()
-
     clearInterval(timerRef.current)
-
     stopBgm()
   }
 
@@ -1925,16 +1922,14 @@ function restoreAppSnapshot(options = {}) {
       })
 
       await new Promise(r => requestAnimationFrame(r))
-
       await new Promise(r => setTimeout(r, 300))
 
       isPausedRef.current = false
-
       setResumeTick(v => v + 1)
 
-      resetSfxPool()
-
       const resumeAudioOnce = () => {
+        resetSfxPool()
+        playSound('click', 0.01)
         resumeBgmByScreen()
 
         window.removeEventListener('pointerdown', resumeAudioOnce)
@@ -1951,38 +1946,16 @@ function restoreAppSnapshot(options = {}) {
     } finally {
       setIsRestoring(false)
     }
-  }
+  } // 🔥 이게 빠졌던 거
 
-  document.addEventListener(
-    'visibilitychange',
-    handleVisibilityChange
-  )
-
-  window.addEventListener(
-    'pagehide',
-    pauseForBackground
-  )
-
-  window.addEventListener(
-    'blur',
-    pauseForBackground
-  )
+  document.addEventListener('visibilitychange', handleVisibilityChange)
+  window.addEventListener('pagehide', pauseForBackground)
+  window.addEventListener('blur', pauseForBackground)
 
   return () => {
-    document.removeEventListener(
-      'visibilitychange',
-      handleVisibilityChange
-    )
-
-    window.removeEventListener(
-      'pagehide',
-      pauseForBackground
-    )
-
-    window.removeEventListener(
-      'blur',
-      pauseForBackground
-    )
+    document.removeEventListener('visibilitychange', handleVisibilityChange)
+    window.removeEventListener('pagehide', pauseForBackground)
+    window.removeEventListener('blur', pauseForBackground)
   }
 }, [
   screen,
