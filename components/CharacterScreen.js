@@ -1,6 +1,16 @@
 'use client'
+import { useState } from 'react'
+import {
 
-import { playSound } from '../library/audioManager'
+  playSound,
+
+  playBgm,
+
+  setBgmEnabled,
+
+  setSfxEnabled
+
+} from '../library/audioManager'
 
 export default function CharacterScreen(props) {
 
@@ -59,6 +69,16 @@ export default function CharacterScreen(props) {
     isGuestLockedChar,
 
     setScreen,
+
+    bgmOn,
+
+    setBgmOn,
+
+    sfxOn,
+
+    setSfxOn,
+
+    screen,
 
   } = props
 
@@ -397,6 +417,115 @@ export default function CharacterScreen(props) {
                 </div>
               )}
 
+
+              {settingsPage === '설정' && (
+                <div style={{
+                  fontSize: '0.82rem',
+                  color: '#5f5a55'
+                }}>
+
+                  <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    gap: 20
+                  }}>
+
+                    {/* 사운드 */}
+                    <div style={{ flex: 1 }}>
+                      <div style={{
+                        fontWeight: 800,
+                        marginBottom: 14,
+                        color: '#1a1814'
+                      }}>
+                        사운드
+                      </div>
+
+                      <div style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 22
+                      }}>
+                        <label style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+                          <input
+                            type="radio"
+                            name="bgm"
+                            checked={bgmOn}
+                            onChange={() => {
+                              setBgmOn(true)
+                              setBgmEnabled(true)
+
+                              if (screen === 'result') {
+                                playBgm('resultBgm', 0.32)
+                              } else if (screen !== 'intro') {
+                                playBgm('mainBgm', 0.30)
+                              }
+                            }}
+                          />
+                          ON
+                        </label>
+
+                        <label style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+                          <input
+                            type="radio"
+                            name="bgm"
+                            checked={!bgmOn}
+                            onChange={() => {
+                              setBgmOn(false)
+                              setBgmEnabled(false)
+                            }}
+                          />
+                          OFF
+                        </label>
+                      </div>
+                    </div>
+
+                    {/* 효과음 */}
+                    <div style={{ flex: 1 }}>
+                      <div style={{
+                        fontWeight: 800,
+                        marginBottom: 14,
+                        color: '#1a1814'
+                      }}>
+                        효과음
+                      </div>
+
+                      <div style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 22
+                      }}>
+                        <label style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+                          <input
+                            type="radio"
+                            name="sfx"
+                            checked={sfxOn}
+                            onChange={() => {
+                              setSfxOn(true)
+                              setSfxEnabled(true)
+                            }}
+                          />
+                          ON
+                        </label>
+
+                        <label style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+                          <input
+                            type="radio"
+                            name="sfx"
+                            checked={!sfxOn}
+                            onChange={() => {
+                              setSfxOn(false)
+                              setSfxEnabled(false)
+                            }}
+                          />
+                          OFF
+                        </label>
+                      </div>
+                    </div>
+
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         )}

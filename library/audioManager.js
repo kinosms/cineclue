@@ -2,11 +2,9 @@ const SOUND_MAP = {
   click: '/click.mp3',
   modeclick: '/modeclick.mp3',
   correct: '/correct.mp3',
-  wrong: '/false.mp3',
+  wrong: '/wrong.mp3',
   hint: '/hint.mp3',
   flip: '/flip.mp3',
-  combo: '/combo.mp3',
-  result: '/result.mp3',
   bgm: '/intro.mp3',
   mainBgm: '/mainbgm.mp3',
   resultBgm: '/resultbgm.mp3',
@@ -18,7 +16,8 @@ const poolIndex = {}
 
 let bgmAudio = null
 let currentBgm = null
-let soundEnabled = true
+let bgmEnabled = true
+let sfxEnabled = true
 
 function createAudio(src) {
   const audio = new Audio(src)
@@ -44,17 +43,24 @@ function getPool(name, count = 4) {
 }
 
 
-export function setSoundEnabled(enabled) {
+export function setSfxEnabled(enabled) {
 
-  soundEnabled = enabled
-
-  if (!enabled) {
-
-    stopBgm()
-
-  }
+  sfxEnabled = enabled
 
 }
+
+export function isBgmEnabled() {
+
+  return bgmEnabled
+
+}
+
+export function isSfxEnabled() {
+
+  return sfxEnabled
+
+}
+
 
 
 export function setBgmSpeed(rate = 1) {
@@ -66,12 +72,6 @@ export function setBgmSpeed(rate = 1) {
 }
 
 
-
-export function isSoundEnabled() {
-
-  return soundEnabled
-
-}
 
 export function preloadSounds() {
 
@@ -87,7 +87,8 @@ export function preloadSounds() {
 
 export function playSound(name, volume = 0.45) {
   if (typeof window === 'undefined') return
-  if (!soundEnabled) return
+  if (!sfxEnabled) return
+  
 
   const pool = getPool(name, 4)
   if (!pool.length) return
@@ -108,7 +109,7 @@ export function playSound(name, volume = 0.45) {
 export function playBgm(name = 'mainBgm', volume = 0.35) {
 
   if (typeof window === 'undefined') return
-  if (!soundEnabled) return
+  if (!bgmEnabled) return
 
   const src = SOUND_MAP[name]
 
@@ -144,6 +145,35 @@ export function playBgm(name = 'mainBgm', volume = 0.35) {
 
 }
 
+
+function fadeVolume(audio, from, to, duration = 500, done) {
+
+  const start = performance.now()
+
+  function tick(now) {
+
+    const progress = Math.min((now - start) / duration, 1)
+
+    audio.volume = from + (to - from) * progress
+
+    if (progress < 1) {
+
+      requestAnimationFrame(tick)
+
+    } else {
+
+      audio.volume = to
+
+      done?.()
+
+    }
+
+  }
+
+  requestAnimationFrame(tick)
+
+}
+
 export function stopBgm() {
 
   if (!bgmAudio) return
@@ -172,3 +202,18 @@ export function setBgmVolume(volume = 0.40) {
   if (!bgmAudio) return
   bgmAudio.volume = volume
 }
+
+
+export function setBgmEnabled(enabled) {
+
+  bgmEnabled = enabled
+
+  if (!enabled) {
+
+    stopBgm()
+
+  }
+
+}
+
+

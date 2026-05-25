@@ -20,7 +20,11 @@ import {
 
   stopBgm,
 
-  setBgmSpeed
+  setBgmSpeed, 
+
+  setBgmEnabled,
+
+  setSfxEnabled
 
 } from '../library/audioManager'
 
@@ -944,6 +948,7 @@ export default function CineClue() {
     '개인정보 처리방침',
     '영화데이터 사용안내',
     '신고하기',
+    '설정',
     authUser ? '로그아웃' : '로그인'
   ]
 
@@ -1099,9 +1104,12 @@ function restoreAppSnapshot(options = {}) {
   
   const closeTrailer = () => {
     setTrailerKey(null)
-    playBgm('mainBgm', 0.30)
+    playBgm('mainBgm', 0.10)
 
   }
+
+  const [bgmOn, setBgmOn] = useState(true)
+  const [sfxOn, setSfxOn] = useState(true)
 
 
 
@@ -1744,7 +1752,7 @@ function restoreAppSnapshot(options = {}) {
   }
 
   if (mode) {
-    setBgmSpeed(1.4)
+    setBgmSpeed(1.3)
   } else {
     setBgmSpeed(1)
   }
@@ -3544,6 +3552,20 @@ function restoreAppSnapshot(options = {}) {
           setScreen={setScreen}
 
           isGuestLockedChar={isGuestLockedChar}
+
+          screen={screen}
+          
+          bgmOn={bgmOn}
+
+          setBgmOn={setBgmOn}
+
+          sfxOn={sfxOn}
+
+          setSfxOn={setSfxOn}
+
+          setBgmEnabled={setBgmEnabled}
+
+          setSfxEnabled={setSfxEnabled}
 
         />
 
