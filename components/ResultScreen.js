@@ -67,29 +67,18 @@ export default function ResultScreen(props) {
   const hasFail = results.some(r => !r.correct)
   const char = CHARS.find(c => c.id === selChar)
   const safeRankingSource = Array.isArray(ranking) ? ranking : []
-  const patchedRanking = ranking.map(r => {
-
-  const isMe =
-
-    String(r.user_id) === String(currentUser?.userId) &&
-
-    String(r.character_id) === String(selChar)
-
-  if (isMe) {
-
-    return {
-
-      ...r,
-
-      score: displayScore || r.score
-
+  const patchedRanking = safeRankingSource.map(r => {
+    const isMe =
+      String(r.user_id) === String(currentUser?.userId) &&
+      String(r.character_id) === String(selChar)
+    if (isMe) {
+      return {
+        ...r,
+        score: displayScore || r.score
+      }
     }
-
-  }
-
-  return r
-
-})
+    return r
+  })
 
 const sortedRanking = [...patchedRanking].sort(
 
