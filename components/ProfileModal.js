@@ -33,6 +33,13 @@ export default function ProfileModal(props) {
     setCollectionTargetUserId
   } = props
 
+  const collectionCount =
+
+  profileUser?.collectionCount ??
+
+  currentUser?.collectionCount ??
+
+  0
 
 
   if (!showProfile) return null

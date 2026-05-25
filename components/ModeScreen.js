@@ -101,6 +101,11 @@ export default function ModeScreen(props) {
                 {/* 트로피 */}
 
                 <button
+                  onClick={() => {
+
+                  alert('준비중입니다')
+
+                }}
 
                   style={{
 
