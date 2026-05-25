@@ -85,7 +85,7 @@ export function preloadSounds() {
 
 }
 
-export function playSound(name, volume = 0.45) {
+export function playSound(name, volume = 0.65) {
   if (typeof window === 'undefined') return
   if (!sfxEnabled) return
   
@@ -99,14 +99,14 @@ export function playSound(name, volume = 0.45) {
   poolIndex[name] = (index + 1) % pool.length
 
   try {
-    audio.pause()
     audio.currentTime = 0
     audio.volume = volume
-    audio.play().catch(() => {})
+    const p = audio.play()
+    if (p) p.catch(() => {})
   } catch (e) {}
 }
 
-export function playBgm(name = 'mainBgm', volume = 0.35) {
+export function playBgm(name = 'mainBgm', volume = 0.25) {
 
   if (typeof window === 'undefined') return
   if (!bgmEnabled) return
