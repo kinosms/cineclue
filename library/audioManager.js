@@ -17,6 +17,7 @@ const poolIndex = {}
 
 let bgmAudio = null
 let currentBgm = null
+let soundEnabled = true
 
 function createAudio(src) {
   const audio = new Audio(src)
@@ -41,6 +42,25 @@ function getPool(name, count = 4) {
   return audioPools[name]
 }
 
+
+export function setSoundEnabled(enabled) {
+
+  soundEnabled = enabled
+
+  if (!enabled) {
+
+    stopBgm()
+
+  }
+
+}
+
+export function isSoundEnabled() {
+
+  return soundEnabled
+
+}
+
 export function preloadSounds() {
 
   Object.keys(SOUND_MAP).forEach(name => {
@@ -55,6 +75,7 @@ export function preloadSounds() {
 
 export function playSound(name, volume = 0.45) {
   if (typeof window === 'undefined') return
+  if (!soundEnabled) return
 
   const pool = getPool(name, 4)
   if (!pool.length) return
@@ -75,6 +96,7 @@ export function playSound(name, volume = 0.45) {
 export function playBgm(name = 'mainBgm', volume = 0.35) {
 
   if (typeof window === 'undefined') return
+  if (!soundEnabled) return
 
   const src = SOUND_MAP[name]
 
