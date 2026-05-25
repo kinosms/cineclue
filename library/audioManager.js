@@ -1,14 +1,4 @@
-// audioManager.js
 
-export function stopSound(audio) {
-
-  if (!audio) return
-
-  audio.pause()
-
-  audio.currentTime = 0
-
-}
 
 const SOUND_MAP = {
   click: '/click.mp3',

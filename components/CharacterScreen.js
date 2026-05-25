@@ -1,6 +1,6 @@
 'use client'
 
-import { playSound } from './lib/audioManager'
+import { playSound } from '../library/audioManager'
 
 export default function CharacterScreen(props) {
 
