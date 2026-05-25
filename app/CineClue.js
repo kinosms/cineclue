@@ -980,6 +980,10 @@ export default function CineClue() {
   const [authChecked, setAuthChecked] = useState(false)
   const [showMergeModal, setShowMergeModal] = useState(false)
 
+  const SNAPSHOT_KEY = 'cineclue_app_snapshot'
+  const [isRestoring, setIsRestoring] = useState(false)
+  const isPausedRef = useRef(false)
+
   function saveCurrentSession({
     screen,
     selChar
@@ -992,6 +996,76 @@ export default function CineClue() {
       })
     )
   }
+
+  function saveAppSnapshot() {
+  const snapshot = {
+    screen,
+    selChar,
+    users,
+    selGrade,
+    pool,
+    qi,
+    sh,
+    score,
+    answered,
+    fb,
+    fbt,
+    input,
+    mode,
+    comboStreak,
+    crazyStreak,
+    roundStartScore,
+    results,
+    quizMode,
+    choices,
+    progress,
+    buttonActive,
+    timerStartedAt,
+    questionReady,
+    savedAt: Date.now()
+  }
+
+  localStorage.setItem(
+    SNAPSHOT_KEY,
+    JSON.stringify(snapshot)
+  )
+}
+
+function restoreAppSnapshot() {
+  const saved = localStorage.getItem(SNAPSHOT_KEY)
+  if (!saved) return
+
+  try {
+    const s = JSON.parse(saved)
+
+    if (s.screen) setScreen(s.screen)
+    if (s.selChar) setSelChar(s.selChar)
+    if (Array.isArray(s.users)) setUsers(s.users)
+    if (s.selGrade) setSelGrade(s.selGrade)
+    if (Array.isArray(s.pool)) setPool(s.pool)
+
+    setQi(s.qi ?? 0)
+    setSh(s.sh ?? 1)
+    setScore(s.score ?? 0)
+    setAnswered(s.answered ?? false)
+    setFb(s.fb ?? '')
+    setFbt(s.fbt ?? '')
+    setInput(s.input ?? '')
+    setMode(s.mode ?? null)
+    setComboStreak(s.comboStreak ?? 0)
+    setCrazyStreak(s.crazyStreak ?? 0)
+    setRoundStartScore(s.roundStartScore ?? 0)
+    setResults(Array.isArray(s.results) ? s.results : [])
+    setQuizMode(s.quizMode ?? 'subjective')
+    setChoices(Array.isArray(s.choices) ? s.choices : [])
+    setProgress(s.progress ?? 0)
+    setButtonActive(s.buttonActive ?? false)
+    setTimerStartedAt(s.timerStartedAt ?? null)
+    setQuestionReady(s.questionReady ?? false)
+  } catch (e) {
+    console.error('restore snapshot failed', e)
+  }
+}
 
 
 
@@ -1020,6 +1094,8 @@ export default function CineClue() {
     }
 
   }, [])
+
+
 
   const [selChar, setSelChar] = useState(null)
   const [users, setUsers] = useState([])
@@ -1618,61 +1694,86 @@ export default function CineClue() {
 
 
   useEffect(() => {
+  const handleVisibilityChange = async () => {
+    if (document.hidden) {
+      isPausedRef.current = true
 
-    const onVisible = async () => {
+      saveAppSnapshot()
 
-      if (screen !== 'quiz') return
+      clearInterval(timerRef.current)
 
-      if (document.hidden) {
-
-        clearInterval(timerRef.current)
-
-        return
-
-      }
-
-      setShowSpinner(true)
-
-
-      try {
-
-        await supabase.auth.getSession()
-
-        await new Promise(r =>
-          requestAnimationFrame(r)
-        )
-
-        await new Promise(r =>
-          setTimeout(r, 300)
-        )
-
-      } catch (e) {
-
-        console.error(e)
-
-      } finally {
-        setResumeTick(v => v + 1)
-        setShowSpinner(false)
-
-      }
-
+      return
     }
 
-    document.addEventListener(
+    setIsRestoring(true)
+    setShowSpinner(true)
+
+    try {
+      await supabase.auth.getSession()
+
+      restoreAppSnapshot()
+
+      await new Promise(r => requestAnimationFrame(r))
+
+      await new Promise(r => setTimeout(r, 300))
+
+      isPausedRef.current = false
+
+      setResumeTick(v => v + 1)
+    } catch (e) {
+      console.error('resume failed', e)
+    } finally {
+      setShowSpinner(false)
+      setIsRestoring(false)
+    }
+  }
+
+  document.addEventListener(
+    'visibilitychange',
+    handleVisibilityChange
+  )
+
+  window.addEventListener(
+    'pagehide',
+    saveAppSnapshot
+  )
+
+  return () => {
+    document.removeEventListener(
       'visibilitychange',
-      onVisible
+      handleVisibilityChange
     )
 
-    return () => {
-
-      document.removeEventListener(
-        'visibilitychange',
-        onVisible
-      )
-
-    }
-
-  }, [screen])
+    window.removeEventListener(
+      'pagehide',
+      saveAppSnapshot
+    )
+  }
+}, [
+  screen,
+  selChar,
+  users,
+  selGrade,
+  pool,
+  qi,
+  sh,
+  score,
+  answered,
+  fb,
+  fbt,
+  input,
+  mode,
+  comboStreak,
+  crazyStreak,
+  roundStartScore,
+  results,
+  quizMode,
+  choices,
+  progress,
+  buttonActive,
+  timerStartedAt,
+  questionReady
+])
 
 
 
@@ -1683,6 +1784,10 @@ export default function CineClue() {
     if (!questionReady) return
 
     if (answered) return
+
+    if (isPausedRef.current) return
+
+    if (isRestoring) return
 
     clearInterval(timerRef.current)
 
@@ -1697,6 +1802,8 @@ export default function CineClue() {
     }
 
     timerRef.current = setInterval(() => {
+      if (isPausedRef.current) return
+      if (isRestoring) return
 
       const elapsed =
         (Date.now() - start) / 1000
