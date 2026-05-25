@@ -56,6 +56,17 @@ export function setSoundEnabled(enabled) {
 
 }
 
+
+export function setBgmSpeed(rate = 1) {
+
+  if (!bgmAudio) return
+
+  bgmAudio.playbackRate = rate
+
+}
+
+
+
 export function isSoundEnabled() {
 
   return soundEnabled

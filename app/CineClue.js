@@ -12,8 +12,9 @@ import ResultScreen from '../components/ResultScreen'
 import Collection from '../components/Collection'
 import MovieFlipCard from '../components/MovieFlipCard'
 import ProfileModal from '../components/ProfileModal'
-import { playSound } from '../library/audioManager'
 import {
+
+  playSound,
 
   playBgm,
 
