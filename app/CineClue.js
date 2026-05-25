@@ -1456,6 +1456,43 @@ function restoreAppSnapshot(options = {}) {
 
 
 
+  function resumeBgmByScreen() {
+
+    if (screen === 'intro') return
+
+    if (screen === 'result') {
+
+      playBgm('resultBgm', 0.25)
+
+      return
+
+    }
+
+    if (screen === 'collection') {
+
+      if (collectionReturnScreen === 'result') {
+
+        playBgm('resultBgm', 0.25)
+
+      } else {
+
+        playBgm('mainBgm', 0.22)
+
+      }
+
+      return
+
+    }
+
+    playBgm('mainBgm', 0.22)
+
+  }
+
+
+
+
+
+
   // 로그인 //
   useEffect(() => {
     if (!supabase) return
@@ -1892,6 +1929,24 @@ function restoreAppSnapshot(options = {}) {
       isPausedRef.current = false
 
       setResumeTick(v => v + 1)
+
+      const resumeAudioOnce = () => {
+
+        resumeBgmByScreen()
+
+        window.removeEventListener('pointerdown', resumeAudioOnce)
+
+        window.removeEventListener('touchstart', resumeAudioOnce)
+
+        window.removeEventListener('click', resumeAudioOnce)
+
+      }
+
+      window.addEventListener('pointerdown', resumeAudioOnce, { once: true })
+
+      window.addEventListener('touchstart', resumeAudioOnce, { once: true })
+
+      window.addEventListener('click', resumeAudioOnce, { once: true })
 
     } catch (e) {
 

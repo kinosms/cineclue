@@ -217,3 +217,14 @@ export function setBgmEnabled(enabled) {
 }
 
 
+export function resumeBgm(name = 'mainBgm', volume = 0.25) {
+
+  if (typeof window === 'undefined') return
+
+  if (!bgmEnabled) return
+
+  playBgm(name, volume)
+
+}
+
+
