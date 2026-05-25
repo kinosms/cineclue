@@ -146,56 +146,16 @@ export function playBgm(name = 'mainBgm', volume = 0.25) {
 }
 
 
-function fadeVolume(audio, from, to, duration = 500, done) {
-
-  const start = performance.now()
-
-  function tick(now) {
-
-    const progress = Math.min((now - start) / duration, 1)
-
-    audio.volume = from + (to - from) * progress
-
-    if (progress < 1) {
-
-      requestAnimationFrame(tick)
-
-    } else {
-
-      audio.volume = to
-
-      done?.()
-
-    }
-
-  }
-
-  requestAnimationFrame(tick)
-
-}
-
 export function stopBgm() {
-
   if (!bgmAudio) return
 
-  const oldAudio = bgmAudio
+  try {
+    bgmAudio.pause()
+    bgmAudio.currentTime = 0
+  } catch (e) {}
 
-  fadeVolume(oldAudio, oldAudio.volume, 0, 500, () => {
-
-    oldAudio.pause()
-
-    oldAudio.currentTime = 0
-
-    if (bgmAudio === oldAudio) {
-
-      bgmAudio = null
-
-      currentBgm = null
-
-    }
-
-  })
-
+  bgmAudio = null
+  currentBgm = null
 }
 
 export function setBgmVolume(volume = 0.40) {
