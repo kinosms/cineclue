@@ -8,12 +8,15 @@ const SOUND_MAP = {
   combo: '/combo.mp3',
   result: '/result.mp3',
   bgm: '/intro.mp3',
+  mainBgm: '/mainbgm.mp3',
+  resultBgm: '/resultbgm.mp3',
 }
 
 const audioPools = {}
 const poolIndex = {}
 
 let bgmAudio = null
+let currentBgm = null
 
 function createAudio(src) {
   const audio = new Audio(src)
@@ -39,10 +42,15 @@ function getPool(name, count = 4) {
 }
 
 export function preloadSounds() {
+
   Object.keys(SOUND_MAP).forEach(name => {
-    if (name === 'bgm') return
+
+    if (name === 'bgm' || name === 'mainBgm' || name === 'resultBgm') return
+
     getPool(name, 4)
+
   })
+
 }
 
 export function playSound(name, volume = 0.45) {
@@ -64,28 +72,66 @@ export function playSound(name, volume = 0.45) {
   } catch (e) {}
 }
 
-export function playBgm(volume = 0.40) {
+export function playBgm(name = 'mainBgm', volume = 0.35) {
+
   if (typeof window === 'undefined') return
 
-  if (bgmAudio && !bgmAudio.paused) return
+  const src = SOUND_MAP[name]
 
-  if (!bgmAudio) {
-    bgmAudio = new Audio(SOUND_MAP.bgm)
-    bgmAudio.loop = true
-    bgmAudio.preload = 'auto'
-    bgmAudio.load()
+  if (!src) return
+
+  // 같은 BGM이 이미 재생 중이면 그대로 유지
+
+  if (bgmAudio && currentBgm === name && !bgmAudio.paused) return
+
+  // 다른 BGM이 재생 중이면 정지
+
+  if (bgmAudio) {
+
+    bgmAudio.pause()
+
+    bgmAudio.currentTime = 0
+
   }
 
+  bgmAudio = new Audio(src)
+
+  bgmAudio.loop = true
+
+  bgmAudio.preload = 'auto'
+
+  bgmAudio.load()
+
   bgmAudio.volume = volume
+
+  currentBgm = name
+
   bgmAudio.play().catch(() => {})
+
 }
 
 export function stopBgm() {
+
   if (!bgmAudio) return
 
-  bgmAudio.pause()
-  bgmAudio.currentTime = 0
-  bgmAudio = null
+  const oldAudio = bgmAudio
+
+  fadeVolume(oldAudio, oldAudio.volume, 0, 500, () => {
+
+    oldAudio.pause()
+
+    oldAudio.currentTime = 0
+
+    if (bgmAudio === oldAudio) {
+
+      bgmAudio = null
+
+      currentBgm = null
+
+    }
+
+  })
+
 }
 
 export function setBgmVolume(volume = 0.40) {

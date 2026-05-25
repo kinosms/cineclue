@@ -13,6 +13,7 @@ import Collection from '../components/Collection'
 import MovieFlipCard from '../components/MovieFlipCard'
 import ProfileModal from '../components/ProfileModal'
 import { playSound } from '../library/audioManager'
+import { playBgm, stopBgm } from './library/audioManager'
 
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || ''
 const SUPABASE_KEY = process.env.NEXT_PUBLIC_SUPABASE_KEY || ''
@@ -1224,6 +1225,51 @@ function restoreAppSnapshot(options = {}) {
   }
 
   const [isLoggingOut, setIsLoggingOut] = useState(false)
+
+
+
+
+
+  useEffect(() => {
+
+  if (screen === 'intro') {
+
+    stopBgm()
+
+    return
+
+  }
+
+  if (screen === 'result') {
+
+    playBgm('resultBgm', 0.32)
+
+    return
+
+  }
+
+  if (screen === 'collection') {
+
+    if (collectionReturnScreen === 'result') {
+
+      playBgm('resultBgm', 0.32)
+
+    } else {
+
+      playBgm('mainBgm', 0.30)
+
+    }
+
+    return
+
+  }
+
+  playBgm('mainBgm', 0.30)
+
+}, [screen, collectionReturnScreen])
+
+
+
 
 
   const level =

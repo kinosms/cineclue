@@ -4,10 +4,6 @@ import {
 
   playSound,
 
-  playBgm,
-
-  stopBgm,
-
   preloadSounds
 
 } from '../library/audioManager'
@@ -27,17 +23,6 @@ export default function IntroScreen({
 }, [])
 
 
-  useEffect(() => {
-
-  playBgm()
-
-  return () => {
-
-    stopBgm()
-
-  }
-
-}, [])
 
   useEffect(() => {
     setMounted(true)

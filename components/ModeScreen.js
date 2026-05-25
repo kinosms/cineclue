@@ -311,6 +311,7 @@ export default function ModeScreen(props) {
                         setShowLogin(true)
                         return
                       }
+                      playSound('modeclick')
                       toggleGrade(m.key)
                     }}
                     style={{
