@@ -28,7 +28,9 @@ export default function ProfileModal(props) {
     currentUser,
     skipResultAnimation,
     setSkipResultAnimation,
-    setCollectionReturnScreen
+    setCollectionReturnScreen,
+    authUser,
+    setCollectionTargetUserId
   } = props
 
 
@@ -512,11 +514,6 @@ export default function ProfileModal(props) {
 
                     setSkipResultAnimation(true)
                     setCollectionReturnScreen('result')
-                    
-                    setCollectionTargetUserId(
-                      profileUser?.user_id || authUser?.id
-                    )
-
                     setScreen('collection')
                     setTimeout(() => {
                       setShowProfile(false)

@@ -3837,6 +3837,8 @@ function restoreAppSnapshot(options = {}) {
 
         skipResultAnimation={skipResultAnimation}
         setSkipResultAnimation={setSkipResultAnimation}
+        authUser={authUser}
+        setCollectionTargetUserId={setCollectionTargetUserId}
 
       />
 
