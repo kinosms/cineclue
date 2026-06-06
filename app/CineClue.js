@@ -1,5 +1,5 @@
 'use client'
-
+import { App } from '@capacitor/app'
 import { useState, useEffect, useRef } from 'react'
 import { createClient } from '@supabase/supabase-js'
 import FlashLetterHint from './FlashLetterHint'
@@ -1514,7 +1514,41 @@ function restoreAppSnapshot(options = {}) {
   }
 
 
+// 안드로이드 뒤로가기 버튼 처리
 
+useEffect(() => {
+
+  let listener
+
+  const setupBackButton = async () => {
+
+    listener = await App.addListener('backButton', () => {
+
+      const shouldExit = window.confirm(
+
+        '앱을 종료하시겠습니까?'
+
+      )
+
+      if (shouldExit) {
+
+        App.exitApp()
+
+      }
+
+    })
+
+  }
+
+  setupBackButton()
+
+  return () => {
+
+    listener?.remove?.()
+
+  }
+
+}, [])
 
 
 
