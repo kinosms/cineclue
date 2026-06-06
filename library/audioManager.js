@@ -9,6 +9,7 @@ const SOUND_MAP = {
   mainBgm: '/mainbgm.mp3',
   resultBgm: '/resultbgm.mp3',
   arrange: '/cardarrange.mp3',
+  comboBgm: '/combo.mp3'
 }
 
 const audioPools = {}

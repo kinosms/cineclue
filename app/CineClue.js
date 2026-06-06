@@ -1812,19 +1812,24 @@ function restoreAppSnapshot(options = {}) {
     setChoices(pool[qi].choices || [])
   }, [screen, qi, quizMode, pool])
 
+
+
+  
   useEffect(() => {
 
-  if (screen !== 'quiz') {
-    setBgmSpeed(1)
-    return
-  }
+    if (screen !== 'quiz') return
 
-  if (mode) {
-    setBgmSpeed(2)
-  } else {
-    setBgmSpeed(1)
-  }
-}, [screen, mode])
+    if (mode) {
+
+      playBgm('comboBgm', 0.18)
+
+    } else {
+
+      playBgm('mainBgm', 0.18)
+
+    }
+
+  }, [screen, mode])
 
   
 
