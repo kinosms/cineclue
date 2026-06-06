@@ -78,9 +78,7 @@ export function preloadSounds() {
 
   Object.keys(SOUND_MAP).forEach(name => {
 
-    if (name === 'bgm' || name === 'mainBgm' || name === 'resultBgm') return
-
-    getPool(name, 4)
+    getPool(name, name.includes('Bgm') ? 1 : 4)
 
   })
 
