@@ -237,7 +237,7 @@ export function resetSfxPool() {
 
         audio.pause()
 
-        audio.src = ''
+        audio.removeAttribute('src')
 
         audio.load()
 
@@ -255,7 +255,11 @@ export function resetSfxPool() {
 
   })
 
-  preloadSounds()
+  setTimeout(() => {
+
+    preloadSounds()
+
+  }, 50)
 
 }
 
