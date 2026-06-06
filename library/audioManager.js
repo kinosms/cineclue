@@ -86,24 +86,63 @@ export function preloadSounds() {
 }
 
 export function playSound(name, volume = 0.65) {
+
   if (typeof window === 'undefined') return
+
   if (!sfxEnabled) return
-  
 
   const pool = getPool(name, 4)
+
   if (!pool.length) return
 
   const index = poolIndex[name] || 0
+
   const audio = pool[index]
 
   poolIndex[name] = (index + 1) % pool.length
 
   try {
+
+    audio.pause()
+
     audio.currentTime = 0
+
     audio.volume = volume
+
     const p = audio.play()
-    if (p) p.catch(() => {})
+
+    if (p) {
+
+      p.catch(() => {
+
+        // iOS에서 가끔 Audio 객체가 죽는 경우 대비
+
+        delete audioPools[name]
+
+        delete poolIndex[name]
+
+        const newPool = getPool(name, 4)
+
+        const retryAudio = newPool[0]
+
+        if (!retryAudio) return
+
+        try {
+
+          retryAudio.currentTime = 0
+
+          retryAudio.volume = volume
+
+          retryAudio.play().catch(() => {})
+
+        } catch (e) {}
+
+      })
+
+    }
+
   } catch (e) {}
+
 }
 
 export function playBgm(name = 'mainBgm', volume = 0.25) {
