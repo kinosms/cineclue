@@ -1,6 +1,12 @@
 'use client'
 
-import { playSound } from '../library/audioManager'
+import {
+
+  playSound,
+
+  pauseBgmForVideo
+
+} from '../library/audioManager'
 export default function MovieFlipCard(props) {
 
   const {
@@ -220,6 +226,7 @@ export default function MovieFlipCard(props) {
                           <span
                             onClick={(e) => {
                               e.stopPropagation()
+                              pauseBgmForVideo()
                               setTrailerKey(movieCard.youtubeKey)
                             }}
                             style={{

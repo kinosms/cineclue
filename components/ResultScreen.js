@@ -1,6 +1,6 @@
 'use client'
 
-import { playSound } from '../library/audioManager'
+import { playSound} from '../library/audioManager'
 
 export default function ResultScreen(props) {
 
@@ -58,7 +58,8 @@ export default function ResultScreen(props) {
     loadRanking,
     collectionTargetUserId,
     setCollectionTargetUserId, 
-    setCollectionReturnScreen
+    setCollectionReturnScreen,
+    showAppToast
   } = props
 
   const safeUsers = Array.isArray(users) ? users : []
@@ -148,7 +149,7 @@ const sortedRanking = [...patchedRanking].sort(
 
                 if (!authUser) {
 
-                  alert('로그인 후 이용 가능합니다.')
+                  showAppToast('로그인 후 이용이 가능합니다')
 
                   return
 
@@ -630,7 +631,7 @@ const sortedRanking = [...patchedRanking].sort(
                                     
                                     if (!authUser) {
 
-                                      alert('로그인 후 이용 가능합니다.')
+                                      showAppToast('로그인 후 이용이 가능합니다')
 
                                       return
 

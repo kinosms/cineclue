@@ -456,9 +456,9 @@ export default function CharacterScreen(props) {
                               setBgmEnabled(true)
 
                               if (screen === 'result') {
-                                playBgm('resultBgm', 0.32)
+                                playBgm('resultBgm', 0.25)
                               } else if (screen !== 'intro') {
-                                playBgm('mainBgm', 0.30)
+                                playBgm('mainBgm', 0.25)
                               }
                             }}
                           />

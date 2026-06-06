@@ -1098,11 +1098,28 @@ function restoreAppSnapshot(options = {}) {
   const [showReportToast, setShowReportToast] = useState(false)
   const [showSettings, setShowSettings] = useState(false)
   const [settingsPage, setSettingsPage] = useState(null)
+  const [showToast, setShowToast] = useState(false)
+  const [toastMessage, setToastMessage] = useState('')
+
+  const showAppToast = (message) => {
+
+    setToastMessage(message)
+
+    setShowToast(true)
+
+    setTimeout(() => {
+
+      setShowToast(false)
+
+    }, 1600)
+
+  }
   const [selectedSuggestion, setSelectedSuggestion] = useState(-1)
   const [profileStats, setProfileStats] = useState(null)
   const ERA_MODES = MODES.filter(m => m.type === 'era')
   const THEME_MODES = MODES.filter(m => m.type === 'theme')
   const [screen, setScreen] = useState('intro')
+
   
   const closeTrailer = () => {
     setTrailerKey(null)
@@ -1113,13 +1130,13 @@ function restoreAppSnapshot(options = {}) {
 
     if (screen === 'collection') {
       if (collectionReturnScreen === 'result') {
-        playBgm('resultBgm', 0.12)
+        playBgm('resultBgm', 0.25)
       } else {
-        playBgm('mainBgm', 0.12)
+        playBgm('mainBgm', 0.25)
       }
       return
     }
-    playBgm('mainBgm', 0.12)
+    playBgm('mainBgm', 0.25)
   }
 
   const [bgmOn, setBgmOn] = useState(true)
@@ -1278,7 +1295,7 @@ function restoreAppSnapshot(options = {}) {
 
   if (screen === 'result') {
 
-    playBgm('resultBgm', 0.12)
+    playBgm('resultBgm',25)
 
     return
 
@@ -1288,11 +1305,11 @@ function restoreAppSnapshot(options = {}) {
 
     if (collectionReturnScreen === 'result') {
 
-      playBgm('resultBgm', 0.12)
+      playBgm('resultBgm', 0.25)
 
     } else {
 
-      playBgm('mainBgm', 0.12)
+      playBgm('mainBgm', 0.25)
 
     }
 
@@ -1300,7 +1317,7 @@ function restoreAppSnapshot(options = {}) {
 
   }
 
-  playBgm('mainBgm', 0.12)
+  playBgm('mainBgm', 0.25)
 
 }, [screen, collectionReturnScreen, resumeTick])
 
@@ -1464,7 +1481,7 @@ function restoreAppSnapshot(options = {}) {
 
     if (screen === 'result') {
 
-      playBgm('resultBgm', 0.12)
+      playBgm('resultBgm', 0.25)
 
       return
 
@@ -1474,11 +1491,11 @@ function restoreAppSnapshot(options = {}) {
 
       if (collectionReturnScreen === 'result') {
 
-        playBgm('resultBgm', 0.12)
+        playBgm('resultBgm', 0.25)
 
       } else {
 
-        playBgm('mainBgm', 0.12)
+        playBgm('mainBgm', 0.25)
 
       }
 
@@ -1486,7 +1503,7 @@ function restoreAppSnapshot(options = {}) {
 
     }
 
-    playBgm('mainBgm', 0.12)
+    playBgm('mainBgm', 0.25)
 
   }
 
@@ -3653,6 +3670,8 @@ function restoreAppSnapshot(options = {}) {
 
           posterCount={posterCount}
 
+          showAppToast={showAppToast}
+
         />
 
       )}
@@ -3848,6 +3867,8 @@ function restoreAppSnapshot(options = {}) {
           collectionTargetUserId={collectionTargetUserId}
           setCollectionTargetUserId={setCollectionTargetUserId}
           setCollectionReturnScreen={setCollectionReturnScreen}
+
+          showAppToast={showAppToast}
         />
 
       )}
@@ -3999,6 +4020,46 @@ function restoreAppSnapshot(options = {}) {
         setTrailerKey={setTrailerKey}
 
       />
+
+
+      {showToast && (
+
+        <div style={{
+
+          position: 'fixed',
+
+          left: '50%',
+
+          bottom: 90,
+
+          transform: 'translateX(-50%)',
+
+          background: 'rgba(30,30,30,0.92)',
+
+          color: '#fff',
+
+          padding: '12px 18px',
+
+          borderRadius: 999,
+
+          fontSize: '0.78rem',
+
+          fontWeight: 700,
+
+          zIndex: 99999,
+
+          boxShadow: '0 8px 24px rgba(0,0,0,0.18)',
+
+          backdropFilter: 'blur(8px)'
+
+        }}>
+
+          {toastMessage}
+
+        </div>
+
+      )}
+
     </>
 
 

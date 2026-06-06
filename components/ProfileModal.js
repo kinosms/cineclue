@@ -1,13 +1,14 @@
 'use client'
 
 import MovieFlipCard from './MovieFlipCard'
-import { playSound } from '../library/audioManager'
+import { playSound, pauseBgmForVideo } from '../library/audioManager'
 
 export default function ProfileModal(props) {
 
   const {
     showProfile,
     setShowProfile,
+    setToastMessage,
     movieCard,
     showMovieCard,
     setShowMovieCard,
@@ -31,7 +32,8 @@ export default function ProfileModal(props) {
     setSkipResultAnimation,
     setCollectionReturnScreen,
     authUser,
-    setCollectionTargetUserId
+    setCollectionTargetUserId,
+    showAppToast
   } = props
 
 
@@ -634,6 +636,7 @@ export default function ProfileModal(props) {
               }}>
 
                 <div onClick={() => {
+                  pauseBgmForVideo()
                   setTrailerKey(recommendMovie.youtubeKey)
                 }}
 

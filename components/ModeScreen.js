@@ -32,7 +32,11 @@ export default function ModeScreen(props) {
 
     posterCount,
 
-    setCollectionReturnScreen
+    setCollectionReturnScreen,
+
+    setToastMessage,
+
+    showAppToast
 
   } = props
 
@@ -101,7 +105,7 @@ export default function ModeScreen(props) {
                 <button
                   onClick={() => {
 
-                  alert('준비중입니다')
+                  showAppToast('준비중입니다')
 
                 }}
 
@@ -149,7 +153,7 @@ export default function ModeScreen(props) {
 
                     if (!authUser) {
 
-                      alert('로그인 후 이용 가능합니다.')
+                      showAppToast('로그인 후 이용이 가능합니다')
 
                       return
 
@@ -255,7 +259,7 @@ export default function ModeScreen(props) {
                     key={m.key}
                     onClick={() => {
                       if (locked) {
-                        alert('로그인 후 이용 가능합니다.')
+                        showAppToast('로그인 후 이용이 가능합니다')
                         return
                       }
                       playSound('modeclick')

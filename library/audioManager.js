@@ -106,7 +106,7 @@ export function playSound(name, volume = 0.65) {
   } catch (e) {}
 }
 
-export function playBgm(name = 'mainBgm', volume = 0.15) {
+export function playBgm(name = 'mainBgm', volume = 0.25) {
 
   if (typeof window === 'undefined') return
   if (!bgmEnabled) return
@@ -219,4 +219,17 @@ export function resetSfxPool() {
   preloadSounds()
 
 }
+
+
+
+export function pauseBgmForVideo() {
+
+  if (bgmAudio) {
+
+    bgmAudio.pause()
+
+  }
+
+}
+
 

@@ -1,5 +1,13 @@
 'use client'
-import { playSound } from '../library/audioManager'
+import {
+
+  playSound,
+
+  pauseBgmForVideo
+
+} from '../library/audioManager'
+
+
 export default function QuizScreen(props) {
 
   const {
@@ -72,6 +80,10 @@ export default function QuizScreen(props) {
     selectedSuggestion,
 
     setSelectedSuggestion,
+
+    supabase,
+
+    safeQuery,
 
     allMovies,
 
@@ -151,6 +163,70 @@ export default function QuizScreen(props) {
   const safeSuggestions = suggestions || []
 
   const safeAllMovies = allMovies || []
+
+  const handleReport = async (reportType) => {
+
+  try {
+
+    setShowReportMenu(false)
+
+    const payload = {
+
+      movie_id: m?.id,
+
+      title: m?.title,
+
+      report_type: reportType,
+
+      user_id: currentUser?.userId ? String(currentUser.userId) : 'guest',
+
+      nickname: currentUser?.nickname || 'guest',
+
+      created_at: new Date().toISOString()
+
+    }
+
+    console.log('report payload:', payload)
+
+    const { data, error } = await supabase
+
+      .from('hint_reports')
+
+      .insert(payload)
+
+    if (error) {
+
+      console.error('report insert error:', error)
+
+      setShowReportToast(true)
+
+      setTimeout(() => {
+
+        setShowReportToast(false)
+
+      }, 1600)
+
+      return
+
+    }
+
+    console.log('report saved')
+
+    setShowReportToast(true)
+
+    setTimeout(() => {
+
+      setShowReportToast(false)
+
+    }, 1600)
+
+  } catch (err) {
+
+    console.error('report exception:', err)
+
+  }
+
+}
 
 
   return (
@@ -612,36 +688,7 @@ export default function QuizScreen(props) {
                         minWidth: 96
                       }}>
                         <button
-                          onClick={async () => {
-                            setShowReportMenu(false)
-                            await safeQuery(
-
-                              supabase
-
-                                .from('hint_reports')
-
-                                .insert({
-
-                                  movie_id: m.id,
-
-                                  title: m.title,
-
-                                  report_type: 'title',
-
-                                  user_id: String(currentUser.userId),
-
-                                  nickname: currentUser.nickname
-
-                                }),
-
-                              'report title error'
-
-                            )
-                            setShowReportToast(true)
-                            setTimeout(() => {
-                              setShowReportToast(false)
-                            }, 1600)
-                          }}
+                          onClick={() => handleReport('title')}
                           style={{
                             width: '100%',
                             border: 'none',
@@ -654,36 +701,7 @@ export default function QuizScreen(props) {
                         </button>
 
                         <button
-                          onClick={async () => {
-                            setShowReportMenu(false)
-                            await safeQuery(
-
-                              supabase
-
-                                .from('hint_reports')
-
-                                .insert({
-
-                                  movie_id: m.id,
-
-                                  title: m.title,
-
-                                  report_type: 'hint',
-
-                                  user_id: String(currentUser.userId),
-
-                                  nickname: currentUser.nickname
-
-                                }),
-
-                              'report hint error'
-
-                            )
-                            setShowReportToast(true)
-                            setTimeout(() => {
-                              setShowReportToast(false)
-                            }, 1600)
-                          }}
+                          onClick={() => handleReport('hint')}
                           style={{
                             width: '100%',
                             border: 'none',
@@ -1041,34 +1059,7 @@ export default function QuizScreen(props) {
                           }}>
                             {/* 제목 오류 */}
                             <button
-                              onClick={async () => {
-                                setShowReportMenu(false)
-                                await safeQuery(
-
-                                  supabase
-                                    .from('hint_reports')
-                                    .insert({
-
-                                      movie_id: m.id,
-
-                                      title: m.title,
-
-                                      report_type: 'title',
-
-                                      user_id: String(currentUser.userId),
-
-                                      nickname: currentUser.nickname
-
-                                    }),
-
-                                  'report title error'
-
-                                )
-                                setShowReportToast(true)
-                                setTimeout(() => {
-                                  setShowReportToast(false)
-                                }, 1600)
-                              }}
+                              onClick={() => handleReport('title')}
                               style={{
                                 width: '100%',
                                 border: 'none',
@@ -1084,36 +1075,7 @@ export default function QuizScreen(props) {
 
                             {/* 힌트 오류 */}
                             <button
-                              onClick={async () => {
-                                setShowReportMenu(false)
-                                await safeQuery(
-
-                                  supabase
-
-                                    .from('hint_reports')
-
-                                    .insert({
-
-                                      movie_id: m.id,
-
-                                      title: m.title,
-
-                                      report_type: 'hint',
-
-                                      user_id: String(currentUser.userId),
-
-                                      nickname: currentUser.nickname
-
-                                    }),
-
-                                  'report hint error'
-
-                                )
-                                setShowReportToast(true)
-                                setTimeout(() => {
-                                  setShowReportToast(false)
-                                }, 1600)
-                              }}
+                              onClick={() => handleReport('hint')}
                               style={{
                                 width: '100%',
                                 border: 'none',
@@ -1312,8 +1274,10 @@ export default function QuizScreen(props) {
                               </span>
                               {m.youtubeKey ? (
                                 <span
-                                  onClick={() => setTrailerKey(m.youtubeKey)
-                                  }
+                                  onClick={() => {
+                                    pauseBgmForVideo()
+                                    setTrailerKey(m.youtubeKey)
+                                  }}
                                   style={{
                                     cursor: 'pointer',
                                     color: '#c84f4f',
