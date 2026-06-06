@@ -1123,6 +1123,12 @@ function restoreAppSnapshot(options = {}) {
   
   const closeTrailer = () => {
     setTrailerKey(null)
+
+    if (screen === 'quiz' && mode) {
+      playBgm('comboBgm', 0.18)
+      return
+    }
+
     if (screen === 'result') {
       playBgm('resultBgm', 0.25)
       return
