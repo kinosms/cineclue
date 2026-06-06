@@ -1295,7 +1295,7 @@ function restoreAppSnapshot(options = {}) {
 
   if (screen === 'result') {
 
-    playBgm('resultBgm',25)
+    playBgm('resultBgm',0.25)
 
     return
 
