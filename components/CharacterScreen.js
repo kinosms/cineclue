@@ -328,8 +328,6 @@ export default function CharacterScreen(props) {
                   }} />
                   • 목숨은 20개로 시작하고, 부활시 10개로 시작합니다.
                   <br />
-                  • 캐릭터가 죽어도 삭제되어도 랭킹에는 유지됩니다.
-                  <br />
                   • 앱 로그인 유저는
                   <br />
                   <div style={{ paddingLeft: 16 }}>
