@@ -43,6 +43,12 @@ export const viewport = {
 export default function RootLayout({ children }) {
   return (
     <html lang="ko">
+      <head>
+        <meta
+          name="naver-site-verification"
+          content="005987edffa23f6c64fef9066b57a5f9e5da3ded"
+        />
+      </head>
       <body>
         <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9833499589161859"
           crossorigin="anonymous"></script>
