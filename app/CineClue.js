@@ -1148,7 +1148,7 @@ function restoreAppSnapshot(options = {}) {
     setTrailerKey(null)
 
     if (screen === 'quiz' && mode) {
-      playBgm('comboBgm', 0.18)
+      playBgm('comboBgm', 0.25)
       return
     }
 
@@ -2031,11 +2031,11 @@ useEffect(() => {
 
     if (mode) {
 
-      playBgm('comboBgm', 0.18)
+      playBgm('comboBgm', 0.25)
 
     } else {
 
-      playBgm('mainBgm', 0.18)
+      playBgm('mainBgm', 0.25)
 
     }
 
