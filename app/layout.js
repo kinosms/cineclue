@@ -1,6 +1,7 @@
 import './globals.css'
 import Script from 'next/script'
 
+
 export const metadata = {
 
   metadataBase: new URL('https://cineclue-gilt.vercel.app'),
@@ -8,6 +9,11 @@ export const metadata = {
   title: 'CineClue',
 
   description: '영화 좀 안다는 사림이면 도전!',
+
+  verification: {
+
+    google: 'N3XQxCylHXzYW5jko5Y820-IeNsoV5fmVmce4zDPfIc'
+     },
 
   openGraph: {
 
