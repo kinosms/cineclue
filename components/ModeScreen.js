@@ -266,7 +266,7 @@ export default function ModeScreen(props) {
                       toggleGrade(m.key)
                     }}
                     style={{
-                      height: 80,
+                      aspectRatio: '1.5 / 1',
                       borderRadius: 16,
                       overflow: 'hidden',
                       position: 'relative',
@@ -319,7 +319,7 @@ export default function ModeScreen(props) {
                       toggleGrade(m.key)
                     }}
                     style={{
-                      height: 80,
+                      aspectRatio: '1.5 / 1',
                       borderRadius: 16,
                       overflow: 'hidden',
                       position: 'relative',
