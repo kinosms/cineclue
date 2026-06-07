@@ -557,12 +557,6 @@ const sortedRanking = [...patchedRanking].sort(
                       {Array.from({ length: rankingRevealDone ? TOP_LIMIT : 5 }).map((_, i) => {
                         const r = safeRanking[i] || null
                         const char = r ? CHARS.find(c => c.id === r.character_id) : null
-                        const isDead =
-                          r &&
-                          !safeUsers.find(u =>
-                            String(u.userId) === String(r.user_id) &&
-                            String(u.charId) === String(r.character_id)
-                          )
                         const isMe =
                           r &&
                           String(r.user_id) === String(currentUser?.userId) &&
@@ -580,7 +574,6 @@ const sortedRanking = [...patchedRanking].sort(
                               background: isMe
                                 ? '#fff5f6'
                                 : '#fff',
-                              color: isMe ? '#e8808c' : '#1a1814',
                               padding: '12px 16px',
                               marginBottom: 8,
                               display: 'flex',
@@ -599,11 +592,25 @@ const sortedRanking = [...patchedRanking].sort(
                               width: 28,
                               height: 28,
                               borderRadius: '50%',
-                              background: '#f5f3ef',
+                              background:
+                              r?.rank === 1
+                                ? 'linear-gradient(135deg,#ffe89a,#ffd54f)'
+                                : r?.rank === 2
+                                  ? 'linear-gradient(135deg,#f7f7f7,#cfd8dc)'
+                                  : r?.rank === 3
+                                    ? 'linear-gradient(135deg,#f6d0a8,#d89b63)'
+                                    : '#f5f3ef',
                               display: 'flex',
                               alignItems: 'center',
                               justifyContent: 'center',
-                              border: '1.5px solid #e8e4dd',
+                              border:
+                                r?.rank === 1
+                                  ? '1.5px solid #f4c542'
+                                  : r?.rank === 2
+                                    ? '1.5px solid #b0bec5'
+                                    : r?.rank === 3
+                                      ? '1.5px solid #c7864e'
+                                      : '1.5px solid #e8e4dd',
                               flexShrink: 0
                             }}>
                               <span style={{
@@ -720,19 +727,13 @@ const sortedRanking = [...patchedRanking].sort(
                               <div style={{
                                 fontSize: '0.8rem',
                                 fontWeight: 700,
-                                color: r
-                                  ? isDead
-                                    ? '#b0aaa3'
-                                    : '#1a1814'
-                                  : '#c0bbb4',
+                                color: r ? '#1a1814' : '#c0bbb4',
                                 overflow: 'hidden',
                                 textOverflow: 'ellipsis',
                                 whiteSpace: 'nowrap'
                               }}>
                                 {r
-                                  ? isDead
-                                    ? `${r.nickname || char?.name || 'UNKNOWN'} 💀`
-                                    : (r.nickname || char?.name || 'USER')
+                                  ? (r.nickname || char?.name || 'USER')
                                   : '-'
                                 }
                               </div>

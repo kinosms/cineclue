@@ -568,60 +568,26 @@ async function getProfileStats(supabase, charId) {
 
 
 async function loadRanking({ supabase }) {
-  const {
-
-    data = []
-
-  } = await safeQuery(
-
+  const result = await safeQuery(
     supabase
-
-      .from('game_logs')
-
-      .select('id, user_id, character_id, score_earned, nickname')
-
-      .eq('log_type', 'result')
-
-      .not('score_earned', 'is', null),
-
+      .from('characters')
+      .select('id, auth_user_id, char_id, nickname, score')
+      .not('score', 'is', null)
+      .order('score', { ascending: false }),
     'load ranking'
-
   )
 
-  const map = {}
+  console.log('ranking result:', result)
 
-  data.forEach(d => {
-    const key = `${d.user_id}_${d.character_id}`
-    if (!map[key]) {
-      map[key] = {
-        user_id: d.user_id,
-        character_id: d.character_id,
-        score: d.score_earned,
-        nickname: d.nickname || null,
-        id: d.id
-      }
-    }
-    else {
-      if (d.id > map[key].id) {
-        map[key] = {
-          user_id: d.user_id,
-          character_id: d.character_id,
-          score: d.score_earned,
-          nickname: d.nickname || map[key].nickname,
-          id: d.id
-        }
-      }
-    }
-  })
+  const { data = [] } = result
 
-  return Object.values(map)
-    .map(d => ({
-      user_id: d.user_id,
-      character_id: d.character_id,
-      score: d.score,
-      nickname: d.nickname
-    }))
-    .sort((a, b) => b.score - a.score)
+  return data.map((d, index) => ({
+    user_id: d.auth_user_id,
+    character_id: d.char_id,
+    score: d.score || 0,
+    nickname: d.nickname,
+    rank: index + 1
+  }))
 }
 
 
@@ -1249,39 +1215,40 @@ function restoreAppSnapshot(options = {}) {
   const [ranking, setRanking] = useState([])
 
     async function loadRanking({ supabase } = {}) {
-      if (!supabase) return []
-      const { data = [] } = await safeQuery(
-        supabase
-          .from('game_logs')
-          .select('id, user_id, character_id, score_earned, nickname')
-          .eq('log_type', 'result')
-          .not('score_earned', 'is', null),
-        'load ranking'
-      )
 
-      const map = {}
-      data.forEach(d => {
-        const key = `${d.user_id}_${d.character_id}`
-        if (!map[key] || d.id > map[key].id) {
-          map[key] = {
-            user_id: d.user_id,
-            character_id: d.character_id,
-            score: d.score_earned ?? 0,
-            nickname: d.nickname || null,
-            id: d.id
-          }
-        }
-      })
+  if (!supabase) return []
 
-      return Object.values(map)
-        .map(d => ({
-          user_id: d.user_id,
-          character_id: d.character_id,
-          score: d.score,
-          nickname: d.nickname
-        }))
-        .sort((a, b) => b.score - a.score)
-    }
+  const { data = [] } = await safeQuery(
+
+    supabase
+
+      .from('characters')
+
+      .select('id, auth_user_id, char_id, nickname, score')
+
+      .not('score', 'is', null)
+
+      .order('score', { ascending: false }),
+
+    'load ranking'
+
+  )
+
+  return data.map((d, index) => ({
+
+    user_id: String(d.auth_user_id),
+
+    character_id: d.char_id,
+
+    score: d.score || 0,
+
+    nickname: d.nickname,
+
+    rank: index + 1
+
+  }))
+
+}
 
   const isLoggingOutRef = useRef(false)
   const [isLoadingCharacters, setIsLoadingCharacters] = useState(false)
