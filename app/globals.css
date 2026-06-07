@@ -205,3 +205,12 @@ input { font-family: inherit; outline: none; }
   transform: scale(0.96);
   opacity: 0.9;
 }
+
+
+.app-inner:has(.quiz-screen) {
+
+  overflow: hidden;
+
+  overscroll-behavior: auto;
+
+}

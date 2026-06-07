@@ -284,6 +284,11 @@ function isCorrect(inp, title, answers = []) {
   }
   return false
 }
+
+
+
+
+
 //스피너//
 function CharacterSpinner({ fadeOut }) {
   const [idx, setIdx] = useState(0)
@@ -873,71 +878,50 @@ export default function CineClue() {
 
   const loginGoogle = async () => {
 
+    setShowLogin(false)
+    setIsRestoring(true)
+
     localStorage.setItem(
-
       'cineclue_oauth_start',
-
       'true'
-
     )
 
     saveCurrentSession({
-
       screen,
-
       selChar
-
     })
 
     const { data, error } = await supabase.auth.signInWithOAuth({
-
       provider: 'google',
-
       options: {
-
         redirectTo: 'com.cineclue.app://auth',
         skipBrowserRedirect: true
-
       }
-
     })
 
-    console.log('CINECLUE_OAUTH_URL=', data?.url)
-
     if (error) {
-
       console.error('google oauth login error', error)
       return
     }
     if (data?.url) {
-
       await Browser.open({
-
         url: data.url
-
       })
-
     }
-
   }
 
   const loginKakao = async () => {
-
+    setShowLogin(false)
+    setIsRestoring(true)
 
     localStorage.setItem(
-
       'cineclue_oauth_start',
-
       'true'
-
     )
 
     saveCurrentSession({
-
       screen,
-
       selChar
-
     })
 
     const { data, error } = await supabase.auth.signInWithOAuth({
@@ -953,15 +937,10 @@ export default function CineClue() {
       return
     }
     if (data?.url) {
-
       await Browser.open({
-
         url: data.url
-
       })
-
     }
-
   }
 
 
@@ -999,35 +978,44 @@ export default function CineClue() {
   ]
 
   const logout = async () => {
+  isLoggingOutRef.current = true
+  setIsLoggingOut(true)
 
-    setIsLoggingOut(true)
-
-    try {
-
-      await supabase.auth.signOut()
-
-    } catch (e) {
-
-      console.error('logout failed', e)
-
-    }
-
-    setAuthUser(null)
-    setUsers([])
-    setSelChar(null)
-    setScreen('intro')
-    setShowLogin(false)
-
-    localStorage.removeItem('cineclue_oauth_start')
-    localStorage.removeItem('cineclue_session')
-    localStorage.removeItem('cineclue_current_session')
-    localStorage.removeItem('cineclue_app_snapshot')
-    sessionStorage.clear()
-
-      setTimeout(() => {
-        setIsLoggingOut(false)
-      }, 300)
+  try {
+    await supabase.auth.signOut()
+  } catch (e) {
+    console.error('logout failed', e)
   }
+
+  setAuthUser(null)
+  setUsers([])
+  setSelChar(null)
+  setTempChar(null)
+  setNickname('')
+  setScreen('intro')
+  setShowLogin(false)
+  setShowNameModal(false)
+  setShowMergeModal(false)
+  setProfileUser(null)
+  setProfileTarget(null)
+  setProfileStats(null)
+  setCollectionTargetUserId(null)
+
+  isPausedRef.current = false
+  setIsRestoring(false)
+
+  localStorage.removeItem('cineclue_oauth_start')
+  localStorage.removeItem('cineclue_session')
+  localStorage.removeItem('cineclue_current_session')
+  localStorage.removeItem('cineclue_app_snapshot')
+
+  sessionStorage.clear()
+
+  setTimeout(() => {
+    isLoggingOutRef.current = false
+    setIsLoggingOut(false)
+  }, 500)
+}
 
 
   const [authChecked, setAuthChecked] = useState(false)
@@ -1261,6 +1249,8 @@ function restoreAppSnapshot(options = {}) {
         .sort((a, b) => b.score - a.score)
     }
 
+  const isLoggingOutRef = useRef(false)
+  const [isLoadingCharacters, setIsLoadingCharacters] = useState(false)
   const resultSavedRef = useRef(false)
   const [hitEffect, setHitEffect] = useState(null)
   const scrollRef = useRef(null)
@@ -1510,6 +1500,52 @@ function restoreAppSnapshot(options = {}) {
     }
   }
 
+  async function enterCharacterScreen() {
+
+  setIsLoadingCharacters(true)
+
+  if (authUser?.id) {
+
+    const result = await supabase
+
+      .from('characters')
+
+      .select('*')
+
+      .eq('auth_user_id', authUser.id)
+
+    const loadedUsers = (result.data || []).map(c => ({
+
+      charId: c.char_id,
+
+      nickname: c.nickname,
+
+      score: c.score || 0,
+
+      lives: c.lives,
+
+      userId: c.auth_user_id,
+
+      isGuest: false
+
+    }))
+
+    setUsers(loadedUsers)
+
+  } else {
+
+    const guestUsers = loadUsers(null)
+
+    setUsers(guestUsers)
+
+  }
+
+  setIsLoadingCharacters(false)
+
+  setScreen('char')
+
+}
+
 
 
 
@@ -1550,43 +1586,59 @@ function restoreAppSnapshot(options = {}) {
 useEffect(() => {
   const setupDeepLinkLogin = async () => {
     const listener = await App.addListener('appUrlOpen', async (event) => {
-      console.log('CINECLUE_APP_URL_OPEN=', event.url)
 
       if (!event.url?.startsWith('com.cineclue.app://auth')) {
         return
       }
 
+      setShowLogin(false)
+      setIsLoggingOut(false)
+      isPausedRef.current = false
+
       const url = new URL(event.url)
       const code = url.searchParams.get('code')
 
-      console.log('CINECLUE_AUTH_CODE=', code)
-
-      if (!code) return
+      if (!code) {
+        setIsRestoring(false)
+        return
+      }
 
       const { error } = await supabase.auth.exchangeCodeForSession(code)
 
       if (error) {
-        console.error('CINECLUE_EXCHANGE_ERROR=', error)
+        setIsRestoring(false)
         return
       }
 
-      await Browser.close()
-
       const { data } = await supabase.auth.getSession()
+      const user = data?.session?.user ?? null
 
-      console.log(
-        'CINECLUE_SESSION_USER=',
-        data?.session?.user?.email
-      )
+      setAuthUser(user)
 
-      setAuthUser(data?.session?.user ?? null)
-      setShowLogin(false)
+      if (user) {
+        const result = await supabase
+          .from('characters')
+          .select('*')
+          .eq('auth_user_id', user.id)
 
-      localStorage.removeItem('cineclue_oauth_start')
+        const loadedUsers = (result.data || []).map(c => ({
+          charId: c.char_id,
+          nickname: c.nickname,
+          score: c.score || 0,
+          lives: c.lives,
+          userId: c.auth_user_id,
+          isGuest: false
+        }))
 
-      setTimeout(() => {
+        setUsers(loadedUsers)
+
+        localStorage.removeItem('cineclue_oauth_start')
+
         setScreen('char')
-      }, 100)
+        setIsRestoring(false)
+      }
+
+      Browser.close().catch(() => {})
     })
 
     return listener
@@ -1716,7 +1768,7 @@ useEffect(() => {
 
           if (!user) {
 
-            if (isLoggingOut) return
+            if (isLoggingOutRef.current) return
 
             const sessionResult = await supabase.auth.getSession()
 
@@ -1738,6 +1790,33 @@ useEffect(() => {
       subscription.unsubscribe()
 
   }, [supabase])
+
+useEffect(() => {
+  if (!authUser?.id || !supabase) return
+
+  const loadAuthCharacters = async () => {
+
+    const result = await supabase
+      .from('characters')
+      .select('*')
+      .eq('auth_user_id', authUser.id)
+
+    const data = result?.data || []
+
+    const loadedUsers = data.map(c => ({
+      charId: c.char_id,
+      nickname: c.nickname,
+      score: c.score || 0,
+      lives: c.lives,
+      userId: c.auth_user_id,
+      isGuest: false
+    }))
+
+    setUsers(loadedUsers)
+  }
+
+  loadAuthCharacters()
+}, [authUser?.id, supabase])
 
 
 
@@ -2019,10 +2098,25 @@ useEffect(() => {
 
   useEffect(() => {
   const pauseForBackground = () => {
+
     isPausedRef.current = true
-    saveAppSnapshot()
+
+    // OAuth 로그인 이동 중에는 현재 화면 저장 금지
+
+    if (
+
+      localStorage.getItem('cineclue_oauth_start') !== 'true'
+
+    ) {
+
+      saveAppSnapshot()
+
+    }
+
     clearInterval(timerRef.current)
+
     stopBgm()
+
   }
 
   const handleVisibilityChange = async () => {
@@ -2030,6 +2124,16 @@ useEffect(() => {
       pauseForBackground()
       return
     }
+
+     // OAuth 로그인 복귀 중에는 기존 앱 복원 로직 금지
+
+      if (localStorage.getItem('cineclue_oauth_start') === 'true') {
+
+        isPausedRef.current = false
+
+        return
+
+      }
 
     setIsRestoring(true)
 
@@ -3587,6 +3691,13 @@ useEffect(() => {
 
   return (
     <>
+
+      {isLoadingCharacters && (
+
+        <CharacterSpinner />
+
+      )}
+      
       {isRestoring && (
       <CharacterSpinner />
         )}
@@ -3595,11 +3706,7 @@ useEffect(() => {
       {screen === 'intro' && (
         <IntroScreen
 
-          onEnter={() => {
-
-            setScreen('char')
-
-          }}
+          onEnter={enterCharacterScreen}
 
           onLogin={() => setShowLogin(true)}
 

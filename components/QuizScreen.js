@@ -231,14 +231,17 @@ export default function QuizScreen(props) {
 
   return (
     <AppLayout>
-      <div style={{
+      <div 
+      className="quiz-screen"
+      style={{
         width: '100%',
         background: '#fff',
         display: 'flex',
         flexDirection: 'column',
         flex: 1,
         height: '100dvh',
-        overflow: 'hidden'
+        overflow: 'hidden',
+        WebkitOverflowScrolling: 'touch'
       }}>
 
         {/*퀴즈화면 시작시 스피너 사라짐*/}
@@ -570,13 +573,11 @@ export default function QuizScreen(props) {
           style={{
             flex: 1,
             minHeight: 0,
-            overflowY: 'auto',
-            pointerEvents: 'auto',
+            overflowY: 'scroll',
             WebkitOverflowScrolling: 'touch',
             padding: '12px 16px 24px',
             overflowAnchor: 'none',
             scrollBehavior: 'auto',
-            touchAction: 'pan-y'
           }}>
 
           {/* 힌트 리스트 영역 */}
@@ -1302,7 +1303,7 @@ export default function QuizScreen(props) {
                                     top: scrollRef.current.scrollHeight,
                                     behavior: 'smooth'
                                   })
-                                }, 120)
+                                }, 400)
                               }}
                               style={{
                                 marginTop: 10,
