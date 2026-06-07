@@ -4,7 +4,7 @@ import Script from 'next/script'
 
 export const metadata = {
 
-  metadataBase: new URL('https://cineclue-gilt.vercel.app'),
+  metadataBase: new URL('https://cine-clue.com'),
 
   title: 'CineClue',
 
