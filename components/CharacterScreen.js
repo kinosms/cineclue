@@ -540,6 +540,24 @@ export default function CharacterScreen(props) {
                   </div>
                 </div>
               )}
+
+              {settingsPage === '버전 정보' && (
+                <div style={{
+                  fontSize: '0.82rem',
+                  lineHeight: 1.8,
+                  color: '#5f5a55'
+                }}>
+                  <div style={{
+                    fontSize: '1.2rem',
+                    fontWeight: 900,
+                    marginBottom: 14,
+                    color: '#1a1814'
+                  }}>
+                    CineClue
+                  </div>
+                  버전 : Beta v0.9
+                </div>
+              )}
             </div>
           </div>
         )}
