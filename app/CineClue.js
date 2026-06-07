@@ -893,7 +893,7 @@ function blockWebLogin() {
 
   if (!isNativeApp()) {
 
-    showAppToast('CineClue앱을 이용해주세요.')
+    showAppToast('CineClue앱을 이용해 주세요')
 
     setShowLogin(false)
 
@@ -3874,6 +3874,38 @@ useEffect(() => {
 
       )
 
+       await safeQuery(
+
+      supabase
+
+        .from('game_logs')
+
+        .delete()
+
+        .eq('user_id', authUser.id)
+
+        .eq('character_id', charId),
+
+      'delete character game logs'
+
+    )
+
+    await safeQuery(
+
+      supabase
+
+        .from('user_genre_stats')
+
+        .delete()
+
+        .eq('user_id', authUser.id)
+
+        .eq('character_id', charId),
+
+      'delete user genre stats'
+
+    )
+
     } else {
 
       saveUsers(updated)
@@ -3912,7 +3944,7 @@ useEffect(() => {
 
             if (!isNativeApp()) {
 
-              showAppToast('CineClue앱을 이용해주세요.')
+              showAppToast('CineClue앱을 이용해 주세요')
 
               return
 
@@ -4475,7 +4507,11 @@ useEffect(() => {
 
           boxShadow: '0 8px 24px rgba(0,0,0,0.18)',
 
-          backdropFilter: 'blur(8px)'
+          backdropFilter: 'blur(8px)',
+
+          textAlign: 'center',
+
+          whiteSpace: 'pre-line'
 
         }}>
 

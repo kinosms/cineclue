@@ -678,16 +678,6 @@ const sortedRanking = [...patchedRanking].sort(
 
                                 {/* 📊 배지 */}
                                 <div
-                                  onClick={() => {
-                                    playSound('click')
-                                    setAnimateStats(false)
-                                    requestAnimationFrame(() => {
-                                      setAnimateStats(true)
-                                    })
-                                    setProfileTarget(r.character_id)
-                                    setProfileUser(r)
-                                    setShowProfile(true)
-                                  }}
                                   style={{
                                     position: 'absolute',
                                     right: -5,

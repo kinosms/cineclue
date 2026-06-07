@@ -153,7 +153,7 @@ export default function ModeScreen(props) {
 
                     if (!authUser) {
 
-                      showAppToast('CineClue앱에서 로그인 후 이용 가능합니다')
+                      showAppToast('CineClue앱에서\n로그인 후 이용 가능합니다')
 
                       return
 
@@ -259,7 +259,7 @@ export default function ModeScreen(props) {
                     key={m.key}
                     onClick={() => {
                       if (locked) {
-                        showAppToast('CineClue앱에서 로그인 후 이용 가능합니다')
+                        showAppToast('CineClue앱에서\n로그인 후 이용 가능합니다')
                         return
                       }
                       playSound('modeclick')
@@ -312,7 +312,7 @@ export default function ModeScreen(props) {
                     key={m.key}
                     onClick={() => {
                       if (locked) {
-                        setShowLogin(true)
+                        showAppToast('CineClue앱에서\n로그인 후 이용 가능합니다')
                         return
                       }
                       playSound('modeclick')

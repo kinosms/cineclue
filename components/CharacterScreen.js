@@ -168,7 +168,7 @@ export default function CharacterScreen(props) {
                       if (
                         !window.Capacitor?.isNativePlatform?.()
                       ) {
-                        showAppToast('CineClue앱을 이용해주세요.')
+                        showAppToast('CineClue앱을 이용해 주세요')
                         return
                       }
 
@@ -606,7 +606,7 @@ export default function CharacterScreen(props) {
                 onClick={() => {
                   playSound('click')
                   if (locked) {
-                    setShowLogin(true)
+                    showAppToast('CineClue앱에서\n로그인 후 이용 가능합니다')
                     return
                   }
                   handleCharClick(c.id)
