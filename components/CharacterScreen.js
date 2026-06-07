@@ -161,8 +161,18 @@ export default function CharacterScreen(props) {
                   onClick={() => {
                     if (item === '로그인') {
                       setShowSettings(false)
+
+                        // 🔥 웹에서는 로그인 차단
+                      if (
+                        !window.Capacitor?.isNativePlatform?.()
+                      ) {
+                        showAppToast('CineClue앱을 이용해주세요.')
+                        return
+                      }
+
                       const guestUser =
                         users.find(u => u.isGuest)
+                        
                       // 🔥 guest 진행중이면 승계 팝업
                       if (guestUser) {
                         setShowMergeModal(true)

@@ -876,7 +876,38 @@ export default function CineClue() {
   const [showLogin, setShowLogin] = useState(false)
   const [authUser, setAuthUser] = useState(null)
 
+
+  function isNativeApp() {
+
+  return (
+
+    typeof window !== 'undefined' &&
+
+    window.Capacitor?.isNativePlatform?.()
+
+  )
+
+}
+
+function blockWebLogin() {
+
+  if (!isNativeApp()) {
+
+    showAppToast('CineClue앱을 이용해주세요.')
+
+    setShowLogin(false)
+
+    return true
+
+  }
+
+  return false
+
+}
+
   const loginGoogle = async () => {
+
+    if (blockWebLogin()) return
 
     setShowLogin(false)
     setIsRestoring(true)
@@ -911,6 +942,8 @@ export default function CineClue() {
   }
 
   const loginKakao = async () => {
+    if (blockWebLogin()) return
+
     setShowLogin(false)
     setIsRestoring(true)
 
@@ -3874,7 +3907,19 @@ useEffect(() => {
 
           onEnter={enterCharacterScreen}
 
-          onLogin={() => setShowLogin(true)}
+          onLogin={() => {
+
+            if (!isNativeApp()) {
+
+              showAppToast('CineClue앱을 이용해주세요.')
+
+              return
+
+            }
+
+            setShowLogin(true)
+
+          }}
 
           authUser={authUser}
 
