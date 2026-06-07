@@ -2138,7 +2138,8 @@ useEffect(() => {
 
     if (
 
-      localStorage.getItem('cineclue_oauth_start') !== 'true'
+      localStorage.getItem('cineclue_oauth_start') !== 'true' &&
+      !deathMessage
 
     ) {
 
@@ -2157,6 +2158,22 @@ useEffect(() => {
       pauseForBackground()
       return
     }
+
+    if (deathMessage) {
+
+        setDeathMessage(false)
+
+        setSelChar(null)
+
+        setScreen('char')
+
+        isPausedRef.current = false
+
+        setIsRestoring(false)
+
+        return
+
+      }
 
      // OAuth 로그인 복귀 중에는 기존 앱 복원 로직 금지
 
@@ -2238,7 +2255,8 @@ useEffect(() => {
   progress,
   buttonActive,
   timerStartedAt,
-  questionReady
+  questionReady, 
+  deathMessage
 ])
 
 
