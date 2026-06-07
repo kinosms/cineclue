@@ -315,11 +315,11 @@ export default function QuizScreen(props) {
                   cx="21"
                   cy="21"
                   r="18"
-                  stroke={lives <= 3 ? '#ff3b3b' : '#4caf50'}
+                  stroke={lives <= 5 ? '#ff3b3b' : lives <= 10 ? '#d59100' : '#3c8f3f'}
                   strokeWidth="5"
                   fill="none"
                   strokeDasharray={113}
-                  strokeDashoffset={113 * (1 - lives / 30)}
+                  strokeDashoffset={113 * (1 - lives / 20)}
                   strokeLinecap="round"
                   style={{
                     transition: 'all 0.3s ease',

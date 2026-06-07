@@ -1204,7 +1204,7 @@ function restoreAppSnapshot(options = {}) {
   const safeUsers = Array.isArray(users) ? users : []
   const currentUser = safeUsers.find(u => u.charId === selChar) || null
   const currentUserId = currentUser?.userId
-  const lives = currentUser?.lives ?? 30
+  const lives = currentUser?.lives ?? 20
   const isDead = currentUser?.isDead ?? false
   const [showNameModal, setShowNameModal] = useState(false)
   const [resultView, setResultView] = useState('score')
@@ -1519,10 +1519,10 @@ function restoreAppSnapshot(options = {}) {
       charId: c.char_id,
       nickname: c.nickname,
       score: c.score || 0,
-      lives: c.lives ?? 30,
+      lives: c.lives ?? 20,
       userId: c.auth_user_id,
       isGuest: false,
-      isDead: (c.lives ?? 30) <= 0
+      isDead: (c.lives ?? 20) <= 0
     }))
 
     setUsers(loadedUsers)
@@ -1620,10 +1620,10 @@ useEffect(() => {
           charId: c.char_id,
           nickname: c.nickname,
           score: c.score || 0,
-          lives: c.lives ?? 30,
+          lives: c.lives ?? 20,
           userId: c.auth_user_id,
           isGuest: false,
-          isDead: (c.lives ?? 30) <= 0
+          isDead: (c.lives ?? 20) <= 0
         }))
 
         setUsers(loadedUsers)
@@ -1730,10 +1730,10 @@ useEffect(() => {
                   charId: c.char_id,
                   nickname: c.nickname,
                   score: c.score || 0,
-                  lives: c.lives ?? 30,
+                  lives: c.lives ?? 20,
                   userId: c.auth_user_id,
                   isGuest: false, 
-                  isDead: (c.lives ?? 30) <= 0
+                  isDead: (c.lives ?? 20) <= 0
 
                 }
 
@@ -1799,10 +1799,10 @@ useEffect(() => {
       charId: c.char_id,
       nickname: c.nickname,
       score: c.score || 0,
-      lives: c.lives ?? 30,
+      lives: c.lives ?? 20,
       userId: c.auth_user_id,
       isGuest: false, 
-      isDead: (c.lives ?? 30) <= 0
+      isDead: (c.lives ?? 20) <= 0
     }))
 
     setUsers(loadedUsers)
@@ -1864,7 +1864,7 @@ useEffect(() => {
 
   if (!selChar) return
 
-  const safeLives = Math.max(0, Math.min(nextLives, 30))
+  const safeLives = Math.max(0, Math.min(nextLives, 20))
 
   const result = await supabase
 
@@ -2120,10 +2120,10 @@ useEffect(() => {
       charId: c.char_id,
       nickname: c.nickname,
       score: c.score || 0,
-      lives: c.lives ?? 30,
+      lives: c.lives ?? 20,
       userId: c.auth_user_id,
       isGuest: false, 
-      isDead: (c.lives ?? 30) <= 0
+      isDead: (c.lives ?? 20) <= 0
     })))
 
     return true
@@ -3091,10 +3091,10 @@ useEffect(() => {
           const updated = prev.map(u => {
 
             if (u.charId === selChar) {
-              const prevLives = u.lives ?? 30
-              const nextLives = Math.min(prevLives + 1, 30)
+              const prevLives = u.lives ?? 20
+              const nextLives = Math.min(prevLives + 1, 20)
 
-              if (nextLives > prevLives && prevLives < 30) {
+              if (nextLives > prevLives && prevLives < 20) {
                 setLifeDelta(1)
               }
               return {
@@ -3117,7 +3117,7 @@ useEffect(() => {
 
         const nextLivesForDb = Math.min(
 
-          (currentUser?.lives ?? 30) + 1,
+          (currentUser?.lives ?? 20) + 1,
 
           30
 
@@ -3336,12 +3336,12 @@ useEffect(() => {
       return
     }
 
-    const willDie = (currentUser?.lives ?? 30) <= 1
+    const willDie = (currentUser?.lives ?? 20) <= 1
 
     setUsers(prev => {
       const updated = prev.map(u => {
         if (u.charId === selChar) {
-          const prevLives = u.lives ?? 30
+          const prevLives = u.lives ?? 20
           const nextLives = prevLives - 1
 
           if (nextLives < prevLives) {
@@ -3369,7 +3369,7 @@ useEffect(() => {
 
 
 
-    const nextLivesForDb = Math.max((currentUser?.lives ?? 30) - 1, 0)
+    const nextLivesForDb = Math.max((currentUser?.lives ?? 20) - 1, 0)
 
       if (authUser) {
 
@@ -3518,9 +3518,9 @@ useEffect(() => {
         currentRound.every(r => r.correct)
       if (isPerfect) {
         const user = users.find(u => u.charId === selChar)
-        const prevLives = user?.lives ?? 30
-        // 🔥 30 미만일 때만 예약
-        if (prevLives < 30) {
+        const prevLives = user?.lives ?? 20
+        // 🔥 20 미만일 때만 예약
+        if (prevLives < 20) {
           setPendingLifeDelta(5)
         }
         setUsers(prev => {
@@ -3528,7 +3528,7 @@ useEffect(() => {
             if (u.charId === selChar) {
               return {
                 ...u,
-                lives: Math.min((u.lives ?? 30) + 5, 30)
+                lives: Math.min((u.lives ?? 20) + 5, 20)
               }
             }
             return u
@@ -3543,7 +3543,7 @@ useEffect(() => {
 
         const nextLivesForDb = Math.min(
 
-          (prevLives ?? 30) + 5,
+          (prevLives ?? 20) + 5,
 
           30
 
@@ -3707,7 +3707,7 @@ useEffect(() => {
 
       score: 0,
 
-      lives: 30,
+      lives: 20,
 
       userId: authUser?.id || Date.now().toString(),
 
@@ -3767,7 +3767,7 @@ useEffect(() => {
 
             score: 0,
 
-            lives: 30
+            lives: 20
 
           }),
 
