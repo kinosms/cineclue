@@ -666,31 +666,32 @@ export default function CharacterScreen(props) {
                 {!locked && u && (authUser || !u.isDead) && (
                   
                   <div
-                    onClick={(e) => {
+                    onClick={async (e) => {
                       e.stopPropagation()
                       if (u.isDead) {
-                        // 🔥 부활 처리 (여기!)
-                        setUsers(prev => {
-                          const updated = prev.map(x => {
+                        if (!authUser) return
+                        setUsers(prev =>
+                          prev.map(x => {
                             if (x.charId === c.id) {
                               return {
                                 ...x,
-                                lives: 15,       // 🔥 부활 시 10
+                                lives: 10,
                                 isDead: false
                               }
                             }
                             return x
                           })
-                          if (!authUser) {
-
-                            saveUsers(updated)
-
-                          }
-                          return updated
-                        })
-                      } else {
-                        deleteUser(c.id)
+                        )
+                        await supabase
+                          .from('characters')
+                          .update({
+                            lives: 10
+                          })
+                          .eq('auth_user_id', u.userId)
+                          .eq('char_id', c.id)
+                        return
                       }
+                      deleteUser(c.id)
                     }}
                     style={{
                       position: 'absolute',

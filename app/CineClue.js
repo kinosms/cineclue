@@ -1620,9 +1620,10 @@ useEffect(() => {
           charId: c.char_id,
           nickname: c.nickname,
           score: c.score || 0,
-          lives: c.lives,
+          lives: c.lives ?? 30,
           userId: c.auth_user_id,
-          isGuest: false
+          isGuest: false,
+          isDead: (c.lives ?? 30) <= 0
         }))
 
         setUsers(loadedUsers)
@@ -1727,16 +1728,12 @@ useEffect(() => {
                 return {
 
                   charId: c.char_id,
-
                   nickname: c.nickname,
-
                   score: c.score || 0,
-
-                  lives: c.lives,
-
+                  lives: c.lives ?? 30,
                   userId: c.auth_user_id,
-
-                  isGuest: false
+                  isGuest: false, 
+                  isDead: (c.lives ?? 30) <= 0
 
                 }
 
@@ -1802,9 +1799,10 @@ useEffect(() => {
       charId: c.char_id,
       nickname: c.nickname,
       score: c.score || 0,
-      lives: c.lives,
+      lives: c.lives ?? 30,
       userId: c.auth_user_id,
-      isGuest: false
+      isGuest: false, 
+      isDead: (c.lives ?? 30) <= 0
     }))
 
     setUsers(loadedUsers)
@@ -2122,9 +2120,10 @@ useEffect(() => {
       charId: c.char_id,
       nickname: c.nickname,
       score: c.score || 0,
-      lives: c.lives,
+      lives: c.lives ?? 30,
       userId: c.auth_user_id,
-      isGuest: false
+      isGuest: false, 
+      isDead: (c.lives ?? 30) <= 0
     })))
 
     return true
