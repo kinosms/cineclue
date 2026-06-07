@@ -1517,17 +1517,12 @@ function restoreAppSnapshot(options = {}) {
     const loadedUsers = (result.data || []).map(c => ({
 
       charId: c.char_id,
-
       nickname: c.nickname,
-
       score: c.score || 0,
-
-      lives: c.lives,
-
+      lives: c.lives ?? 30,
       userId: c.auth_user_id,
-
-      isGuest: false
-
+      isGuest: false,
+      isDead: (c.lives ?? 30) <= 0
     }))
 
     setUsers(loadedUsers)
@@ -1859,6 +1854,45 @@ useEffect(() => {
       JSON.stringify(users)
     )
   }
+
+
+
+
+  async function saveCharacterLivesToDb(nextLives) {
+
+  if (!authUser) return
+
+  if (!currentUser?.userId) return
+
+  if (!selChar) return
+
+  const safeLives = Math.max(0, Math.min(nextLives, 30))
+
+  const result = await supabase
+
+    .from('characters')
+
+    .update({
+
+      lives: safeLives
+
+    })
+
+    .eq('auth_user_id', currentUser.userId)
+
+    .eq('char_id', selChar)
+
+    .select()
+
+  console.log(
+
+    'CINECLUE_SAVE_LIVES_RESULT=',
+
+    JSON.stringify(result)
+
+  )
+
+}
 
 
 
@@ -3080,6 +3114,48 @@ useEffect(() => {
           return updated
         })
 
+
+
+        const nextLivesForDb = Math.min(
+
+          (currentUser?.lives ?? 30) + 1,
+
+          30
+
+        )
+
+        if (authUser) {
+
+          const saveLivesResult = await supabase
+
+            .from('characters')
+
+            .update({
+
+              lives: nextLivesForDb
+
+            })
+
+            .eq('auth_user_id', currentUser.userId)
+
+            .eq('char_id', selChar)
+
+            .select()
+
+          console.log(
+
+            'CINECLUE_SAVE_LIVES_PLUS1=',
+
+            JSON.stringify(saveLivesResult)
+
+          )
+
+        }
+
+
+
+
+
         await saveLog({
           supabase,
           userId: String(currentUser.userId),
@@ -3292,6 +3368,40 @@ useEffect(() => {
       return updated
     })
 
+
+
+    const nextLivesForDb = Math.max((currentUser?.lives ?? 30) - 1, 0)
+
+      if (authUser) {
+
+        const saveLivesResult = await supabase
+
+          .from('characters')
+
+          .update({
+
+            lives: nextLivesForDb
+
+          })
+
+          .eq('auth_user_id', currentUser.userId)
+
+          .eq('char_id', selChar)
+
+          .select()
+
+        console.log(
+
+          'CINECLUE_SAVE_LIVES_RESULT=',
+
+          JSON.stringify(saveLivesResult)
+
+        )
+
+      }
+
+
+
     await saveLog({
       supabase,
       userId: String(currentUser.userId),
@@ -3389,7 +3499,7 @@ useEffect(() => {
   }
 
 
-  function nextQ() {
+  async function nextQ() {
 
     inputRef.current?.blur()
     skipLockRef.current = false
@@ -3431,7 +3541,46 @@ useEffect(() => {
           }
           return updated
         })
+
+        const nextLivesForDb = Math.min(
+
+          (prevLives ?? 30) + 5,
+
+          30
+
+        )
+
+        if (authUser) {
+
+          const saveLivesResult = await supabase
+
+            .from('characters')
+
+            .update({
+
+              lives: nextLivesForDb
+
+            })
+
+            .eq('auth_user_id', currentUser.userId)
+
+            .eq('char_id', selChar)
+
+            .select()
+
+          console.log(
+
+            'CINECLUE_SAVE_LIVES_PLUS5=',
+
+            JSON.stringify(saveLivesResult)
+
+          )
+
+        }
+
+
       }
+
       setScreen('result')
       return
     }
