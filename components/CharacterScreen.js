@@ -541,21 +541,37 @@ export default function CharacterScreen(props) {
                 </div>
               )}
 
-              {settingsPage === '버전 정보' && (
+              {settingsPage === '버전정보' && (
                 <div style={{
                   fontSize: '0.82rem',
                   lineHeight: 1.8,
                   color: '#5f5a55'
                 }}>
-                  <div style={{
-                    fontSize: '1.2rem',
-                    fontWeight: 900,
-                    marginBottom: 14,
-                    color: '#1a1814'
-                  }}>
-                    CineClue
-                  </div>
+
                   버전 : Beta v0.9
+                  <br /><br />
+                    • 웹 체험판 공개
+                    <br />
+                    • 앱 로그인 기능 안정화
+                    <br />
+                    • 캐릭터 부활 기능 추가
+                    <br />
+                    • 목숨 시스템 개편 (20 / 20)
+                    <br />
+                    • Google · Naver 검색 등록
+                        <br /><br />
+
+                    <div style={{
+
+                      fontSize: '0.72rem',
+
+                      color: '#999'
+
+                    }}>
+
+                      Build : 2026.06.07
+
+                    </div>
                 </div>
               )}
             </div>
