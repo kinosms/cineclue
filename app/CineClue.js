@@ -1,5 +1,6 @@
 'use client'
-
+import { App } from '@capacitor/app'
+import { Browser } from '@capacitor/browser'
 import { useState, useEffect, useRef } from 'react'
 import { createClient } from '@supabase/supabase-js'
 import FlashLetterHint from './FlashLetterHint'
@@ -873,17 +874,35 @@ export default function CineClue() {
 
     })
 
-    await safeQuery(
+    const { data, error } = await supabase.auth.signInWithOAuth({
 
-      supabase.auth.signInWithOAuth({
+      provider: 'google',
 
-        provider: 'google'
+      options: {
 
-      }),
+        redirectTo: 'com.cineclue.app://auth',
+        skipBrowserRedirect: true
 
-      'google oauth login'
+      }
 
-    )
+    })
+
+    console.log('CINECLUE_OAUTH_URL=', data?.url)
+
+    if (error) {
+
+      console.error('google oauth login error', error)
+      return
+    }
+    if (data?.url) {
+
+      await Browser.open({
+
+        url: data.url
+
+      })
+
+    }
 
   }
 
@@ -906,17 +925,27 @@ export default function CineClue() {
 
     })
 
-    await safeQuery(
+    const { data, error } = await supabase.auth.signInWithOAuth({
+      provider: 'kakao',
+      options: {
+        redirectTo: 'com.cineclue.app://auth',
+        skipBrowserRedirect: true
+        }
+      })
 
-      supabase.auth.signInWithOAuth({
+    if (error) {
+      console.error('kakao oauth login error', error)
+      return
+    }
+    if (data?.url) {
 
-        provider: 'kakao'
+      await Browser.open({
 
-      }),
+        url: data.url
 
-      'kakao oauth login'
+      })
 
-    )
+    }
 
   }
 
@@ -958,40 +987,31 @@ export default function CineClue() {
 
     setIsLoggingOut(true)
 
-    setScreen('intro')
-
-    setAuthUser(null)
-
-    setUsers([])
-
-    setSelChar(null)
-
-    localStorage.clear()
-
-    sessionStorage.clear()
-
     try {
 
-      await safeQuery(
-
-        supabase.auth.signOut(),
-
-        'logout'
-
-      )
+      await supabase.auth.signOut()
 
     } catch (e) {
 
-      console.error(
-
-        'logout failed',
-
-        e
-
-      )
+      console.error('logout failed', e)
 
     }
 
+    setAuthUser(null)
+    setUsers([])
+    setSelChar(null)
+    setScreen('intro')
+    setShowLogin(false)
+
+    localStorage.removeItem('cineclue_oauth_start')
+    localStorage.removeItem('cineclue_session')
+    localStorage.removeItem('cineclue_current_session')
+    localStorage.removeItem('cineclue_app_snapshot')
+    sessionStorage.clear()
+
+      setTimeout(() => {
+        setIsLoggingOut(false)
+      }, 300)
   }
 
 
@@ -1509,6 +1529,70 @@ function restoreAppSnapshot(options = {}) {
     playBgm('mainBgm', 0.25)
 
   }
+
+
+// 딥링크 복귀시 세션처리 //
+useEffect(() => {
+  const setupDeepLinkLogin = async () => {
+    const listener = await App.addListener('appUrlOpen', async (event) => {
+      console.log('CINECLUE_APP_URL_OPEN=', event.url)
+
+      if (!event.url?.startsWith('com.cineclue.app://auth')) {
+        return
+      }
+
+      const url = new URL(event.url)
+      const code = url.searchParams.get('code')
+
+      console.log('CINECLUE_AUTH_CODE=', code)
+
+      if (!code) return
+
+      const { error } = await supabase.auth.exchangeCodeForSession(code)
+
+      if (error) {
+        console.error('CINECLUE_EXCHANGE_ERROR=', error)
+        return
+      }
+
+      await Browser.close()
+
+      const { data } = await supabase.auth.getSession()
+
+      console.log(
+        'CINECLUE_SESSION_USER=',
+        data?.session?.user?.email
+      )
+
+      setAuthUser(data?.session?.user ?? null)
+      setShowLogin(false)
+
+      localStorage.removeItem('cineclue_oauth_start')
+
+      setTimeout(() => {
+        setScreen('char')
+      }, 100)
+    })
+
+    return listener
+  }
+
+  let listener
+
+  setupDeepLinkLogin().then((l) => {
+    listener = l
+  })
+
+  return () => {
+    listener?.remove?.()
+  }
+}, [])
+
+
+
+
+
+
 
 
 
