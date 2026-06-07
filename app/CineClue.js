@@ -4053,6 +4053,8 @@ useEffect(() => {
 
           setSfxEnabled={setSfxEnabled}
 
+          showAppToast={showAppToast}
+
         />
 
       )}

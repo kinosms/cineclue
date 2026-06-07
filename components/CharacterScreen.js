@@ -80,6 +80,8 @@ export default function CharacterScreen(props) {
 
     screen,
 
+    showAppToast
+
   } = props
 
   return (
@@ -172,7 +174,7 @@ export default function CharacterScreen(props) {
 
                       const guestUser =
                         users.find(u => u.isGuest)
-                        
+
                       // 🔥 guest 진행중이면 승계 팝업
                       if (guestUser) {
                         setShowMergeModal(true)
@@ -328,14 +330,16 @@ export default function CharacterScreen(props) {
                   <br />
                   • 캐릭터가 죽어도 삭제되어도 랭킹에는 유지됩니다.
                   <br />
-                  • 로그인 유저는
+                  • 앱 로그인 유저는
                   <br />
                   <div style={{ paddingLeft: 16 }}>
                     1. 전체 캐릭터, 전체 게임 모드 이용이 가능합니다.
                     <br />
                     2. 캐릭터가 죽을 경우 부활이 가능합니다.
                     <br />
-                    3. 랭킹화면에서 캐릭터 클릭시 프로필을 볼 수 있습니다.
+                    3. 프로필 정보와 기록 관리를 할 수 있습니다.
+                    <br />
+                    4. 영화 포스터 컬렉션을 이용할 수 있습니다.
                   </div>
                 </div>
               )}

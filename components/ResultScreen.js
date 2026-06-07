@@ -149,7 +149,7 @@ const sortedRanking = [...patchedRanking].sort(
 
                 if (!authUser) {
 
-                  showAppToast('로그인 후 이용이 가능합니다')
+                  showAppToast('CineClue앱에서 로그인 후 이용 가능합니다')
 
                   return
 
@@ -631,7 +631,7 @@ const sortedRanking = [...patchedRanking].sort(
                                     
                                     if (!authUser) {
 
-                                      showAppToast('로그인 후 이용이 가능합니다')
+                                      showAppToast('CineClue앱에서 로그인 후 이용 가능합니다')
 
                                       return
 
