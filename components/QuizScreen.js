@@ -127,11 +127,13 @@ export default function QuizScreen(props) {
 
     CharAvatar,
 
+    questionReady
+
   } = props
 
 
 
-  if (loading || !pool || pool.length === 0 || !pool[qi]) {
+  if (loading || !pool || !questionReady || !pool[qi]) {
 
     return (
 

@@ -2945,7 +2945,7 @@ useEffect(() => {
 
       }))
 
-      Promise.all(
+      const updated = await Promise.all(
         sel.map(async movie => {
           const tmdb = await loadTMDB(movie)
           const posterUrl = tmdb?.poster_path
@@ -2981,11 +2981,19 @@ useEffect(() => {
               tmdb?.youtubeKey || null
           }
         })
+      )
 
-      ).then(updated => {
-        setPool(updated)
-        setQuestionReady(true)
-      })
+    if (
+      !updated.length ||
+      updated.some(m => !m.title || !Array.isArray(m.hintsArr) || m.hintsArr.length < 5)
+    ) {
+      alert('퀴즈 데이터를 불러오지 못했습니다. 다시 시도해주세요.')
+      setScreen('mode')
+      return
+    }
+
+      setPool(updated)
+      setQuestionReady(true)
       setQi(0)
       setSh(1)
       setResults([])
@@ -2996,8 +3004,6 @@ useEffect(() => {
       setCrazyStreak(0)
       setRoundStartScore(score)
       setTimerStartedAt(null)
-
-
     }
 
     catch (e) {
@@ -4204,6 +4210,7 @@ useEffect(() => {
           supabase={supabase}
           safeQuery={safeQuery}
           AppLayout={AppLayout}
+          questionReady={questionReady}
 
         />
 

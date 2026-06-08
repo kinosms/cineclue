@@ -8,7 +8,12 @@ export const metadata = {
 
   title: 'CineClue',
 
-  description: '영화 좀 안다는 사림이면 도전!',
+  description: '영화 좀 안다는 사림이면 도전! 영화 장면 힌트로 영화를 맞히는 영화 퀴즈 게임 CineClue',
+
+  icons: {
+    icon: "/favicon.ico",
+    apple: "/apple-touch-icon.png",
+  },
 
   verification: {
 
@@ -21,11 +26,21 @@ export const metadata = {
 
     description: '영화 좀 안다는 사림이면 도전! 영화 장면 힌트로 영화를 맞히는 영화 퀴즈 게임 CineClue',
 
-    url: '/',
+    url: "https://cineclue.app",
 
     siteName: 'CineClue',
 
-    images: ['/og.png'], // 🔥 이게 핵심
+    images: [      
+      {
+
+        url: "/og-image.png",
+
+        width: 1200,
+
+        height: 630,
+
+      },
+    ],
 
     type: 'website',
 
