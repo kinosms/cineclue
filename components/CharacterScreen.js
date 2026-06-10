@@ -1,15 +1,11 @@
 'use client'
 import { useState } from 'react'
+import { isAndroidApp } from '../utils/platform'
 import {
-
   playSound,
-
   playBgm,
-
   setBgmEnabled,
-
   setSfxEnabled
-
 } from '../library/audioManager'
 
 export default function CharacterScreen(props) {
@@ -80,7 +76,9 @@ export default function CharacterScreen(props) {
 
     screen,
 
-    showAppToast
+    showAppToast,
+
+    shouldUseAppGate
 
   } = props
 
@@ -163,24 +161,6 @@ export default function CharacterScreen(props) {
                   onClick={() => {
                     if (item === '로그인') {
                       setShowSettings(false)
-
-                        // 🔥 웹에서는 로그인 차단
-                      if (
-                        !window.Capacitor?.isNativePlatform?.()
-                      ) {
-                        showAppToast('CineClue앱을 이용해 주세요')
-                        return
-                      }
-
-                      const guestUser =
-                        users.find(u => u.isGuest)
-
-                      // 🔥 guest 진행중이면 승계 팝업
-                      if (guestUser) {
-                        setShowMergeModal(true)
-                        return
-                      }
-                      // 🔥 그냥 로그인
                       setShowLogin(true)
                       return
                     }
@@ -604,9 +584,9 @@ export default function CharacterScreen(props) {
                 onClick={() => {
                   playSound('click')
                   if (locked) {
-                    showAppToast('CineClue앱에서\n로그인 후 이용 가능합니다')
-                    return
-                  }
+                      showAppToast('로그인 후 이용 가능합니다')
+                      return
+                    }
                   handleCharClick(c.id)
                 }}
                 style={{
@@ -783,94 +763,6 @@ export default function CharacterScreen(props) {
         </button>
       </div>
 
-      {/* 로그인시 승계 모달 */}
-      {showMergeModal && (
-        <div style={{
-          position: 'fixed',
-          inset: 0,
-          background: 'rgba(0,0,0,0.35)',
-          zIndex: 300,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center'
-        }}>
-
-          <div style={{
-            width: '86%',
-            maxWidth: 360,
-            background: '#fff',
-            borderRadius: 22,
-            padding: '24px 20px'
-          }}>
-
-            <div style={{
-              fontSize: '1rem',
-              fontWeight: 800,
-              marginBottom: 16,
-              color: '#1a1814'
-            }}>
-              로그인 후 시작하기
-            </div>
-
-            <div style={{
-              fontSize: '0.82rem',
-              lineHeight: 1.8,
-              color: '#5f5a55',
-              whiteSpace: 'pre-line'
-            }}>
-              현재 게스트 플레이 기록은
-              로그인 시 삭제됩니다.
-              <br />
-              계속 이용하시겠습니까?
-            </div>
-
-            <div style={{
-              display: 'flex',
-              gap: 10,
-              marginTop: 22
-            }}>
-
-              <button
-                onClick={() => {
-                  setShowMergeModal(false)
-                }}
-                style={{
-                  flex: 1,
-                  height: 44,
-                  borderRadius: 12,
-                  border: '1px solid #e7e1d8',
-                  background: '#fff',
-                  color: '#6f6e6e',
-                  fontWeight: 700
-                }}>
-                취소
-              </button>
-
-              <button
-                onClick={() => {
-                  sessionStorage.removeItem(
-                    'cineclue_guest_users'
-                  )
-                  setUsers([])
-                  setSelChar(null)
-                  setShowMergeModal(false)
-                  setShowLogin(true)
-                }}
-                style={{
-                  flex: 1,
-                  height: 44,
-                  borderRadius: 12,
-                  border: 'none',
-                  background: '#ed4b5e',
-                  color: '#fff',
-                  fontWeight: 700
-                }}>
-                로그인 하기
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* 닉네임 입력 모달 */}
       {showNameModal && (

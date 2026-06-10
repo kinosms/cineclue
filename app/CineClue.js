@@ -14,22 +14,21 @@ import Collection from '../components/Collection'
 import MovieFlipCard from '../components/MovieFlipCard'
 import ProfileModal from '../components/ProfileModal'
 import {
-
   playSound,
-
   playBgm,
-
   stopBgm,
-
   setBgmSpeed, 
-
   setBgmEnabled,
-
   setSfxEnabled, 
-
   resetSfxPool
-
 } from '../library/audioManager'
+
+import {
+  isNativeApp,
+  isAndroidApp,
+  isIOS,
+  isAndroidMobile
+} from '../utils/platform'
 
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || ''
 const SUPABASE_KEY = process.env.NEXT_PUBLIC_SUPABASE_KEY || ''
@@ -858,11 +857,6 @@ export default function CineClue() {
 function blockWebLogin() {
 
   if (!isNativeApp()) {
-
-    showAppToast('CineClue앱을 이용해 주세요')
-
-    setShowLogin(false)
-
     return true
 
   }
@@ -872,35 +866,34 @@ function blockWebLogin() {
 }
 
   const loginGoogle = async () => {
-
-    if (blockWebLogin()) return
-
     setShowLogin(false)
     setIsRestoring(true)
-
     localStorage.setItem(
       'cineclue_oauth_start',
       'true'
     )
-
     saveCurrentSession({
       screen,
       selChar
     })
-
+    const isNativeApp =
+      window.Capacitor?.isNativePlatform?.()
     const { data, error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
-      options: {
-        redirectTo: 'com.cineclue.app://auth',
-        skipBrowserRedirect: true
-      }
+      options: isNativeApp
+        ? {
+            redirectTo: 'com.cineclue.app://auth',
+            skipBrowserRedirect: true
+          }
+        : {
+            redirectTo: window.location.origin
+          }
     })
-
     if (error) {
       console.error('google oauth login error', error)
       return
     }
-    if (data?.url) {
+    if (isNativeApp && data?.url) {
       await Browser.open({
         url: data.url
       })
@@ -908,7 +901,6 @@ function blockWebLogin() {
   }
 
   const loginKakao = async () => {
-    if (blockWebLogin()) return
 
     setShowLogin(false)
     setIsRestoring(true)
@@ -925,17 +917,21 @@ function blockWebLogin() {
 
     const { data, error } = await supabase.auth.signInWithOAuth({
       provider: 'kakao',
-      options: {
-        redirectTo: 'com.cineclue.app://auth',
-        skipBrowserRedirect: true
+      options: isNativeApp
+      ? {
+          redirectTo: 'com.cineclue.app://auth',
+          skipBrowserRedirect: true
         }
-      })
+      : {
+          redirectTo: window.location.origin
+        }
+    })
 
     if (error) {
       console.error('kakao oauth login error', error)
       return
     }
-    if (data?.url) {
+    if (isNativeApp && data?.url) {
       await Browser.open({
         url: data.url
       })
@@ -1017,6 +1013,25 @@ function blockWebLogin() {
   }, 500)
 }
 
+
+
+  const isAndroidMobileWeb = () => {
+
+    if (typeof window === 'undefined') return false
+
+    const ua = navigator.userAgent || ''
+
+    const isAndroid = /Android/i.test(ua)
+
+    const isMobile = /Mobile/i.test(ua)
+
+    const isCapacitor = !!window.Capacitor
+
+    return isAndroid && isMobile && !isCapacitor
+
+  }
+
+  const shouldUseAppGate = isAndroidMobileWeb()
 
   const [authChecked, setAuthChecked] = useState(false)
   const [showMergeModal, setShowMergeModal] = useState(false)
@@ -2586,6 +2601,10 @@ useEffect(() => {
 
 
   function handleShowAnswers() {
+    if (!isAndroidApp) {
+      showAppToast('Android 앱에서만\n이용 가능합니다')
+      return
+      }
     setShowAnswers(true)
   }
 
@@ -3914,15 +3933,6 @@ useEffect(() => {
           onEnter={enterCharacterScreen}
 
           onLogin={() => {
-
-            if (!isNativeApp()) {
-
-              showAppToast('CineClue앱을 이용해 주세요')
-
-              return
-
-            }
-
             setShowLogin(true)
 
           }}
@@ -4060,6 +4070,8 @@ useEffect(() => {
           setSfxEnabled={setSfxEnabled}
 
           showAppToast={showAppToast}
+
+          shouldUseAppGate={shouldUseAppGate}
 
         />
 
