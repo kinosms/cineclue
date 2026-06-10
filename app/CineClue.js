@@ -24,7 +24,6 @@ import {
 } from '../library/audioManager'
 
 import {
-  isNativeApp,
   isAndroidApp,
   isIOS,
   isAndroidMobile
@@ -872,9 +871,11 @@ function blockWebLogin() {
       'cineclue_oauth_start',
       'true'
     )
+    localStorage.setItem('cineclue_intro_done', 'true')
+    setIntroAnimationDone(true)
     saveCurrentSession({
-      screen,
-      selChar
+      screen: 'intro',
+      selChar: null
     })
     const isNativeApp =
       window.Capacitor?.isNativePlatform?.()
@@ -909,11 +910,15 @@ function blockWebLogin() {
       'cineclue_oauth_start',
       'true'
     )
-
+    localStorage.setItem('cineclue_intro_done', 'true')
+    setIntroAnimationDone(true)
     saveCurrentSession({
-      screen,
-      selChar
+      screen: 'intro',
+      selChar: null
     })
+
+    const isNativeApp =
+    window.Capacitor?.isNativePlatform?.()
 
     const { data, error } = await supabase.auth.signInWithOAuth({
       provider: 'kakao',
@@ -974,44 +979,46 @@ function blockWebLogin() {
   ]
 
   const logout = async () => {
-  isLoggingOutRef.current = true
-  setIsLoggingOut(true)
+    isLoggingOutRef.current = true
+    setIsLoggingOut(true)
 
-  try {
-    await supabase.auth.signOut()
-  } catch (e) {
-    console.error('logout failed', e)
+    try {
+        await supabase.auth.signOut()
+      } catch (e) {
+        console.error('logout failed', e)
+      }
+
+      setAuthUser(null)
+      setUsers([])
+      setSelChar(null)
+      setTempChar(null)
+      setNickname('')
+      setScreen('intro')
+      setShowLogin(false)
+      setShowNameModal(false)
+      setShowMergeModal(false)
+      setProfileUser(null)
+      setProfileTarget(null)
+      setProfileStats(null)
+      setCollectionTargetUserId(null)
+
+      isPausedRef.current = false
+      setIsRestoring(false)
+
+      localStorage.removeItem('cineclue_oauth_start')
+      localStorage.removeItem('cineclue_session')
+      localStorage.removeItem('cineclue_current_session')
+      localStorage.removeItem('cineclue_app_snapshot')
+      localStorage.removeItem('cineclue_intro_done')
+      setIntroAnimationDone(false)
+
+      sessionStorage.clear()
+
+      setTimeout(() => {
+        isLoggingOutRef.current = false
+        setIsLoggingOut(false)
+      }, 500)
   }
-
-  setAuthUser(null)
-  setUsers([])
-  setSelChar(null)
-  setTempChar(null)
-  setNickname('')
-  setScreen('intro')
-  setShowLogin(false)
-  setShowNameModal(false)
-  setShowMergeModal(false)
-  setProfileUser(null)
-  setProfileTarget(null)
-  setProfileStats(null)
-  setCollectionTargetUserId(null)
-
-  isPausedRef.current = false
-  setIsRestoring(false)
-
-  localStorage.removeItem('cineclue_oauth_start')
-  localStorage.removeItem('cineclue_session')
-  localStorage.removeItem('cineclue_current_session')
-  localStorage.removeItem('cineclue_app_snapshot')
-
-  sessionStorage.clear()
-
-  setTimeout(() => {
-    isLoggingOutRef.current = false
-    setIsLoggingOut(false)
-  }, 500)
-}
 
 
 
@@ -1186,7 +1193,7 @@ function restoreAppSnapshot(options = {}) {
   const [bgmOn, setBgmOn] = useState(true)
   const [sfxOn, setSfxOn] = useState(true)
 
- 
+  const [introAnimationDone, setIntroAnimationDone] = useState(false)
 
   const [selChar, setSelChar] = useState(null)
   const [users, setUsers] = useState([])
@@ -1300,6 +1307,9 @@ function restoreAppSnapshot(options = {}) {
   const [scoreFlash, setScoreFlash] = useState(false)
   const timerRef = useRef(null)
   const [mounted, setMounted] = useState(false)
+    useEffect(() => {
+    setMounted(true)
+  }, [])
   const [suggestions, setSuggestions] = useState([])
   const [allMovies, setAllMovies] = useState([])
   const [showAnswers, setShowAnswers] = useState(false)
@@ -1768,7 +1778,9 @@ useEffect(() => {
               )
               setShowLogin(false)
               setTimeout(() => {
-                setScreen('char')
+                setIntroAnimationDone(true)
+                setScreen('intro')
+                setSelChar(null)
               }, 50)
             }
             return
@@ -3929,16 +3941,14 @@ useEffect(() => {
       {/* 인트로화면 */}
       {screen === 'intro' && (
         <IntroScreen
-
           onEnter={enterCharacterScreen}
-
           onLogin={() => {
             setShowLogin(true)
-
           }}
 
           authUser={authUser}
-
+          authChecked={authChecked && !isRestoring}
+          introAnimationDone={introAnimationDone}
         />
       )}
 

@@ -12,6 +12,8 @@ export default function IntroScreen({
   onEnter,
   onLogin,
   authUser,
+  authChecked,
+  introAnimationDone,
 }) {
 
   const [mounted, setMounted] = useState(false)
@@ -54,7 +56,7 @@ export default function IntroScreen({
           width: 120,
           opacity: 0.08,
           filter: 'blur(6px)',
-          animation: 'float1 12s linear infinite'
+          animation: introAnimationDone ? 'none' : 'float1 12s linear infinite'
         }}>
           <svg viewBox="0 0 80 80" fill="#fff">
             <circle cx="40" cy="40" r="30" />
@@ -69,7 +71,7 @@ export default function IntroScreen({
           width: 140,
           opacity: 0.06,
           filter: 'blur(8px)',
-          animation: 'float2 16s linear infinite'
+          animation: introAnimationDone ? 'none' : 'float2 16s linear infinite'
         }}>
           <svg viewBox="0 0 80 80" fill="#fff">
             <rect x="10" y="10" width="60" height="60" />
@@ -84,7 +86,7 @@ export default function IntroScreen({
           width: 100,
           opacity: 0.07,
           filter: 'blur(5px)',
-          animation: 'fadeFloat 10s ease-in-out infinite'
+          animation: introAnimationDone ? 'none' : 'fadeFloat 10s ease-in-out infinite'
         }}>
           <svg viewBox="0 0 80 80" fill="#fff">
             <ellipse cx="40" cy="40" rx="28" ry="20" />
@@ -114,7 +116,7 @@ export default function IntroScreen({
           whiteSpace: 'nowrap'
         }}>
           <div
-            className="typing"
+            className={introAnimationDone ? '' : 'typing'}
             style={{
               visibility: 'visible'
             }}>
@@ -125,9 +127,11 @@ export default function IntroScreen({
         </div>
         <div
           style={{
-            opacity: 0,
-            animation: 'fadeIn 1s ease forwards',
-            animationDelay: '5s'
+            opacity: introAnimationDone ? 1 : 0,
+            animation: introAnimationDone
+              ? 'none'
+              : 'fadeIn 1s ease forwards',
+            animationDelay: introAnimationDone ? '0s' : '5s'
           }}>
 
           <div style={{
@@ -140,13 +144,9 @@ export default function IntroScreen({
           </div>
 
           <button
-            
             onClick={() => {
-
               playSound('click')
-
               onEnter()
-
             }}
             style={{
               height: 48,
@@ -165,6 +165,13 @@ export default function IntroScreen({
           <div style={{
             marginTop: 18,
             textAlign: 'center',
+            height: 22,
+            minWidth: 220,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            opacity: authChecked ? 1 : 0,
+            transition: 'opacity 0.15s ease'
           }}>
 
             {!authUser ? (
@@ -176,7 +183,8 @@ export default function IntroScreen({
                   fontSize: '0.9rem',
                   color: '#8f8f8f',
                   textDecoration: 'underline',
-                  cursor: 'pointer'
+                  cursor: 'pointer',
+                  padding: 0
                 }}>
                 로그인
               </button>
@@ -184,12 +192,12 @@ export default function IntroScreen({
               <div
                 style={{
                   fontSize: '0.9rem',
-                  color: '#8f8f8f'
+                  color: '#8f8f8f',
+                  whiteSpace: 'nowrap'
                 }}>
                 🎬 {authUser.user_metadata?.name}님 반가워요
               </div>
-            )
-            }
+            )}
           </div>
         </div>
       </div>
