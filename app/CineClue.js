@@ -42,7 +42,7 @@ const supabase = createClient(
 
       flowType: 'pkce',
 
-      detectSessionInUrl: false,
+      detectSessionInUrl: true,
 
       persistSession: true,
 
