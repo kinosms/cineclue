@@ -684,10 +684,6 @@ async function safeQuery(promise, label = 'query') {
     }
 
   } catch (e) {
-    console.error(
-      `${label} failed`,
-      e
-    )
     return {
       data: [],
       error: e
@@ -942,17 +938,6 @@ function blockWebLogin() {
       })
     }
   }
-
-
-
-
-
-
-
-
-
-
-
 
   const isGuestLocked = (mode) => {
     if (authUser) return false
@@ -1238,39 +1223,50 @@ function restoreAppSnapshot(options = {}) {
 
     async function loadRanking({ supabase } = {}) {
 
-  if (!supabase) return []
+      if (!supabase) return []
 
-  const { data = [] } = await safeQuery(
+      const { data = [] } = await safeQuery(
 
-    supabase
+        supabase
 
-      .from('characters')
+          .from('characters')
 
-      .select('id, auth_user_id, char_id, nickname, score')
+          .select('id, auth_user_id, char_id, nickname, score')
 
-      .not('score', 'is', null)
+          .not('score', 'is', null)
 
-      .order('score', { ascending: false }),
+          .order('score', { ascending: false }),
 
-    'load ranking'
+        'load ranking'
 
-  )
+      )
 
-  return data.map((d, index) => ({
+      return data.map((d, index) => ({
 
-    user_id: String(d.auth_user_id),
+        user_id: String(d.auth_user_id),
 
-    character_id: d.char_id,
+        character_id: d.char_id,
 
-    score: d.score || 0,
+        score: d.score || 0,
 
-    nickname: d.nickname,
+        nickname: d.nickname,
 
-    rank: index + 1
+        rank: index + 1
 
-  }))
+      }))
 
-}
+    }
+
+
+  const modeRef = useRef(mode)
+  const screenRef = useRef(screen)
+  const resumeAudioHandlerRef = useRef(null)
+    useEffect(() => {
+      modeRef.current = mode
+    }, [mode])
+    useEffect(() => {
+      screenRef.current = screen
+    }, [screen])
 
   const isLoggingOutRef = useRef(false)
   const [isLoadingCharacters, setIsLoadingCharacters] = useState(false)
@@ -1338,42 +1334,36 @@ function restoreAppSnapshot(options = {}) {
 
 
   useEffect(() => {
-
-  if (screen === 'intro') {
-
-    stopBgm()
-
-    return
-
-  }
-
-  if (screen === 'result') {
-
-    playBgm('resultBgm',0.25)
-
-    return
-
-  }
-
-  if (screen === 'collection') {
-
-    if (collectionReturnScreen === 'result') {
-
-      playBgm('resultBgm', 0.25)
-
-    } else {
-
-      playBgm('mainBgm', 0.25)
-
+    if (screen === 'intro') {
+      stopBgm()
+      return
     }
 
-    return
+    if (screen === 'quiz') {
+      if (mode) {
+        playBgm('comboBgm', 0.25)
+      } else {
+        playBgm('mainBgm', 0.25)
+      }
+      return
+    }
 
-  }
+    if (screen === 'result') {
+      playBgm('resultBgm', 0.25)
+      return
+    }
 
-  playBgm('mainBgm', 0.25)
+    if (screen === 'collection') {
+      if (collectionReturnScreen === 'result') {
+        playBgm('resultBgm', 0.25)
+      } else {
+        playBgm('mainBgm', 0.25)
+      }
+      return
+    }
 
-}, [screen, collectionReturnScreen, resumeTick])
+    playBgm('mainBgm', 0.25)
+  }, [screen, mode, collectionReturnScreen, resumeTick])
 
 
 
@@ -1569,38 +1559,32 @@ function restoreAppSnapshot(options = {}) {
 
 
 
-
-  function resumeBgmByScreen() {
-
-    if (screen === 'intro') return
-
-    if (screen === 'result') {
-
-      playBgm('resultBgm', 0.25)
-
-      return
-
+function resumeBgmByScreen() {
+  const currentScreen = screenRef.current
+  const currentMode = modeRef.current
+  if (currentScreen === 'intro') return
+  if (currentScreen === 'quiz') {
+    if (currentMode) {
+      playBgm('comboBgm', 0.25)
+    } else {
+      playBgm('mainBgm', 0.25)
     }
-
-    if (screen === 'collection') {
-
-      if (collectionReturnScreen === 'result') {
-
-        playBgm('resultBgm', 0.25)
-
-      } else {
-
-        playBgm('mainBgm', 0.25)
-
-      }
-
-      return
-
-    }
-
-    playBgm('mainBgm', 0.25)
-
+    return
   }
+  if (currentScreen === 'result') {
+    playBgm('resultBgm', 0.25)
+    return
+  }
+  if (currentScreen === 'collection') {
+    if (collectionReturnScreen === 'result') {
+      playBgm('resultBgm', 0.25)
+    } else {
+      playBgm('mainBgm', 0.25)
+    }
+    return
+  }
+  playBgm('mainBgm', 0.25)
+}
 
 
 // 딥링크 복귀시 세션처리 //
@@ -1656,7 +1640,9 @@ useEffect(() => {
 
         localStorage.removeItem('cineclue_oauth_start')
 
-        setScreen('char')
+        setIntroAnimationDone(true)
+        setScreen('intro')
+        setSelChar(null)
         setIsRestoring(false)
       }
 
@@ -1689,16 +1675,23 @@ useEffect(() => {
   useEffect(() => {
     if (!supabase) return
 
-    safeQuery(
-      supabase.auth.getSession(),
-      'get auth user'
-    ).then(({ data }) => {
-      setAuthUser(
+    supabase.auth.getSession()
 
-        data?.session?.user ?? null
+  .then(({ data }) => {
 
-      )
+    setAuthUser(data?.session?.user ?? null)
+    setAuthChecked(true)
+
+    })
+
+    .catch(err => {
+
+      console.error('getSession error', err)
+
+      setAuthUser(null)
+
       setAuthChecked(true)
+
     })
 
     const { data: { subscription } } =
@@ -1713,6 +1706,11 @@ useEffect(() => {
               localStorage.getItem(
                 'cineclue_oauth_start'
               )
+              
+              if (screen === 'quiz') {
+              console.warn('퀴즈 중 auth characters 로드 생략')
+              return
+            }
 
             const result =
               await safeQuery(
@@ -1723,12 +1721,16 @@ useEffect(() => {
                 'load auth characters'
               )
 
-            const data = result?.data || []
-            if (data.length === 0) {
-              setUsers([])
+            if (result?.error) {
               return
             }
-
+            const data = result?.data || []
+            if (data.length === 0) {
+              if (screen !== 'quiz') {
+                setUsers([])
+              }
+              return
+            }
 
             const { count } = await supabase
 
@@ -1811,8 +1813,10 @@ useEffect(() => {
 
   }, [supabase])
 
+  /*
 useEffect(() => {
   if (!authUser?.id || !supabase) return
+  if (screen === 'quiz') return
 
   const loadAuthCharacters = async () => {
 
@@ -1820,6 +1824,11 @@ useEffect(() => {
       .from('characters')
       .select('*')
       .eq('auth_user_id', authUser.id)
+
+    if (result?.error) {
+      console.warn('캐릭터 재로드 실패 - 기존 users 유지')
+      return
+    }
 
     const data = result?.data || []
 
@@ -1837,8 +1846,8 @@ useEffect(() => {
   }
 
   loadAuthCharacters()
-}, [authUser?.id, supabase])
-
+}, [authUser?.id, supabase, screen])
+*/
 
 
   useEffect(() => {
@@ -1909,14 +1918,6 @@ useEffect(() => {
     .eq('char_id', selChar)
 
     .select()
-
-  console.log(
-
-    'CINECLUE_SAVE_LIVES_RESULT=',
-
-    JSON.stringify(result)
-
-  )
 
 }
 
@@ -2029,10 +2030,13 @@ useEffect(() => {
   // 자동입력시 전체영화 로딩
   useEffect(() => {
     if (!supabase) return
+    if (screen !== 'quiz') return
+    if (quizMode !== 'subjective') return
+    if (allMovies.length > 0) return
     fetchAllMovies().then(data => {
       setAllMovies(data)
     })
-  }, [supabase])
+  }, [supabase, screen, quizMode, allMovies.length])
 
 
 
@@ -2124,6 +2128,12 @@ useEffect(() => {
 
     setAuthUser(user)
 
+    if (screen === 'quiz' || screen === 'result') {
+      console.warn('게임 중 auth characters 로드 생략')
+      return
+
+    }
+
     const result = await safeQuery(
       supabase
         .from('characters')
@@ -2176,90 +2186,123 @@ useEffect(() => {
     }
 
     clearInterval(timerRef.current)
-
+    timerRef.current = null
     stopBgm()
 
   }
 
   const handleVisibilityChange = async () => {
-    if (document.hidden) {
-      pauseForBackground()
-      return
-    }
-
-    if (deathMessage) {
-
-        setDeathMessage(false)
-
-        setSelChar(null)
-
-        setScreen('char')
-
-        isPausedRef.current = false
-
-        setIsRestoring(false)
-
-        return
-
-      }
-
-     // OAuth 로그인 복귀 중에는 기존 앱 복원 로직 금지
-
-      if (localStorage.getItem('cineclue_oauth_start') === 'true') {
-
-        isPausedRef.current = false
-
-        return
-
-      }
-
-    setIsRestoring(true)
-
-    try {
-      await new Promise(r => setTimeout(r, 700))
-
-      const authRestored = await restoreAuthCharacters()
-
-      restoreAppSnapshot({
-        keepUsers: authRestored
-      })
-
-      await new Promise(r => requestAnimationFrame(r))
-      await new Promise(r => setTimeout(r, 300))
-
-      isPausedRef.current = false
-      setResumeTick(v => v + 1)
-
-      const resumeAudioOnce = () => {
-        resetSfxPool()
-        playSound('click', 0.01)
-        resumeBgmByScreen()
-
-        window.removeEventListener('pointerdown', resumeAudioOnce)
-        window.removeEventListener('touchstart', resumeAudioOnce)
-        window.removeEventListener('click', resumeAudioOnce)
-      }
-
-      window.addEventListener('pointerdown', resumeAudioOnce, { once: true })
-      window.addEventListener('touchstart', resumeAudioOnce, { once: true })
-      window.addEventListener('click', resumeAudioOnce, { once: true })
-
-    } catch (e) {
-      console.error('resume failed', e)
-    } finally {
-      setIsRestoring(false)
-    }
-  } // 🔥 이게 빠졌던 거
-
-  document.addEventListener('visibilitychange', handleVisibilityChange)
-  window.addEventListener('pagehide', pauseForBackground)
-  window.addEventListener('blur', pauseForBackground)
-
-  return () => {
-    document.removeEventListener('visibilitychange', handleVisibilityChange)
-    window.removeEventListener('pagehide', pauseForBackground)
-    window.removeEventListener('blur', pauseForBackground)
+  if (document.hidden) {
+    pauseForBackground()
+    return
   }
+
+  if (deathMessage) {
+    setDeathMessage(false)
+    setSelChar(null)
+    setScreen('char')
+    isPausedRef.current = false
+    setIsRestoring(false)
+    return
+  }
+
+  // OAuth 로그인 복귀 중에는 기존 앱 복원 로직 금지
+  if (localStorage.getItem('cineclue_oauth_start') === 'true') {
+    isPausedRef.current = false
+    setIsRestoring(false)
+    return
+  }
+
+  const registerResumeAudioOnce = () => {
+
+    if (resumeAudioHandlerRef.current) {
+
+      window.removeEventListener('pointerdown', resumeAudioHandlerRef.current)
+
+      window.removeEventListener('touchstart', resumeAudioHandlerRef.current)
+
+      window.removeEventListener('click', resumeAudioHandlerRef.current)
+
+    }
+
+    const resumeAudioOnce = () => {
+
+      resetSfxPool()
+
+      playSound('click', 0.01)
+
+      resumeBgmByScreen()
+
+      window.removeEventListener('pointerdown', resumeAudioOnce)
+
+      window.removeEventListener('touchstart', resumeAudioOnce)
+
+      window.removeEventListener('click', resumeAudioOnce)
+
+      resumeAudioHandlerRef.current = null
+
+    }
+
+    resumeAudioHandlerRef.current = resumeAudioOnce
+
+    window.addEventListener('pointerdown', resumeAudioOnce, { once: true })
+
+    window.addEventListener('touchstart', resumeAudioOnce, { once: true })
+
+    window.addEventListener('click', resumeAudioOnce, { once: true })
+
+  }
+
+  // 퀴즈 중 복귀는 무거운 복원 금지
+  if (screen === 'quiz') {
+    setIsRestoring(true)
+    isPausedRef.current = true
+
+    await new Promise(r => setTimeout(r, 500))
+    await new Promise(r => requestAnimationFrame(r))
+
+    isPausedRef.current = false
+    setResumeTick(v => v + 1)
+
+    registerResumeAudioOnce()
+
+    setIsRestoring(false)
+    return
+  }
+
+  setIsRestoring(true)
+
+  try {
+    await new Promise(r => setTimeout(r, 600))
+
+    const authRestored = await restoreAuthCharacters()
+
+    restoreAppSnapshot({
+      keepUsers: authRestored
+    })
+
+    await new Promise(r => requestAnimationFrame(r))
+    await new Promise(r => setTimeout(r, 300))
+
+    isPausedRef.current = false
+    setResumeTick(v => v + 1)
+    registerResumeAudioOnce()
+  } catch (e) {
+    console.error('resume failed', e)
+  } finally {
+    setIsRestoring(false)
+  }
+}
+
+document.addEventListener('visibilitychange', handleVisibilityChange)
+window.addEventListener('pagehide', pauseForBackground)
+window.addEventListener('blur', pauseForBackground)
+
+return () => {
+  document.removeEventListener('visibilitychange', handleVisibilityChange)
+  window.removeEventListener('pagehide', pauseForBackground)
+  window.removeEventListener('blur', pauseForBackground)
+}
 }, [
   screen,
   selChar,
@@ -2289,81 +2332,49 @@ useEffect(() => {
 
 
 
-  useEffect(() => {
-
-    if (screen !== 'quiz') return
-
-    if (!questionReady) return
-
-    if (answered) return
-
-    if (isPausedRef.current) return
-
-    if (isRestoring) return
-
-    clearInterval(timerRef.current)
-
-    const start =
-
-      timerStartedAt || Date.now()
-
-    if (!timerStartedAt) {
-
-      setTimerStartedAt(start)
-
+ useEffect(() => {
+  if (screen !== 'quiz') return
+  if (!questionReady) return
+  if (answered) return
+  if (isPausedRef.current) return
+  if (isRestoring) return
+  clearInterval(timerRef.current)
+  timerRef.current = null
+  const start = timerStartedAt || Date.now()
+  if (!timerStartedAt) {
+    setTimerStartedAt(start)
     }
-
     timerRef.current = setInterval(() => {
       if (isPausedRef.current) return
       if (isRestoring) return
-
-      const elapsed =
-        (Date.now() - start) / 1000
-
+      const elapsed = (Date.now() - start) / 1000
       const percent = Math.min(
         (elapsed / duration) * 100,
         100
       )
-
       setProgress(percent)
-
-      // 🔥 넘기기 버튼 활성화
-      if (percent >= 100) {
-        setButtonActive(true)
-      } else {
-        setButtonActive(false)
-      }
-
+      setButtonActive(percent >= 100)
       if (elapsed >= duration) {
-
         if (!answered) {
           doSkip()
         }
-
         clearInterval(timerRef.current)
+        timerRef.current = null
       }
-
     }, 100)
-
     return () => {
       clearInterval(timerRef.current)
+      timerRef.current = null
     }
-
   }, [
-
     qi,
-
     screen,
-
     quizMode,
-
     answered,
-
     questionReady,
-
     resumeTick,
-    timerStartedAt
-
+    timerStartedAt,
+    isRestoring
   ])
 
 
@@ -2671,8 +2682,6 @@ useEffect(() => {
         'update character total score'
 
       )
-
-      console.log(result)
 
       const data = await loadRanking({ supabase })
       setRanking(data)
@@ -3197,14 +3206,6 @@ useEffect(() => {
 
             .select()
 
-          console.log(
-
-            'CINECLUE_SAVE_LIVES_PLUS1=',
-
-            JSON.stringify(saveLivesResult)
-
-          )
-
         }
 
 
@@ -3255,18 +3256,22 @@ useEffect(() => {
           genre: m.final_genre || '',
           grade: primaryGrade
         }])
+
+        setFbt('ok')
+        setAnswered(true)
+
+        setScoreFlash(true)
+        setTimeout(() => {
+          setScoreFlash(false)
+        }, 300)
+
         setTimeout(() => {
           scrollRef.current?.scrollTo({
             top: scrollRef.current.scrollHeight,
             behavior: 'smooth'
           })
         }, 120)
-        setFbt('ok')
-        setAnswered(true)
-        setScoreFlash(true)
-        setTimeout(() => {
-          setScoreFlash(false)
-        }, 300)
+
 
       } else {
 
@@ -3305,7 +3310,8 @@ useEffect(() => {
           setFbt('ng')
           return
         }
-        await saveLog({
+
+        saveLog({
           supabase,
           userId: String(currentUser.userId),
           charId: selChar,
@@ -3322,27 +3328,16 @@ useEffect(() => {
           quizMode
         })
 
-        await safeQuery(
-
+        safeQuery(
           supabase.rpc('update_genre_stats', {
-
             p_user_id: String(currentUser.userId),
-
             p_character_id: selChar,
-
             p_genre: m.final_genre || '기타',
-
             p_is_correct: false,
-
             p_score: 0
-
           }),
-
           'update genre stats fail'
-
         )
-
-
 
         setResults(r => [...r, {
           ...m,
@@ -3374,167 +3369,140 @@ useEffect(() => {
 
 
   async function doSkip() {
-    if (screen !== 'quiz') return
-    if (answered || isSubmitting) return
-    if (!currentUser?.userId) return
-    if (skipLockRef.current) return
+  if (screen !== 'quiz') return
+  if (answered || isSubmitting) return
+  if (!currentUser?.userId) return
+  if (skipLockRef.current) return
 
-    skipLockRef.current = true
-    setIsSubmitting(true)
-    setComboStreak(0)
-    setMode(null)
+  skipLockRef.current = true
+  setIsSubmitting(true)
+  setComboStreak(0)
+  setMode(null)
 
-    const m = pool[qi]
+  const m = pool[qi]
 
-    if (!m) {
-      setIsSubmitting(false)
-      skipLockRef.current = false
-      return
-    }
+  if (!m) {
+    setIsSubmitting(false)
+    skipLockRef.current = false
+    return
+  }
 
-    const willDie = (currentUser?.lives ?? 20) <= 1
+  const willDie = (currentUser?.lives ?? 20) <= 1
+  const nextLivesForDb = Math.max((currentUser?.lives ?? 20) - 1, 0)
+  const genreValue = m?.final_genre || '기타'
+  const roundScore = score - roundStartScore
 
-    setUsers(prev => {
-      const updated = prev.map(u => {
-        if (u.charId === selChar) {
-          const prevLives = u.lives ?? 20
-          const nextLives = prevLives - 1
+  // 1️⃣ 화면/로컬 상태 먼저 반영
+  setUsers(prev => {
+    const updated = prev.map(u => {
+      if (u.charId === selChar) {
+        const prevLives = u.lives ?? 20
+        const nextLives = prevLives - 1
 
-          if (nextLives < prevLives) {
-            setLifeDelta(-1)   // 🔥 핵심
-          }
-          if (nextLives <= 0) {
-            triggerDeath()
-          }
-          return {
-            ...u,
-            lives: Math.max(nextLives, 0),
-            isDead: nextLives <= 0
-          }
+        if (nextLives < prevLives) {
+          setLifeDelta(-1)
         }
-        return u
-      })
 
-      if (!authUser) {
+        if (nextLives <= 0) {
+          triggerDeath()
+        }
 
-        saveUsers(updated)
-
-      }
-      return updated
-    })
-
-
-
-    const nextLivesForDb = Math.max((currentUser?.lives ?? 20) - 1, 0)
-
-      if (authUser) {
-
-        const saveLivesResult = await supabase
-
-          .from('characters')
-
-          .update({
-
-            lives: nextLivesForDb
-
-          })
-
-          .eq('auth_user_id', currentUser.userId)
-
-          .eq('char_id', selChar)
-
-          .select()
-
-        console.log(
-
-          'CINECLUE_SAVE_LIVES_RESULT=',
-
-          JSON.stringify(saveLivesResult)
-
-        )
-
+        return {
+          ...u,
+          lives: Math.max(nextLives, 0),
+          isDead: nextLives <= 0
+        }
       }
 
-
-
-    await saveLog({
-      supabase,
-      userId: String(currentUser.userId),
-      charId: selChar,
-      movie: m,
-      hintUsed: sh,
-      score: 0,
-      comboMode: null,
-      isCorrect: false,
-      isSkip: true,
-      nickname: currentUser.nickname,
-      genre: m?.final_genre || null,
-      log_type: 'play',
-      quizMode
+      return u
     })
 
-    const genreValue = m?.final_genre || '기타'
-
-    await safeQuery(
-
-      supabase.rpc('update_genre_stats', {
-
-        p_user_id: String(currentUser.userId),
-
-        p_character_id: selChar,
-
-        p_genre: genreValue,
-
-        p_is_correct: false,
-
-        p_score: 0
-
-      }),
-
-      'update genre stats skip'
-
-    )
-
-    const roundScore = score - roundStartScore
-
-    setResults(r => [...r, {
-      ...m,
-      correct: false,
-      hintUsed: 0,
-      score: 0,
-      country: m.country,
-      genre: m.final_genre || '',
-      grade: primaryGrade
-    }])
-
-    if (willDie) {
-      await saveLog({
-        supabase,
-        userId: String(currentUser.userId),
-        charId: selChar,
-        movie: { id: null },
-        hintUsed: 0,
-        score: roundScore,
-        comboMode: null,
-        isCorrect: true,
-        nickname: currentUser.nickname,
-        log_type: 'result',
-        quizMode
-      })
-
-      setAnswered(true)
-      setIsSubmitting(false)
-      skipLockRef.current = false
-      triggerDeath()
-      return
+    if (!authUser) {
+      saveUsers(updated)
     }
 
+    return updated
+  })
+
+  setResults(r => [...r, {
+    ...m,
+    correct: false,
+    hintUsed: 0,
+    score: 0,
+    country: m.country,
+    genre: m.final_genre || '',
+    grade: primaryGrade
+  }])
+
+  if (willDie) {
+    setAnswered(true)
+    setIsSubmitting(false)
+    skipLockRef.current = false
+    triggerDeath()
+  } else {
     setFb('다음번엔 꼭 맞추길...')
     setFbt('sk')
     setAnswered(true)
     setIsSubmitting(false)
     skipLockRef.current = false
   }
+
+  // 2️⃣ DB 저장은 뒤에서 조용히 처리
+  if (authUser) {
+    supabase
+      .from('characters')
+      .update({
+        lives: nextLivesForDb
+      })
+      .eq('auth_user_id', currentUser.userId)
+      .eq('char_id', selChar)
+      .select()
+
+  }
+
+  saveLog({
+    supabase,
+    userId: String(currentUser.userId),
+    charId: selChar,
+    movie: m,
+    hintUsed: sh,
+    score: 0,
+    comboMode: null,
+    isCorrect: false,
+    isSkip: true,
+    nickname: currentUser.nickname,
+    genre: m?.final_genre || null,
+    log_type: 'play',
+    quizMode
+  }).catch(console.error)
+
+  safeQuery(
+    supabase.rpc('update_genre_stats', {
+      p_user_id: String(currentUser.userId),
+      p_character_id: selChar,
+      p_genre: genreValue,
+      p_is_correct: false,
+      p_score: 0
+    }),
+    'update genre stats skip'
+  ).catch(console.error)
+
+  if (willDie) {
+    saveLog({
+      supabase,
+      userId: String(currentUser.userId),
+      charId: selChar,
+      movie: { id: null },
+      hintUsed: 0,
+      score: roundScore,
+      comboMode: null,
+      isCorrect: true,
+      nickname: currentUser.nickname,
+      log_type: 'result',
+      quizMode
+    }).catch(console.error)
+  }
+}
 
 
   function nextH() {
@@ -3555,10 +3523,16 @@ useEffect(() => {
 
 
   async function nextQ() {
-
     inputRef.current?.blur()
+
+    isPausedRef.current = false
+    setIsRestoring(false)
     skipLockRef.current = false
+    
     setProgress(0)
+    setButtonActive(false)
+    setTimerStartedAt(null)
+   
     setButtonActive(false)
     setShowAnswers(false)
     setShowSynopsis(false)
@@ -3947,7 +3921,7 @@ useEffect(() => {
           }}
 
           authUser={authUser}
-          authChecked={authChecked && !isRestoring}
+          authChecked={authChecked}
           introAnimationDone={introAnimationDone}
         />
       )}
