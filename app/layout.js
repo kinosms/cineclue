@@ -24,7 +24,7 @@ export const metadata = {
 
     title: 'CineClue - 영화 퀴즈, 영화 맞추기 게임',
 
-    description: '영화 좀 안다는 사람이면 도전! 영화 장면 힌트로 영화를 맞히는 영화 퀴즈 게임 CineClue',
+    description: '영화 좀 안다는 사람이면 도전! CineClue',
 
     url: "https://cineclue.app",
 
