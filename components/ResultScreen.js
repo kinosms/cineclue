@@ -63,6 +63,8 @@ export default function ResultScreen(props) {
     showAppToast
   } = props
 
+
+  const REWARD_AD_ID = 'ca-app-pub-9833499589161859/2594869167'
   const safeUsers = Array.isArray(users) ? users : []
   const user = safeUsers.find(u => u.charId === selChar)
   const baseScore = user?.score ?? 0

@@ -29,6 +29,13 @@ import {
   isAndroidMobile
 } from '../utils/platform'
 
+import {
+  AdMob,
+  RewardAdPluginEvents
+} from '@capacitor-community/admob'
+
+const REWARD_AD_ID = 'ca-app-pub-9833499589161859/2594869167'
+
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || ''
 const SUPABASE_KEY = process.env.NEXT_PUBLIC_SUPABASE_KEY || ''
 
@@ -2622,13 +2629,33 @@ return () => {
     setSelGrade(id)
   }
 
+  async function showRewardedAd() {
+    let rewardListener
+    try {
+      rewardListener = await AdMob.addListener(
+        RewardAdPluginEvents.Rewarded,
+        () => {
+          setShowAnswers(true)
+          rewardListener?.remove()
+        }
+      )
+      await AdMob.prepareRewardVideoAd({
+        adId: REWARD_AD_ID
+      })
+      await AdMob.showRewardVideoAd()
+    } catch (error) {
+      console.error('SHOW_REWARDED_AD_ERROR=', error)
+      rewardListener?.remove()
+      showAppToast('광고를 불러오지 못했습니다')
+    }
+  }
 
   function handleShowAnswers() {
     if (!isAndroidApp) {
       showAppToast('Android 앱에서만\n이용 가능합니다')
       return
-      }
-    setShowAnswers(true)
+    }
+    showRewardedAd()
   }
 
 
