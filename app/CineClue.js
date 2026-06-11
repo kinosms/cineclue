@@ -1907,6 +1907,18 @@ useEffect(() => {
 
   async function saveCharacterLivesToDb(nextLives) {
 
+      console.log(
+
+    'SAVE_CHARACTER_LIVES_TO_DB=',
+
+    nextLives,
+
+    currentUser?.userId,
+
+    selChar
+
+  )
+
   if (!authUser) return
 
   if (!currentUser?.userId) return
