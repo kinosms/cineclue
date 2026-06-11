@@ -21,8 +21,6 @@ export default function ResultScreen(props) {
     setResultView,
     isLevelCompleted,
     visibleResults,
-    showAnswers,
-    handleShowAnswers,
     loadMovieDetail,
     GRADES,
     rankingRevealDone,
@@ -60,11 +58,11 @@ export default function ResultScreen(props) {
     collectionTargetUserId,
     setCollectionTargetUserId, 
     setCollectionReturnScreen,
-    showAppToast
+    showAppToast,
+    showAnswers,
+    handleShowAnswers
   } = props
 
-
-  const REWARD_AD_ID = 'ca-app-pub-9833499589161859/2594869167'
   const safeUsers = Array.isArray(users) ? users : []
   const user = safeUsers.find(u => u.charId === selChar)
   const baseScore = user?.score ?? 0
@@ -279,24 +277,51 @@ const sortedRanking = [...patchedRanking].sort(
           {/* 정답보기-AD 버튼 */}
           {resultView === 'score' && hasFail && !showAnswers && (
             <button
-              onClick={handleShowAnswers}
-              disabled={showAnswers}
-              style={{
-                position: 'absolute',
-                top: -30,
-                left: 20,
-                zIndex: 20,
-                display: 'flex',
-                alignItems: 'center',
-                gap: 6,
-                fontSize: '0.7rem',
-                padding: '6px 10px',
-                borderRadius: 8,
-                border: 'none',
-                background: '#e8808c',
-                color: '#ffffff',
-                fontWeight: 700
+
+              onClick={async () => {
+                playSound('click')
+                try {
+                  await handleShowAnswers()
+                } catch (e) {
+                  console.error('RESULT_BUTTON_ERROR=', e)
+                  showAppToast?.('광고를 불러오지 못했습니다')
+                }
               }}
+
+              disabled={showAnswers}
+
+              style={{
+
+                position: 'absolute',
+
+                top: -30,
+
+                left: 20,
+
+                zIndex: 20,
+
+                display: 'flex',
+
+                alignItems: 'center',
+
+                gap: 6,
+
+                fontSize: '0.7rem',
+
+                padding: '6px 10px',
+
+                borderRadius: 8,
+
+                border: 'none',
+
+                background: '#e8808c',
+
+                color: '#ffffff',
+
+                fontWeight: 700
+
+              }}
+
             >
               정답보기
               <span style={{

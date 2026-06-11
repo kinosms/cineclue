@@ -13,6 +13,7 @@ import ResultScreen from '../components/ResultScreen'
 import Collection from '../components/Collection'
 import MovieFlipCard from '../components/MovieFlipCard'
 import ProfileModal from '../components/ProfileModal'
+import { Capacitor } from '@capacitor/core'
 import {
   playSound,
   playBgm,
@@ -35,6 +36,7 @@ import {
 } from '@capacitor-community/admob'
 
 const REWARD_AD_ID = 'ca-app-pub-9833499589161859/2594869167'
+const REWARD_LIFE_AD_ID = 'ca-app-pub-9833499589161859/2950092381'
 
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || ''
 const SUPABASE_KEY = process.env.NEXT_PUBLIC_SUPABASE_KEY || ''
@@ -877,8 +879,8 @@ function blockWebLogin() {
     localStorage.setItem('cineclue_intro_done', 'true')
     setIntroAnimationDone(true)
     saveCurrentSession({
-      screen: 'intro',
-      selChar: null
+      screen,
+      selChar
     })
     const isNativeApp =
       window.Capacitor?.isNativePlatform?.()
@@ -916,8 +918,8 @@ function blockWebLogin() {
     localStorage.setItem('cineclue_intro_done', 'true')
     setIntroAnimationDone(true)
     saveCurrentSession({
-      screen: 'intro',
-      selChar: null
+      screen,
+      selChar
     })
 
     const isNativeApp =
@@ -1648,8 +1650,7 @@ useEffect(() => {
         localStorage.removeItem('cineclue_oauth_start')
 
         setIntroAnimationDone(true)
-        setScreen('intro')
-        setSelChar(null)
+        setScreen('char')
         setIsRestoring(false)
       }
 
@@ -1788,8 +1789,12 @@ useEffect(() => {
               setShowLogin(false)
               setTimeout(() => {
                 setIntroAnimationDone(true)
-                setScreen('intro')
-                setSelChar(null)
+                if (screen === 'char') {
+                  setScreen('char')
+                } else {
+                  setScreen('intro')
+                  setSelChar(null)
+                }
               }, 50)
             }
             return
@@ -2630,33 +2635,88 @@ return () => {
   }
 
   async function showRewardedAd() {
+
+    console.log('SHOW_REWARDED_AD_START')
+
+  return new Promise(async (resolve) => {
+
     let rewardListener
+
     try {
+
+      console.log('BEFORE_ADD_REWARD_LISTENER')
+
       rewardListener = await AdMob.addListener(
+
         RewardAdPluginEvents.Rewarded,
+
         () => {
-          setShowAnswers(true)
+
           rewardListener?.remove()
+
+          resolve(true)
+
         }
+
       )
+
+      console.log('BEFORE_PREPARE')
+
       await AdMob.prepareRewardVideoAd({
+
         adId: REWARD_AD_ID
+
       })
+
+      console.log('AFTER_PREPARE')
+
+      console.log('BEFORE_SHOW')
+
       await AdMob.showRewardVideoAd()
+
+      console.log('AFTER_SHOW')
+
     } catch (error) {
-      console.error('SHOW_REWARDED_AD_ERROR=', error)
+
+      console.log('SHOW_REWARDED_AD_ERROR=', error)
+
       rewardListener?.remove()
+
       showAppToast('광고를 불러오지 못했습니다')
+
+      resolve(false)
+
     }
+
+  })
+
+}
+
+async function handleShowAnswers() {
+
+  try {
+
+    if (!isAndroidApp) {
+
+      showAppToast('Android 앱에서만\n이용 가능합니다')
+
+      return
+
+    }
+
+    const success = await showRewardedAd()
+
+    if (!success) return
+
+    setShowAnswers(true)
+
+  } catch (e) {
+
+    showAppToast('광고를 불러오지 못했습니다')
+
   }
 
-  function handleShowAnswers() {
-    if (!isAndroidApp) {
-      showAppToast('Android 앱에서만\n이용 가능합니다')
-      return
-    }
-    showRewardedAd()
-  }
+}
 
 
   useEffect(() => {
@@ -3211,27 +3271,14 @@ return () => {
 
           (currentUser?.lives ?? 20) + 1,
 
-          30
+          20
 
         )
 
         if (authUser) {
 
-          const saveLivesResult = await supabase
+          await saveCharacterLivesToDb(nextLivesForDb)
 
-            .from('characters')
-
-            .update({
-
-              lives: nextLivesForDb
-
-            })
-
-            .eq('auth_user_id', currentUser.userId)
-
-            .eq('char_id', selChar)
-
-            .select()
 
         }
 
@@ -3451,6 +3498,10 @@ return () => {
     return updated
   })
 
+  if (authUser) {
+    await saveCharacterLivesToDb(nextLivesForDb)
+  }
+
   setResults(r => [...r, {
     ...m,
     correct: false,
@@ -3472,19 +3523,6 @@ return () => {
     setAnswered(true)
     setIsSubmitting(false)
     skipLockRef.current = false
-  }
-
-  // 2️⃣ DB 저장은 뒤에서 조용히 처리
-  if (authUser) {
-    supabase
-      .from('characters')
-      .update({
-        lives: nextLivesForDb
-      })
-      .eq('auth_user_id', currentUser.userId)
-      .eq('char_id', selChar)
-      .select()
-
   }
 
   saveLog({
@@ -3602,36 +3640,12 @@ return () => {
 
           (prevLives ?? 20) + 5,
 
-          30
+          20
 
         )
 
         if (authUser) {
-
-          const saveLivesResult = await supabase
-
-            .from('characters')
-
-            .update({
-
-              lives: nextLivesForDb
-
-            })
-
-            .eq('auth_user_id', currentUser.userId)
-
-            .eq('char_id', selChar)
-
-            .select()
-
-          console.log(
-
-            'CINECLUE_SAVE_LIVES_PLUS5=',
-
-            JSON.stringify(saveLivesResult)
-
-          )
-
+          await saveCharacterLivesToDb(nextLivesForDb)
         }
 
 
@@ -4084,6 +4098,10 @@ return () => {
 
           shouldUseAppGate={shouldUseAppGate}
 
+          showRewardedAd={showRewardedAd}
+
+          supabase={supabase}
+
         />
 
       )}
@@ -4256,8 +4274,6 @@ return () => {
           setResultView={setResultView}
 
           visibleResults={visibleResults}
-
-          showAnswers={showAnswers}
           handleShowAnswers={handleShowAnswers}
 
           GRADES={GRADES}
@@ -4322,6 +4338,7 @@ return () => {
           setCollectionTargetUserId={setCollectionTargetUserId}
           setCollectionReturnScreen={setCollectionReturnScreen}
 
+          showAnswers={showAnswers}
           showAppToast={showAppToast}
         />
 

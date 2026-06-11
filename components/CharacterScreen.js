@@ -78,9 +78,13 @@ export default function CharacterScreen(props) {
 
     showAppToast,
 
-    shouldUseAppGate
+    shouldUseAppGate,
 
+    showRewardedAd,
+
+    supabase
   } = props
+
 
   return (
     <div style={{
@@ -696,6 +700,12 @@ export default function CharacterScreen(props) {
                       e.stopPropagation()
                       if (u.isDead) {
                         if (!authUser) return
+                        if (!isAndroidApp) {
+                          showAppToast('Android 앱에서만\n이용 가능합니다')
+                          return
+                        }
+                        const success = await showRewardedAd()
+                        if (!success) return
                         setUsers(prev =>
                           prev.map(x => {
                             if (x.charId === c.id) {
@@ -715,6 +725,7 @@ export default function CharacterScreen(props) {
                           })
                           .eq('auth_user_id', u.userId)
                           .eq('char_id', c.id)
+                        showAppToast('캐릭터가 부활했습니다')
                         return
                       }
                       deleteUser(c.id)
