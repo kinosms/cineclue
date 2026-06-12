@@ -870,8 +870,9 @@ function blockWebLogin() {
 }
 
   const loginGoogle = async () => {
+
     setShowLogin(false)
-    setIsRestoring(true)
+
     localStorage.setItem(
       'cineclue_oauth_start',
       'true'
@@ -884,6 +885,7 @@ function blockWebLogin() {
     })
     const isNativeApp =
       window.Capacitor?.isNativePlatform?.()
+
     const { data, error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: isNativeApp
@@ -897,6 +899,7 @@ function blockWebLogin() {
     })
     if (error) {
       console.error('google oauth login error', error)
+      setIsRestoring(false)
       return
     }
     if (isNativeApp && data?.url) {
@@ -909,7 +912,6 @@ function blockWebLogin() {
   const loginKakao = async () => {
 
     setShowLogin(false)
-    setIsRestoring(true)
 
     localStorage.setItem(
       'cineclue_oauth_start',
@@ -1611,12 +1613,6 @@ useEffect(() => {
 
       localStorage.removeItem('cineclue_current_session')
 
-      setIsRestoring(false)
-      setIntroAnimationDone(true)
-      setSelChar(null)
-      setSelectedMode(null)
-      setScreen('intro')
-
       const url = new URL(event.url)
       const code = url.searchParams.get('code')
 
@@ -1657,10 +1653,7 @@ useEffect(() => {
 
         localStorage.removeItem('cineclue_oauth_start')
 
-        setIntroAnimationDone(true)
-        setSelChar(null)
-        setSelectedMode(null)
-        setScreen('intro')
+        setScreen('char')
         setIsRestoring(false)
       }
 
@@ -1717,6 +1710,18 @@ useEffect(() => {
         async (_event, session) => {
           const user = session?.user ?? null
 
+          console.log('AUTH_STATE_CHANGE', {
+
+        event: _event,
+
+        userId: user?.id,
+
+        email: user?.email,
+
+        name: user?.user_metadata?.name
+
+      })
+
           setAuthUser(user)
 
           if (user) {
@@ -1730,6 +1735,20 @@ useEffect(() => {
               return
             }
 
+            const currentScreen = screenRef.current
+
+              if (
+
+                oauthStart === 'true' &&
+
+                currentScreen === 'char'
+
+              ) {
+
+                setIsRestoring(true)
+
+              }
+
             const result =
               await safeQuery(
                 supabase
@@ -1740,6 +1759,7 @@ useEffect(() => {
               )
 
             if (result?.error) {
+              setIsRestoring(false)
               return
             }
             const data = result?.data || []
@@ -1747,6 +1767,7 @@ useEffect(() => {
               if (screen !== 'quiz') {
                 setUsers([])
               }
+              setIsRestoring(false)
               return
             }
 
@@ -1788,6 +1809,18 @@ useEffect(() => {
             )
 
             setUsers(loadedUsers)
+            if (
+
+              oauthStart === 'true' &&
+
+              screenRef.current === 'char'
+
+            ) {
+
+              setIsRestoring(false)
+
+            }
+            setIsRestoring(false)
 
             if (
               _event === 'SIGNED_IN' &&
@@ -1798,11 +1831,7 @@ useEffect(() => {
               )
               setShowLogin(false)
               setTimeout(() => {
-                setIntroAnimationDone(true)
-                setScreen('intro')
-                setSelChar(null)
-                setSelectedMode(null)
-                setIsRestoring(false)
+                setScreen('char')
               }, 50)
             }
             return
@@ -3973,17 +4002,21 @@ async function handleShowAnswers() {
       <CharacterSpinner />
         )}
 
+      {isRestoring && screen !== 'intro' && (
+        <CharacterSpinner />
+      )}
+
+
       {/* 인트로화면 */}
       {screen === 'intro' && (
         <IntroScreen
           onEnter={enterCharacterScreen}
-          onLogin={() => {
-            setShowLogin(true)
-          }}
-
           authUser={authUser}
           authChecked={authChecked}
           introAnimationDone={introAnimationDone}
+          onStart={enterCharacterScreen}
+          onLogin={() => setShowLogin(true)}
+          isAuthLoading={isRestoring}
         />
       )}
 

@@ -14,7 +14,20 @@ export default function IntroScreen({
   authUser,
   authChecked,
   introAnimationDone,
+  isAuthLoading
 }) {
+
+    console.log('INTRO_PROPS', {
+
+    authUser,
+
+    authChecked,
+
+    introAnimationDone,
+
+    isAuthLoading
+
+  })
 
   const [mounted, setMounted] = useState(false)
 
@@ -195,7 +208,9 @@ export default function IntroScreen({
                   color: '#8f8f8f',
                   whiteSpace: 'nowrap'
                 }}>
-                🎬 {authUser.user_metadata?.name}님 반가워요
+                {isAuthLoading
+                  ? '🎬 로그인 접속중...'
+                  : `🎬 ${authUser.user_metadata?.name}님 반가워요`}
               </div>
             )}
           </div>
