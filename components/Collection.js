@@ -89,7 +89,69 @@ export default function Collection(props) {
 
 }
 
+async function preloadImages(urls = []) {
+  Promise.all(
+    urls.map(src => {
+      return new Promise(resolve => {
+        const img = new Image()
+        img.src = src
+        img.onload = resolve
+        img.onerror = resolve
+      })
+    })
+  )
+}
 
+const loadCollections = async (nextSortType = sortType) => {
+  const targetUserId = collectionTargetUserId || authUser?.id
+
+  if (!targetUserId) {
+    setPosters([])
+    setReady(true)
+    return
+  }
+
+  let query = supabase
+    .from('collections')
+    .select('*')
+    .eq('user_id', targetUserId)
+
+  if (nextSortType === 'name') {
+    query = query.order('movie_title', { ascending: true })
+  } else {
+    query = query.order('viewed_at', { ascending: false })
+  }
+
+  const { data, error } = await query
+
+  if (error) {
+    console.error(error)
+    setPosters([])
+    setReady(true)
+    return
+  }
+
+  const postersData = data || []
+
+  setPosters(postersData)
+  setReady(true)
+
+  const preloadTargets = postersData
+    .slice(0, 15)
+    .map(p =>
+      p.movie_data?.poster_path
+        ? `https://image.tmdb.org/t/p/w500${p.movie_data.poster_path}`
+        : '/no_poster.webp'
+    )
+
+  preloadImages(preloadTargets)
+}
+
+useEffect(() => {
+  loadCollections('recent')
+}, [supabase, authUser?.id, collectionTargetUserId])
+
+ /*
   useEffect(() => {
 
     const loadCollections = async () => {
@@ -176,7 +238,7 @@ export default function Collection(props) {
 
     loadCollections()
 
-  }, [supabase, authUser?.id, collectionTargetUserId])
+  }, [supabase, authUser?.id, collectionTargetUserId]) */
 
 
   
@@ -228,7 +290,8 @@ export default function Collection(props) {
   }
 
 
-
+  const sortedPosters = posters
+  /*
   const sortedPosters =
 
     [...posters].sort((a, b) => {
@@ -251,7 +314,7 @@ export default function Collection(props) {
 
         - new Date(a.viewed_at)
 
-    })
+    }) */
 
     const fxPosters =
 
@@ -536,6 +599,28 @@ export default function Collection(props) {
             {/* SORT */}
             <button
 
+            onClick={() => {
+
+              playSound('arrange')
+
+              const nextSortType =
+
+                sortType === 'recent'
+
+                  ? 'name'
+
+                  : 'recent'
+
+              triggerShuffleFx(() => {
+
+                setSortType(nextSortType)
+
+                loadCollections(nextSortType)
+
+              })
+
+            }}
+/*
               onClick={() => {
 
                 playSound('arrange')
@@ -554,7 +639,7 @@ export default function Collection(props) {
 
                 })
 
-              }}
+              }} */
 
               style={{
 
