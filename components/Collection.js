@@ -49,6 +49,23 @@ export default function Collection(props) {
   const shuffleHideTimeoutRef = useRef(null)
   const SHUFFLE_DURATION = 1700
 
+
+  const isIPhoneWeb = () => {
+
+    if (typeof window === 'undefined') return false
+
+    const ua = navigator.userAgent || ''
+
+    const isIPhone = /iPhone|iPod/.test(ua)
+
+    const isNative =
+
+      window.Capacitor?.isNativePlatform?.()
+
+    return isIPhone && !isNative
+
+  }
+
   const triggerShuffleFx = (callback) => {
 
     // 🔥 이전 타이머 제거
@@ -610,6 +627,16 @@ useEffect(() => {
                   ? 'name'
 
                   : 'recent'
+
+                  if (isIPhoneWeb()) {
+
+                    setSortType(nextSortType)
+
+                    loadCollections(nextSortType)
+
+                    return
+
+                  }
 
               triggerShuffleFx(() => {
 
