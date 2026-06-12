@@ -26,7 +26,7 @@ export const metadata = {
 
     description: '영화 좀 안다는 사람이면 도전! CineClue',
 
-    url: "https://cineclue.app",
+    url: "https://cine-clue.app",
 
     siteName: 'CineClue',
 
