@@ -614,39 +614,27 @@ useEffect(() => {
           >
 
             {/* SORT */}
-            <button
+            {!isIPhoneWeb() && (
 
-            onClick={() => {
+  <button
 
-              playSound('arrange')
+    onClick={() => {
 
-              const nextSortType =
+      playSound('arrange')
 
-                sortType === 'recent'
+      const nextSortType =
 
-                  ? 'name'
+        sortType === 'recent' ? 'name' : 'recent'
 
-                  : 'recent'
+      triggerShuffleFx(() => {
 
-                  if (isIPhoneWeb()) {
+        setSortType(nextSortType)
 
-                    setSortType(nextSortType)
+        loadCollections(nextSortType)
 
-                    loadCollections(nextSortType)
+      })
 
-                    return
-
-                  }
-
-              triggerShuffleFx(() => {
-
-                setSortType(nextSortType)
-
-                loadCollections(nextSortType)
-
-              })
-
-            }}
+    }}
 /*
               onClick={() => {
 
@@ -701,6 +689,7 @@ useEffect(() => {
                 : '이름순'}
 
             </button>
+          )}
 
             {/* LAYOUT */}
             <button
