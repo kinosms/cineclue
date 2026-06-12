@@ -4,7 +4,7 @@ import Script from 'next/script'
 
 export const metadata = {
 
-  metadataBase: new URL('https://cine-clue.com'),
+  metadataBase: new URL('https://www.cine-clue.com'),
 
   title: 'CineClue',
 
@@ -26,7 +26,7 @@ export const metadata = {
 
     description: '영화 좀 안다는 사람이면 도전! CineClue',
 
-    url: "https://cine-clue.com",
+    url: "https://www.cine-clue.com",
 
     siteName: 'CineClue',
 
