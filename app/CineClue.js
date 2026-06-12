@@ -1609,6 +1609,14 @@ useEffect(() => {
       setIsLoggingOut(false)
       isPausedRef.current = false
 
+      localStorage.removeItem('cineclue_current_session')
+
+      setIsRestoring(false)
+      setIntroAnimationDone(true)
+      setSelChar(null)
+      setSelectedMode(null)
+      setScreen('intro')
+
       const url = new URL(event.url)
       const code = url.searchParams.get('code')
 
@@ -1651,6 +1659,7 @@ useEffect(() => {
 
         setIntroAnimationDone(true)
         setSelChar(null)
+        setSelectedMode(null)
         setScreen('intro')
         setIsRestoring(false)
       }
@@ -1790,12 +1799,10 @@ useEffect(() => {
               setShowLogin(false)
               setTimeout(() => {
                 setIntroAnimationDone(true)
-                if (screen === 'char') {
-                  setScreen('char')
-                } else {
-                  setScreen('intro')
-                  setSelChar(null)
-                }
+                setScreen('intro')
+                setSelChar(null)
+                setSelectedMode(null)
+                setIsRestoring(false)
               }, 50)
             }
             return
