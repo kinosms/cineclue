@@ -23,7 +23,7 @@ export default function DeleteAccountPage() {
         <h2 style={{ fontSize: 20 }}>삭제 요청 방법</h2>
 
         <p>
-          이메일: <strong>kinosms07@gmail.com</strong>
+          이메일: <strong>cinecluegame@gmail.com</strong>
         </p>
 
         <p>
