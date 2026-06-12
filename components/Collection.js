@@ -167,11 +167,10 @@ export default function Collection(props) {
 
           )
 
-      await preloadImages(preloadTargets)
-
+      
       setPosters(postersData)
-
       setReady(true)
+      preloadImages(preloadTargets)
 
     }
 
