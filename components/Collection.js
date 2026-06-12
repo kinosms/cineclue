@@ -49,23 +49,6 @@ export default function Collection(props) {
   const shuffleHideTimeoutRef = useRef(null)
   const SHUFFLE_DURATION = 1700
 
-
-  const isIPhoneWeb = () => {
-
-    if (typeof window === 'undefined') return false
-
-    const ua = navigator.userAgent || ''
-
-    const isIPhone = /iPhone|iPod/.test(ua)
-
-    const isNative =
-
-      window.Capacitor?.isNativePlatform?.()
-
-    return isIPhone && !isNative
-
-  }
-
   const triggerShuffleFx = (callback) => {
 
     // 🔥 이전 타이머 제거
@@ -154,7 +137,7 @@ const loadCollections = async (nextSortType = sortType) => {
   setReady(true)
 
   const preloadTargets = postersData
-    .slice(0, 15)
+    .slice(0, 20)
     .map(p =>
       p.movie_data?.poster_path
         ? `https://image.tmdb.org/t/p/w500${p.movie_data.poster_path}`
@@ -306,9 +289,6 @@ useEffect(() => {
 
   }
 
-
-  const sortedPosters = posters
-  /*
   const sortedPosters =
 
     [...posters].sort((a, b) => {
@@ -331,7 +311,7 @@ useEffect(() => {
 
         - new Date(a.viewed_at)
 
-    }) */
+    })
 
     const fxPosters =
 
@@ -614,28 +594,8 @@ useEffect(() => {
           >
 
             {/* SORT */}
-            {!isIPhoneWeb() && (
+            <button
 
-  <button
-
-    onClick={() => {
-
-      playSound('arrange')
-
-      const nextSortType =
-
-        sortType === 'recent' ? 'name' : 'recent'
-
-      triggerShuffleFx(() => {
-
-        setSortType(nextSortType)
-
-        loadCollections(nextSortType)
-
-      })
-
-    }}
-/*
               onClick={() => {
 
                 playSound('arrange')
@@ -654,7 +614,7 @@ useEffect(() => {
 
                 })
 
-              }} */
+              }}
 
               style={{
 
@@ -689,7 +649,6 @@ useEffect(() => {
                 : '이름순'}
 
             </button>
-          )}
 
             {/* LAYOUT */}
             <button

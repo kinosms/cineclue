@@ -1686,8 +1686,6 @@ useEffect(() => {
   useEffect(() => {
     if (!supabase) return
 
-    console.time('INIT_GET_SESSION')
-
     supabase.auth.getSession()
 
   .then(({ data }) => {
