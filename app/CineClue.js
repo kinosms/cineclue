@@ -2467,7 +2467,9 @@ return () => {
 
           user_id: authUser.id,
 
-          movie_id: movie.id || movie.tmdb_id,
+          movie_id: movie.id,
+
+          movie_title: movie.title,
 
           movie_data: movie,
 

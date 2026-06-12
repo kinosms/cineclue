@@ -89,6 +89,7 @@ export default function Collection(props) {
 
 }
 
+
   useEffect(() => {
 
     const loadCollections = async () => {
@@ -154,7 +155,7 @@ export default function Collection(props) {
 
       const preloadTargets = postersData
 
-          .slice(0, 30)
+          .slice(0, 15)
 
           .map(p =>
 
@@ -177,6 +178,16 @@ export default function Collection(props) {
     loadCollections()
 
   }, [supabase, authUser?.id, collectionTargetUserId])
+
+
+  
+  useEffect(() => {
+      return () => {
+        clearTimeout(shuffleTimeoutRef.current)
+        clearTimeout(shuffleHideTimeoutRef.current)
+      }
+    }, [])
+
 
 
   if (!ready) {
@@ -225,11 +236,11 @@ export default function Collection(props) {
 
       if (sortType === 'name') {
 
-        return (a.movie_data?.title || '')
+        return (a.movie_title || a.movie_data?.title || '')
 
           .localeCompare(
 
-            b.movie_data?.title || '',
+            b.movie_title || b.movie_data?.title || '',
 
             'ko'
 
