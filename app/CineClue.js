@@ -2686,87 +2686,65 @@ return () => {
   }
 
   async function showRewardedAd() {
-
-    console.log('SHOW_REWARDED_AD_START')
-
   return new Promise(async (resolve) => {
-
     let rewardListener
-
     try {
-
-      console.log('BEFORE_ADD_REWARD_LISTENER')
-
       rewardListener = await AdMob.addListener(
-
         RewardAdPluginEvents.Rewarded,
-
         () => {
-
           rewardListener?.remove()
-
           resolve(true)
-
         }
-
       )
-
-      console.log('BEFORE_PREPARE')
-
       await AdMob.prepareRewardVideoAd({
-
         adId: REWARD_AD_ID
-
       })
-
-      console.log('AFTER_PREPARE')
-
-      console.log('BEFORE_SHOW')
-
       await AdMob.showRewardVideoAd()
-
-      console.log('AFTER_SHOW')
-
     } catch (error) {
-
       console.log('SHOW_REWARDED_AD_ERROR=', error)
-
       rewardListener?.remove()
-
       showAppToast('광고를 불러오지 못했습니다')
-
       resolve(false)
-
     }
-
   })
+}
 
+async function showRewardedLifeAd() {
+  return new Promise(async (resolve) => {
+    let rewardListener
+    try {
+      rewardListener = await AdMob.addListener(
+        RewardAdPluginEvents.Rewarded,
+        () => {
+          rewardListener?.remove()
+          resolve(true)
+        }
+      )
+      await AdMob.prepareRewardVideoAd({
+        adId: REWARD_LIFE_AD_ID
+      })
+      await AdMob.showRewardVideoAd()
+    } catch (error) {
+      console.log('SHOW_REWARDED_LIFE_AD_ERROR=', error)
+      rewardListener?.remove()
+      showAppToast('광고를 불러오지 못했습니다')
+      resolve(false)
+    }
+  })
 }
 
 async function handleShowAnswers() {
-
   try {
-
     if (!isAndroidApp) {
-
       showAppToast('Android 앱에서만\n이용 가능합니다')
-
       return
-
     }
-
     const success = await showRewardedAd()
-
     if (!success) return
-
     setShowAnswers(true)
-
   } catch (e) {
-
     showAppToast('광고를 불러오지 못했습니다')
-
   }
-
 }
 
 
@@ -4154,6 +4132,8 @@ async function handleShowAnswers() {
           shouldUseAppGate={shouldUseAppGate}
 
           showRewardedAd={showRewardedAd}
+
+          showRewardedLifeAd={showRewardedLifeAd}
 
           supabase={supabase}
 

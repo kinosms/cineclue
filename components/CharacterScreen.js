@@ -82,6 +82,8 @@ export default function CharacterScreen(props) {
 
     showRewardedAd,
 
+    showRewardedLifeAd,
+
     supabase
   } = props
 
@@ -704,7 +706,7 @@ export default function CharacterScreen(props) {
                           showAppToast('Android 앱에서만\n이용 가능합니다')
                           return
                         }
-                        const success = await showRewardedAd()
+                        const success = await showRewardedLifeAd()
                         if (!success) return
                         setUsers(prev =>
                           prev.map(x => {
