@@ -1650,7 +1650,8 @@ useEffect(() => {
         localStorage.removeItem('cineclue_oauth_start')
 
         setIntroAnimationDone(true)
-        setScreen('char')
+        setSelChar(null)
+        setScreen('intro')
         setIsRestoring(false)
       }
 
