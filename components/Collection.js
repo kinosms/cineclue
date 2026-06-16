@@ -315,6 +315,14 @@ useEffect(() => {
 
     })
 
+    const visiblePosters =
+
+    collectionLayout === 'stack'
+
+      ? sortedPosters.slice(0, 80)
+
+      : sortedPosters
+
     const fxPosters =
 
       posters.length === 0
@@ -337,7 +345,7 @@ useEffect(() => {
 
               return poster?.movie_data?.poster_path
 
-                ? `https://image.tmdb.org/t/p/w500${poster.movie_data.poster_path}`
+                ? `https://image.tmdb.org/t/p/w342${poster.movie_data.poster_path}`
 
                 : '/no_poster.webp'
 
@@ -866,7 +874,7 @@ useEffect(() => {
 
         >
 
-          {sortedPosters.map((poster, index) => {
+          {visiblePosters.map((poster, index) => {
 
             const rotate =
 
@@ -946,12 +954,14 @@ useEffect(() => {
 
                     poster.movie_data?.poster_path
 
-                      ? `https://image.tmdb.org/t/p/w500${poster.movie_data.poster_path}`
+                      ? `https://image.tmdb.org/t/p/w342${poster.movie_data.poster_path}`
 
                       : '/no_poster.webp'
 
                   }
                   alt={poster.movie_data?.title}
+                  loading="lazy"
+                  decoding="async"
                   draggable={false}
                   style={{
                     width: '100%',
@@ -1043,7 +1053,7 @@ useEffect(() => {
             }}
           >
 
-            {sortedPosters.map((poster, index) => (
+            {visiblePosters.map((poster, index) => (
 
               <div
                 key={index}
@@ -1070,7 +1080,7 @@ useEffect(() => {
                 <img
                   src={
                     poster.movie_data?.poster_path
-                      ? `https://image.tmdb.org/t/p/w500${poster.movie_data.poster_path}`
+                      ? `https://image.tmdb.org/t/342${poster.movie_data.poster_path}`
                       : '/no_poster.webp'
                   }
 
