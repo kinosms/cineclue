@@ -2,7 +2,6 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
-import MovieFlipCard from './MovieFlipCard'
 import { playSound } from '../library/audioManager'
 
 export default function Collection(props) {
@@ -43,11 +42,11 @@ export default function Collection(props) {
   const [posters, setPosters] = useState([])
   const [collectionLayout, setCollectionLayout] = useState('stack')
   const [sortType, setSortType] = useState('recent')
-  const [showShuffleFx, setShowShuffleFx] = useState(false)
+  /*const [showShuffleFx, setShowShuffleFx] = useState(false)
   const [shuffleCards, setShuffleCards] = useState([])
   const shuffleTimeoutRef = useRef(null)
   const shuffleHideTimeoutRef = useRef(null)
-  const SHUFFLE_DURATION = 1700
+  const SHUFFLE_DURATION = 1700 
 
   const triggerShuffleFx = (callback) => {
 
@@ -87,7 +86,7 @@ export default function Collection(props) {
 
     }, SHUFFLE_DURATION)
 
-}
+}*/
 
 async function preloadImages(urls = []) {
   await Promise.all(
@@ -136,121 +135,23 @@ const loadCollections = async (nextSortType = sortType) => {
 
 
   const preloadTargets = postersData
-    .slice(0, 20)
+    .slice(0, 12)
     .map(p =>
       p.movie_data?.poster_path
-        ? `https://image.tmdb.org/t/p/w500${p.movie_data.poster_path}`
+        ? `https://image.tmdb.org/t/p/w342${p.movie_data.poster_path}`
         : '/no_poster.webp'
     )
 
-  await preloadImages(preloadTargets)
-
   setPosters(postersData)
   setReady(true)
+  preloadImages(preloadTargets)
 }
 
 useEffect(() => {
   loadCollections('recent')
 }, [supabase, authUser?.id, collectionTargetUserId])
 
- /*
-  useEffect(() => {
-
-    const loadCollections = async () => {
-
-      const targetUserId = collectionTargetUserId || authUser?.id
-
-        if (!targetUserId) {
-
-          setPosters([])
-
-          setReady(true)
-
-          return
-
-        }
-
-      async function preloadImages(urls = []) {
-
-        await Promise.all(
-
-          urls.map(src => {
-
-            return new Promise(resolve => {
-
-              const img = new Image()
-
-              img.src = src
-
-              img.onload = resolve
-
-              img.onerror = resolve
-
-            })
-
-          })
-
-        )
-
-      }
-
-      const { data, error } = await supabase
-
-        .from('collections')
-
-        .select('*')
-
-        .eq('user_id', targetUserId)
-
-        .order('viewed_at', { ascending: false })
-
-      if (error) {
-
-        console.error(error)
-
-        setPosters([])
-
-        setReady(true)
-
-        return
-      }
-
-      const postersData = data || []
-
-      const preloadTargets = postersData
-
-          .slice(0, 15)
-
-          .map(p =>
-
-            p.movie_data?.poster_path
-
-              ? `https://image.tmdb.org/t/p/w500${p.movie_data.poster_path}`
-
-              : '/no_poster.webp'
-
-          )
-
-      
-      setPosters(postersData)
-      setReady(true)
-      preloadImages(preloadTargets)
-
-    }
-
-    loadCollections()
-
-  }, [supabase, authUser?.id, collectionTargetUserId]) */
-
-
-  
-  useEffect(() => {
-      return () => {
-        clearTimeout(shuffleTimeoutRef.current)
-        clearTimeout(shuffleHideTimeoutRef.current)
-      }
-    }, [])
-
+ 
 
 
   if (!ready) {
@@ -323,36 +224,6 @@ useEffect(() => {
 
       : sortedPosters
 
-    const fxPosters =
-
-      posters.length === 0
-
-        ? []
-
-        : Array.from(
-
-            { length: 36 },
-
-            (_, i) => {
-
-              const poster =
-
-                posters[
-
-                  i % posters.length
-
-                ]
-
-              return poster?.movie_data?.poster_path
-
-                ? `https://image.tmdb.org/t/p/w342${poster.movie_data.poster_path}`
-
-                : '/no_poster.webp'
-
-            }
-
-          )
-
 
 
   return (
@@ -386,63 +257,7 @@ useEffect(() => {
 
     >
 
-      {showShuffleFx && (
-
-        <div style={{
-
-          position: 'fixed',
-
-          inset: 0,
-
-          overflow: 'hidden',
-
-          pointerEvents: 'none',
-
-          zIndex: 999
-
-        }}>
-
-          {shuffleCards.map((p, i) => (
-
-            <img
-
-              key={i}
-
-              src={p.src}
-
-              style={{
-
-                position:'absolute',
-
-                width:240,
-
-                borderRadius:16,
-
-                top:`${p.top}%`,
-
-                left:p.fromLeft ? '-280px' : 'auto',
-
-                right:!p.fromLeft ? '-280px' : 'auto',
-
-                rotate:`${p.rotate}deg`,
-
-                boxShadow:'0 18px 50px rgba(0,0,0,0.45)',
-
-                animation:p.fromLeft
-
-                  ? `flyRight ${p.duration}s cubic-bezier(.22,.61,.36,1) forwards`
-
-                  : `flyLeft ${p.duration}s cubic-bezier(.22,.61,.36,1) forwards`
-
-              }}
-
-            />
-
-          ))}
-
-        </div>
-
-      )}
+     
 
       {/* TOP */}
 
@@ -605,51 +420,26 @@ useEffect(() => {
 
             {/* SORT */}
             <button
-
               onClick={() => {
-
                 playSound('arrange')
-
-                triggerShuffleFx(() => {
-
-                  setSortType(v =>
-
+                setSortType(v =>
                     v === 'recent'
-
                       ? 'name'
-
                       : 'recent'
-
                   )
-
-                })
-
               }}
-
               style={{
-
                 appearance: 'none',
-
                 WebkitAppearance: 'none',
-
                 border: 'none',
-
                 background: 'transparent',
-
                 color: 'rgba(255,255,255,0.58)',
-
                 fontSize: '0.82rem',
-
                 fontWeight: 500,
-
                 letterSpacing: '-0.01em',
-
                 cursor: 'pointer',
-
                 padding: 0
-
               }}
-
             >
 
               {sortType === 'recent'
@@ -960,7 +750,7 @@ useEffect(() => {
 
                   }
                   alt={poster.movie_data?.title}
-                  loading="lazy"
+                  loading={index < 12 ? 'eager' : 'lazy'}
                   decoding="async"
                   draggable={false}
                   style={{
@@ -1080,14 +870,18 @@ useEffect(() => {
                 <img
                   src={
                     poster.movie_data?.poster_path
-                      ? `https://image.tmdb.org/t/342${poster.movie_data.poster_path}`
+                      ? `https://image.tmdb.org/t/p/w342${poster.movie_data.poster_path}`
                       : '/no_poster.webp'
                   }
 
                   alt={poster.movie_data?.title}
 
-                  draggable={false}
+                  loading={index < 12 ? 'eager' : 'lazy'}
 
+                  decoding="async"
+
+                  draggable={false}
+                
                   style={{
                     width: '100%',
                     height: '100%',
@@ -1111,73 +905,7 @@ useEffect(() => {
 
       )}
 
-      <style jsx>{`
-
-@keyframes flyRight {
-
-  0% {
-
-    transform: translateX(0);
-
-    opacity:0;
-
-  }
-
-  8% {
-
-    opacity:1;
-
-  }
-
-  92% {
-
-    opacity:1;
-
-  }
-
-  100% {
-
-    transform: translateX(240vw);
-
-    opacity:1;
-
-  }
-
-}
-
-@keyframes flyLeft {
-
-  0% {
-
-    transform: translateX(0);
-
-    opacity:0;
-
-  }
-
-  8% {
-
-    opacity:1;
-
-  }
-
-  92% {
-
-    opacity:1;
-
-  }
-
-  100% {
-
-    transform: translateX(-240vw);
-
-    opacity:1;
-
-  }
-
-}
-
-`}</style>
+     
 
     </div>
 
