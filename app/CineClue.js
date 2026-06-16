@@ -1058,7 +1058,7 @@ function blockWebLogin() {
 
   function saveAppSnapshot() {
   const snapshot = {
-    screen,
+    screen: screen === 'quiz' ? 'char' : screen,
     selChar,
     users,
     selGrade,
@@ -1099,7 +1099,23 @@ function restoreAppSnapshot(options = {}) {
   try {
     const s = JSON.parse(saved)
 
-    if (s.screen) setScreen(s.screen)
+    if (s.screen) {
+      const restoreScreen = s.screen === 'quiz' ? 'char' : s.screen
+
+      console.log(
+
+    'RESTORE_SCREEN',
+
+    s.screen,
+
+    '->',
+
+    restoreScreen
+
+  )
+      setScreen(restoreScreen)
+    }
+    const shouldSkipQuizRestore = s.screen === 'quiz'
     if (s.selChar) setSelChar(s.selChar)
 
     if (!keepUsers && Array.isArray(s.users)) {
@@ -1989,8 +2005,18 @@ useEffect(() => {
   // 퀴즈 시작 종료시 현재 세션에 저장
   useEffect(() => {
     if (screen !== 'intro') {
+
+      console.log(
+
+      'SAVE_SESSION_SCREEN=',
+
+      screen === 'quiz' ? 'char' : screen
+
+    )
+
+    
       saveCurrentSession({
-        screen,
+        screen: screen === 'quiz' ? 'char' : screen,
         selChar
       })
     }
@@ -2314,22 +2340,43 @@ useEffect(() => {
 
   }
 
-  // 퀴즈 중 복귀는 무거운 복원 금지
-  if (screen === 'quiz') {
-    setIsRestoring(true)
-    isPausedRef.current = true
+  // 퀴즈 중 복귀는 퀴즈 복원하지 않고 캐릭터 화면으로 이동
 
-    await new Promise(r => setTimeout(r, 500))
-    await new Promise(r => requestAnimationFrame(r))
+if (screen === 'quiz') {
 
-    isPausedRef.current = false
-    setResumeTick(v => v + 1)
+  setIsRestoring(true)
+  isPausedRef.current = true
+  clearInterval(timerRef.current)
+  timerRef.current = null
 
-    registerResumeAudioOnce()
 
-    setIsRestoring(false)
-    return
-  }
+  setTrailerKey(null)
+  setShowMovieCard(false)
+  setMovieCard(null)
+  setShowRecommendModal(false)
+  setRecommendMovie(null)
+
+  setPool([])
+  setQi(0)
+  setSh(1)
+  setAnswered(false)
+  setFb('')
+  setFbt('')
+  setInput('')
+  setMode(null)
+  setComboStreak(0)
+  setCrazyStreak(0)
+  setResults([])
+  setProgress(0)
+  setButtonActive(false)
+  setTimerStartedAt(null)
+  setQuestionReady(false)
+  await restoreAuthCharacters()
+  setScreen('char')
+  isPausedRef.current = false
+  setIsRestoring(false)
+  return
+}
 
   setIsRestoring(true)
 
