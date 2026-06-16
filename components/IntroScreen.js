@@ -175,45 +175,50 @@ export default function IntroScreen({
           </button>
 
           {/* 로그인 */}
-          <div style={{
-            marginTop: 18,
-            textAlign: 'center',
-            height: 22,
-            minWidth: 220,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            opacity: authChecked ? 1 : 0,
-            transition: 'opacity 0.15s ease'
-          }}>
+            <div style={{
+              marginTop: 18,
+              textAlign: 'center',
+              minHeight: 32,
+              minWidth: 220,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}>
 
-            {!authUser ? (
-              <button
-                onClick={onLogin}
-                style={{
-                  border: 'none',
-                  background: 'transparent',
-                  fontSize: '0.9rem',
-                  color: '#8f8f8f',
-                  textDecoration: 'underline',
-                  cursor: 'pointer',
-                  padding: 0
+              {!authChecked ? (
+                <div style={{
+                  fontSize: '0.85rem',
+                  color: '#666'
                 }}>
-                로그인
-              </button>
-            ) : (
-              <div
-                style={{
-                  fontSize: '0.9rem',
-                  color: '#8f8f8f',
-                  whiteSpace: 'nowrap'
-                }}>
-                {isAuthLoading
-                  ? '🎬 로그인 접속중...'
-                  : `🎬 ${authUser.user_metadata?.name}님 반가워요`}
-              </div>
-            )}
-          </div>
+                  로그인 상태 확인중...
+                </div>
+              ) : !authUser ? (
+                <button
+                  onClick={onLogin}
+                  style={{
+                    border: 'none',
+                    background: 'transparent',
+                    fontSize: '0.9rem',
+                    color: '#8f8f8f',
+                    textDecoration: 'underline',
+                    cursor: 'pointer',
+                    padding: '6px 10px'
+                  }}>
+                  로그인
+                </button>
+              ) : (
+                <div
+                  style={{
+                    fontSize: '0.9rem',
+                    color: '#8f8f8f',
+                    whiteSpace: 'nowrap'
+                  }}>
+                  {isAuthLoading
+                    ? '🎬 로그인 접속중...'
+                    : `🎬 ${authUser.user_metadata?.name || '회원'}님 반가워요`}
+                </div>
+              )}
+            </div>
         </div>
       </div>
 
