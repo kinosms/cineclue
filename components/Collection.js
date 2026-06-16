@@ -90,7 +90,7 @@ export default function Collection(props) {
 }
 
 async function preloadImages(urls = []) {
-  Promise.all(
+  await Promise.all(
     urls.map(src => {
       return new Promise(resolve => {
         const img = new Image()
@@ -133,8 +133,7 @@ const loadCollections = async (nextSortType = sortType) => {
 
   const postersData = data || []
 
-  setPosters(postersData)
-  setReady(true)
+
 
   const preloadTargets = postersData
     .slice(0, 20)
@@ -144,7 +143,10 @@ const loadCollections = async (nextSortType = sortType) => {
         : '/no_poster.webp'
     )
 
-  preloadImages(preloadTargets)
+  await preloadImages(preloadTargets)
+
+  setPosters(postersData)
+  setReady(true)
 }
 
 useEffect(() => {
