@@ -1703,41 +1703,24 @@ useEffect(() => {
     if (!supabase) return
 
     supabase.auth.getSession()
+    .then(({ data }) => {
+      setAuthUser(data?.session?.user ?? null)
+      })
 
-  .then(({ data }) => {
-
-    setAuthUser(data?.session?.user ?? null)
-    setAuthChecked(true)
-
-    })
-
-    .catch(err => {
-
-      console.error('getSession error', err)
-
-      setAuthUser(null)
-
-      setAuthChecked(true)
-
-    })
+      .catch(err => {
+        console.error('getSession error', err)
+        setAuthUser(null)
+      })
+      .finally(() => {
+        setAuthChecked(true)
+      })
 
     const { data: { subscription } } =
       supabase.auth.onAuthStateChange(
         async (_event, session) => {
           const user = session?.user ?? null
-
-          console.log('AUTH_STATE_CHANGE', {
-
-        event: _event,
-
-        userId: user?.id,
-
-        email: user?.email,
-
-        name: user?.user_metadata?.name
-
-      })
-
+          
+          setAuthChecked(true)
           setAuthUser(user)
 
           if (user) {
