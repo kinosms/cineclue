@@ -1669,7 +1669,8 @@ useEffect(() => {
 
         localStorage.removeItem('cineclue_oauth_start')
 
-        setScreen('char')
+        setIntroAnimationDone(true)
+        setScreen('intro')
         setIsRestoring(false)
       }
 
@@ -1719,7 +1720,7 @@ useEffect(() => {
       supabase.auth.onAuthStateChange(
         async (_event, session) => {
           const user = session?.user ?? null
-          
+
           setAuthChecked(true)
           setAuthUser(user)
 
@@ -1825,13 +1826,8 @@ useEffect(() => {
               _event === 'SIGNED_IN' &&
               oauthStart === 'true'
             ) {
-              localStorage.removeItem(
-                'cineclue_oauth_start'
-              )
+              localStorage.removeItem('cineclue_oauth_start')
               setShowLogin(false)
-              setTimeout(() => {
-                setScreen('char')
-              }, 50)
             }
             return
           }
