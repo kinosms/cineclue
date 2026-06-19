@@ -2852,7 +2852,7 @@ return () => {
       let rewarded = false
       let resolved = false
 
-      const finish = () => {
+      const finish = (success = rewarded) => {
         if (resolved) return
         resolved = true
 
@@ -2862,13 +2862,14 @@ return () => {
         setIsPreparingAd(false)        
         resumeBgmByScreen()
 
-        resolve(success)
+        resolve(rewarded)
       }
 
       try {
         rewardListener = await AdMob.addListener(
           RewardAdPluginEvents.Rewarded,
           () => {
+            rewarded = true
             finish(true)
           }
         )
@@ -2908,7 +2909,7 @@ async function showRewardedLifeAd() {
     let rewarded = false
     let resolved = false
 
-    const finish = () => {
+    const finish = (success = rewarded) => {
       if (resolved) return
       resolved = true
 
@@ -2927,6 +2928,7 @@ async function showRewardedLifeAd() {
         RewardAdPluginEvents.Rewarded,
         () => {
           rewarded = true
+          finish(true)
         }
       )
 
@@ -2948,7 +2950,7 @@ async function showRewardedLifeAd() {
     } catch (error) {
       console.log('SHOW_REWARDED_LIFE_AD_ERROR=', error)
       showAppToast('광고를 불러오지 못했습니다')
-      finish()
+      finish(false)
     }
   })
 }
