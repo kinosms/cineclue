@@ -1639,8 +1639,6 @@ function restoreAppSnapshot(options = {}) {
   }
 
 
-
-
   function loadUsers(authUser) {
 
     if (authUser) {
@@ -3346,6 +3344,69 @@ async function handleShowAnswers() {
   }
 
 
+
+  async function recoverQuizData(movie) {
+    if (!movie?.id) return movie
+
+    try {
+      const result = await safeQuery(
+        supabase
+          .from('movies')
+          .select(`
+            *,
+            hints(*)
+          `)
+          .eq('id', movie.id)
+          .single(),
+        'recover quiz movie'
+      )
+
+      if (result?.error || !result?.data) {
+        return movie
+      }
+
+      const baseMovie = result.data
+
+      const tmdb = await loadTMDB(baseMovie)
+
+      const posterUrl = tmdb?.poster_path
+        ? `https://image.tmdb.org/t/p/w300${tmdb.poster_path}`
+        : null
+
+      if (posterUrl) {
+        await new Promise(resolve => {
+          const img = new Image()
+          img.src = posterUrl
+          img.onload = resolve
+          img.onerror = resolve
+        })
+      }
+
+      return {
+        ...baseMovie,
+        choices: movie.choices || [],
+        hintsArr: baseMovie.hints
+          ? baseMovie.hints
+            .sort((a, b) => a.hint_level - b.hint_level)
+            .map(h => h.hint_text)
+          : [],
+        tmdbLoaded: true,
+        poster_path: tmdb?.poster_path || movie.poster_path || null,
+        backdrop_path: tmdb?.backdrop_path || movie.backdrop_path || null,
+        overview: tmdb?.overview || movie.overview || '',
+        tmdb_id: tmdb?.id || movie.tmdb_id || null,
+        release_date: tmdb?.release_date || movie.release_date || '',
+        vote_average: tmdb?.vote_average || movie.vote_average || null,
+        credits: tmdb?.credits || movie.credits || null,
+        youtubeKey: tmdb?.youtubeKey || movie.youtubeKey || null
+      }
+    } catch (e) {
+      console.error('recoverQuizData failed', e)
+      return movie
+    }
+  }
+
+
   function getPts(modeParam) {
     const ratioMap = {
       1: 1.0,
@@ -3785,6 +3846,21 @@ async function handleShowAnswers() {
   }
 
 
+
+  function isValidQuizData(movie) {
+    if (!movie) return false
+    if (!movie.id) return false
+    if (!movie.title) return false
+    if (!Array.isArray(movie.hintsArr)) return false
+    if (movie.hintsArr.length < 5) return false
+    if (quizMode === 'objective') {
+      if (!Array.isArray(movie.choices)) return false
+      if (movie.choices.length < 4) return false
+    }
+    return true
+  }
+
+
   async function nextQ() {
     inputRef.current?.blur()
 
@@ -3840,34 +3916,40 @@ async function handleShowAnswers() {
             return u
           })
           if (!authUser) {
-
             saveUsers(updated)
-
           }
           return updated
         })
-
         const nextLivesForDb = Math.min(
-
           (prevLives ?? 20) + 5,
-
           20
-
         )
-
         if (authUser) {
           await saveCharacterLivesToDb(nextLivesForDb)
         }
-
-
       }
-
       setScreen('result')
       return
     }
-
     const nqi = qi + 1
-
+    let nextMovie = pool[nqi]
+    if (!isValidQuizData(nextMovie)) {
+      setShowSpinner(true)
+      try {
+        nextMovie = await recoverQuizData(nextMovie)
+        if (!isValidQuizData(nextMovie)) {
+          setHasNetworkError(true)
+          return
+        }
+        setPool(prev =>
+          prev.map((m, idx) =>
+            idx === nqi ? nextMovie : m
+          )
+        )
+      } finally {
+        setShowSpinner(false)
+      }
+    }
     setQi(nqi)
     setSh(1)
     setAnswered(false)
@@ -3878,7 +3960,6 @@ async function handleShowAnswers() {
     setLockChoice(false)
     setSelectedChoice(null)
     setTimerStartedAt(null)
-
   }
 
 
