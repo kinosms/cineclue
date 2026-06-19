@@ -2183,6 +2183,8 @@ useEffect(() => {
       const img = new Image()
       img.src = src
     })
+    const networkErrorImg = new Image()
+    networkErrorImg.src = '/network_error.png'
   }, [])
 
 
