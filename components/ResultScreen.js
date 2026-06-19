@@ -22,7 +22,6 @@ export default function ResultScreen(props) {
     isLevelCompleted,
     visibleResults,
     loadMovieDetail,
-    GRADES,
     rankingRevealDone,
     CHARS,
     showProfile,
@@ -60,7 +59,8 @@ export default function ResultScreen(props) {
     setCollectionReturnScreen,
     showAppToast,
     showAnswers,
-    handleShowAnswers
+    handleShowAnswers,
+    getProfileStats
   } = props
 
   const safeUsers = Array.isArray(users) ? users : []
@@ -143,49 +143,31 @@ const sortedRanking = [...patchedRanking].sort(
             marginBottom: 10
           }}>
             <div
-
-
-              onClick={() => {
+              onClick={async () => {
                 playSound('click')
-
                 if (!authUser) {
-
                   showAppToast('로그인 후 이용 가능합니다')
-
                   return
-
                 }
-
                 setProfileStats(null)
-
-                // 🔥 랭킹 프로필 target 제거
-
                 setProfileTarget(null)
-
                 setProfileUser(currentUser)
-
                 setAnimateStats(false)
-
+                const profile = await getProfileStats(
+                  supabase,
+                  selChar
+                )
+                setProfileStats(profile)
                 requestAnimationFrame(() => {
-
                   setAnimateStats(true)
-
                 })
-
                 setShowProfile(true)
-
               }}
-
               style={{ cursor: 'pointer' }}
-
             >
-
               <svg viewBox="0 0 80 80" style={{ width: 68, height: 68 }}>
-
                 {char?.svg?.props?.children}
-
               </svg>
-
             </div>
 
             {/* 🔥 프로필 배지 */}
@@ -287,41 +269,23 @@ const sortedRanking = [...patchedRanking].sort(
                   showAppToast?.('광고를 불러오지 못했습니다')
                 }
               }}
-
               disabled={showAnswers}
-
               style={{
-
                 position: 'absolute',
-
                 top: -30,
-
                 left: 20,
-
                 zIndex: 20,
-
                 display: 'flex',
-
                 alignItems: 'center',
-
                 gap: 6,
-
                 fontSize: '0.7rem',
-
                 padding: '6px 10px',
-
                 borderRadius: 8,
-
                 border: 'none',
-
                 background: '#e8808c',
-
                 color: '#ffffff',
-
                 fontWeight: 700
-
               }}
-
             >
               정답보기
               <span style={{
@@ -349,7 +313,6 @@ const sortedRanking = [...patchedRanking].sort(
 
             {resultView === 'score' ? (
               results.slice(0, Math.min(visibleResults, 5)).map((r, i) => {
-                const rg = GRADES.find(x => x.id === r.grade)
                 const isCorrect = r.correct === true
                 const hasMovieInfo =
                   r.tmdb_id ||
@@ -430,16 +393,16 @@ const sortedRanking = [...patchedRanking].sort(
                       width: 28,
                       height: 28,
                       borderRadius: '50%',
-                      background: isCorrect ? `${rg?.color || '#ccc'}15` : '#f5f3ef',
+                      background: isCorrect ? '#f3f3f3' : '#f5f3ef',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
-                      border: `1.5px solid ${isCorrect ? (rg?.color || '#ccc') : '#e8e4dd'}`
+                      border: `1.5px solid ${isCorrect ? '#ccc' : '#e8e4dd'}`
                     }}>
                       <span style={{
                         fontSize: '0.7rem',
                         fontWeight: 800,
-                        color: r.correct ? rg?.color : '#b0aaa3'
+                        color: r.correct ? '#666' : '#b0aaa3'
                       }}>
                         Q{i + 1}
                       </span>
@@ -659,58 +622,39 @@ const sortedRanking = [...patchedRanking].sort(
                               }}>
 
                                 {/* 캐릭터 */}
-
                                 <div
-
-                                  onClick={() => {
-                                    
+                                  onClick={async() => {
                                     if (!authUser) {
-
                                       showAppToast('로그인 후 이용 가능합니다')
-
                                       return
-
                                     }
-
                                     playSound('click')
-
                                     // 🔥 이전 프로필 초기화
-
                                     setProfileStats(null)
-
                                     // 🔥 랭킹 프로필 대상 지정
-
                                     setProfileTarget(r.character_id)
-
                                     // 🔥 랭킹 row 자체 저장
-
                                     setProfileUser(r)
-
                                     setAnimateStats(false)
-
+                                      const profile = await getProfileStats(
+                                        supabase,
+                                        r.character_id
+                                      )
+                                    setProfileStats(profile)
                                     requestAnimationFrame(() => {
-
                                       setAnimateStats(true)
-
                                     })
-
                                     setShowProfile(true)
-
                                   }}
-
                                   style={{
-
                                     cursor: 'pointer'
-
                                   }}
-
                                 >
                                   <CharAvatar
                                     charId={r.character_id}
                                     size={28}
                                   />
                                 </div>
-
                                 {/* 📊 배지 */}
                                 <div
                                   style={{
@@ -732,11 +676,8 @@ const sortedRanking = [...patchedRanking].sort(
                                 >
                                   📊
                                 </div>
-
                               </div>
-
                             ) : (
-
                               <div style={{
                                 width: 28,
                                 height: 28,
@@ -744,9 +685,7 @@ const sortedRanking = [...patchedRanking].sort(
                                 background: '#f0eeea',
                                 flexShrink: 0
                               }} />
-
                             )}
-
                             {/* 이름 */}
                             <div style={{
                               flex: 1,
@@ -766,7 +705,6 @@ const sortedRanking = [...patchedRanking].sort(
                                 }
                               </div>
                             </div>
-
                             {/* 점수 */}
                             <div style={{
                               fontSize: '0.85rem',
@@ -776,7 +714,6 @@ const sortedRanking = [...patchedRanking].sort(
                             }}>
                               {r ? r.score : 0}
                             </div>
-
                           </div>
                         )
                       })}
@@ -894,9 +831,6 @@ const sortedRanking = [...patchedRanking].sort(
             </button>
           </div>
         )}
-
-
-
       <style jsx>{`
                         @keyframes fadeUp {
                           from {
@@ -909,13 +843,7 @@ const sortedRanking = [...patchedRanking].sort(
                           }
                         }
                       `}</style>
-
       </div>
-
-      
     </AppLayout>
-
-    
   )
-
 }

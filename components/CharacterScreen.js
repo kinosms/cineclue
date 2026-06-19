@@ -1,5 +1,6 @@
 'use client'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import { App } from '@capacitor/app'
 import { isAndroidApp } from '../utils/platform'
 import {
   playSound,
@@ -86,6 +87,23 @@ export default function CharacterScreen(props) {
 
     supabase
   } = props
+
+  const [appVersion, setAppVersion] = useState('1.0.3')
+  const [buildNumber, setBuildNumber] = useState('4')
+    useEffect(() => {
+    async function loadVersionInfo() {
+      try {
+        if (window.Capacitor?.isNativePlatform?.()) {
+          const info = await App.getInfo()
+          setAppVersion(info.version)
+          setBuildNumber(info.build)
+        }
+      } catch (e) {
+        console.error('version info error', e)
+      }
+    }
+    loadVersionInfo()
+  }, [])
 
 
   return (
@@ -532,7 +550,7 @@ export default function CharacterScreen(props) {
                   color: '#5f5a55'
                 }}>
 
-                  버전 : Beta v0.9
+                  버전 : v{appVersion}
                   <br /><br />
                     • 웹 체험판 공개
                     <br />
@@ -553,7 +571,7 @@ export default function CharacterScreen(props) {
 
                     }}>
 
-                      Build : 2026.06.07
+                      Build : {buildNumber}
 
                     </div>
                 </div>

@@ -45,19 +45,12 @@ const supabase = createClient(
   SUPABASE_URL,
   SUPABASE_KEY,
   {
-
     auth: {
-
       flowType: 'pkce',
-
       detectSessionInUrl: true,
-
       persistSession: true,
-
       autoRefreshToken: true
-
     }
-
   }
 )
 
@@ -205,45 +198,15 @@ const CHARS = [
   },
 ]
 
-const GRADE_CHARS = {
-  // 2020년대: 퓨리오사 (매드맥스)
-  "2020s": <svg viewBox="0 0 60 60" fill="none"><rect x="8" y="44" width="44" height="12" rx="2" fill="#2e1f14" /><ellipse cx="30" cy="30" rx="15" ry="16" fill="#c89a7a" /><path d="M15 20 Q30 14 45 20 L45 25 Q30 23 15 25 Z" fill="#5a3820" opacity="0.6" /><path d="M17 18 Q30 14 43 18 L43 24 Q30 28 17 24 Z" fill="#0a0a0a" /><path d="M22 26 L20 36" stroke="#0a0a0a" strokeWidth="2" strokeLinecap="round" /><path d="M30 27 L30 38" stroke="#0a0a0a" strokeWidth="2" strokeLinecap="round" /><path d="M38 26 L40 36" stroke="#0a0a0a" strokeWidth="2" strokeLinecap="round" /><ellipse cx="22" cy="29" rx="2.5" ry="1.8" fill="#fff" /><ellipse cx="38" cy="29" rx="2.5" ry="1.8" fill="#fff" /><circle cx="22" cy="29" r="1.2" fill="#4a3020" /><circle cx="38" cy="29" r="1.2" fill="#4a3020" /><path d="M26 39 L34 39" stroke="#6a2818" strokeWidth="1.8" strokeLinecap="round" /><rect x="4" y="44" width="6" height="12" rx="1" fill="#8a9098" /><circle cx="7" cy="48" r="0.8" fill="#333" /><circle cx="7" cy="52" r="0.8" fill="#333" /></svg>,
 
-  // 2010년대: 아이언맨
-  "2010s": <svg viewBox="0 0 60 60" fill="none"><rect x="18" y="48" width="24" height="8" fill="#a00018" /><ellipse cx="30" cy="26" rx="17" ry="18" fill="#c8181a" /><path d="M14 24 Q20 12 30 10 Q40 12 46 24" fill="none" stroke="#e8302a" strokeWidth="2" /><path d="M14 30 Q30 28 46 30 Q46 44 30 46 Q14 44 14 30 Z" fill="#e8c440" /><path d="M18 32 Q30 30 42 32 L42 34 Q30 32 18 34 Z" fill="#c8a030" /><path d="M30 30 L30 46" stroke="#a88020" strokeWidth="0.8" /><path d="M18 32 L26 30 L24 36 Z" fill="#b8e8ff" /><path d="M42 32 L34 30 L36 36 Z" fill="#b8e8ff" /><path d="M19 32.5 L24 31 L23 34.5 Z" fill="#ffffff" /><path d="M41 32.5 L36 31 L37 34.5 Z" fill="#ffffff" /><rect x="27" y="41" width="6" height="1.5" fill="#a08020" /><path d="M14 30 L18 38 L14 42 Z" fill="#c8181a" /><path d="M46 30 L42 38 L46 42 Z" fill="#c8181a" /></svg>,
-
-  // 2000년대: 네오 (매트릭스)
-  "2000s": <svg viewBox="0 0 60 60" fill="none"><path d="M6 56 L14 42 L30 50 L46 42 L54 56 Z" fill="#0a0a0a" /><path d="M20 44 L30 54 L40 44 L40 56 L20 56 Z" fill="#1a1a1a" /><ellipse cx="30" cy="28" rx="15" ry="16" fill="#e0b896" /><path d="M14 20 Q30 10 46 20 Q44 24 30 22 Q16 24 14 20 Z" fill="#1a1a1a" /><path d="M14 18 Q20 14 30 14 Q40 14 46 18 L46 16 Q30 8 14 16 Z" fill="#0a0a0a" /><circle cx="22" cy="28" r="5" fill="#0a0a0a" /><circle cx="38" cy="28" r="5" fill="#0a0a0a" /><circle cx="22" cy="28" r="4" fill="#151520" /><circle cx="38" cy="28" r="4" fill="#151520" /><ellipse cx="20" cy="26" rx="1.2" ry="0.8" fill="#4a8aa8" opacity="0.7" /><ellipse cx="36" cy="26" rx="1.2" ry="0.8" fill="#4a8aa8" opacity="0.7" /><rect x="27" y="27.5" width="6" height="1.5" fill="#0a0a0a" /><path d="M26 40 L34 40" stroke="#7a4030" strokeWidth="1.5" strokeLinecap="round" /></svg>,
-
-  // 1990년대: 우마 서먼 (킬빌의 신부)
-  "1990s": <svg viewBox="0 0 60 60" fill="none"><rect x="10" y="42" width="40" height="14" rx="2" fill="#f5dc1a" /><rect x="10" y="42" width="4" height="14" fill="#0a0a0a" /><rect x="46" y="42" width="4" height="14" fill="#0a0a0a" /><path d="M30 42 L30 56" stroke="#0a0a0a" strokeWidth="1" /><ellipse cx="30" cy="28" rx="15" ry="16" fill="#f0d4b2" /><path d="M8 20 Q10 12 20 12 L22 28 Q16 36 12 42 L8 40 Z" fill="#f0d880" /><path d="M52 20 Q50 12 40 12 L38 28 Q44 36 48 42 L52 40 Z" fill="#f0d880" /><path d="M14 16 Q20 10 30 10 Q40 10 46 16 Q44 22 30 20 Q16 22 14 16 Z" fill="#f0d880" /><path d="M30 10 L30 18" stroke="#c8b050" strokeWidth="0.8" /><ellipse cx="22" cy="28" rx="2.5" ry="1.8" fill="#fff" /><ellipse cx="38" cy="28" rx="2.5" ry="1.8" fill="#fff" /><circle cx="22" cy="28" r="1.3" fill="#4a78a0" /><circle cx="38" cy="28" r="1.3" fill="#4a78a0" /><path d="M26 38 Q30 36 34 38" stroke="#a02020" strokeWidth="1.8" fill="none" strokeLinecap="round" /><path d="M15 26 L18 34" stroke="#a00018" strokeWidth="1.2" strokeLinecap="round" /></svg>,
-
-  // 오래전 영화: 찰리 채플린
-  "old": <svg viewBox="0 0 60 60" fill="none"><rect x="12" y="44" width="36" height="12" fill="#1a1a1a" /><path d="M24 44 L30 52 L36 44 L36 50 L24 50 Z" fill="#fafafa" /><path d="M28 48 L32 48 L34 52 L26 52 Z" fill="#0a0a0a" /><ellipse cx="30" cy="28" rx="14" ry="15" fill="#f2d8b8" /><ellipse cx="30" cy="18" rx="16" ry="2.5" fill="#0a0a0a" /><ellipse cx="30" cy="14" rx="12" ry="7" fill="#0a0a0a" /><ellipse cx="30" cy="13" rx="10" ry="5" fill="#1f1f1f" /><rect x="20" y="17" width="20" height="1" fill="#2a2a2a" /><ellipse cx="24" cy="28" rx="2" ry="2.5" fill="#fff" /><ellipse cx="36" cy="28" rx="2" ry="2.5" fill="#fff" /><circle cx="24" cy="29" r="1.3" fill="#1a1a1a" /><circle cx="36" cy="29" r="1.3" fill="#1a1a1a" /><rect x="27" y="34" width="6" height="2.5" rx="0.5" fill="#0a0a0a" /><path d="M25 40 Q30 43 35 40" stroke="#8a4020" strokeWidth="1.3" fill="none" strokeLinecap="round" /><circle cx="30" cy="49" r="0.8" fill="#2a2a2a" /><circle cx="30" cy="53" r="0.8" fill="#2a2a2a" /></svg>,
-}
-
-const GRADES = [
-  { id: '2020s', name: '2020년대', desc: '매드맥스·기생충·범죄도시… 요즘 거 맞춰보자' },
-  { id: '2010s', name: '2010년대', desc: '인터스텔라·어벤져스·곡성… 기억나지?' },
-  { id: '2000s', name: '2000년대', desc: '올드보이·괴물·매트릭스… 추억 소환' },
-  { id: '1990s', name: '1990년대', desc: '쥬라기공원·더록·킬빌… 이젠 클래식' },
-  { id: 'old', name: '오래전 영화', desc: '스타워즈·대부·칠수와 만수… 진짜 영화 덕후 영역' }
-]
 
 function shuffle(arr) {
-
   const a = [...arr]
-
   for (let i = a.length - 1; i > 0; i--) {
-
     const j = Math.floor(Math.random() * (i + 1))
-
       ;[a[i], a[j]] = [a[j], a[i]]
-
   }
-
   return a
-
 }
 
 const BP = 1000
@@ -251,8 +214,8 @@ const FBW = {
   1: ['힌트가 좀 어려웠지?', '아직 힌트 4개나 남았어', '처음부터 맞추면 재미없잖아'],
   2: ['아깝다. 좀 더 생각해봐', '거의 다 왔는데!', '느낌이 왔을 것 같은데...'],
   3: ['이걸 모른다고?', '이 영화 분명 본 적 있을걸?', '이거 모르면 영화 레벨 의심'],
-  4: ['배우 이름까지 나왔는데?', '이건 맞추는 사람 많던데', '자존심 안 상해?'],
-  5: ['포기 포기 😮‍💨', '오늘은 여기까지', '오늘은 이 영화가 이겼어'],
+  4: ['이건 맞추는 사람 많던데', '자존심 안 상해?'],
+  5: ['포기 포기 😮‍💨', '오늘은 이 영화가 이겼어', '모르면 넘기기'],
 }
 const rFB = h => { const a = FBW[h] || FBW[5]; return a[Math.floor(Math.random() * a.length)] }
 
@@ -291,9 +254,6 @@ function isCorrect(inp, title, answers = []) {
   }
   return false
 }
-
-
-
 
 
 //스피너//
@@ -638,9 +598,6 @@ function AppLayout({ children }) {
 
 
 
-
-
-
 //=====================================================================================================================================
 
 //공통함수 만들기
@@ -717,11 +674,169 @@ async function recoverConnection() {
   }
 }
 
+
+
+function NetworkErrorGhostSvg() {
+  const [dots, setDots] = useState('.')
+
+  useEffect(() => {
+    const seq = ['.', '..', '...']
+    let idx = 0
+
+    const timer = setInterval(() => {
+      idx = (idx + 1) % seq.length
+      setDots(seq[idx])
+    }, 450)
+
+    return () => clearInterval(timer)
+  }, [])
+
+  return (
+    <svg
+      viewBox="0 -25 320 285"
+      className="network-error-image"
+      role="img"
+      aria-label="네트워크 오류"
+    >
+      <ellipse cx="160" cy="224" rx="62" ry="10" fill="#eeeeee" />
+
+      {/* body */}
+      <rect x="112" y="128" width="96" height="88" rx="22" fill="#f4f4f4" />
+      <ellipse cx="160" cy="132" rx="42" ry="46" fill="#f7f7f7" />
+
+      {/* hair */}
+      <path d="M105 78 C115 42 145 35 166 42 C198 50 210 82 212 135 C214 170 207 199 198 205 C188 212 184 194 184 174 C178 198 166 206 160 191 C154 211 137 205 138 176 C132 198 116 207 110 195 C101 179 98 111 105 78Z" fill="#171717" />
+      <path d="M140 70 C132 102 127 143 126 180" stroke="#101010" strokeWidth="10" strokeLinecap="round" />
+      <path d="M160 62 C154 101 151 145 150 186" stroke="#101010" strokeWidth="9" strokeLinecap="round" />
+      <path d="M184 72 C190 108 194 147 195 182" stroke="#101010" strokeWidth="10" strokeLinecap="round" />
+
+      {/* face gap + eye */}
+      <path d="M162 112 L184 116 L178 166 L158 166 Z" fill="#f7f7f7" />
+      <ellipse cx="176" cy="126" rx="5" ry="7" fill="#111" />
+      <circle cx="178" cy="123" r="1.5" fill="#fff" />
+
+      {/* hands + phone */}
+      <circle cx="132" cy="180" r="16" fill="#f7f7f7" />
+      <circle cx="188" cy="180" r="16" fill="#f7f7f7" />
+      <rect x="143" y="156" width="34" height="48" rx="6" fill="#333" />
+      <circle cx="151" cy="164" r="3" fill="#777" />
+
+      {/* speech bubble */}
+      <path d="M203 34 H270 Q288 34 288 52 V91 Q288 109 270 109 H232 L211 128 L217 109 H203 Q185 109 185 91 V52 Q185 34 203 34Z" fill="#fffdf9" stroke="#e5ded5" strokeWidth="3" />
+
+      {/* animated dots */}
+      <text
+        x="239"
+        y="70"
+        textAnchor="middle"
+        dominantBaseline="middle"
+        fontSize="34"
+        fontWeight="700"
+        fill="#8d8d8d"
+        letterSpacing="3"
+      >
+        {dots}
+      </text>
+      {/* floating wifi-off */}
+      <g transform="translate(118 -10)">
+        <path
+          d="M18 20 Q40 2 62 20"
+          fill="none"
+          stroke="#a6a6a6"
+          strokeWidth="5"
+          strokeLinecap="round"
+        />
+        <path
+          d="M25 28 Q40 16 55 28"
+          fill="none"
+          stroke="#a6a6a6"
+          strokeWidth="5"
+          strokeLinecap="round"
+        />
+        <circle
+          cx="40"
+          cy="38"
+          r="3.5"
+          fill="#000000"
+        />
+        <line
+          x1="18"
+          y1="50"
+          x2="63"
+          y2="0"
+          stroke="#888"
+          strokeWidth="5"
+          strokeLinecap="round"
+        />
+      </g>
+    </svg>
+  )
+}
+
+
+
+function NetworkErrorScreen({ onRetry, retryCount })  {
+
+  const retryMessages = [
+    '네트워크가 연결되면 다시 만나요',
+    '네트워크 연결을 확인해봐요',
+    '네트워크를 먼저 체크해 주세요'
+  ] 
+
+  const [dots, setDots] = useState('.')
+
+  useEffect(() => {
+    const seq = ['.', '..', '...']
+    let idx = 0
+
+    const timer = setInterval(() => {
+      idx = (idx + 1) % seq.length
+      setDots(seq[idx])
+    }, 550)
+
+    return () => clearInterval(timer)
+  }, [])
+
+  return (
+    <div className="network-error-screen">
+      <div className="network-error-image-wrap">
+        <img
+          src="/network_error.png"
+          alt="네트워크 오류"
+          className="network-error-image"
+        />
+
+        <span className="network-error-bubble-dots">
+          {dots}
+        </span>
+      </div>
+
+      <p className="network-error-title">
+        통신이 안 되는 것 같아요
+      </p>
+
+      <p className="network-error-desc">
+        {retryMessages[Math.min(retryCount, retryMessages.length - 1)]}
+      </p>
+
+      <button onClick={onRetry} className="network-error-button">
+        다시 시도
+      </button>
+    </div>
+  )
+}
+
+
+
+
 //=====================================================================================================================================
 
 
 
 export default function CineClue() {
+
+const [retryCount, setRetryCount] = useState(0)
+const [hasNetworkError, setHasNetworkError] = useState(false)
 
   const infoBox = {
     background: '#fff',
@@ -1544,44 +1659,56 @@ function restoreAppSnapshot(options = {}) {
   }
 
   async function enterCharacterScreen() {
-
   setIsLoadingCharacters(true)
 
-  if (authUser?.id) {
-
-    const result = await supabase
-
-      .from('characters')
-
-      .select('*')
-
-      .eq('auth_user_id', authUser.id)
-
-    const loadedUsers = (result.data || []).map(c => ({
-
-      charId: c.char_id,
-      nickname: c.nickname,
-      score: c.score || 0,
-      lives: c.lives ?? 20,
-      userId: c.auth_user_id,
-      isGuest: false,
-      isDead: (c.lives ?? 20) <= 0
-    }))
-
-    setUsers(loadedUsers)
-
-  } else {
-
-    const guestUsers = loadUsers(null)
-
-    setUsers(guestUsers)
-
+  if (!navigator.onLine) {
+    setHasNetworkError(true)
+    setIsLoadingCharacters(false)
+    setShowSpinner(false)
+    return
   }
 
-  setIsLoadingCharacters(false)
+  try {
+    if (authUser?.id) {
+      const result = await safeQuery(
+        supabase
+          .from('characters')
+          .select('*')
+          .eq('auth_user_id', authUser.id),
+        'load characters'
+      )
 
-  setScreen('char')
+      if (result?.error) {
+        setHasNetworkError(true)
+        setIsLoadingCharacters(false)
+        setShowSpinner(false)
+        return
+      }
 
+      const loadedUsers = (result.data || []).map(c => ({
+        charId: c.char_id,
+        nickname: c.nickname,
+        score: c.score || 0,
+        lives: c.lives ?? 20,
+        userId: c.auth_user_id,
+        isGuest: false,
+        isDead: (c.lives ?? 20) <= 0
+      }))
+
+      setUsers(loadedUsers)
+    } else {
+      const guestUsers = loadUsers(null)
+      setUsers(guestUsers)
+    }
+
+    setScreen('char')
+  } catch (e) {
+    console.error('enterCharacterScreen failed', e)
+    setHasNetworkError(true)
+  } finally {
+    setIsLoadingCharacters(false)
+    setShowSpinner(false)
+  }
 }
 
 
@@ -2060,13 +2187,13 @@ useEffect(() => {
 
 
 
-
+/*
   useEffect(() => {
     if (!showProfile) return
     if (!supabase || !selChar) return
     const targetCharId = profileTarget || selChar
     let cancelled = false
-    setProfileStats(null)
+      setProfileStats(null)
     const run = async () => {
       const profile = await getProfileStats(
         supabase,
@@ -2081,6 +2208,7 @@ useEffect(() => {
       cancelled = true
     }
   }, [showProfile, supabase, selChar, profileTarget])
+  */
 
 
 
@@ -2834,7 +2962,7 @@ async function handleShowAnswers() {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isLevelCompleted, setIsLevelCompleted] = useState(false)
   const char = CHARS.find(c => c.id === selChar)
-  const g = GRADES.find(x => x.id === selGrade)
+
 
 
 
@@ -3086,10 +3214,13 @@ async function handleShowAnswers() {
 
 
       if (!movies || movies.length === 0) {
-        alert('영화 없음')
+        setHasNetworkError(true)
         setLoading(false)
+        setShowSpinner(false)
+        setScreen('char')
         return
       }
+
       // 4️⃣ JS에서 필터
       const playedSet = new Set(playedIds)
       const filtered = movies.filter(m => !playedSet.has(m.id))
@@ -3192,9 +3323,13 @@ async function handleShowAnswers() {
 
       console.error(e)
 
-      alert('연결 상태를 다시 복구합니다')
+      setHasNetworkError(true)
 
-      window.location.reload()
+      setLoading(false)
+
+      setShowSpinner(false)
+
+      setScreen('char')
 
     }
 
@@ -3435,7 +3570,11 @@ async function handleShowAnswers() {
         }
         if (quizMode === 'subjective') {
           playSound('wrong')
-          setFb('다시 생각해봐')
+
+            const messages = FBW[sh] || ['다시 생각해봐']
+            setFb(
+              messages[Math.floor(Math.random() * messages.length)]
+            )
           setFbt('ng')
           return
         }
@@ -3504,6 +3643,8 @@ async function handleShowAnswers() {
   if (skipLockRef.current) return
 
   skipLockRef.current = true
+  clearInterval(timerRef.current)
+  timerRef.current = null
   setIsSubmitting(true)
   setComboStreak(0)
   setMode(null)
@@ -3662,6 +3803,19 @@ async function handleShowAnswers() {
       return
     }
     if (qi + 1 >= pool.length) {
+
+      if (!navigator.onLine) {
+
+          setHasNetworkError(true)
+
+          setLoading(false)
+
+          setShowSpinner(false)
+
+          return
+
+        }
+
       const currentRound = results.slice(-5)
       const isPerfect =
         currentRound.length === 5 &&
@@ -3995,8 +4149,44 @@ async function handleShowAnswers() {
   }
 
 
+  
+
   return (
     <>
+
+     {hasNetworkError && (
+
+      <NetworkErrorScreen
+        retryCount={retryCount}
+          onRetry={() => {
+
+            if (!navigator.onLine) {
+
+              setRetryCount(prev => (prev + 1) % 3)
+
+              return
+
+            }
+
+            setRetryCount(0)
+
+            setHasNetworkError(false)
+
+          if (screen !== 'intro') {
+
+            setScreen('char')
+
+          }
+
+        }}
+
+      />
+
+    )}
+
+    {!hasNetworkError && (
+
+      <>
 
       {isLoadingCharacters && (
 
@@ -4249,7 +4439,6 @@ async function handleShowAnswers() {
           quizMode={quizMode}
 
           sh={sh}
-          g={g}
 
           fb={fb}
           fbt={fbt}
@@ -4337,7 +4526,7 @@ async function handleShowAnswers() {
           visibleResults={visibleResults}
           handleShowAnswers={handleShowAnswers}
 
-          GRADES={GRADES}
+
           CHARS={CHARS}
 
           displayScore={displayScore}
@@ -4401,6 +4590,8 @@ async function handleShowAnswers() {
 
           showAnswers={showAnswers}
           showAppToast={showAppToast}
+
+          getProfileStats={getProfileStats}
         />
 
       )}
@@ -4597,7 +4788,8 @@ async function handleShowAnswers() {
       )}
 
     </>
-
+    )}
+    </>
 
   )
 }

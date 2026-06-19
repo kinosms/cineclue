@@ -214,3 +214,134 @@ input { font-family: inherit; outline: none; }
   overscroll-behavior: auto;
 
 }
+
+
+
+
+.network-error-screen {
+
+  min-height: 100dvh;
+
+  display: flex;
+
+  flex-direction: column;
+
+  align-items: center;
+
+  justify-content: center;
+
+  padding: 32px 24px;
+
+  background: #fff;
+
+  text-align: center;
+
+}
+
+.network-error-image {
+
+  width: 220px;
+
+  max-width: 70%;
+
+  margin-bottom: 28px;
+
+}
+
+.network-error-title {
+
+  font-size: 18px;
+
+  font-weight: 700;
+
+  color: #555;
+
+  margin: 0 0 8px;
+
+}
+
+.network-error-desc {
+
+  font-size: 15px;
+
+  color: #888;
+
+  margin: 0 0 24px;
+
+}
+
+.network-error-button {
+
+  border: 0;
+
+  border-radius: 999px;
+
+  padding: 12px 22px;
+
+  background: #222;
+
+  color: #fff;
+
+  font-weight: 700;
+
+}
+
+.network-error-dots {
+
+  height: 24px;
+
+  margin: 6px 0 22px;
+
+  font-size: 24px;
+
+  font-weight: 700;
+
+  color: #999;
+
+  letter-spacing: 4px;
+
+}
+
+.network-error-image-wrap {
+
+  position: relative;
+
+  width: 220px;
+
+  display: flex;
+
+  justify-content: center;
+
+  align-items: center;
+
+  margin: 0 auto 28px;
+
+}
+
+.network-error-image {
+
+  width: 220px;
+
+  display: block;
+
+}
+
+.network-error-bubble-dots {
+  position: absolute;
+
+  top: 126px;
+  left:176px;
+
+  width: 40px;
+
+  text-align: left;
+
+  font-size: 40px;
+  font-weight: 700;
+  color: #7b7b7b;
+
+  letter-spacing: 2px;
+
+  user-select: none;
+  pointer-events: none;
+}

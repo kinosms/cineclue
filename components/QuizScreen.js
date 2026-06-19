@@ -49,8 +49,6 @@ export default function QuizScreen(props) {
 
     sh,
 
-    g,
-
     fb,
 
     fbt,
@@ -596,8 +594,8 @@ export default function QuizScreen(props) {
                 }}>
                 <div style={{
                   borderRadius: 13,
-                  border: `1.5px solid ${isCurrent ? (g?.color || '#e8808c') : '#ece8e2'}`,
-                  background: isCurrent ? (g?.bg || '#fff5f6') : '#fff',
+                  border: `1.5px solid ${isCurrent ? '#e8808c' : '#ece8e2'}`,
+                  background: isCurrent ? '#fff5f6' : '#fff',
                   padding: '13px 15px',
                   marginBottom: 8
                 }}>
@@ -606,7 +604,7 @@ export default function QuizScreen(props) {
                       width: 28,
                       height: 28,
                       borderRadius: '50%',
-                      background: g?.color || '#e8808c',
+                      background: '#e8808c',
                       color: '#fff',
                       fontSize: '0.65rem',
                       fontWeight: 800,
