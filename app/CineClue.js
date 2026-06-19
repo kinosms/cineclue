@@ -3681,6 +3681,7 @@ async function handleShowAnswers() {
         }
         if (quizMode === 'subjective') {
           playSound('wrong')
+          setInput('')
 
             const messages = FBW[sh] || ['다시 생각해봐']
             setFb(
