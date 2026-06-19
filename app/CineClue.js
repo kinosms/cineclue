@@ -2847,9 +2847,10 @@ return () => {
     return new Promise(async (resolve) => {
       let rewardListener
       let closeListener
+      let rewarded = false
       let resolved = false
 
-      const finish = (success) => {
+      const finish = () => {
         if (resolved) return
         resolved = true
 
@@ -2873,7 +2874,7 @@ return () => {
         closeListener = await AdMob.addListener(
           RewardAdPluginEvents.RewardedAdDismissed,
           () => {
-            finish(false)
+            finish()
           }
         )
 
@@ -2896,17 +2897,23 @@ return () => {
 async function showRewardedLifeAd() {
   stopBgm()
   setIsPreparingLifeAd(true)
+
   return new Promise(async (resolve) => {
     let rewardListener
     let closeListener
+    let rewarded = false
     let resolved = false
-    const finish = (success) => {
+
+    const finish = () => {
       if (resolved) return
       resolved = true
+
       rewardListener?.remove()
       closeListener?.remove()
+
       setIsPreparingLifeAd(false)
       resumeBgmByScreen()
+
       resolve(success)
     }
     try {
@@ -2919,13 +2926,14 @@ async function showRewardedLifeAd() {
       closeListener = await AdMob.addListener(
         RewardAdPluginEvents.RewardedAdDismissed,
         () => {
-          finish(false)
+          finish()
         }
       )
       await AdMob.prepareRewardVideoAd({
         adId: REWARD_LIFE_AD_ID
       })
       setIsPreparingLifeAd(false)
+
       await AdMob.showRewardVideoAd()
     } catch (error) {
       console.log('SHOW_REWARDED_LIFE_AD_ERROR=', error)
