@@ -1659,56 +1659,81 @@ function restoreAppSnapshot(options = {}) {
   }
 
   async function enterCharacterScreen() {
+
   setIsLoadingCharacters(true)
 
-  if (!navigator.onLine) {
-    setHasNetworkError(true)
-    setIsLoadingCharacters(false)
-    setShowSpinner(false)
-    return
-  }
-
   try {
-    if (authUser?.id) {
-      const result = await safeQuery(
-        supabase
-          .from('characters')
-          .select('*')
-          .eq('auth_user_id', authUser.id),
-        'load characters'
-      )
 
-      if (result?.error) {
-        setHasNetworkError(true)
-        setIsLoadingCharacters(false)
-        setShowSpinner(false)
+    if (authUser?.id) {
+
+      if (users.length > 0) {
+
+        setScreen('char')
+
         return
+
       }
 
-      const loadedUsers = (result.data || []).map(c => ({
+      const { data, error } = await supabase
+
+        .from('characters')
+
+        .select('*')
+
+        .eq('auth_user_id', authUser.id)
+
+      if (error) {
+
+        console.log('load characters failed', error)
+
+        return
+
+      }
+
+      const loadedUsers = (data || []).map(c => ({
+
         charId: c.char_id,
+
         nickname: c.nickname,
+
         score: c.score || 0,
+
         lives: c.lives ?? 20,
+
         userId: c.auth_user_id,
+
         isGuest: false,
+
         isDead: (c.lives ?? 20) <= 0
+
       }))
 
       setUsers(loadedUsers)
-    } else {
-      const guestUsers = loadUsers(null)
-      setUsers(guestUsers)
+
+      setScreen('char')
+
+      return
+
     }
 
+    const guestUsers = loadUsers(null)
+
+    setUsers(guestUsers)
+
     setScreen('char')
+
   } catch (e) {
+
     console.error('enterCharacterScreen failed', e)
-    setHasNetworkError(true)
+
   } finally {
+
     setIsLoadingCharacters(false)
+
     setShowSpinner(false)
+
   }
+
 }
 
 
@@ -2042,9 +2067,11 @@ useEffect(() => {
       ) {
         setSelChar(parsed.selChar)
       }
-      if (parsed.screen) {
-        setScreen(parsed.screen)
-      }
+      if (parsed.screen && parsed.screen !== 'intro') {
+
+  setScreen(parsed.screen)
+
+}
     } catch (e) {
       console.error(e)
     }
