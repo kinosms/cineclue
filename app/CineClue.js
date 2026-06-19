@@ -1268,6 +1268,7 @@ function restoreAppSnapshot(options = {}) {
 
   const [isFlashing, setIsFlashing] = useState(false)
   const inputRef = useRef(null)
+  const isAdShowingRef = useRef(false)
   const [showReportToast, setShowReportToast] = useState(false)
   const [showSettings, setShowSettings] = useState(false)
   const [settingsPage, setSettingsPage] = useState(null)
@@ -2841,6 +2842,7 @@ return () => {
   }
 
   async function showRewardedAd() {
+    isAdShowingRef.current = true
     stopBgm()
     setIsPreparingAd(true)
 
@@ -2857,7 +2859,7 @@ return () => {
         rewardListener?.remove()
         closeListener?.remove()
 
-        setIsPreparingAd(false)
+        setIsPreparingAd(false)        
         resumeBgmByScreen()
 
         resolve(success)
@@ -2894,7 +2896,9 @@ return () => {
     })
   }
 
+  
 async function showRewardedLifeAd() {
+  isAdShowingRef.current = true
   stopBgm()
   setIsPreparingLifeAd(true)
 
@@ -2912,33 +2916,39 @@ async function showRewardedLifeAd() {
       closeListener?.remove()
 
       setIsPreparingLifeAd(false)
+      isAdShowingRef.current = false
       resumeBgmByScreen()
 
-      resolve(success)
+      resolve(rewarded)
     }
+
     try {
       rewardListener = await AdMob.addListener(
         RewardAdPluginEvents.Rewarded,
         () => {
-          finish(true)
+          rewarded = true
         }
       )
+
       closeListener = await AdMob.addListener(
         RewardAdPluginEvents.RewardedAdDismissed,
         () => {
           finish()
         }
       )
+
       await AdMob.prepareRewardVideoAd({
         adId: REWARD_LIFE_AD_ID
       })
+
       setIsPreparingLifeAd(false)
 
       await AdMob.showRewardVideoAd()
+
     } catch (error) {
       console.log('SHOW_REWARDED_LIFE_AD_ERROR=', error)
       showAppToast('광고를 불러오지 못했습니다')
-      finish(false)
+      finish()
     }
   })
 }
