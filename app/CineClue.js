@@ -1131,7 +1131,8 @@ function blockWebLogin() {
       }, 500)
   }
 
-
+  const [isPreparingAd, setIsPreparingAd] = useState(false)
+  const [isPreparingLifeAd, setIsPreparingLifeAd] = useState(false)
 
   const isAndroidMobileWeb = () => {
 
@@ -2840,49 +2841,96 @@ return () => {
   }
 
   async function showRewardedAd() {
-  return new Promise(async (resolve) => {
-    let rewardListener
-    try {
-      rewardListener = await AdMob.addListener(
-        RewardAdPluginEvents.Rewarded,
-        () => {
-          rewardListener?.remove()
-          resolve(true)
-        }
-      )
-      await AdMob.prepareRewardVideoAd({
-        adId: REWARD_AD_ID
-      })
-      await AdMob.showRewardVideoAd()
-    } catch (error) {
-      console.log('SHOW_REWARDED_AD_ERROR=', error)
-      rewardListener?.remove()
-      showAppToast('광고를 불러오지 못했습니다')
-      resolve(false)
-    }
-  })
-}
+    stopBgm()
+    setIsPreparingAd(true)
+
+    return new Promise(async (resolve) => {
+      let rewardListener
+      let closeListener
+      let resolved = false
+
+      const finish = (success) => {
+        if (resolved) return
+        resolved = true
+
+        rewardListener?.remove()
+        closeListener?.remove()
+
+        setIsPreparingAd(false)
+        resumeBgmByScreen()
+
+        resolve(success)
+      }
+
+      try {
+        rewardListener = await AdMob.addListener(
+          RewardAdPluginEvents.Rewarded,
+          () => {
+            finish(true)
+          }
+        )
+
+        closeListener = await AdMob.addListener(
+          RewardAdPluginEvents.RewardedAdDismissed,
+          () => {
+            finish(false)
+          }
+        )
+
+        await AdMob.prepareRewardVideoAd({
+          adId: REWARD_AD_ID
+        })
+
+        setIsPreparingAd(false)
+
+        await AdMob.showRewardVideoAd()
+
+      } catch (error) {
+        console.log('SHOW_REWARDED_AD_ERROR=', error)
+        showAppToast('광고를 불러오지 못했습니다')
+        finish(false)
+      }
+    })
+  }
 
 async function showRewardedLifeAd() {
+  stopBgm()
+  setIsPreparingLifeAd(true)
   return new Promise(async (resolve) => {
     let rewardListener
+    let closeListener
+    let resolved = false
+    const finish = (success) => {
+      if (resolved) return
+      resolved = true
+      rewardListener?.remove()
+      closeListener?.remove()
+      setIsPreparingLifeAd(false)
+      resumeBgmByScreen()
+      resolve(success)
+    }
     try {
       rewardListener = await AdMob.addListener(
         RewardAdPluginEvents.Rewarded,
         () => {
-          rewardListener?.remove()
-          resolve(true)
+          finish(true)
+        }
+      )
+      closeListener = await AdMob.addListener(
+        RewardAdPluginEvents.RewardedAdDismissed,
+        () => {
+          finish(false)
         }
       )
       await AdMob.prepareRewardVideoAd({
         adId: REWARD_LIFE_AD_ID
       })
+      setIsPreparingLifeAd(false)
       await AdMob.showRewardVideoAd()
     } catch (error) {
       console.log('SHOW_REWARDED_LIFE_AD_ERROR=', error)
-      rewardListener?.remove()
       showAppToast('광고를 불러오지 못했습니다')
-      resolve(false)
+      finish(false)
     }
   })
 }
@@ -4268,17 +4316,19 @@ async function handleShowAnswers() {
     )}
 
     {!hasNetworkError && (
-
       <>
-
       {isLoadingCharacters && (
-
         <CharacterSpinner />
-
-      )}
-      
+      )}      
       {isRestoring && (
       <CharacterSpinner />
+        )}
+
+        {isPreparingAd && (
+          <CharacterSpinner />
+        )}
+        {isPreparingLifeAd && (
+          <CharacterSpinner />
         )}
 
       {isRestoring && screen !== 'intro' && (
