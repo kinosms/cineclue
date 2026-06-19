@@ -725,6 +725,7 @@ export default function CharacterScreen(props) {
                           return
                         }
                         const success = await showRewardedLifeAd()
+                      
                         if (!success) return
                         setUsers(prev =>
                           prev.map(x => {

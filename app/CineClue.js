@@ -1714,6 +1714,7 @@ function restoreAppSnapshot(options = {}) {
 
 
 function resumeBgmByScreen() {
+  if (isAdShowingRef.current) return
   const currentScreen = screenRef.current
   const currentMode = modeRef.current
   if (currentScreen === 'intro') return
@@ -2859,10 +2860,11 @@ return () => {
         rewardListener?.remove()
         closeListener?.remove()
 
-        setIsPreparingAd(false)        
+        setIsPreparingAd(false)     
+        isAdShowingRef.current = false   
         resumeBgmByScreen()
 
-        resolve(rewarded)
+        resolve(success)
       }
 
       try {
@@ -2920,7 +2922,7 @@ async function showRewardedLifeAd() {
       isAdShowingRef.current = false
       resumeBgmByScreen()
 
-      resolve(rewarded)
+      resolve(success)
     }
 
     try {
