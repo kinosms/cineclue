@@ -147,11 +147,19 @@ useEffect(() => {
 
   async function loadAnswerProviders() {
     const tmdbId = movie.tmdb_id || movie.tmdbId
-      if (!tmdbId) {
-        setWatchProviders([])
-        return
-      }
-    const providers = await fetchWatchProviders(tmdbId)
+    const mediaType =
+      movie.tmdb_media_type ||
+      movie.media_type ||
+      'movie'
+
+    if (!tmdbId) {
+      setWatchProviders([])
+      return
+    }
+    const providers = await fetchWatchProviders(
+      tmdbId,
+      mediaType
+    )
 
     if (!cancelled) {
       setWatchProviders(providers)
@@ -1133,117 +1141,117 @@ useEffect(() => {
                     }}>
                       {watchProviders?.length > 0 && (
 
-  <div style={{
+                          <div style={{
 
-    position: 'absolute',
+                            position: 'absolute',
 
-    top: 18,
+                            top: 18,
 
-    right: 18,
+                            right: 18,
 
-    display: 'flex',
+                            display: 'flex',
 
-    gap: 7,
+                            gap: 7,
 
-    zIndex: 5
+                            zIndex: 5
 
-  }}>
+                          }}>
 
-    {watchProviders.slice(0, 4).map(provider => (
+                            {watchProviders.slice(0, 4).map(provider => (
 
-      <div
+                              <div
 
-        key={provider.provider_id}
+                                key={provider.provider_id}
 
-        onClick={(e) => {
+                                onClick={(e) => {
 
-          e.stopPropagation()
+                                  e.stopPropagation()
 
-          setActiveProviderId(provider.provider_id)
+                                  setActiveProviderId(provider.provider_id)
 
-          setTimeout(() => {
+                                  setTimeout(() => {
 
-            setActiveProviderId(null)
+                                    setActiveProviderId(null)
 
-          }, 1000)
+                                  }, 1000)
 
-        }}
+                                }}
 
-        style={{
+                                style={{
 
-          position: 'relative',
+                                  position: 'relative',
 
-          cursor: 'pointer'
+                                  cursor: 'pointer'
 
-        }}
+                                }}
 
-      >
+                              >
 
-        {activeProviderId === provider.provider_id && (
+                                {activeProviderId === provider.provider_id && (
 
-          <div style={{
+                                  <div style={{
 
-            position: 'absolute',
+                                    position: 'absolute',
 
-            bottom: 30,
+                                    bottom: 30,
 
-            left: '50%',
+                                    left: '50%',
 
-            transform: 'translateX(-50%)',
+                                    transform: 'translateX(-50%)',
 
-            background: '#202020',
+                                    background: '#202020',
 
-            color: '#ffffff',
+                                    color: '#ffffff',
 
-            fontSize: 8,
+                                    fontSize: 8,
 
-            fontWeight: 800,
+                                    fontWeight: 800,
 
-            padding: '4px 7px',
+                                    padding: '4px 7px',
 
-            borderRadius: 8,
+                                    borderRadius: 8,
 
-            whiteSpace: 'nowrap',
+                                    whiteSpace: 'nowrap',
 
-            zIndex: 10
+                                    zIndex: 10
 
-          }}>
+                                  }}>
 
-            {provider.provider_name}
+                                    {provider.provider_name}
 
-          </div>
+                                  </div>
 
-        )}
+                                )}
 
-        <img
+                                <img
 
-          src={`https://image.tmdb.org/t/p/w92${provider.logo_path}`}
+                                  src={`https://image.tmdb.org/t/p/w92${provider.logo_path}`}
 
-          alt={provider.provider_name}
+                                  alt={provider.provider_name}
 
-          title={provider.provider_name}
+                                  title={provider.provider_name}
 
-          style={{
+                                  style={{
 
-            width: 24,
+                                    width: 24,
 
-            height: 24,
+                                    height: 24,
 
-            borderRadius: 7,
+                                    borderRadius: 7,
 
-            objectFit: 'cover'
+                                    objectFit: 'cover'
 
-          }}
+                                  }}
 
-        />
+                                />
 
-      </div>
+                              </div>
 
-    ))}
+                            ))}
 
-  </div>
+                          </div>
 
-)}
+                        )}
 
                       <div style={{
                         display: 'flex',

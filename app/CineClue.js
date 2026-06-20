@@ -2696,20 +2696,17 @@ return () => {
   }
 
 
-  async function fetchWatchProviders(movieId) {
+  async function fetchWatchProviders(tmdbId, mediaType = 'movie') {
     const TMDB_KEY = process.env.NEXT_PUBLIC_TMDB_KEY
-
-    if (!movieId) return []
-
+    if (!tmdbId) return []
+    const type = mediaType === 'tv' ? 'tv' : 'movie'
     try {
       const res = await fetch(
-        `https://api.themoviedb.org/3/movie/${movieId}/watch/providers?api_key=${TMDB_KEY}`
+        `https://api.themoviedb.org/3/${type}/${tmdbId}/watch/providers?api_key=${TMDB_KEY}`
       )
-
       if (!res.ok) {
         return []
       }
-
       const data = await res.json()
       const allowedProviders = [
         'Netflix',
@@ -2725,7 +2722,6 @@ return () => {
       return (data.results?.KR?.flatrate ?? []).filter(provider =>
         allowedProviders.includes(provider.provider_name)
       )
-
     } catch (e) {
       console.error('OTT 정보 조회 실패', e)
       return []
@@ -2735,7 +2731,10 @@ return () => {
   async function loadMovieDetail(movie) {
     setShowRecommendModal(false)
 
-    const watchProviders = await fetchWatchProviders(movie.id) 
+    const watchProviders = await fetchWatchProviders(
+      movie.tmdb_id,
+      movie.tmdb_media_type
+    )
     setWatchProviders(watchProviders)
 
     setMovieCard(movie)
@@ -2747,106 +2746,98 @@ return () => {
 
     const TMDB_KEY =
       process.env.NEXT_PUBLIC_TMDB_KEY
+
     try {
 
-      const res = await fetch(
-        `https://api.themoviedb.org/3/search/movie?api_key=${TMDB_KEY}&query=${encodeURIComponent(movie.title)}&language=ko-KR`
-      )
+      async function searchTMDB(type) {
 
-      if (!res.ok) {
-
-        return {}
-
-      }
-
-      const data = await res.json()
-
-      const found = data.results?.find(tmdb => {
-
-        const tmdbYear =
-          tmdb.release_date?.slice(0, 4)
-
-        const sameYear =
-          String(tmdbYear) === String(movie.year)
-
-        const sameOriginal =
-          (tmdb.original_title || '')
-            .toLowerCase()
-            .trim()
-
-          ===
-
-          (movie.title_en || '')
-            .toLowerCase()
-            .trim()
-
-        const sameTitle =
-          (tmdb.title || '')
-            .trim()
-
-          ===
-
-          (movie.title || '')
-            .trim()
-
-        return sameYear && (
-          sameOriginal || sameTitle
+        const res = await fetch(
+          `https://api.themoviedb.org/3/search/${type}?api_key=${TMDB_KEY}&query=${encodeURIComponent(movie.title)}&language=ko-KR`
         )
 
-      })
+        if (!res.ok) return null
+        const data = await res.json()
+        const countryLangMap = {
+          한국: 'ko',
+          미국: 'en',
+          일본: 'ja',
+          중국: 'zh',
+          홍콩: 'zh',
+          프랑스: 'fr',
+          영국: 'en'
+        }
+        return data.results?.find(tmdb => {
+          const tmdbYear =
+            (tmdb.release_date || tmdb.first_air_date)
+              ?.slice(0, 4)
+          const yearDiff =
+            Math.abs(Number(tmdbYear) - Number(movie.year))
+          const nearYear =
+            yearDiff <= 3
+          const movieLang =
+            countryLangMap[movie.country]
+          const sameLang =
+            !movieLang || tmdb.original_language === movieLang
+          return nearYear && sameLang
+        }) || null
 
-      if (!found) {
-        return {}
-      }
-      const detailRes = await fetch(
-        `https://api.themoviedb.org/3/movie/${found.id}?api_key=${TMDB_KEY}&language=ko-KR&append_to_response=credits,videos`
-      )
-      if (!detailRes.ok) {
-        return found || {}
-      }
-      const detail = await detailRes.json()
+     }
 
-      const trailer =
+    let mediaType = 'movie'
+    let found = await searchTMDB('movie')
 
-        detail.videos?.results?.find(v =>
-
-          v.site === 'YouTube' &&
-
-          v.type === 'Trailer'
-
-        ) ||
-
-        detail.videos?.results?.find(v =>
-
-          v.site === 'YouTube'
-
-        )
-
-      const youtubeKey =
-
-        trailer?.key || null
-
-
-      return {
-
-        ...detail,
-
-        youtubeKey
-
-      }
-
-    } catch (e) {
-
-      console.error(
-        'TMDB preload 실패',
-        e
-      )
-
-      return {}
-
+    if (!found) {
+      mediaType = 'tv'
+      found = await searchTMDB('tv')
     }
 
+    if (!found) {
+      return {}
+    }
+
+    const detailRes = await fetch(
+      `https://api.themoviedb.org/3/${mediaType}/${found.id}?api_key=${TMDB_KEY}&language=ko-KR&append_to_response=credits,videos`
+    )
+
+    if (!detailRes.ok) {
+      return {
+        ...found,
+        media_type: mediaType
+      }
+    }
+
+    const detail = await detailRes.json()
+
+    const trailer =
+      detail.videos?.results?.find(v =>
+        v.site === 'YouTube' &&
+        v.type === 'Trailer'
+      ) ||
+      detail.videos?.results?.find(v =>
+        v.site === 'YouTube'
+      )
+
+    const youtubeKey =
+      trailer?.key || null
+
+    return {
+      ...detail,
+      media_type: mediaType,
+      youtubeKey
+    }
+
+  } catch (e) {
+
+    console.error(
+      'TMDB preload 실패',
+      e
+    )
+
+    return {}
+
   }
+
+}
 
 
 
@@ -3382,14 +3373,29 @@ async function handleShowAnswers() {
               tmdb?.overview || '',
             tmdb_id:
               tmdb?.id || null,
+            tmdb_media_type: 
+              tmdb?.media_type || 'movie',
             release_date:
               tmdb?.release_date || '',
             vote_average:
               tmdb?.vote_average || null,
+            genres: 
+              tmdb?.genres || [],
+            production_countries: 
+              tmdb?.production_countries || [],
             credits:
               tmdb?.credits || null,
             youtubeKey:
-              tmdb?.youtubeKey || null
+              tmdb?.youtubeKey || null,
+            director:
+              tmdb?.credits?.crew
+              ?.find(p => p.job === 'Director')
+              ?.name || '-',
+            cast:
+              tmdb?.credits?.cast
+              ?.slice(0, 5)
+              ?.map(a => a.name)
+              ?.join(' · ') || '-'
           }
         })
       )
@@ -3496,7 +3502,10 @@ async function handleShowAnswers() {
         release_date: tmdb?.release_date || movie.release_date || '',
         vote_average: tmdb?.vote_average || movie.vote_average || null,
         credits: tmdb?.credits || movie.credits || null,
-        youtubeKey: tmdb?.youtubeKey || movie.youtubeKey || null
+        youtubeKey: tmdb?.youtubeKey || movie.youtubeKey || null, 
+        tmdb_media_type: tmdb?.media_type || movie.tmdb_media_type || 'movie',
+        genres: tmdb?.genres || movie.genres || [],
+        production_countries: tmdb?.production_countries || movie.production_countries || []
       }
     } catch (e) {
       console.error('recoverQuizData failed', e)
@@ -3679,7 +3688,17 @@ async function handleShowAnswers() {
           combo: appliedMode,
           country: m.country,
           genre: m.final_genre || '',
-          grade: primaryGrade
+          grade: primaryGrade, 
+
+          poster_path: m.poster_path || null,
+          backdrop_path: m.backdrop_path || null,
+          overview: m.overview || '',
+          tmdb_id: m.tmdb_id || null,
+          tmdb_media_type: m.tmdb_media_type || 'movie',
+          release_date: m.release_date || '',
+          vote_average: m.vote_average || null,
+          credits: m.credits || null,
+          youtubeKey: m.youtubeKey || null
         }])
 
         setFbt('ok')
@@ -3776,7 +3795,17 @@ async function handleShowAnswers() {
           score: 0,
           country: m.country,
           genre: m.final_genre || '',
-          grade: primaryGrade
+          grade: primaryGrade, 
+
+          poster_path: m.poster_path || null,
+          backdrop_path: m.backdrop_path || null,
+          overview: m.overview || '',
+          tmdb_id: m.tmdb_id || null,
+          tmdb_media_type: m.tmdb_media_type || 'movie',
+          release_date: m.release_date || '',
+          vote_average: m.vote_average || null,
+          credits: m.credits || null,
+          youtubeKey: m.youtubeKey || null
         }])
 
         setFb(rFB(sh))
@@ -3867,7 +3896,16 @@ async function handleShowAnswers() {
     score: 0,
     country: m.country,
     genre: m.final_genre || '',
-    grade: primaryGrade
+    grade: primaryGrade, 
+    poster_path: m.poster_path || null,
+    backdrop_path: m.backdrop_path || null,
+    overview: m.overview || '',
+    tmdb_id: m.tmdb_id || null,
+    tmdb_media_type: m.tmdb_media_type || 'movie',
+    release_date: m.release_date || '',
+    vote_average: m.vote_average || null,
+    credits: m.credits || null,
+    youtubeKey: m.youtubeKey || null
   }])
 
   if (willDie) {
@@ -3952,6 +3990,7 @@ async function handleShowAnswers() {
     if (!movie.title) return false
     if (!Array.isArray(movie.hintsArr)) return false
     if (movie.hintsArr.length < 5) return false
+    if (movie.hintsArr.some(h => !String(h || '').trim())) return false
     if (quizMode === 'objective') {
       if (!Array.isArray(movie.choices)) return false
       if (movie.choices.length < 4) return false
@@ -4137,9 +4176,16 @@ useEffect(() => {
     if (!pool?.length) return
     async function preloadCurrentMovie() {
       const movie = pool[qi]
+      console.log('현재 문제:', movie)
       if (!movie) return
+
       // 이미 불러왔으면 패스
-      if (movie.tmdbLoaded) return
+      const needsTmdbLoad =
+        !movie.tmdbLoaded ||
+        !movie.tmdb_id ||
+        !movie.poster_path ||
+        !movie.overview
+      if (!needsTmdbLoad) return
       try {
         const tmdb = await loadTMDB(movie)
         setPool(prev =>
@@ -4148,18 +4194,17 @@ useEffect(() => {
             return {
               ...m,
               tmdbLoaded: true,
-              poster_path:
-                tmdb?.poster_path || null,
-              backdrop_path:
-                tmdb?.backdrop_path || null,
-              overview:
-                tmdb?.overview || '',
-              tmdb_id:
-                tmdb?.id || null,
-              release_date:
-                tmdb?.release_date || '',
-              vote_average:
-                tmdb?.vote_average || null
+              poster_path: tmdb?.poster_path || null,
+              backdrop_path: tmdb?.backdrop_path || null,
+              overview: tmdb?.overview || '',
+              tmdb_id: tmdb?.id || null,
+              tmdb_media_type: tmdb?.media_type || 'movie',
+              release_date: tmdb?.release_date || '',
+              vote_average: tmdb?.vote_average || null,
+              genres: tmdb?.genres || [],
+              credits: tmdb?.credits || null,
+              production_countries: tmdb?.production_countries || [],
+              youtubeKey: tmdb?.youtubeKey || null
             }
           })
         )
@@ -4883,8 +4928,6 @@ useEffect(() => {
 
       {/* 유튜브 플레이어 모달 */}
       {trailerKey && (
-
-        
         <div
           onClick={closeTrailer}
           style={{
@@ -4896,47 +4939,64 @@ useEffect(() => {
             justifyContent: 'center',
             zIndex: 99999,
             padding: '5px'
-          }}>
+          }}
+        >
           <div
             onClick={(e) => e.stopPropagation()}
             style={{
               width: '100%',
-              maxWidth: '100%',
-              aspectRatio: '16 / 9',
-              background: '#000',
-              borderRadius: '10px',
-              overflow: 'hidden',
-              position: 'relative',
-              boxShadow: '0 10px 40px rgba(0,0,0,0.45)'
-            }}>
-
-            <button
-              onClick={closeTrailer}
+              maxWidth: '100%'
+            }}
+          >
+            <div
               style={{
-                position: 'absolute',
-                top: 10,
-                right: 10,
-                zIndex: 10,
-                width: 32,
-                height: 32,
-                borderRadius: '50%',
-                border: 'none',
-                background: 'rgba(0,0,0,0.7)',
-                color: '#fff',
-                fontSize: '1rem',
-                cursor: 'pointer'
-              }}>
-              ✕
-            </button>
+                height: 52,
+                display: 'flex',
+                justifyContent: 'flex-end',
+                alignItems: 'center',
+                paddingRight: 10
+              }}
+            >
+              <button
+                onClick={(e) => {
+                  e.stopPropagation()
+                  closeTrailer()
+                }}
+                style={{
+                  width: 28,
+                  height: 28,
+                  borderRadius: '50%',
+                  border: '1px solid #ffffff',
+                  background: 'rgba(0,0,0,0.85)',
+                  color: '#fff',
+                  fontSize: 15,
+                  fontWeight: 500
+                }}
+              >
+                ×
+              </button>
+            </div>
 
-            <iframe
-              width="100%"
-              height="100%"
-              src={`https://www.youtube.com/embed/${trailerKey}?autoplay=1&rel=0&modestbranding=1&playsinline=1`}
-              title="YouTube player"
-              frameBorder="0"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-            />
+            <div
+              style={{
+                width: '100%',
+                aspectRatio: '16 / 9',
+                background: '#000',
+                borderRadius: '10px',
+                overflow: 'hidden',
+                boxShadow: '0 10px 40px rgba(0,0,0,0.45)'
+              }}
+            >
+              <iframe
+                width="100%"
+                height="100%"
+                src={`https://www.youtube.com/embed/${trailerKey}?autoplay=1&rel=0&modestbranding=1&playsinline=1`}
+                title="YouTube player"
+                frameBorder="0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+              />
+            </div>
           </div>
         </div>
       )}

@@ -640,9 +640,8 @@ useEffect(() => {
                 onClick={async() => {
                   const movie = poster.movie_data
                   const providers = await fetchWatchProviders(
-
-                    movie.tmdb_id || movie.id
-
+                    movie.tmdb_id || movie.id,
+                    movie.tmdb_media_type
                   )
 
                   setWatchProviders(providers)

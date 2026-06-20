@@ -31,7 +31,6 @@ export default function MovieFlipCard(props) {
     116
 
   if (!showMovieCard || !movieCard) return null
-
   return (
     <>
       <div style={{
@@ -207,136 +206,106 @@ export default function MovieFlipCard(props) {
                       }}
                     >
                       {visibleProviders.map(provider => (
-
                         <div
-
                           key={provider.provider_id}
-
                           onClick={(e) => {
-
                               e.stopPropagation()
-
                               setActiveProviderId(provider.provider_id)
-
                               setTimeout(() => {
-
                                 setActiveProviderId(null)
-
                               }, 1000)
-
                           }}
-
                           style={{
-
                             position: 'relative',
-
                             cursor: 'pointer'
-
                           }}
-
                         >
-
                           {activeProviderId === provider.provider_id && (
-
                             <div
-
                               style={{
-
                                 position: 'absolute',
-
                                 bottom: 50,
-
                                 left: '50%',
-
                                 transform: 'translateX(-50%)',
-
                                 background: 'rgba(255,255,255,0.95)',
-
                                 color: '#111',
-
                                 fontSize: 10,
-
                                 fontWeight: 800,
-
                                 padding: '4px 7px',
-
                                 borderRadius: 8,
-
                                 whiteSpace: 'nowrap',
-
                                 boxShadow: '0 6px 18px rgba(0,0,0,0.25)',
-
                                 zIndex: 5
-
                               }}
-
                             >
-
                               {provider.provider_name}
-
                             </div>
-
                           )}
-
                           <img
-
                             src={`https://image.tmdb.org/t/p/w92${provider.logo_path}`}
-
                             alt={provider.provider_name}
-
                             title={provider.provider_name}
-
                             style={{
-
                               width: 32,
-
                               height: 32,
-
                               borderRadius: 6,
-
                               objectFit: 'cover'
-
                             }}
-
                           />
-
                         </div>
-
                       ))}
                     </div>
                   )}
                 </div>
-
                 {[
-                  ['개봉', movieCard.release_date
+
+                  [
+
+                    '개봉',
+
+                    movieCard.release_date ||
+
+                    movieCard.year ||
+
+                    movieCard.releaseYear
+
                   ],
 
-                  ['국가', movieCard.production_countries
-                    ?.map(c => c.name)
-                    ?.join(', ')
+                  [
+
+                    '국가',
+
+                    movieCard.country ||
+
+                    movieCard.nationality ||
+
+                    movieCard.origin_country?.join(', ') ||
+
+                    movieCard.production_countries?.map(c => c.name).join(', ')
+
                   ],
 
-                  ['평점',
-                    movieCard.vote_average?.toFixed(1)
+                  [
+
+                    '평점',
+
+                    movieCard.vote_average?.toFixed
+
+                      ? movieCard.vote_average.toFixed(1)
+
+                      : movieCard.vote_average
+
                   ],
 
-                  ['장르', movieCard.genres
-                    ?.map(g => g.name)
-                    ?.join(', ')
-                  ],
+                  [
 
-                  ['감독', movieCard.credits?.crew
-                    ?.find(p => p.job === 'Director')
-                    ?.name
-                  ],
+                    '장르',
 
-                  ['출연',
-                    movieCard.credits?.cast
-                      ?.slice(0, 5)
-                      ?.map(a => a.name)
-                      ?.join(' · ')
-                  ],
+                    movieCard.genres?.map(g => g.name).join(', ') ||
 
+                    movieCard.genre
+
+                  ],
                   ['영상', movieCard.youtubeKey]
 
                 ].map(([k, v], i) => (
