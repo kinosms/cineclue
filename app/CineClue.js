@@ -544,7 +544,6 @@ async function loadRanking({ supabase }) {
     'load ranking'
   )
 
-  console.log('ranking result:', result)
 
   const { data = [] } = result
 
@@ -1218,17 +1217,6 @@ function restoreAppSnapshot(options = {}) {
     if (s.screen) {
       const restoreScreen = s.screen === 'quiz' ? 'char' : s.screen
 
-      console.log(
-
-    'RESTORE_SCREEN',
-
-    s.screen,
-
-    '->',
-
-    restoreScreen
-
-  )
       setScreen(restoreScreen)
     }
     const shouldSkipQuizRestore = s.screen === 'quiz'
@@ -1401,6 +1389,7 @@ function restoreAppSnapshot(options = {}) {
 
     }
 
+  const [watchProviders, setWatchProviders] = useState([])
 
   const modeRef = useRef(mode)
   const screenRef = useRef(screen)
@@ -1683,8 +1672,6 @@ function restoreAppSnapshot(options = {}) {
         .eq('auth_user_id', authUser.id)
 
       if (error) {
-
-        console.log('load characters failed', error)
 
         return
 
@@ -2094,17 +2081,6 @@ useEffect(() => {
 
   async function saveCharacterLivesToDb(nextLives) {
 
-      console.log(
-
-    'SAVE_CHARACTER_LIVES_TO_DB=',
-
-    nextLives,
-
-    currentUser?.userId,
-
-    selChar
-
-  )
 
   if (!authUser) return
 
@@ -2139,14 +2115,6 @@ useEffect(() => {
   // 퀴즈 시작 종료시 현재 세션에 저장
   useEffect(() => {
     if (screen !== 'intro') {
-
-      console.log(
-
-      'SAVE_SESSION_SCREEN=',
-
-      screen === 'quiz' ? 'char' : screen
-
-    )
 
     
       saveCurrentSession({
@@ -2633,8 +2601,6 @@ return () => {
 
   if (!movie?.poster_path) {
 
-    console.log('포스터 없음 - 컬렉션 저장 제외', movie?.title)
-
     return
 
   }
@@ -2730,11 +2696,48 @@ return () => {
   }
 
 
+  async function fetchWatchProviders(movieId) {
+    const TMDB_KEY = process.env.NEXT_PUBLIC_TMDB_KEY
 
+    if (!movieId) return []
+
+    try {
+      const res = await fetch(
+        `https://api.themoviedb.org/3/movie/${movieId}/watch/providers?api_key=${TMDB_KEY}`
+      )
+
+      if (!res.ok) {
+        return []
+      }
+
+      const data = await res.json()
+      const allowedProviders = [
+        'Netflix',
+        'Disney Plus',
+        'TVING',
+        'Coupang Play',
+        'Watcha',
+        'wavve',
+        'Apple TV+',
+        'YouTube',
+        'U+모바일tv'
+      ]
+      return (data.results?.KR?.flatrate ?? []).filter(provider =>
+        allowedProviders.includes(provider.provider_name)
+      )
+
+    } catch (e) {
+      console.error('OTT 정보 조회 실패', e)
+      return []
+    }
+  }
 
   async function loadMovieDetail(movie) {
-
     setShowRecommendModal(false)
+
+    const watchProviders = await fetchWatchProviders(movie.id) 
+    setWatchProviders(watchProviders)
+
     setMovieCard(movie)
     setMovieCardFlipped(false)
     setShowMovieCard(true)
@@ -2919,7 +2922,6 @@ return () => {
         await AdMob.showRewardVideoAd()
 
       } catch (error) {
-        console.log('SHOW_REWARDED_AD_ERROR=', error)
         showAppToast('광고를 불러오지 못했습니다')
         finish(false)
       }
@@ -2977,7 +2979,6 @@ async function showRewardedLifeAd() {
       await AdMob.showRewardVideoAd()
 
     } catch (error) {
-      console.log('SHOW_REWARDED_LIFE_AD_ERROR=', error)
       showAppToast('광고를 불러오지 못했습니다')
       finish(false)
     }
@@ -3959,6 +3960,74 @@ async function handleShowAnswers() {
   }
 
 
+useEffect(() => {
+
+  if (screen !== 'quiz') return
+
+  if (!questionReady) return
+
+  if (!pool?.[qi]) return
+
+  const movie = pool[qi]
+
+  if (isValidQuizData(movie)) return
+
+  let cancelled = false
+
+  async function recoverCurrentMovie() {
+
+    setShowSpinner(true)
+
+    try {
+
+      const recovered = await recoverQuizData(movie)
+
+      if (cancelled) return
+
+      if (!isValidQuizData(recovered)) {
+
+        setHasNetworkError(true)
+
+        return
+
+      }
+
+      setPool(prev =>
+
+        prev.map((m, idx) =>
+
+          idx === qi ? recovered : m
+
+        )
+
+      )
+
+    } finally {
+
+      if (!cancelled) {
+
+        setShowSpinner(false)
+
+      }
+
+    }
+
+  }
+
+  recoverCurrentMovie()
+
+  return () => {
+
+    cancelled = true
+
+  }
+
+}, [screen, questionReady, qi, pool])
+
+
+
+
+
   async function nextQ() {
     inputRef.current?.blur()
 
@@ -4685,6 +4754,9 @@ async function handleShowAnswers() {
           safeQuery={safeQuery}
           AppLayout={AppLayout}
           questionReady={questionReady}
+          watchProviders={watchProviders}
+          fetchWatchProviders={fetchWatchProviders}
+          setWatchProviders={setWatchProviders}
 
         />
 
@@ -4775,6 +4847,9 @@ async function handleShowAnswers() {
           showAppToast={showAppToast}
 
           getProfileStats={getProfileStats}
+
+          fetchWatchProviders={fetchWatchProviders}
+          setWatchProviders={setWatchProviders}
         />
 
       )}
@@ -4795,6 +4870,8 @@ async function handleShowAnswers() {
           setMovieCardFlipped={setMovieCardFlipped}
           setShowMovieCard={setShowMovieCard}
           collectionTargetUserId={collectionTargetUserId}
+          fetchWatchProviders={fetchWatchProviders}
+          setWatchProviders={setWatchProviders}
 
         />
 
@@ -4914,6 +4991,8 @@ async function handleShowAnswers() {
       <MovieFlipCard
 
         movieCard={movieCard}
+
+        watchProviders={watchProviders}
 
         showMovieCard={showMovieCard}
 

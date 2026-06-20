@@ -7,16 +7,28 @@ import {
   pauseBgmForVideo
 
 } from '../library/audioManager'
+import { useState } from 'react'
+
 export default function MovieFlipCard(props) {
 
   const {
     movieCard,
+    watchProviders,
     showMovieCard,
     setShowMovieCard,
     movieCardFlipped,
     setMovieCardFlipped,
     setTrailerKey
   } = props
+
+  const [activeProviderId, setActiveProviderId] = useState(null)
+  const visibleProviders = watchProviders?.slice(0, 3) || []
+
+  const providerWidth =
+    visibleProviders.length === 0 ? 0 :
+    visibleProviders.length === 1 ? 40 :
+    visibleProviders.length === 2 ? 78 :
+    116
 
   if (!showMovieCard || !movieCard) return null
 
@@ -144,25 +156,155 @@ export default function MovieFlipCard(props) {
                 zIndex: 2,
                 height: '100%',
                 overflowY: 'auto',
-                padding: '24px 22px 28px'
+                padding: '40px 22px 64px',
+                boxSizing: 'border-box'
               }}>
+                <div
+                  style={{
+                    display: 'flex',
+                    alignItems: 'flex-start',
+                    gap: 12,
+                    marginBottom: 20
+                  }}
+                >
+                  <div 
+                  style={{
+                    flex: 1,
+                    minWidth: 0
+                    }}
+                    >
+                    <div
+                      style={{
+                        fontSize: '1.35rem',
+                        fontWeight: 900,
+                        color: '#fff',
+                        lineHeight: 1.2, 
+                        wordBreak: 'keep-all'
+                      }}
+                    >
+                      {movieCard.title}
+                    </div>
 
-                <div style={{
-                  fontSize: '1.35rem',
-                  fontWeight: 900,
-                  color: '#fff',
-                  lineHeight: 1.2,
-                  marginBottom: 6
-                }}>
-                  {movieCard.title}
-                </div>
+                    <div
+                      style={{
+                        fontSize: '0.82rem',
+                        color: 'rgba(255,255,255,0.62)',
+                        marginTop: 6
+                      }}
+                    >
+                      {movieCard.original_title}
+                    </div>
+                  </div>
 
-                <div style={{
-                  fontSize: '0.82rem',
-                  color: 'rgba(255,255,255,0.62)',
-                  marginBottom: 20
-                }}>
-                  {movieCard.original_title}
+                  {visibleProviders.length > 0 && (
+                    <div
+                      style={{
+                        width: providerWidth,
+                        display: 'flex',
+                        justifyContent: 'flex-end',
+                        gap: 6,
+                        flexShrink: 0
+                      }}
+                    >
+                      {visibleProviders.map(provider => (
+
+                        <div
+
+                          key={provider.provider_id}
+
+                          onClick={(e) => {
+
+                              e.stopPropagation()
+
+                              setActiveProviderId(provider.provider_id)
+
+                              setTimeout(() => {
+
+                                setActiveProviderId(null)
+
+                              }, 1000)
+
+                          }}
+
+                          style={{
+
+                            position: 'relative',
+
+                            cursor: 'pointer'
+
+                          }}
+
+                        >
+
+                          {activeProviderId === provider.provider_id && (
+
+                            <div
+
+                              style={{
+
+                                position: 'absolute',
+
+                                bottom: 50,
+
+                                left: '50%',
+
+                                transform: 'translateX(-50%)',
+
+                                background: 'rgba(255,255,255,0.95)',
+
+                                color: '#111',
+
+                                fontSize: 10,
+
+                                fontWeight: 800,
+
+                                padding: '4px 7px',
+
+                                borderRadius: 8,
+
+                                whiteSpace: 'nowrap',
+
+                                boxShadow: '0 6px 18px rgba(0,0,0,0.25)',
+
+                                zIndex: 5
+
+                              }}
+
+                            >
+
+                              {provider.provider_name}
+
+                            </div>
+
+                          )}
+
+                          <img
+
+                            src={`https://image.tmdb.org/t/p/w92${provider.logo_path}`}
+
+                            alt={provider.provider_name}
+
+                            title={provider.provider_name}
+
+                            style={{
+
+                              width: 32,
+
+                              height: 32,
+
+                              borderRadius: 6,
+
+                              objectFit: 'cover'
+
+                            }}
+
+                          />
+
+                        </div>
+
+                      ))}
+                    </div>
+                  )}
                 </div>
 
                 {[

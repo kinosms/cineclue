@@ -17,18 +17,6 @@ export default function IntroScreen({
   isAuthLoading
 }) {
 
-    console.log('INTRO_PROPS', {
-
-    authUser,
-
-    authChecked,
-
-    introAnimationDone,
-
-    isAuthLoading
-
-  })
-
   const [mounted, setMounted] = useState(false)
 
   useEffect(() => {

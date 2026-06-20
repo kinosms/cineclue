@@ -721,7 +721,7 @@ export default function CharacterScreen(props) {
                       if (u.isDead) {
                         if (!authUser) return
                         if (!isAndroidApp) {
-                          showAppToast('Android 앱에서만\n이용 가능합니다')
+                          showAppToast('웹 이용은 준비 중입니다')
                           return
                         }
                         const success = await showRewardedLifeAd()

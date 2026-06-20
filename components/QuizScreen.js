@@ -6,6 +6,7 @@ import {
   pauseBgmForVideo
 
 } from '../library/audioManager'
+import { useState, useEffect } from 'react'
 
 
 export default function QuizScreen(props) {
@@ -125,11 +126,44 @@ export default function QuizScreen(props) {
 
     CharAvatar,
 
-    questionReady
+    questionReady, 
+    watchProviders,
+    fetchWatchProviders,
+    setWatchProviders,
 
   } = props
 
+const [activeProviderId, setActiveProviderId] = useState(null)
 
+useEffect(() => {
+  const movie = pool?.[qi]
+
+  setWatchProviders?.([])
+
+  if (!answered || fbt !== 'ok' || !movie) return
+  if (!fetchWatchProviders || !setWatchProviders) return
+
+  let cancelled = false
+
+  async function loadAnswerProviders() {
+    const tmdbId = movie.tmdb_id || movie.tmdbId
+      if (!tmdbId) {
+        setWatchProviders([])
+        return
+      }
+    const providers = await fetchWatchProviders(tmdbId)
+
+    if (!cancelled) {
+      setWatchProviders(providers)
+    }
+  }
+
+  loadAnswerProviders()
+
+  return () => {
+    cancelled = true
+  }
+}, [answered, fbt, qi])
 
   if (loading || !pool || !questionReady || !pool[qi]) {
 
@@ -186,8 +220,6 @@ export default function QuizScreen(props) {
 
     }
 
-    console.log('report payload:', payload)
-
     const { data, error } = await supabase
 
       .from('hint_reports')
@@ -210,8 +242,6 @@ export default function QuizScreen(props) {
 
     }
 
-    console.log('report saved')
-
     setShowReportToast(true)
 
     setTimeout(() => {
@@ -227,7 +257,6 @@ export default function QuizScreen(props) {
   }
 
 }
-
 
   return (
     <AppLayout>
@@ -856,7 +885,6 @@ export default function QuizScreen(props) {
                             }
 
                             // 전체 영화 아직 로딩 안됐으면 중단
-                            console.log('allMovies', allMovies.length)
                             if (!allMovies.length) return
                             const keyword = normalize(v)
                             const starts = []
@@ -1095,6 +1123,7 @@ export default function QuizScreen(props) {
 
                     {/* 영화 카드 */}
                     <div style={{
+                      position: 'relative',
                       borderRadius: 22,
                       overflow: 'hidden',
                       border: '1.5px solid #ece8e2',
@@ -1102,6 +1131,119 @@ export default function QuizScreen(props) {
                       padding: 16,
                       marginBottom: 14
                     }}>
+                      {watchProviders?.length > 0 && (
+
+  <div style={{
+
+    position: 'absolute',
+
+    top: 18,
+
+    right: 18,
+
+    display: 'flex',
+
+    gap: 7,
+
+    zIndex: 5
+
+  }}>
+
+    {watchProviders.slice(0, 4).map(provider => (
+
+      <div
+
+        key={provider.provider_id}
+
+        onClick={(e) => {
+
+          e.stopPropagation()
+
+          setActiveProviderId(provider.provider_id)
+
+          setTimeout(() => {
+
+            setActiveProviderId(null)
+
+          }, 1000)
+
+        }}
+
+        style={{
+
+          position: 'relative',
+
+          cursor: 'pointer'
+
+        }}
+
+      >
+
+        {activeProviderId === provider.provider_id && (
+
+          <div style={{
+
+            position: 'absolute',
+
+            bottom: 30,
+
+            left: '50%',
+
+            transform: 'translateX(-50%)',
+
+            background: '#202020',
+
+            color: '#ffffff',
+
+            fontSize: 8,
+
+            fontWeight: 800,
+
+            padding: '4px 7px',
+
+            borderRadius: 8,
+
+            whiteSpace: 'nowrap',
+
+            zIndex: 10
+
+          }}>
+
+            {provider.provider_name}
+
+          </div>
+
+        )}
+
+        <img
+
+          src={`https://image.tmdb.org/t/p/w92${provider.logo_path}`}
+
+          alt={provider.provider_name}
+
+          title={provider.provider_name}
+
+          style={{
+
+            width: 24,
+
+            height: 24,
+
+            borderRadius: 7,
+
+            objectFit: 'cover'
+
+          }}
+
+        />
+
+      </div>
+
+    ))}
+
+  </div>
+
+)}
 
                       <div style={{
                         display: 'flex',

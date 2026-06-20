@@ -33,7 +33,9 @@ export default function Collection(props) {
     movieCardFlipped,
 
     setMovieCardFlipped, 
-    collectionTargetUserId
+    collectionTargetUserId, 
+    fetchWatchProviders,
+    setWatchProviders
 
   } = props
 
@@ -42,51 +44,7 @@ export default function Collection(props) {
   const [posters, setPosters] = useState([])
   const [collectionLayout, setCollectionLayout] = useState('stack')
   const [sortType, setSortType] = useState('recent')
-  /*const [showShuffleFx, setShowShuffleFx] = useState(false)
-  const [shuffleCards, setShuffleCards] = useState([])
-  const shuffleTimeoutRef = useRef(null)
-  const shuffleHideTimeoutRef = useRef(null)
-  const SHUFFLE_DURATION = 1700 
-
-  const triggerShuffleFx = (callback) => {
-
-    // 🔥 이전 타이머 제거
-    clearTimeout(shuffleTimeoutRef.current)
-    clearTimeout(shuffleHideTimeoutRef.current)
-
-    const cards = fxPosters.map(src => ({
-
-      src,
-
-      fromLeft: Math.random() > 0.5,
-
-      top: -15 + Math.random() * 115,
-
-      rotate: -25 + Math.random() * 50,
-
-      duration: 1.25 + Math.random() * 0.35
-
-    }))
-
-    setShuffleCards(cards)
-
-    setShowShuffleFx(true)
-
-    // 🔥 화면 가려졌을 때 정렬 변경
-    shuffleTimeoutRef.current = setTimeout(() => {
-
-      callback?.()
-
-    }, 340)
-
-    // 🔥 완전히 지나간 후 제거
-    shuffleHideTimeoutRef.current = setTimeout(() => {
-
-      setShowShuffleFx(false)
-
-    }, SHUFFLE_DURATION)
-
-}*/
+  
 
 async function preloadImages(urls = []) {
   await Promise.all(
@@ -679,9 +637,17 @@ useEffect(() => {
               <div
                 key={index}
 
-                onClick={() => {
+                onClick={async() => {
+                  const movie = poster.movie_data
+                  const providers = await fetchWatchProviders(
 
-                  setMovieCard(poster.movie_data)
+                    movie.tmdb_id || movie.id
+
+                  )
+
+                  setWatchProviders(providers)
+
+                  setMovieCard(movie)
 
                   setMovieCardFlipped(false)
 

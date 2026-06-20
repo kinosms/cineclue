@@ -60,7 +60,9 @@ export default function ResultScreen(props) {
     showAppToast,
     showAnswers,
     handleShowAnswers,
-    getProfileStats
+    getProfileStats,
+    fetchWatchProviders,
+    setWatchProviders
   } = props
 
   const safeUsers = Array.isArray(users) ? users : []
@@ -322,20 +324,34 @@ const sortedRanking = [...patchedRanking].sort(
                   <div
 
                     key={i}
-                    onClick={() => {
+                    onClick={async () => {
+
                       if (
-                        (r.correct || showAnswers)
-                        &&
+
+                        (r.correct || showAnswers) &&
+
                         hasMovieInfo
+
                       ) {
+
                         saveCollection(r)
+
+                        const providers = await fetchWatchProviders(
+
+                          r.tmdb_id || r.id
+
+                        )
+
+                        setWatchProviders(providers)
 
                         setMovieCard(r)
 
                         setMovieCardFlipped(false)
 
                         setShowMovieCard(true)
+
                       }
+
                     }}
                     style={{
                       position: 'relative',
