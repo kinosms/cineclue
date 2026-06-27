@@ -10,12 +10,14 @@ import ModeScreen from '../components/ModeScreen'
 import LoginModal from '../components/LoginModal'
 import QuizScreen from '../components/QuizScreen'
 import ResultScreen from '../components/ResultScreen'
+import CastingQuiz from '../components/CastingQuiz'
 import Collection from '../components/Collection'
 import MovieFlipCard from '../components/MovieFlipCard'
 import ProfileModal from '../components/ProfileModal'
 import { Capacitor } from '@capacitor/core'
 import {
   playSound,
+  stopSound,
   playBgm,
   stopBgm,
   setBgmSpeed, 
@@ -1157,6 +1159,7 @@ function blockWebLogin() {
   const SNAPSHOT_KEY = 'cineclue_app_snapshot'
   const [isRestoring, setIsRestoring] = useState(false)
   const isPausedRef = useRef(false)
+  const forceCharOnResumeRef = useRef(false)
 
   function saveCurrentSession({
     screen,
@@ -1215,11 +1218,15 @@ function restoreAppSnapshot(options = {}) {
     const s = JSON.parse(saved)
 
     if (s.screen) {
-      const restoreScreen = s.screen === 'quiz' ? 'char' : s.screen
+      const restoreScreen =
+        s.screen === 'quiz' || s.screen === 'castingQuiz'
+          ? 'char'
+          : s.screen
 
       setScreen(restoreScreen)
     }
-    const shouldSkipQuizRestore = s.screen === 'quiz'
+    const shouldSkipQuizRestore =
+      s.screen === 'quiz' || s.screen === 'castingQuiz'
     if (s.selChar) setSelChar(s.selChar)
 
     if (!keepUsers && Array.isArray(s.users)) {
@@ -1320,6 +1327,25 @@ function restoreAppSnapshot(options = {}) {
   const [collectionReturnScreen, setCollectionReturnScreen] = useState('result')
 
   const [posterCount, setPosterCount] = useState(0)
+
+  const [castingQuiz, setCastingQuiz] = useState(null)
+  const [castingRevealedCount, setCastingRevealedCount] = useState(0)
+  const [selectedAnswer, setSelectedAnswer] = useState(null)
+  const nextCastingQuizRef = useRef(null)
+
+  const preloadNextCastingQuiz = async () => {
+    try {
+      nextCastingQuizRef.current = await createCastingQuiz()
+    } catch (e) {
+      console.error('다음 캐스팅 퀴즈 preload 실패', e)
+    }
+  }
+  const handleSelectCastingAnswer = (answer) => {
+    setSelectedAnswer(answer)
+    // 정답/오답 상관없이 포스터 보는 동안 다음 문제 미리 준비
+    preloadNextCastingQuiz()
+  }
+  const [isLoadingCastingQuiz, setIsLoadingCastingQuiz] = useState(false)
 
   const [selGrade, setSelGrade] = useState(null)
   const [pool, setPool] = useState([])
@@ -1469,6 +1495,11 @@ function restoreAppSnapshot(options = {}) {
   useEffect(() => {
     if (screen === 'intro') {
       stopBgm()
+      return
+    }
+
+    if (screen === 'castingQuiz') {
+      playBgm('castingBgm', 0.25)
       return
     }
 
@@ -2320,7 +2351,7 @@ useEffect(() => {
 
     setAuthUser(user)
 
-    if (screen === 'quiz' || screen === 'result') {
+    if (screen === 'quiz' || screen === 'castingQuiz' || screen === 'result') {
       console.warn('게임 중 auth characters 로드 생략')
       return
 
@@ -2360,161 +2391,196 @@ useEffect(() => {
   }
 
   useEffect(() => {
-  const pauseForBackground = () => {
 
-    isPausedRef.current = true
+    const pauseForBackground = () => {
 
-    // OAuth 로그인 이동 중에는 현재 화면 저장 금지
+      isPausedRef.current = true
 
-    if (
+      stopBgm()
 
-      localStorage.getItem('cineclue_oauth_start') !== 'true' &&
-      !deathMessage
+      stopSound('castingClock')
 
-    ) {
+      clearInterval(timerRef.current)
 
-      saveAppSnapshot()
+      timerRef.current = null
 
-    }
+      const isGameScreen =
 
-    clearInterval(timerRef.current)
-    timerRef.current = null
-    stopBgm()
+        screen === 'quiz' || screen === 'castingQuiz'
 
-  }
+      if (isGameScreen) {
 
-  const handleVisibilityChange = async () => {
-  if (document.hidden) {
-    pauseForBackground()
-    return
-  }
+        forceCharOnResumeRef.current = true
 
-  if (deathMessage) {
-    setDeathMessage(false)
-    setSelChar(null)
-    setScreen('char')
-    isPausedRef.current = false
-    setIsRestoring(false)
-    return
-  }
+        return
 
-  // OAuth 로그인 복귀 중에는 기존 앱 복원 로직 금지
-  if (localStorage.getItem('cineclue_oauth_start') === 'true') {
-    isPausedRef.current = false
-    setIsRestoring(false)
-    return
-  }
+      }
 
-  const registerResumeAudioOnce = () => {
+      // OAuth 로그인 이동 중에는 현재 화면 저장 금지
 
-    if (resumeAudioHandlerRef.current) {
+      if (
 
-      window.removeEventListener('pointerdown', resumeAudioHandlerRef.current)
+        localStorage.getItem('cineclue_oauth_start') !== 'true' &&
 
-      window.removeEventListener('touchstart', resumeAudioHandlerRef.current)
+        !deathMessage
 
-      window.removeEventListener('click', resumeAudioHandlerRef.current)
+      ) {
+
+        saveAppSnapshot()
+
+      }
 
     }
+    
 
-    const resumeAudioOnce = () => {
+    const handleVisibilityChange = async () => {
+      console.log(document.hidden)
+      if (document.hidden) {
+        pauseForBackground()
+        return
+      }
 
-      resetSfxPool()
+      if (deathMessage) {
+        setDeathMessage(false)
+        setSelChar(null)
+        setScreen('char')
+        isPausedRef.current = false
+        setIsRestoring(false)
+        return
+      }
 
-      playSound('click', 0.01)
+      // OAuth 로그인 복귀 중에는 기존 앱 복원 로직 금지
+      if (localStorage.getItem('cineclue_oauth_start') === 'true') {
+        isPausedRef.current = false
+        setIsRestoring(false)
+        return
+      }
 
-      resumeBgmByScreen()
+      const registerResumeAudioOnce = () => {
 
-      window.removeEventListener('pointerdown', resumeAudioOnce)
+        if (resumeAudioHandlerRef.current) {
 
-      window.removeEventListener('touchstart', resumeAudioOnce)
+          window.removeEventListener('pointerdown', resumeAudioHandlerRef.current)
 
-      window.removeEventListener('click', resumeAudioOnce)
+          window.removeEventListener('touchstart', resumeAudioHandlerRef.current)
 
-      resumeAudioHandlerRef.current = null
+          window.removeEventListener('click', resumeAudioHandlerRef.current)
 
+        }
+
+        const resumeAudioOnce = () => {
+
+          resetSfxPool()
+
+          playSound('click', 0.01)
+
+          resumeBgmByScreen()
+
+          window.removeEventListener('pointerdown', resumeAudioOnce)
+
+          window.removeEventListener('touchstart', resumeAudioOnce)
+
+          window.removeEventListener('click', resumeAudioOnce)
+
+          resumeAudioHandlerRef.current = null
+
+          }
+
+        resumeAudioHandlerRef.current = resumeAudioOnce
+
+        window.addEventListener('pointerdown', resumeAudioOnce, { once: true })
+
+        window.addEventListener('touchstart', resumeAudioOnce, { once: true })
+
+        window.addEventListener('click', resumeAudioOnce, { once: true })
+
+      }
+
+      // 퀴즈 중 복귀는 퀴즈 복원하지 않고 캐릭터 화면으로 이동
+
+      if (
+        forceCharOnResumeRef.current ||
+        screen === 'quiz' ||
+        screen === 'castingQuiz'
+        ) {
+
+            forceCharOnResumeRef.current = false
+
+            stopSound('castingClock')
+
+            setIsRestoring(true)
+            isPausedRef.current = true
+            clearInterval(timerRef.current)
+            timerRef.current = null
+
+
+            setTrailerKey(null)
+            setShowMovieCard(false)
+            setMovieCard(null)
+            setShowRecommendModal(false)
+            setRecommendMovie(null)
+
+            setPool([])
+            setQi(0)
+            setSh(1)
+            setAnswered(false)
+            setFb('')
+            setFbt('')
+            setInput('')
+            setMode(null)
+            setComboStreak(0)
+            setCrazyStreak(0)
+            setResults([])
+            setProgress(0)
+            setButtonActive(false)
+            setTimerStartedAt(null)
+            setQuestionReady(false)
+
+            setCastingQuiz(null)
+            setSelectedAnswer(null)
+            setCastingRevealedCount(1)
+
+            await restoreAuthCharacters()
+            setScreen('char')
+
+            isPausedRef.current = false
+            setIsRestoring(false)
+            return
+          }
+
+        setIsRestoring(true)
+
+        try {
+          await new Promise(r => setTimeout(r, 600))
+
+          const authRestored = await restoreAuthCharacters()
+
+          restoreAppSnapshot({
+            keepUsers: authRestored
+          })
+
+          await new Promise(r => requestAnimationFrame(r))
+          await new Promise(r => setTimeout(r, 300))
+
+          isPausedRef.current = false
+          setResumeTick(v => v + 1)
+          registerResumeAudioOnce()
+        } catch (e) {
+          console.error('resume failed', e)
+        } finally {
+          setIsRestoring(false)
+        }
     }
 
-    resumeAudioHandlerRef.current = resumeAudioOnce
-
-    window.addEventListener('pointerdown', resumeAudioOnce, { once: true })
-
-    window.addEventListener('touchstart', resumeAudioOnce, { once: true })
-
-    window.addEventListener('click', resumeAudioOnce, { once: true })
-
-  }
-
-  // 퀴즈 중 복귀는 퀴즈 복원하지 않고 캐릭터 화면으로 이동
-
-if (screen === 'quiz') {
-
-  setIsRestoring(true)
-  isPausedRef.current = true
-  clearInterval(timerRef.current)
-  timerRef.current = null
-
-
-  setTrailerKey(null)
-  setShowMovieCard(false)
-  setMovieCard(null)
-  setShowRecommendModal(false)
-  setRecommendMovie(null)
-
-  setPool([])
-  setQi(0)
-  setSh(1)
-  setAnswered(false)
-  setFb('')
-  setFbt('')
-  setInput('')
-  setMode(null)
-  setComboStreak(0)
-  setCrazyStreak(0)
-  setResults([])
-  setProgress(0)
-  setButtonActive(false)
-  setTimerStartedAt(null)
-  setQuestionReady(false)
-  await restoreAuthCharacters()
-  setScreen('char')
-  isPausedRef.current = false
-  setIsRestoring(false)
-  return
-}
-
-  setIsRestoring(true)
-
-  try {
-    await new Promise(r => setTimeout(r, 600))
-
-    const authRestored = await restoreAuthCharacters()
-
-    restoreAppSnapshot({
-      keepUsers: authRestored
-    })
-
-    await new Promise(r => requestAnimationFrame(r))
-    await new Promise(r => setTimeout(r, 300))
-
-    isPausedRef.current = false
-    setResumeTick(v => v + 1)
-    registerResumeAudioOnce()
-  } catch (e) {
-    console.error('resume failed', e)
-  } finally {
-    setIsRestoring(false)
-  }
-}
 
 document.addEventListener('visibilitychange', handleVisibilityChange)
 window.addEventListener('pagehide', pauseForBackground)
-window.addEventListener('blur', pauseForBackground)
+
 
 return () => {
   document.removeEventListener('visibilitychange', handleVisibilityChange)
   window.removeEventListener('pagehide', pauseForBackground)
-  window.removeEventListener('blur', pauseForBackground)
+
 }
 }, [
   screen,
@@ -3171,18 +3237,346 @@ async function handleShowAnswers() {
   }
 
 
+  async function getRandomMovieByCountry(country) {
+    if (!supabase) return null
+    let query = supabase
+      .from('movies')
+      .select('*')
+    switch (country) {
+      case '미국':
+        query = query.ilike('country', '%미국%')
+        break
+      case '한국':
+        query = query.ilike('country', '%한국%')
+        break
+      case '일본':
+        query = query.ilike('country', '%일본%')
+        break
+      case '홍콩':
+        query = query.or(
+          'country.ilike.%홍콩%,country.ilike.%중국%,country.ilike.%대만%'
+        )
+        break
+      case '영국':
+        query = query.ilike('country', '%영국%')
+        break
+      case '프랑스':
+        query = query.ilike('country', '%프랑스%')
+        break
+      default:
+        break
+    }
+    const { data, error } = await safeQuery(
+      query,
+      `getRandomMovieByCountry(${country})`
+    )
+    if (error || !data?.length) return null
+    return shuffle(data)[0]
+  }
+
+
+  function getCastingRandomCountry() {
+    const r = Math.random()
+    if (r < 0.68) return '미국'
+    if (r < 0.93) return '한국'
+    if (r < 0.96) return '일본'
+    if (r < 0.98) return '영국'
+    if (r < 0.99) return '중국'
+    return '영국'
+  }
+
+  async function getRandomMovie(selGrade) {
+  if (!supabase) return null
+
+  let query = supabase
+    .from('movies')
+    .select('*')
+
+  // 캐스팅 퀴즈는 일단 전체 영화 기준
+  if (selGrade !== 'casting' && selGrade !== 'all') {
+    const g = selGrade
+
+    if (g === '2020s') query = query.gte('year', 2020)
+    if (g === '2010s') query = query.gte('year', 2010).lt('year', 2020)
+    if (g === '2000s') query = query.gte('year', 2000).lt('year', 2010)
+    if (g === '1990s') query = query.gte('year', 1990).lt('year', 2000)
+    if (g === 'old') query = query.lt('year', 1990)
+    if (g === 'horror') query = query.ilike('genre', '%공포%')
+    if (g === 'hk') query = query.or('country.ilike.%홍콩%,country.ilike.%중국%,country.ilike.%대만%,country.ilike.%일본%')
+    if (g === 'sf') query = query.ilike('genre', '%SF%')
+    if (g === 'kr') query = query.ilike('country', '%한국%')
+    if (g === 'anime') query = query.ilike('genre', '%애니%')
+    if (g === 'thriller') query = query.ilike('genre', '%스릴러%')
+  }
+
+  const from = Math.floor(Math.random() * 500)
+
+  const { data = [] } = await safeQuery(
+    query.range(from, from + 30),
+    'get random movie'
+  )
+
+  if (!data.length) return null
+
+  return shuffle(data)[0]
+}
+
+function isKoreanOrEnglishName(name = '') {
+
+  return /[가-힣A-Za-z]/.test(name)
+
+}
+
+async function getActorsFromMovie(movie) {
+
+  if (!movie) return []
+
+  const tmdb = await loadTMDB(movie)
+
+  return tmdb?.credits?.cast
+
+    ?.filter(a =>
+
+      a.profile_path &&
+
+      isKoreanOrEnglishName(a.name || a.original_name)
+
+    )
+
+    ?.slice(0, 12)
+
+    ?.map(a => ({
+
+      id: a.id,
+
+      name: a.name || a.original_name,
+
+      profile: `https://image.tmdb.org/t/p/w185${a.profile_path}`
+
+    })) || []
+
+}
+
+async function createCastingQuiz() {
+  let movie = null
+  let hintActors = []
+
+  for (let i = 0; i < 15; i++) {
+    const country = getCastingRandomCountry()
+    const candidate = await getRandomMovieByCountry(country)
+    if (!candidate) continue
+    const tmdb = await loadTMDB(candidate)
+    const actors = await getActorsFromMovie(candidate)
+
+    if (actors.length >= 3 && tmdb?.poster_path) {
+      movie = {
+        ...candidate,
+        ...tmdb,
+        id: candidate.id,
+        tmdb_id: tmdb.id,
+        poster_path: tmdb.poster_path,
+        backdrop_path: tmdb.backdrop_path,
+        overview: tmdb.overview,
+        vote_average: tmdb.vote_average,
+        genres: tmdb.genres,
+        release_date: tmdb.release_date || candidate.year,
+      }
+      hintActors = actors.slice(0, 3)
+      break
+    }
+  }
+
+  if (!movie || hintActors.length < 3) {
+    throw new Error('배우 프로필 데이터가 부족합니다')
+  }
+
+  let decoyActors = []
+
+  for (let i = 0; i < 20; i++) {
+    const decoyMovie = await getRandomMovie('all')
+    const actors = await getActorsFromMovie(decoyMovie)
+
+    const candidates = actors.filter(a =>
+      !hintActors.some(h => h.id === a.id) &&
+      !decoyActors.some(d => d.id === a.id)
+    )
+
+    decoyActors = [...decoyActors, ...candidates].slice(0, 6)
+
+    if (decoyActors.length >= 6) break
+  }
+
+  if (decoyActors.length < 6) {
+    throw new Error('오답 배우 데이터가 부족합니다')
+  }
+
+  let decoyMovies = []
+
+  for (const actor of hintActors) {
+    for (let i = 0; i < 8; i++) {
+      const candidate = await getRandomMovie('all')
+      const actors = await getActorsFromMovie(candidate)
+      const hasSameActor = actors.some(a => a.id === actor.id)
+
+      if (
+        candidate &&
+        candidate.id !== movie.id &&
+        hasSameActor &&
+        !decoyMovies.some(m => m.id === candidate.id)
+      ) {
+        decoyMovies.push(candidate)
+      }
+
+      if (decoyMovies.length >= 3) break
+    }
+
+    if (decoyMovies.length >= 3) break
+  }
+
+  for (let i = 0; i < 40; i++) {
+    if (decoyMovies.length >= 3) break
+
+    const candidate = await getRandomMovie('all')
+    if (!candidate || candidate.id === movie.id) continue
+    if (decoyMovies.some(m => m.id === candidate.id)) continue
+
+    const sameCountry =
+      movie.country &&
+      candidate.country &&
+      candidate.country === movie.country
+
+    const nearYear =
+      movie.year &&
+      candidate.year &&
+      Math.abs(Number(candidate.year) - Number(movie.year)) <= 8
+
+    const sameGenre =
+      movie.genre &&
+      candidate.genre &&
+      candidate.genre
+        .split(',')
+        .some(g => movie.genre.includes(g.trim()))
+
+    if (sameCountry || nearYear || sameGenre) {
+      decoyMovies.push(candidate)
+    }
+  }
+
+  for (let i = 0; i < 30; i++) {
+    if (decoyMovies.length >= 3) break
+
+    const candidate = await getRandomMovie('all')
+    if (!candidate || candidate.id === movie.id) continue
+    if (decoyMovies.some(m => m.id === candidate.id)) continue
+
+    decoyMovies.push(candidate)
+  }
+
+  if (decoyMovies.length < 3) {
+    throw new Error('오답 영화 데이터가 부족합니다')
+  }
+
+  const answerMovieForCard = {
+    ...movie,
+    poster_path:
+      movie.poster_path ||
+      movie.posterPath ||
+      movie.poster ||
+      movie.poster_url ||
+      movie.posterUrl
+  }
+
+  const preloadImage = src =>
+  new Promise(resolve => {
+    if (!src) return resolve()
+    const img = new Image()
+    img.src = src
+    img.onload = resolve
+    img.onerror = resolve
+  })
+    const actorImageUrls = [
+      ...hintActors,
+      ...decoyActors
+    ].map(a => a.profile)
+    const posterUrl = answerMovieForCard.poster_path
+      ? `https://image.tmdb.org/t/p/w500${answerMovieForCard.poster_path}`
+      : null
+    await Promise.all([
+      ...actorImageUrls.map(preloadImage),
+      preloadImage(posterUrl)
+    ])
+
+  return {
+    answerMovie: answerMovieForCard,
+    hintActors,
+    decoyActors,
+    options: shuffle([
+      {
+        id: answerMovieForCard.id,
+        title: answerMovieForCard.title,
+        movie: answerMovieForCard
+      },
+      ...decoyMovies.map(m => ({
+        id: m.id,
+        title: m.title,
+        movie: m
+      }))
+    ])
+  }
+}
+
+async function loadCastingQuiz() {
+  setIsLoadingCastingQuiz(true)
+
+  try {
+    const quiz = await createCastingQuiz()
+
+    setCastingQuiz(quiz)
+    setCastingRevealedCount(0)
+    setSelectedAnswer(null)
+    setScreen('castingQuiz')
+  } catch (e) {
+    console.error(e)
+    alert(e.message || '캐스팅 퀴즈를 불러오지 못했습니다')
+  } finally {
+    setIsLoadingCastingQuiz(false)
+  }
+}
+
+const goNextCastingQuiz = () => {
+  if (nextCastingQuizRef.current) {
+    setCastingQuiz(nextCastingQuizRef.current)
+    nextCastingQuizRef.current = null
+    setCastingRevealedCount(0)
+    setSelectedAnswer(null)
+    // 다음 문제도 바로 백그라운드 준비
+    preloadNextCastingQuiz()
+  } else {
+    loadCastingQuiz()
+  }
+}
+
+
   async function loadMovies() {
     if (!currentUser?.userId) {
-
       setScreen('char')
-
       setLoading(false)
-
       setShowSpinner(false)
-
       return
-
     }
+    if (selGrade === 'casting') {
+      setLoading(true)
+      setShowSpinner(true)
+      setProgress(0)
+      setQuestionReady(false)
+      await loadCastingQuiz()
+      setLoading(false)
+      setTimeout(() => {
+        setShowSpinner(false)
+      }, 150)
+      return
+    }
+
     setLoading(true)
     setShowSpinner(true)
     setProgress(0)
@@ -4655,7 +5049,7 @@ useEffect(() => {
       )}
 
 
-      {screen === 'grade' && (
+      {screen === 'grade' && !isLoadingCastingQuiz &&(
 
         <ModeScreen
 
@@ -4806,6 +5200,34 @@ useEffect(() => {
         />
 
       )}
+
+
+
+
+      {screen === 'castingQuiz' && (
+      <CastingQuiz
+        quiz={castingQuiz}
+        revealedCount={castingRevealedCount}
+        selectedAnswer={selectedAnswer}
+        onRevealNext={() =>
+          setCastingRevealedCount(v =>
+            Math.min(v + 1, castingQuiz?.hintActors?.length || 5)
+          )
+        }
+        onSelectAnswer={handleSelectCastingAnswer}
+        onBack={() => setScreen('modeSelect')}
+        onNextQuiz={goNextCastingQuiz}
+        onRevealCountChange={setCastingRevealedCount}
+      />
+      )}
+      {isLoadingCastingQuiz && screen !== 'castingQuiz' && (
+        <CharacterSpinner />
+      )}
+
+
+
+
+
 
 
       {screen === 'result' && (

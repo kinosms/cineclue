@@ -9,7 +9,9 @@ const SOUND_MAP = {
   mainBgm: '/mainbgm.mp3',
   resultBgm: '/resultbgm.mp3',
   arrange: '/cardarrange.mp3',
-  comboBgm: '/combo.mp3'
+  comboBgm: '/combo.mp3',
+  castingBgm: '/castingbgm.mp3',
+  castingClock: '/castingclock.mp3'
 }
 
 const audioPools = {}
@@ -211,6 +213,28 @@ export function setBgmEnabled(enabled) {
     stopBgm()
 
   }
+
+}
+
+export function stopSound(name) {
+
+  if (typeof window === 'undefined') return
+
+  const pool = audioPools[name]
+
+  if (!pool?.length) return
+
+  pool.forEach(audio => {
+
+    try {
+
+      audio.pause()
+
+      audio.currentTime = 0
+
+    } catch (e) {}
+
+  })
 
 }
 

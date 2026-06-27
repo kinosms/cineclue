@@ -1,7 +1,6 @@
 'use client'
 import { playSound } from '../library/audioManager'
 
-
 export default function ModeScreen(props) {
 
   const {
@@ -205,6 +204,10 @@ export default function ModeScreen(props) {
           <div style={{ display: 'flex', gap: 8, marginBottom: 16 }}>
             <button
               onClick={() => {
+                if (selGrade === 'casting') {
+                    showAppToast('캐스팅 퀴즈는\n객관식만 가능합니다')
+                    return
+                  }
                 playSound('click')
                 setQuizMode('subjective')
               }}
@@ -303,7 +306,13 @@ export default function ModeScreen(props) {
               gridTemplateColumns: 'repeat(3,1fr)',
               gap: 10,
             }}>
-              {THEME_MODES.map(m => {
+              {[
+                ...THEME_MODES,
+                {
+                  key: 'casting',
+                  image: '/mode/casting.webp'
+                }
+              ].map(m => {
                 const sel = selGrade === m.key
                 const locked = isGuestLocked(m)
                 return (
@@ -315,6 +324,11 @@ export default function ModeScreen(props) {
                         return
                       }
                       playSound('modeclick')
+
+                      if (m.key === 'casting') {
+                        setQuizMode('objective')
+                      }
+
                       toggleGrade(m.key)
                     }}
                     style={{
@@ -349,7 +363,7 @@ export default function ModeScreen(props) {
                   </div>
                 )
               })}
-            </div>
+            </div>  
           </div>
 
           {/* 버튼 영역 */}
