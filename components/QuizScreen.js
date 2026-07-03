@@ -8,6 +8,47 @@ import {
 } from '../library/audioManager'
 import { useState, useEffect } from 'react'
 
+const HORROR_SKIN = {
+  background: "/skins/horror/background.webp",
+  bgm: "horror_mode_bgm",
+  hints: [
+    "/skins/horror/hint1.webp",
+    "/skins/horror/hint2.webp",
+    "/skins/horror/hint3.webp",
+    "/skins/horror/hint4.webp",
+    "/skins/horror/hint5.webp",
+  ],
+
+  answers: [
+    "/skins/horror/answer1.webp",
+    "/skins/horror/answer2.webp",
+    "/skins/horror/answer3.webp",
+    "/skins/horror/answer4.webp",
+  ],
+  answerSelected: "/skins/horror/answer_selected.webp",
+  buttons: {
+    nextHint: "/skins/horror/btn_next_hint.webp",
+    skipFill: "/skins/horror/btn_skip_fill.webp",
+    nextQuiz: "/skins/horror/btn_next_quiz.webp"
+  },
+  colors: {
+    text: "#fff",
+    point: "#ff3232"
+  }
+}
+
+function preloadImages(images) {
+
+  images.forEach(src => {
+
+    const img = new Image()
+
+    img.src = src
+
+  })
+
+}
+
 
 export default function QuizScreen(props) {
 
@@ -134,6 +175,22 @@ export default function QuizScreen(props) {
   } = props
 
 const [activeProviderId, setActiveProviderId] = useState(null)
+const isHorrorParty = quizMode === 'horror' || selGrade === 'horror'
+const skin = isHorrorParty ? HORROR_SKIN : null
+
+useEffect(() => {
+  if (!skin) return
+  preloadImages([
+    skin.background,
+    ...skin.hints,
+    ...skin.answers,
+    skin.answerSelected,
+    skin.buttons.nextHint,
+    skin.buttons.skipFill,
+    skin.buttons.nextQuiz
+  ])
+
+}, [skin])
 
 useEffect(() => {
   const movie = pool?.[qi]
@@ -269,10 +326,12 @@ useEffect(() => {
   return (
     <AppLayout>
       <div 
-      className="quiz-screen"
+      className={`quiz-screen ${skin ? 'skin-horror' : ''}`}
       style={{
         width: '100%',
-        background: '#fff',
+        background: skin
+          ? `linear-gradient(rgba(0,0,0,.28), rgba(0,0,0,.55)), url(${skin.background}) center / cover no-repeat`
+          : '#fff',
         display: 'flex',
         flexDirection: 'column',
         flex: 1,
@@ -288,8 +347,9 @@ useEffect(() => {
 
         {/* 헤더 영역 */}
         <div style={{
-          background: '#fff',
-          borderBottom: '1px solid #f0ece6',
+          background: skin ? 'rgba(0,0,0,.58)' : '#fff',
+          borderBottom: skin ? '1px solid rgba(255,0,0,.28)' : '1px solid #f0ece6',
+          backdropFilter: skin ? 'blur(8px)' : 'none',
           padding: '14px 20px 10px',
           flexShrink: 0,
           position: 'relative',
@@ -388,7 +448,8 @@ useEffect(() => {
               <div style={{
                 fontSize: '0.62rem',
                 fontWeight: 700,
-                color: '#5c5b5a',
+                color: skin ? 'rgba(255,255,255,.72)' : '#5c5b5a',
+                textShadow: skin ? '0 2px 5px rgba(0,0,0,.8)' : 'none',
                 letterSpacing: '0.04em'
               }}>
                 [{currentMode?.label}]
@@ -396,7 +457,8 @@ useEffect(() => {
               <div style={{
                 fontSize: '0.78rem',
                 fontWeight: 800,
-                color: '#1a1814',
+                color: skin ? '#ffffff' : '#1a1814',
+                textShadow: skin ? '0 2px 6px rgba(0,0,0,.85)' : 'none',
                 lineHeight: 1.1
               }}>
                 {users.find(u => u.charId === selChar)?.nickname || 'USER'}
@@ -601,6 +663,7 @@ useEffect(() => {
             title={m.title}
             hintLevel={sh}
             onFlash={setIsFlashing}
+            isHorror={isHorrorParty}
           />
         )}
 
@@ -631,17 +694,22 @@ useEffect(() => {
                 }}>
                 <div style={{
                   borderRadius: 13,
-                  border: `1.5px solid ${isCurrent ? '#e8808c' : '#ece8e2'}`,
-                  background: isCurrent ? '#fff5f6' : '#fff',
-                  padding: '13px 15px',
-                  marginBottom: 8
+                  border: skin ? 'none' : `1.5px solid ${isCurrent ? '#e8808c' : '#ece8e2'}`,
+                  background: skin
+                    ? `url(${skin.hints[i % skin.hints.length]}) center / 100% 100% no-repeat`
+                    : isCurrent ? '#fff5f6' : '#fff',
+                  padding: skin ? '17px 18px' : '13px 15px',
+                  marginBottom: 8,
+                  color: skin ? '#fff' : '#111',
+                  textShadow: skin ? '0 2px 4px rgba(0,0,0,.8)' : 'none',
+                  boxShadow: skin ? '0 10px 24px rgba(0,0,0,.35)' : 'none'
                 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                     <span style={{
                       width: 28,
                       height: 28,
                       borderRadius: '50%',
-                      background: '#e8808c',
+                      background: skin ? '#7b0000' : '#e8808c',
                       color: '#fff',
                       fontSize: '0.65rem',
                       fontWeight: 800,
@@ -667,7 +735,7 @@ useEffect(() => {
 
           {/* 하단 입력 & 버튼 영역 */}
           <div style={{
-            background: '#fff',
+            background: skin ? 'transparent' : '#fff',
             marginTop: 16,
             paddingBottom: '20px',
             flexShrink: 0
@@ -703,7 +771,8 @@ useEffect(() => {
                       style={{
                         border: 'none',
                         background: 'transparent',
-                        color: 'rgba(92, 91, 91, 0.72)',
+                        color: skin ? 'rgba(255,255,255,.85)' : 'rgba(92, 91, 91, 0.72)',
+                        textShadow: skin ? '0 2px 5px rgba(0,0,0,.9)' : 'none',
                         fontSize: '0.8rem',
                         cursor: 'pointer',
                         padding: 2
@@ -763,68 +832,105 @@ useEffect(() => {
               <>
                 {/* 힌트보기 & 넘기기 버튼 영역*/}
                 <div style={{ display: 'flex', gap: 8, marginBottom: 16 }}>
-                  <button
-                    
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      playSound('hint', 0.25)
-                      const el = scrollRef.current
-                      const prev = el.scrollHeight
-                      nextH()
-                      requestAnimationFrame(() => {
-                        el.scrollTop += el.scrollHeight - prev
-                      })
-                    }}
-                    disabled={sh >= 5 || lockChoice || isFlashing}
-                    style={{
-                      flex: 1,
-                      height: 40,
-                      borderRadius: 10,
-                      fontSize: '0.8rem',
-                      background: '#f5f3ef',
-                      opacity: (sh >= 5 || lockChoice || isFlashing) ? 0.4 : 1,
-                      pointerEvents: (sh >= 5 || lockChoice || isFlashing) ? 'none' : 'auto'
-                    }}>
-                    다음 힌트
-                  </button>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    playSound('hint', 0.25)
+                    const el = scrollRef.current
+                    const prev = el.scrollHeight
+                    nextH()
+                    requestAnimationFrame(() => {
+                      el.scrollTop += el.scrollHeight - prev
+                    })
+                  }}
+                  disabled={sh >= 5 || lockChoice || isFlashing}
+                  style={{
+                    flex: 1,
+                    height: 48,
+                    border: 'none',
+                    borderRadius: 12,
+                    background: skin
+                      ? `url(${skin.buttons.nextHint}) center / 100% 100% no-repeat`
+                      : '#f5f3ef',
+                    color: skin ? '#7a0d0d' : '#1a1814',
+                    fontWeight: 900,
+                    fontSize: '0.86rem',
+                    opacity: (sh >= 5 || lockChoice || isFlashing) ? 0.45 : 1,
+                    pointerEvents: (sh >= 5 || lockChoice || isFlashing) ? 'none' : 'auto',
+                    textShadow: skin ? '0 1px 0 rgba(255,255,255,.45)' : 'none'
+                  }}
+                >
+                  다음 힌트
+                </button>
 
-                  <button
-                    onClick={() => {
-                      playSound('click')
-                      doSkip()
-                    }}
+                <button
+                  onClick={() => {
+                    playSound('click')
+                    doSkip()
+                  }}
+                  style={{
+                    flex: 1,
+                    height: 48,
+                    position: 'relative',
+                    overflow: 'hidden',
+                    border: 'none',
+                    borderRadius: 12,
+                    padding: 0,
+                    background: skin
+                      ? `url(${skin.buttons.nextHint}) center / 100% 100% no-repeat`
+                      : '#f5f3ef',
+                    transform: buttonActive ? 'scale(0.95)' : 'scale(1)',
+                    transition: 'transform 0.1s ease'
+                  }}
+                >
+                  <div
                     style={{
-                      flex: 1,
-                      height: 40,
-                      position: 'relative',
-                      overflow: 'hidden',
-                      padding: '12px 20px',
-                      background: '#f5f3ef',
-                      border: 'none',
-                      borderRadius: '8px',
-                      padding: 0,
-                      transform: buttonActive ? 'scale(0.95)' : 'scale(1)',
-                      transition: 'transform 0.1s ease'
-                    }}>
-                    <div
+                      position: 'absolute',
+                      inset: 0,
+                      width: `${progress}%`,
+                      background: skin
+                        ? `url(${skin.buttons.skipFill}) left center / auto 100% no-repeat`
+                        : 'rgb(153, 153, 153)',
+                      transition: 'width 0.5s linear',
+                      zIndex: 0
+                    }}
+                  />
+
+                  {/* 기본 글자 */}
+
+                    <span
+
                       style={{
+
                         position: 'absolute',
-                        top: 0,
-                        left: 0,
-                        height: '100%',
-                        width: `${progress}%`,
-                        background: 'rgb(153, 153, 153)',
-                        transition: 'width 0.5s linear',
-                        fontSize: '0.8rem',
-                        zIndex: 0
-                      }} />
-                    <span style={{
-                      position: 'relative', zIndex: 1
-                    }}>
+
+                        inset: 0,
+
+                        display: 'flex',
+
+                        alignItems: 'center',
+
+                        justifyContent: 'center',
+
+                        zIndex: 2,
+
+                        color: progress >= 45 ? '#fff' : '#7a0d0d',
+
+                        fontWeight: 900,
+
+                        fontSize: '0.86rem',
+
+                        pointerEvents: 'none'
+
+                      }}
+
+                    >
+
                       넘기기
+
                     </span>
-                  </button>
-                </div>
+                </button>
+              </div>
 
 
                 {/*객관식 모드 답 선택영역 */}
@@ -836,6 +942,8 @@ useEffect(() => {
                     marginBottom: 8
                   }}>
                     {choices.map((c, i) => (
+
+                      
                       <button
                         key={i}
                         onClick={(e) => {
@@ -846,11 +954,14 @@ useEffect(() => {
                         }}
                         disabled={lockChoice}
                         style={{
-                          height: 52,
+                          height: 58,
                           borderRadius: 10,
-                          border: '1px solid #ddd',
-                          background: selectedChoice === c ? '#1a1814' : '#fff',
-                          color: selectedChoice === c ? '#fff' : '#000',
+                          border: skin ? 'none' : '1px solid #ddd',
+                          background: skin
+                            ? `url(${selectedChoice === c ? skin.answerSelected : skin.answers[i % skin.answers.length]}) center / 100% 100% no-repeat`
+                            : selectedChoice === c ? '#1a1814' : '#fff',
+                          color: skin ? '#fff' : selectedChoice === c ? '#fff' : '#000',
+                          textShadow: skin ? '0 2px 4px rgba(0,0,0,.85)' : 'none',
                           fontWeight: 600,
                           opacity: lockChoice ? 0.4 : 1,
                           pointerEvents: lockChoice ? 'none' : 'auto',
@@ -967,11 +1078,18 @@ useEffect(() => {
                             width: 72,
                             height: 46,
                             borderRadius: 11,
-                            background: '#e8808c',
-                            color: '#fff',
+                            background: skin
+                              ? `url(${skin.buttons.nextHint}) center / 100% 100% no-repeat`
+                              : '#e8808c',
+                            color: skin
+                              ? '#7a0d0d'
+                              : '#fff',
+                            textShadow: skin
+                            ? '0 1px 0 rgba(255,255,255,.35)'
+                            : 'none',
                             fontWeight: 700,
                             fontSize: '0.8rem',
-                            border: 'none'
+                            border: skin ? 'none' : 'none',
                           }}>
                           정답
                         </button>
@@ -1067,7 +1185,8 @@ useEffect(() => {
                           style={{
                             border: 'none',
                             background: 'transparent',
-                            color: 'rgba(103, 103, 103, 0.7)',
+                            color: skin ? 'rgba(255,255,255,.85)' : 'rgba(92, 91, 91, 0.72)',
+                            textShadow: skin ? '0 2px 5px rgba(0,0,0,.9)' : 'none',
                             fontSize: '0.8rem',
                             cursor: 'pointer',
                             padding: 4,
@@ -1134,27 +1253,26 @@ useEffect(() => {
                       position: 'relative',
                       borderRadius: 22,
                       overflow: 'hidden',
-                      border: '1.5px solid #ece8e2',
-                      background: '#fff',
+                      border: skin
+                        ? '1px solid rgba(170,0,0,.35)'
+                        : '1.5px solid #ece8e2',
+                      background: skin
+                        ? 'rgba(18,18,18,.88)'
+                        : '#fff',
+                      backdropFilter: skin
+                        ? 'blur(8px)'
+                        : 'none',
                       padding: 16,
                       marginBottom: 14
                     }}>
                       {watchProviders?.length > 0 && (
-
                           <div style={{
-
                             position: 'absolute',
-
                             top: 18,
-
                             right: 18,
-
                             display: 'flex',
-
                             gap: 7,
-
                             zIndex: 5
-
                           }}>
 
                             {watchProviders.slice(0, 4).map(provider => (
@@ -1313,7 +1431,9 @@ useEffect(() => {
                               alignItems: 'center',
                               gap: 10,
                               fontSize: '0.75rem',
-                              color: '#555'
+                              color: skin
+                                ? 'rgba(255,255,255,.88)'
+                                : '#555'
                             }}>
                               <span style={{
                                 width: 38,
@@ -1330,7 +1450,9 @@ useEffect(() => {
                               alignItems: 'center',
                               gap: 10,
                               fontSize: '0.75rem',
-                              color: '#555'
+                              color: skin
+                              ? 'rgba(255,255,255,.88)'
+                              : '#555'
                             }}>
                               <span style={{
                                 width: 38,
@@ -1348,7 +1470,9 @@ useEffect(() => {
                               alignItems: 'center',
                               gap: 10,
                               fontSize: '0.75rem',
-                              color: '#555'
+                              color: skin
+                                ? 'rgba(255,255,255,.88)'
+                                : '#555'
                             }}>
                               <span style={{
                                 width: 38,
@@ -1366,7 +1490,9 @@ useEffect(() => {
                               alignItems: 'center',
                               gap: 10,
                               fontSize: '0.75rem',
-                              color: '#555'
+                              color: skin
+                                ? 'rgba(255,255,255,.88)'
+                                : '#555'
                             }}>
                               <span style={{
                                 width: 38,
@@ -1391,7 +1517,9 @@ useEffect(() => {
                               alignItems: 'flex-start',
                               gap: 10,
                               fontSize: '0.75rem',
-                              color: '#555',
+                              color: skin
+                                ? 'rgba(255,255,255,.88)'
+                                : '#555',
                               lineHeight: 1.5
                             }}>
                               <span style={{ width: 38, flexShrink: 0, whiteSpace: 'nowrap', fontSize: '0.75rem' }}>출연
@@ -1413,7 +1541,9 @@ useEffect(() => {
                               alignItems: 'center',
                               gap: 10,
                               fontSize: '0.75rem',
-                              color: '#555'
+                              color: skin
+                                ? 'rgba(255,255,255,.88)'
+                                : '#555'
                             }}>
                               <span style={{
                                 width: 38,
@@ -1463,7 +1593,9 @@ useEffect(() => {
                                 textAlign: 'left',
                                 fontSize: '0.8rem',
                                 fontWeight: 800,
-                                color: '#666',
+                              color: skin
+                                ? 'rgba(255,255,255,.88)'
+                                : '#666',
                                 cursor: 'pointer'
                               }}>
                               {showSynopsis
@@ -1483,7 +1615,9 @@ useEffect(() => {
                           borderTop: '1px solid #efebe5',
                           fontSize: '0.82rem',
                           lineHeight: 1.7,
-                          color: '#555'
+                          color: skin
+                            ? 'rgba(255,255,255,.88)'
+                            : '#555'
                         }}>
                           {m.overview}
                         </div>
@@ -1499,16 +1633,26 @@ useEffect(() => {
                     playSound('click')
                     nextQ()
                   }}
-                  style={{
-                    width: '100%',
-                    height: 46,
-                    borderRadius: 12,
-                    background: '#4a4a4a',
-                    color: '#fff',
-                    fontWeight: 800,
-                    fontSize: '0.8rem',
-                    border: 'none'
-                  }}>
+                    style={{
+                      width: '100%',
+                      height: 60,
+                      borderRadius: 14,
+                      border: skin ? 'none' : 'none',
+                      background: skin
+                        ? `url(${skin.buttons.nextQuiz}) center / 100% 100% no-repeat`
+                        : '#4a4a4a',
+                      color: skin ? '#850a0a' : '#fff',
+                      textShadow: skin
+                        ? '0 2px 5px rgba(0,0,0,.8)'
+                        : 'none',
+                      fontWeight: 900,
+                      fontSize: '1rem',
+                      boxShadow: skin
+                        ? 'none'
+                        : '0 4px 10px rgba(0,0,0,.2)',
+                      overflow: 'hidden'
+                    }}
+                  >
                   {qi + 1 < pool.length ? '다음 문제' : '결과 보기'}
                 </button>
               </>

@@ -1291,27 +1291,37 @@ function restoreAppSnapshot(options = {}) {
 
   
   const closeTrailer = () => {
+
     setTrailerKey(null)
 
-    if (screen === 'quiz' && mode) {
-      playBgm('comboBgm', 0.25)
+    const isHorror = selGrade === 'horror' || quizMode === 'horror'
+
+    if (screen === 'quiz') {
+
+      if (mode) {
+
+        playBgm(isHorror ? 'horror_mode_combo' : 'comboBgm', 0.25)
+
+      } else {
+
+        playBgm(isHorror ? 'horror_mode_bgm' : 'mainBgm', 0.25)
+
+      }
+
       return
+
     }
 
     if (screen === 'result') {
-      playBgm('resultBgm', 0.25)
+
+      playBgm(isHorror ? 'horror_mode_bgm' : 'resultBgm', 0.25)
+
       return
+
     }
 
-    if (screen === 'collection') {
-      if (collectionReturnScreen === 'result') {
-        playBgm('resultBgm', 0.25)
-      } else {
-        playBgm('mainBgm', 0.25)
-      }
-      return
-    }
-    playBgm('mainBgm', 0.25)
+    playBgm(isHorror ? 'horror_mode_bgm' : 'mainBgm', 0.25)
+
   }
 
   const [bgmOn, setBgmOn] = useState(true)
@@ -1332,22 +1342,51 @@ function restoreAppSnapshot(options = {}) {
   const [castingRevealedCount, setCastingRevealedCount] = useState(0)
   const [selectedAnswer, setSelectedAnswer] = useState(null)
   const nextCastingQuizRef = useRef(null)
+  const preloadingRef = useRef(false)
 
   const preloadNextCastingQuiz = async () => {
+    if (preloadingRef.current || nextCastingQuizRef.current) return
+    preloadingRef.current = true
     try {
       nextCastingQuizRef.current = await createCastingQuiz()
     } catch (e) {
       console.error('다음 캐스팅 퀴즈 preload 실패', e)
+    } finally {
+      preloadingRef.current = false
     }
   }
   const handleSelectCastingAnswer = (answer) => {
     setSelectedAnswer(answer)
-    // 정답/오답 상관없이 포스터 보는 동안 다음 문제 미리 준비
-    preloadNextCastingQuiz()
   }
-  const [isLoadingCastingQuiz, setIsLoadingCastingQuiz] = useState(false)
 
+  useEffect(() => {
+    if (castingQuiz) {
+      preloadNextCastingQuiz()
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [castingQuiz?.answerMovie?.id])
+
+  const [mode, setMode] = useState(null)
+  const [isLoadingCastingQuiz, setIsLoadingCastingQuiz] = useState(false)
   const [selGrade, setSelGrade] = useState(null)
+  const [quizMode, setQuizMode] = useState('objective') // 객관식 주관식 바꾸기
+
+  const selGradeRef = useRef(selGrade)
+  const quizModeRef = useRef(quizMode)
+  useEffect(() => {
+    screenRef.current = screen
+  }, [screen])
+  useEffect(() => {
+    modeRef.current = mode
+  }, [mode])
+  useEffect(() => {
+    selGradeRef.current = selGrade
+  }, [selGrade])
+  useEffect(() => {
+    quizModeRef.current = quizMode
+  }, [quizMode])
+
+  
   const [pool, setPool] = useState([])
   const [qi, setQi] = useState(0)
   const [sh, setSh] = useState(1)
@@ -1356,7 +1395,6 @@ function restoreAppSnapshot(options = {}) {
   const [fb, setFb] = useState('')
   const [fbt, setFbt] = useState('')
   const [input, setInput] = useState('')
-  const [mode, setMode] = useState(null)
   const [comboStreak, setComboStreak] = useState(0)
   const [crazyStreak, setCrazyStreak] = useState(0)
   const [roundStartScore, setRoundStartScore] = useState(0)
@@ -1435,7 +1473,6 @@ function restoreAppSnapshot(options = {}) {
   const [wrongCount, setWrongCount] = useState(0)
   const [lockChoice, setLockChoice] = useState(false)
   const [selectedChoice, setSelectedChoice] = useState(null)
-  const [quizMode, setQuizMode] = useState('objective') // 객관식 주관식 바꾸기
   const [choices, setChoices] = useState([])
   const [genreStats, setGenreStats] = useState([])
   const [showProfile, setShowProfile] = useState(false)
@@ -1504,10 +1541,11 @@ function restoreAppSnapshot(options = {}) {
     }
 
     if (screen === 'quiz') {
+      const isHorror = selGrade === 'horror' || quizMode === 'horror'
       if (mode) {
-        playBgm('comboBgm', 0.25)
+        playBgm(isHorror ? 'horror_mode_combo' : 'comboBgm', 0.25)
       } else {
-        playBgm('mainBgm', 0.25)
+        playBgm(isHorror ? 'horror_mode_bgm' : 'mainBgm', 0.25)
       }
       return
     }
@@ -1527,7 +1565,7 @@ function restoreAppSnapshot(options = {}) {
     }
 
     playBgm('mainBgm', 0.25)
-  }, [screen, mode, collectionReturnScreen, resumeTick])
+  }, [screen, mode, selGrade, quizMode, collectionReturnScreen, resumeTick])
 
 
 
@@ -1757,31 +1795,49 @@ function restoreAppSnapshot(options = {}) {
 
 
 function resumeBgmByScreen() {
+
   if (isAdShowingRef.current) return
+
   const currentScreen = screenRef.current
+
   const currentMode = modeRef.current
+
+  const currentSelGrade = selGradeRef.current
+
+  const currentQuizMode = quizModeRef.current
+
+  const isHorror =
+
+    currentSelGrade === 'horror' || currentQuizMode === 'horror'
+
   if (currentScreen === 'intro') return
+
   if (currentScreen === 'quiz') {
+
     if (currentMode) {
-      playBgm('comboBgm', 0.25)
+
+      playBgm(isHorror ? 'horror_mode_combo' : 'comboBgm', 0.25)
+
     } else {
-      playBgm('mainBgm', 0.25)
+
+      playBgm(isHorror ? 'horror_mode_bgm' : 'mainBgm', 0.25)
+
     }
+
     return
+
   }
+
   if (currentScreen === 'result') {
-    playBgm('resultBgm', 0.25)
+
+    playBgm(isHorror ? 'horror_mode_bgm' : 'resultBgm', 0.25)
+
     return
+
   }
-  if (currentScreen === 'collection') {
-    if (collectionReturnScreen === 'result') {
-      playBgm('resultBgm', 0.25)
-    } else {
-      playBgm('mainBgm', 0.25)
-    }
-    return
-  }
-  playBgm('mainBgm', 0.25)
+
+  playBgm(isHorror ? 'horror_mode_bgm' : 'mainBgm', 0.25)
+
 }
 
 
@@ -2028,42 +2084,6 @@ useEffect(() => {
 
   }, [supabase])
 
-  /*
-useEffect(() => {
-  if (!authUser?.id || !supabase) return
-  if (screen === 'quiz') return
-
-  const loadAuthCharacters = async () => {
-
-    const result = await supabase
-      .from('characters')
-      .select('*')
-      .eq('auth_user_id', authUser.id)
-
-    if (result?.error) {
-      console.warn('캐릭터 재로드 실패 - 기존 users 유지')
-      return
-    }
-
-    const data = result?.data || []
-
-    const loadedUsers = data.map(c => ({
-      charId: c.char_id,
-      nickname: c.nickname,
-      score: c.score || 0,
-      lives: c.lives ?? 20,
-      userId: c.auth_user_id,
-      isGuest: false, 
-      isDead: (c.lives ?? 20) <= 0
-    }))
-
-    setUsers(loadedUsers)
-  }
-
-  loadAuthCharacters()
-}, [authUser?.id, supabase, screen])
-*/
-
 
   useEffect(() => {
     if (!authChecked) return
@@ -2277,24 +2297,6 @@ useEffect(() => {
     setChoices(pool[qi].choices || [])
   }, [screen, qi, quizMode, pool])
 
-
-
-  
-  useEffect(() => {
-
-    if (screen !== 'quiz') return
-
-    if (mode) {
-
-      playBgm('comboBgm', 0.25)
-
-    } else {
-
-      playBgm('mainBgm', 0.25)
-
-    }
-
-  }, [screen, mode])
 
   
 
@@ -3549,8 +3551,6 @@ const goNextCastingQuiz = () => {
     nextCastingQuizRef.current = null
     setCastingRevealedCount(0)
     setSelectedAnswer(null)
-    // 다음 문제도 바로 백그라운드 준비
-    preloadNextCastingQuiz()
   } else {
     loadCastingQuiz()
   }
@@ -4570,7 +4570,7 @@ useEffect(() => {
     if (!pool?.length) return
     async function preloadCurrentMovie() {
       const movie = pool[qi]
-      console.log('현재 문제:', movie)
+
       if (!movie) return
 
       // 이미 불러왔으면 패스
@@ -5215,7 +5215,7 @@ useEffect(() => {
           )
         }
         onSelectAnswer={handleSelectCastingAnswer}
-        onBack={() => setScreen('modeSelect')}
+        onBack={() => setScreen('char')}
         onNextQuiz={goNextCastingQuiz}
         onRevealCountChange={setCastingRevealedCount}
       />

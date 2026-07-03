@@ -308,10 +308,10 @@ export default function ModeScreen(props) {
             }}>
               {[
                 ...THEME_MODES,
-                // {
-                //  key: 'casting',
-                //  image: '/mode/casting.webp'
-                // }
+                 {
+                  key: 'casting',
+                  image: '/mode/casting.webp'
+                 }
               ].map(m => {
                 const sel = selGrade === m.key
                 const locked = isGuestLocked(m)

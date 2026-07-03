@@ -11,6 +11,7 @@ export default function CastingQuiz({
   onSelectAnswer,
   onNextQuiz,
   onRevealCountChange,
+  onBack,
 }) {
   const [autoRevealCount, setAutoRevealCount] = useState(0)
   const [countdown, setCountdown] = useState(null)
@@ -22,6 +23,9 @@ export default function CastingQuiz({
   const [posterLoaded, setPosterLoaded] = useState(false)
   const [flippedActors, setFlippedActors] = React.useState({})
   const timersRef = useRef([])
+  const CASTING_SKIN = {
+    background: '/skins/casting_quiz/bg.webp'
+  }
 
   const actors = useMemo(() => {
     if (!quiz) return []
@@ -135,7 +139,7 @@ export default function CastingQuiz({
               [actor.id]: true,
             }))
           })
-        }, 1100)
+        }, 900)
         // 두 번째 회전 끝
         setTimeout(() => {
           setSpinningActors(prev => ({
@@ -143,9 +147,9 @@ export default function CastingQuiz({
             [actor.id]: false,
           }))
           setAutoRevealCount(v => v + 1)
-        }, 2200)
+        }, 1800)
       }
-    }, autoRevealCount === 0 ? 800 : 3000)
+    }, autoRevealCount === 0 ? 400 : 1400)
 
     return () => clearTimeout(timer)
   }, [quiz, autoRevealCount, result])
@@ -180,7 +184,13 @@ export default function CastingQuiz({
       })
     }, 1000)
 
-    return () => clearInterval(interval)
+    return () => {
+
+      clearInterval(interval)
+
+      stopSound('castingClock')
+
+    }
   }, [quiz, autoRevealCount, result])
 
   if (!quiz) return null
@@ -211,11 +221,41 @@ export default function CastingQuiz({
     }
   }
 
+  useEffect(() => {
+    return () => {
+      stopSound('castingClock')
+    }
+  }, [])
+
   return (
     <div className="casting-quiz-screen">
-      <div className="casting-header">
-        <h1>Casting Quiz</h1>
-      </div>
+      <button
+        className="casting-home-btn"
+        onClick={() => {
+
+          stopSound('castingClock')
+
+          timersRef.current.forEach(t => clearTimeout(t))
+
+          timersRef.current = []
+
+          setCountdown(null)
+
+          setResult(null)
+
+          setShowMovieCard(false)
+
+          setSpinningActors({})
+
+          setAutoRevealCount(0)
+
+          onBack()
+
+        }}
+      >
+              HOME
+      </button>
+
 
       <div className="casting-main-card">
         {countdown !== null && !result && (

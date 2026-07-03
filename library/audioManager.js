@@ -11,7 +11,9 @@ const SOUND_MAP = {
   arrange: '/cardarrange.mp3',
   comboBgm: '/combo.mp3',
   castingBgm: '/castingbgm.mp3',
-  castingClock: '/castingclock.mp3'
+  castingClock: '/castingclock.mp3',
+  horror_mode_bgm: '/horror_mode_bgm.mp3',
+  horror_mode_combo: '/horror_mode_combo.mp3'
 }
 
 const audioPools = {}

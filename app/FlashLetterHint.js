@@ -14,7 +14,7 @@ function getChosung(char) {
   return CHO[Math.floor((code - 44032) / 588)]
 }
 
-export default function FlashLetterHint({ title, hintLevel, onFlash }) {
+export default function FlashLetterHint({ title, hintLevel, onFlash, isHorror }) {
 
   const [letters, setLetters] = useState([])
   const [order, setOrder] = useState([])
@@ -158,8 +158,28 @@ export default function FlashLetterHint({ title, hintLevel, onFlash }) {
   if (!flash) return null
 
   return (
-    <div className="flash-letter">
+
+    <div
+
+      className="flash-letter"
+
+      style={{
+
+        color: isHorror ? '#b31212' : '#c8a84a',
+
+        textShadow: isHorror
+
+          ? '0 0 14px rgba(160,0,0,.85), 0 2px 8px rgba(0,0,0,.9)'
+
+          : '0 2px 8px rgba(0,0,0,.25)',
+
+      }}
+
+    >
+
       {flash}
+
     </div>
+
   )
 }

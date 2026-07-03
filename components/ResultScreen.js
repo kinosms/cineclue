@@ -65,6 +65,25 @@ export default function ResultScreen(props) {
     setWatchProviders
   } = props
 
+
+  const HORROR_SKIN = {
+
+  background: "/skins/horror/background.webp",
+
+  buttons: {
+
+    nextQuiz: "/skins/horror/btn_next_quiz.webp",
+    nextHint: "/skins/horror/btn_next_hint.webp",
+
+  }
+
+}
+
+
+  const isHorrorParty = selGrade === 'horror'
+  const skin = isHorrorParty
+    ? HORROR_SKIN
+    : null
   const safeUsers = Array.isArray(users) ? users : []
   const user = safeUsers.find(u => u.charId === selChar)
   const baseScore = user?.score ?? 0
@@ -111,14 +130,31 @@ const sortedRanking = [...patchedRanking].sort(
   return (
 
     <AppLayout>
-      <div style={{
-        height: '100dvh',
-        overflow: 'hidden',
-        background: '#fff',
-        display: 'flex',
-        flexDirection: 'column',
-        padding: '12px 0 8px',
-      }}>
+      <div
+
+        className={skin ? 'skin-horror' : ''}
+
+        style={{
+
+          height: '100dvh',
+
+          overflow: 'hidden',
+
+          background: skin
+
+            ? `linear-gradient(rgba(0,0,0,.30), rgba(0,0,0,.55)), url(${skin.background}) center / cover no-repeat`
+
+            : '#fff',
+
+          display: 'flex',
+
+          flexDirection: 'column',
+
+          padding: '12px 0 8px',
+
+        }}
+
+      >
 
         {/* 상단 영역 */}
         <div style={{
@@ -134,7 +170,9 @@ const sortedRanking = [...patchedRanking].sort(
             width: 75,
             height: 75,
             borderRadius: '50%',
-            background: '#faf9f7',
+            background: 'rgba(25,25,25,.55)',
+            border: '2px solid rgba(255,255,255,.18)',
+            backdropFilter: 'blur(8px)',
             border: '2.5px solid #f2d7dc',
             boxShadow: `
                       0 0 0 3px rgba(255,107,122,0.10),
@@ -198,7 +236,7 @@ const sortedRanking = [...patchedRanking].sort(
           <div style={{
             fontSize: '0.8rem',
             fontWeight: 700,
-            color: '#1a1814',
+            color: skin ? '#ffffff' : '#1a1814',
             marginBottom: 6
           }}>
             {nickname}
@@ -207,7 +245,7 @@ const sortedRanking = [...patchedRanking].sort(
           <div style={{
             fontSize: '2.5rem',
             fontWeight: 900,
-            color: '#1a1814'
+            color: skin ? '#bd2121' : '#ff6b7a'
           }}>
             {(displayScore || 0).toLocaleString()}점
           </div>
@@ -234,6 +272,7 @@ const sortedRanking = [...patchedRanking].sort(
                 borderRadius: 20,
                 border: '1px solid #ddd',
                 background: '#fff',
+                color: skin ? '#aa0202' : '#222',
                 fontSize: '0.8rem',
                 cursor: 'pointer'
             }}>
@@ -798,7 +837,9 @@ const sortedRanking = [...patchedRanking].sort(
             padding: '8px 20px calc(10px + env(safe-area-inset-bottom))',
             display: 'flex',
             gap: 10,
-            background: '#fff',
+            background: skin
+              ? 'transparent'
+              : '#fff',
             borderTop: '1px solid #f0ece6'
           }}>
 
@@ -810,8 +851,12 @@ const sortedRanking = [...patchedRanking].sort(
                   flex: 1,
                   height: 54,
                   borderRadius: 14,
-                  background: '#4a4a4a',
-                  color: '#fff',
+                  background: skin
+                    ? `url(${skin.buttons.nextHint}) center / 100% 100% no-repeat`
+                    : '#4a4a4a',
+                  color: skin
+                    ? '#7a0d0d'
+                    : '#fff',
                   fontSize: '0.8rem',
                   fontWeight: 700,
                   border: 'none'
@@ -832,8 +877,12 @@ const sortedRanking = [...patchedRanking].sort(
                 flex: 1,
                 height: 54,
                 borderRadius: 12,
-                background: 'transparent',
-                color: '#9a9490',
+                background: skin
+                  ? `url(${skin.buttons.nextHint}) center / 100% 100% no-repeat`
+                  : '#fff',
+                color: skin
+                  ? '#7a0d0d'
+                  : '#777',
                 fontSize: '0.8rem',
                 fontWeight: 500,
                 border: '1.5px solid #e8e4dd'
