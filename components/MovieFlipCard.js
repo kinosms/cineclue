@@ -57,9 +57,9 @@ export default function MovieFlipCard(props) {
         <div
           style={{
             width: '92vw',
-            maxWidth: 340,
-            height: '78vh',
-            maxHeight: 620,
+            maxWidth: 350,
+            aspectRatio: '2 / 3',
+            maxheight: '78vh',
             perspective: '1200px',
             position: 'relative',
             zIndex: 2,
