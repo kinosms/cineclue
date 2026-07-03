@@ -914,7 +914,11 @@ useEffect(() => {
 
                         zIndex: 2,
 
-                        color: progress >= 45 ? '#fff' : '#7a0d0d',
+                        color: skin
+
+                          ? (progress >= 45 ? '#fff' : '#7a0d0d')
+
+                          : '#1a1814',
 
                         fontWeight: 900,
 

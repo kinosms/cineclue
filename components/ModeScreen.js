@@ -313,7 +313,9 @@ export default function ModeScreen(props) {
                   image: '/mode/casting.webp'
                  }
               ].map(m => {
-                const sel = selGrade === m.key
+                {/* 아래 이줄 삭제하면 캐스팅퀴즈 노출 */}
+                if (m.key === 'casting') return null 
+                const sel = selGrade === m.key  
                 const locked = isGuestLocked(m)
                 return (
                   <div

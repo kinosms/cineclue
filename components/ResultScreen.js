@@ -170,13 +170,19 @@ const sortedRanking = [...patchedRanking].sort(
             width: 75,
             height: 75,
             borderRadius: '50%',
-            background: 'rgba(25,25,25,.55)',
-            border: '2px solid rgba(255,255,255,.18)',
-            backdropFilter: 'blur(8px)',
-            border: '2.5px solid #f2d7dc',
-            boxShadow: `
-                      0 0 0 3px rgba(255,107,122,0.10),
-                      0 8px 20px rgba(255,107,122,0.12)`,
+            background: skin
+              ? 'rgba(25,25,25,.55)'
+              : '#faf9f7',
+            backdropFilter: skin ? 'blur(8px)' : 'none',
+            border: skin
+              ? '2px solid rgba(255,255,255,.18)'
+              : '2.5px solid #f2d7dc',
+            boxShadow: skin
+              ? '0 8px 20px rgba(0,0,0,.35)'
+              : `
+                  0 0 0 3px rgba(255,107,122,0.10),
+                  0 8px 20px rgba(255,107,122,0.12)
+                `,
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
