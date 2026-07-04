@@ -418,7 +418,7 @@ useEffect(() => {
             {m.year && (
               <span style={{
                 fontSize: '0.7rem',
-                fontWeight: 700,
+                fontWeight: 500,
                 padding: '3px 0',
                 borderRadius: 20,
                 background: '#5d934e',
@@ -435,7 +435,7 @@ useEffect(() => {
             {m.country && (
               <span style={{
                 fontSize: '0.7rem',
-                fontWeight: 700,
+                fontWeight: 500,
                 padding: '3px 10px',
                 borderRadius: 20,
                 background: '#3f2dde',
@@ -451,7 +451,7 @@ useEffect(() => {
             {m.final_genre && (
               <span style={{
                 fontSize: '0.7rem',
-                fontWeight: 700,
+                fontWeight: 500,
                 padding: '3px 10px',
                 borderRadius: 20,
                 background: '#5e18c0',
@@ -471,7 +471,7 @@ useEffect(() => {
                 return (
                   <span style={{
                     fontSize: '0.7rem',
-                    fontWeight: 700,
+                    fontWeight: 500,
                     padding: '3px 10px',
                     borderRadius: 20,
                     background: '#fff3e0',
@@ -537,7 +537,7 @@ useEffect(() => {
               position: 'relative',
               zIndex: 1,
               fontSize: '0.72rem',
-              fontWeight: 800,
+              fontWeight: 700,
               color:
                 mode === 'good' ? '#c8a84a' :
                   mode === 'wow' ? '#d45c5c' :
@@ -765,7 +765,7 @@ useEffect(() => {
                       ? `url(${skin.buttons.nextHint}) center / 100% 100% no-repeat`
                       : '#faf8f3',
                     color: isHorrorParty ? '#7a0d0d' : '#1a1814',
-                    fontWeight: 900,
+                    fontWeight: 700,
                     fontSize: '0.8rem',
                     opacity: (sh >= 5 || lockChoice || isFlashing) ? 0.45 : 1,
                     pointerEvents: (sh >= 5 || lockChoice || isFlashing) ? 'none' : 'auto',
@@ -832,7 +832,7 @@ useEffect(() => {
 
                           : (progress >= 45 ? '#fff' : '#1a1814'),
 
-                        fontWeight: 900,
+                        fontWeight: 700,
 
                         fontSize: '0.8rem',
 
@@ -1094,7 +1094,7 @@ useEffect(() => {
                       {/* 정답 제목 */}
                       <div style={{
                         fontSize: '1.3rem',
-                        fontWeight: 900,
+                        fontWeight: 800,
                         color: isHorrorParty ? '#ffffff' : '#8b6a2d',
                         marginBottom: 4,
                         textAlign: 'center',
