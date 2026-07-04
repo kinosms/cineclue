@@ -2,6 +2,7 @@
 
 import { playSound} from '../library/audioManager'
 import { isAndroidApp } from '../utils/platform'
+import { getModeSkin } from './modeSkins'
 
 export default function ResultScreen(props) {
 
@@ -81,9 +82,8 @@ export default function ResultScreen(props) {
 
 
   const isHorrorParty = selGrade === 'horror'
-  const skin = isHorrorParty
-    ? HORROR_SKIN
-    : null
+  const skin = getModeSkin(selGrade)
+
   const safeUsers = Array.isArray(users) ? users : []
   const user = safeUsers.find(u => u.charId === selChar)
   const baseScore = user?.score ?? 0
@@ -132,7 +132,7 @@ const sortedRanking = [...patchedRanking].sort(
     <AppLayout>
       <div
 
-        className={skin ? 'skin-horror' : ''}
+        className={isHorrorParty ? 'skin-horror' : ''}
 
         style={{
 
@@ -140,11 +140,9 @@ const sortedRanking = [...patchedRanking].sort(
 
           overflow: 'hidden',
 
-          background: skin
-
+          background: isHorrorParty
             ? `linear-gradient(rgba(0,0,0,.30), rgba(0,0,0,.55)), url(${skin.background}) center / cover no-repeat`
-
-            : '#fff',
+            : `url(${skin.background}) center / cover no-repeat`,
 
           display: 'flex',
 
@@ -170,14 +168,14 @@ const sortedRanking = [...patchedRanking].sort(
             width: 75,
             height: 75,
             borderRadius: '50%',
-            background: skin
+            background: isHorrorParty
               ? 'rgba(25,25,25,.55)'
               : '#faf9f7',
-            backdropFilter: skin ? 'blur(8px)' : 'none',
-            border: skin
+            backdropFilter: isHorrorParty ? 'blur(8px)' : 'none',
+            border: isHorrorParty
               ? '2px solid rgba(255,255,255,.18)'
               : '2.5px solid #f2d7dc',
-            boxShadow: skin
+            boxShadow: isHorrorParty
               ? '0 8px 20px rgba(0,0,0,.35)'
               : `
                   0 0 0 3px rgba(255,107,122,0.10),
@@ -242,7 +240,7 @@ const sortedRanking = [...patchedRanking].sort(
           <div style={{
             fontSize: '0.8rem',
             fontWeight: 700,
-            color: skin ? '#ffffff' : '#1a1814',
+            color: isHorrorParty ? '#ffffff' : '#1a1814',
             marginBottom: 6
           }}>
             {nickname}
@@ -251,7 +249,7 @@ const sortedRanking = [...patchedRanking].sort(
           <div style={{
             fontSize: '2.5rem',
             fontWeight: 900,
-            color: skin ? '#bd2121' : '#ff6b7a'
+            color: isHorrorParty ? '#bd2121' : '#ff6b7a'
           }}>
             {(displayScore || 0).toLocaleString()}점
           </div>
@@ -276,9 +274,9 @@ const sortedRanking = [...patchedRanking].sort(
               style={{
                 padding: '6px 12px',
                 borderRadius: 20,
-                border: '1px solid #ddd',
+                border: '0.6px solid #ddd',
                 background: '#fff',
-                color: skin ? '#aa0202' : '#222',
+                color: isHorrorParty ? '#aa0202' : '#222',
                 fontSize: '0.8rem',
                 cursor: 'pointer'
             }}>
@@ -328,8 +326,7 @@ const sortedRanking = [...patchedRanking].sort(
                 fontSize: '0.7rem',
                 padding: '6px 10px',
                 borderRadius: 8,
-                border: 'none',
-                background: '#e8808c',
+                background: '#9d3642',
                 color: '#ffffff',
                 fontWeight: 700
               }}
@@ -402,13 +399,26 @@ const sortedRanking = [...patchedRanking].sort(
                       position: 'relative',
                       overflow: 'hidden',
                       borderRadius: 13,
-                      border: '1.5px solid #ece8e2',
-                      background: '#fff',
+                      border: isHorrorParty
+                        ? '1px solid rgba(150,20,20,.35)'
+                        : '1.5px solid #d9c7a5',
+                      background: isHorrorParty
+                        ? 'rgba(0, 0, 0, 0.88)'
+                        : '#f8f3e7',
                       padding: '12px 16px',
                       marginBottom: 8,
                       display: 'flex',
                       alignItems: 'center',
                       gap: 12,
+                      color: isHorrorParty
+                        ? '#f2f2f2'
+                        : '#2b2218',
+                      boxShadow: isHorrorParty
+                        ? '0 8px 24px rgba(0,0,0,.35)'
+                        : '0 4px 12px rgba(80,60,30,.10)',
+                      backdropFilter: isHorrorParty
+                        ? 'blur(8px)'
+                        : 'none',
                       cursor:
                         ((r.correct || showAnswers) && hasMovieInfo)
                           ? 'pointer'
@@ -454,16 +464,32 @@ const sortedRanking = [...patchedRanking].sort(
                       width: 28,
                       height: 28,
                       borderRadius: '50%',
-                      background: isCorrect ? '#f3f3f3' : '#f5f3ef',
+                      background: isHorrorParty
+                        ? isCorrect
+                          ? '#7b0000'
+                          : 'rgba(255,255,255,.10)'
+                        : isCorrect
+                          ? '#f3ead8'
+                          : '#f5f3ef',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
-                      border: `1.5px solid ${isCorrect ? '#ccc' : '#e8e4dd'}`
+                      border: isHorrorParty
+                        ? isCorrect
+                          ? '1.5px solid rgba(255,120,120,.65)'
+                          : '1.5px solid rgba(255,255,255,.18)'
+                        : `1.5px solid ${isCorrect ? '#d6bd8c' : '#e8e4dd'}`
                     }}>
                       <span style={{
                         fontSize: '0.7rem',
                         fontWeight: 800,
-                        color: r.correct ? '#666' : '#b0aaa3'
+                        color: isHorrorParty
+                        ? isCorrect
+                          ? '#fff'
+                          : 'rgba(255,255,255,.45)'
+                        : isCorrect
+                          ? '#7a5a28'
+                          : '#b0aaa3'
                       }}>
                         Q{i + 1}
                       </span>
@@ -620,12 +646,24 @@ const sortedRanking = [...patchedRanking].sort(
                             key={i}
                             style={{
                               borderRadius: 13,
-                              border: isMe
-                                ? '2px solid #e8808c'
-                                : '1.5px solid #ece8e2',
-                              background: isMe
-                                ? '#fff5f6'
-                                : '#fff',
+                              border: isHorrorParty
+                                ? isMe
+                                  ? '1.5px solid rgba(190,30,30,.65)'
+                                  : '1px solid rgba(130,20,20,.35)'
+                                : isMe
+                                  ? '2px solid #d6b16a'
+                                  : '1.5px solid #d9c7a5',
+                              background: isHorrorParty
+                                ? isMe
+                                  ? 'rgba(55,18,18,.92)'
+                                  : 'rgba(24,24,24,.88)'
+                                : isMe
+                                  ? '#fff1d2'
+                                  : '#f8f3e7',
+                              color: isHorrorParty ? '#f2f2f2' : '#2b2218',
+                              boxShadow: isHorrorParty
+                                ? '0 8px 22px rgba(0,0,0,.35)'
+                                : '0 4px 12px rgba(80,60,30,.10)',
                               padding: '12px 16px',
                               marginBottom: 8,
                               display: 'flex',
@@ -651,6 +689,8 @@ const sortedRanking = [...patchedRanking].sort(
                                   ? 'linear-gradient(135deg,#f7f7f7,#cfd8dc)'
                                   : r?.rank === 3
                                     ? 'linear-gradient(135deg,#f6d0a8,#d89b63)'
+                                  : isHorrorParty
+                                    ? 'rgba(255,255,255,.10)'
                                     : '#f5f3ef',
                               display: 'flex',
                               alignItems: 'center',
@@ -662,12 +702,24 @@ const sortedRanking = [...patchedRanking].sort(
                                     ? '1.5px solid #b0bec5'
                                     : r?.rank === 3
                                       ? '1.5px solid #c7864e'
-                                      : '1.5px solid #e8e4dd',
+                                      : isHorrorParty
+                                        ? '1.5px solid rgba(255,255,255,.18)'
+                                        : '1.5px solid #e8e4dd',
                               flexShrink: 0
                             }}>
                               <span style={{
                                 fontSize: '0.65rem',
-                                fontWeight: 800
+                                fontWeight: 800,
+                                color:
+                                r?.rank === 1
+                                  ? '#6a4300'     // 금
+                                  : r?.rank === 2
+                                    ? '#4d5560'   // 은
+                                    : r?.rank === 3
+                                      ? '#6b3d16' // 동
+                                      : isHorrorParty
+                                        ? 'rgba(255,255,255,.75)'
+                                        : '#666'
                               }}>
                                 {r ? `${r.rank}위` : '-'}
                               </span>
@@ -755,7 +807,13 @@ const sortedRanking = [...patchedRanking].sort(
                               <div style={{
                                 fontSize: '0.8rem',
                                 fontWeight: 700,
-                                color: r ? '#1a1814' : '#c0bbb4',
+                                color: r
+                                  ? isHorrorParty
+                                    ? '#f2f2f2'
+                                    : '#1a1814'
+                                  : isHorrorParty
+                                    ? 'rgba(255,255,255,.35)'
+                                    : '#c0bbb4',
                                 overflow: 'hidden',
                                 textOverflow: 'ellipsis',
                                 whiteSpace: 'nowrap'
@@ -770,7 +828,13 @@ const sortedRanking = [...patchedRanking].sort(
                             <div style={{
                               fontSize: '0.85rem',
                               fontWeight: 800,
-                              color: r ? '#1a1814' : '#c0bbb4',
+                              color: r
+                                ? isHorrorParty
+                                  ? '#f2f2f2'
+                                  : '#1a1814'
+                                : isHorrorParty
+                                  ? 'rgba(255,255,255,.35)'
+                                  : '#c0bbb4',
                               whiteSpace: 'nowrap'
                             }}>
                               {r ? r.score : 0}
@@ -840,13 +904,11 @@ const sortedRanking = [...patchedRanking].sort(
         {visibleResults > results.length && (
           <div style={{
             flexShrink: 0,
-            padding: '8px 20px calc(10px + env(safe-area-inset-bottom))',
+            padding: '10px 20px calc(10px + env(safe-area-inset-bottom))',
             display: 'flex',
             gap: 10,
-            background: skin
-              ? 'transparent'
-              : '#fff',
-            borderTop: '1px solid #f0ece6'
+            background: 'transparent',
+
           }}>
 
             {/* 🔥 조건 버튼 */}
@@ -857,12 +919,12 @@ const sortedRanking = [...patchedRanking].sort(
                   flex: 1,
                   height: 54,
                   borderRadius: 14,
-                  background: skin
+                  background: isHorrorParty
                     ? `url(${skin.buttons.nextHint}) center / 100% 100% no-repeat`
-                    : '#4a4a4a',
-                  color: skin
+                    : '#e3d5bc',
+                  color: isHorrorParty
                     ? '#7a0d0d'
-                    : '#fff',
+                    : '#2b2218',
                   fontSize: '0.8rem',
                   fontWeight: 700,
                   border: 'none'
@@ -883,12 +945,12 @@ const sortedRanking = [...patchedRanking].sort(
                 flex: 1,
                 height: 54,
                 borderRadius: 12,
-                background: skin
+                background: isHorrorParty
                   ? `url(${skin.buttons.nextHint}) center / 100% 100% no-repeat`
                   : '#fff',
-                color: skin
+                color: isHorrorParty
                   ? '#7a0d0d'
-                  : '#777',
+                  : '#6d5842',
                 fontSize: '0.8rem',
                 fontWeight: 500,
                 border: '1.5px solid #e8e4dd'

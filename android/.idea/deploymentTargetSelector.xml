@@ -4,10 +4,10 @@
     <selectionStates>
       <SelectionState runConfigName="cineclue">
         <option name="selectionMode" value="DROPDOWN" />
-        <DropdownSelection timestamp="2026-06-19T13:03:37.335220Z">
+        <DropdownSelection timestamp="2026-07-03T14:58:28.947703Z">
           <Target type="DEFAULT_BOOT">
             <handle>
-              <DeviceId pluginId="PhysicalDevice" identifier="serial=R3CR20HMFER" />
+              <DeviceId pluginId="LocalEmulator" identifier="path=/Users/kinosms/.android/avd/Pixel_7_Pro.avd" />
             </handle>
           </Target>
         </DropdownSelection>

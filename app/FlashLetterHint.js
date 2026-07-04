@@ -165,7 +165,7 @@ export default function FlashLetterHint({ title, hintLevel, onFlash, isHorror })
 
       style={{
 
-        color: isHorror ? '#b31212' : '#c8a84a',
+        color: isHorror ? '#b31212' : '#232323',
 
         textShadow: isHorror
 

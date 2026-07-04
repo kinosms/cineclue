@@ -1,41 +1,11 @@
 'use client'
 import {
-
   playSound,
-
   pauseBgmForVideo
-
 } from '../library/audioManager'
 import { useState, useEffect } from 'react'
+import { getModeSkin } from './Modeskins'
 
-const HORROR_SKIN = {
-  background: "/skins/horror/background.webp",
-  bgm: "horror_mode_bgm",
-  hints: [
-    "/skins/horror/hint1.webp",
-    "/skins/horror/hint2.webp",
-    "/skins/horror/hint3.webp",
-    "/skins/horror/hint4.webp",
-    "/skins/horror/hint5.webp",
-  ],
-
-  answers: [
-    "/skins/horror/answer1.webp",
-    "/skins/horror/answer2.webp",
-    "/skins/horror/answer3.webp",
-    "/skins/horror/answer4.webp",
-  ],
-  answerSelected: "/skins/horror/answer_selected.webp",
-  buttons: {
-    nextHint: "/skins/horror/btn_next_hint.webp",
-    skipFill: "/skins/horror/btn_skip_fill.webp",
-    nextQuiz: "/skins/horror/btn_next_quiz.webp"
-  },
-  colors: {
-    text: "#fff",
-    point: "#ff3232"
-  }
-}
 
 function preloadImages(images) {
 
@@ -53,120 +23,63 @@ function preloadImages(images) {
 export default function QuizScreen(props) {
 
   const {
-
     loading,
-
     pool,
-
     qi,
-
     MODES,
-
     selGrade,
-
     ResultScreen,
-
     getPts,
-
     mode,
-
     isFlashing,
-
     CharacterSpinner,
-
     normalize,
     AppLayout,
-
     selChar,
-
     users,
-
     lives,
-
     lifeDelta,
-
     quizMode,
-
     setIsFlashing,
-
     sh,
-
     fb,
-
     fbt,
-
     scrollRef,
-
     showReportMenu,
-
     setShowReportMenu,
-
     currentUser,
-
     showReportToast,
-
     setShowReportToast,
-
     answered,
-
     input,
-
     setInput,
-
     suggestions,
-
     setSuggestions,
-
     selectedSuggestion,
-
     setSelectedSuggestion,
-
     supabase,
-
     safeQuery,
-
     allMovies,
-
     inputRef,
-
     submit,
-
     comboStreak,
-
     nextH,
-
     nextQ,
-
     doSkip,
-
     choices,
-
     selectedChoice,
-
     setSelectedChoice,
-
     lockChoice,
-
     progress,
-
     currnet,
-
     buttonActive,
-
     showSynopsis,
-
     setShowSynopsis,
-
     trailerKey,
-
     setTrailerKey,
-
     showSpinner,
-
     FlashLetterHint,
-
     CharAvatar,
-
     questionReady, 
     watchProviders,
     fetchWatchProviders,
@@ -175,21 +88,20 @@ export default function QuizScreen(props) {
   } = props
 
 const [activeProviderId, setActiveProviderId] = useState(null)
-const isHorrorParty = quizMode === 'horror' || selGrade === 'horror'
-const skin = isHorrorParty ? HORROR_SKIN : null
+const skin = getModeSkin(selGrade)
+const isHorrorParty = selGrade === 'horror'
 
 useEffect(() => {
   if (!skin) return
   preloadImages([
     skin.background,
-    ...skin.hints,
-    ...skin.answers,
+    ...(skin.hints || []),
+    ...(skin.answers || []),
     skin.answerSelected,
-    skin.buttons.nextHint,
-    skin.buttons.skipFill,
-    skin.buttons.nextQuiz
-  ])
-
+    skin.buttons?.nextHint,
+    skin.buttons?.skipFill,
+    skin.buttons?.nextQuiz,
+  ].filter(Boolean))
 }, [skin])
 
 useEffect(() => {
@@ -326,12 +238,12 @@ useEffect(() => {
   return (
     <AppLayout>
       <div 
-      className={`quiz-screen ${skin ? 'skin-horror' : ''}`}
+      className={`quiz-screen ${skin.className}`}
       style={{
         width: '100%',
-        background: skin
+        background: isHorrorParty
           ? `linear-gradient(rgba(0,0,0,.28), rgba(0,0,0,.55)), url(${skin.background}) center / cover no-repeat`
-          : '#fff',
+                  : `url('/skins/default/background.webp') center / cover no-repeat`,
         display: 'flex',
         flexDirection: 'column',
         flex: 1,
@@ -347,9 +259,9 @@ useEffect(() => {
 
         {/* 헤더 영역 */}
         <div style={{
-          background: skin ? 'rgba(0,0,0,.58)' : '#fff',
-          borderBottom: skin ? '1px solid rgba(255,0,0,.28)' : '1px solid #f0ece6',
-          backdropFilter: skin ? 'blur(8px)' : 'none',
+          background: isHorrorParty ? 'rgba(0,0,0,.58)' : '#64584a ',
+          borderBottom: isHorrorParty ? '1px solid rgba(255,0,0,.28)' : 'none',
+          backdropFilter: isHorrorParty ? 'blur(8px)' : 'none',
           padding: '14px 20px 10px',
           flexShrink: 0,
           position: 'relative',
@@ -448,8 +360,8 @@ useEffect(() => {
               <div style={{
                 fontSize: '0.62rem',
                 fontWeight: 700,
-                color: skin ? 'rgba(255,255,255,.72)' : '#5c5b5a',
-                textShadow: skin ? '0 2px 5px rgba(0,0,0,.8)' : 'none',
+                color: 'rgba(255,255,255,.72)',
+                textShadow: '0 2px 5px rgba(0,0,0,.8)',
                 letterSpacing: '0.04em'
               }}>
                 [{currentMode?.label}]
@@ -457,8 +369,8 @@ useEffect(() => {
               <div style={{
                 fontSize: '0.78rem',
                 fontWeight: 800,
-                color: skin ? '#ffffff' : '#1a1814',
-                textShadow: skin ? '0 2px 6px rgba(0,0,0,.85)' : 'none',
+                color: '#ffffff',
+                textShadow: isHorrorParty ? '0 2px 6px rgba(0,0,0,.85)' : 'none',
                 lineHeight: 1.1
               }}>
                 {users.find(u => u.charId === selChar)?.nickname || 'USER'}
@@ -469,7 +381,7 @@ useEffect(() => {
             <div style={{
               fontSize: '0.9rem',
               fontWeight: 900,
-              color: '#ff6b7a',
+              color: '#f77784',
               whiteSpace: 'nowrap'
             }}>
               {basePoint}pt
@@ -509,7 +421,7 @@ useEffect(() => {
                 fontWeight: 700,
                 padding: '3px 0',
                 borderRadius: 20,
-                background: '#f5a3a3',
+                background: '#5d934e',
                 color: '#fff',
                 width: 48,
                 textAlign: 'center',
@@ -526,9 +438,9 @@ useEffect(() => {
                 fontWeight: 700,
                 padding: '3px 10px',
                 borderRadius: 20,
-                background: '#e8f0fc',
-                color: '#3a6abf',
-                border: '1px solid #c0d4f8',
+                background: '#3f2dde',
+                color: '#ffffff',
+                border: '1px solid #3f2dde',
                 flexShrink: 0   // 🔥 추가
               }}>
                 {m.country}
@@ -542,9 +454,9 @@ useEffect(() => {
                 fontWeight: 700,
                 padding: '3px 10px',
                 borderRadius: 20,
-                background: '#e8f5ee',
-                color: '#2e8a52',
-                border: '1px solid #a8dfc0',
+                background: '#5e18c0',
+                color: '#ffffff',
+                border: '1px solid #5e18c0',
                 flexShrink: 0
               }}>
                 {m.final_genre}
@@ -694,22 +606,22 @@ useEffect(() => {
                 }}>
                 <div style={{
                   borderRadius: 13,
-                  border: skin ? 'none' : `1.5px solid ${isCurrent ? '#e8808c' : '#ece8e2'}`,
-                  background: skin
-                    ? `url(${skin.hints[i % skin.hints.length]}) center / 100% 100% no-repeat`
-                    : isCurrent ? '#fff5f6' : '#fff',
-                  padding: skin ? '17px 18px' : '13px 15px',
+                  border: 'none',
+                  background: `url(${skin.hints[i % skin.hints.length]}) center / 100% 100% no-repeat`,
+                  padding: isHorrorParty ? '17px 18px' : '13px 15px',
                   marginBottom: 8,
-                  color: skin ? '#fff' : '#111',
-                  textShadow: skin ? '0 2px 4px rgba(0,0,0,.8)' : 'none',
-                  boxShadow: skin ? '0 10px 24px rgba(0,0,0,.35)' : 'none'
+                  color: isHorrorParty ? '#fff' : '#2b2218',
+                  textShadow: isHorrorParty
+                    ? '0 2px 4px rgba(0,0,0,.8)'
+                    : 'none',
+                  boxShadow: '0 10px 24px rgba(0,0,0,.35)'
                 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                     <span style={{
                       width: 28,
                       height: 28,
                       borderRadius: '50%',
-                      background: skin ? '#7b0000' : '#e8808c',
+                      background: isHorrorParty ? '#7b0000' : '#4d2b2f',
                       color: '#fff',
                       fontSize: '0.65rem',
                       fontWeight: 800,
@@ -735,8 +647,8 @@ useEffect(() => {
 
           {/* 하단 입력 & 버튼 영역 */}
           <div style={{
-            background: skin ? 'transparent' : '#fff',
-            marginTop: 16,
+            background: 'transparent',
+            marginTop: 34,
             paddingBottom: '20px',
             flexShrink: 0
           }}>
@@ -754,7 +666,7 @@ useEffect(() => {
                   fontWeight: 700,
                   color: fbt === 'ok'
                     ? '#4a9c6d'
-                    : '#d45c5c'
+                    : '#311a1a'
                 }}>
                   {fb}
                 </div>
@@ -771,8 +683,8 @@ useEffect(() => {
                       style={{
                         border: 'none',
                         background: 'transparent',
-                        color: skin ? 'rgba(255,255,255,.85)' : 'rgba(92, 91, 91, 0.72)',
-                        textShadow: skin ? '0 2px 5px rgba(0,0,0,.9)' : 'none',
+                        color: isHorrorParty ? 'rgba(255,255,255,.85)' : 'rgba(92, 91, 91, 0.72)',
+                        textShadow: isHorrorParty ? '0 2px 5px rgba(0,0,0,.9)' : 'none',
                         fontSize: '0.8rem',
                         cursor: 'pointer',
                         padding: 2
@@ -849,15 +761,15 @@ useEffect(() => {
                     height: 48,
                     border: 'none',
                     borderRadius: 12,
-                    background: skin
+                    background: isHorrorParty
                       ? `url(${skin.buttons.nextHint}) center / 100% 100% no-repeat`
-                      : '#f5f3ef',
-                    color: skin ? '#7a0d0d' : '#1a1814',
+                      : '#faf8f3',
+                    color: isHorrorParty ? '#7a0d0d' : '#1a1814',
                     fontWeight: 900,
                     fontSize: '0.86rem',
                     opacity: (sh >= 5 || lockChoice || isFlashing) ? 0.45 : 1,
                     pointerEvents: (sh >= 5 || lockChoice || isFlashing) ? 'none' : 'auto',
-                    textShadow: skin ? '0 1px 0 rgba(255,255,255,.45)' : 'none'
+                    textShadow: isHorrorParty ? '0 1px 0 rgba(255,255,255,.45)' : 'none'
                   }}
                 >
                   다음 힌트
@@ -876,9 +788,9 @@ useEffect(() => {
                     border: 'none',
                     borderRadius: 12,
                     padding: 0,
-                    background: skin
+                    background: isHorrorParty
                       ? `url(${skin.buttons.nextHint}) center / 100% 100% no-repeat`
-                      : '#f5f3ef',
+                      : '##faf8f3',
                     transform: buttonActive ? 'scale(0.95)' : 'scale(1)',
                     transition: 'transform 0.1s ease'
                   }}
@@ -888,9 +800,9 @@ useEffect(() => {
                       position: 'absolute',
                       inset: 0,
                       width: `${progress}%`,
-                      background: skin
+                      background: isHorrorParty
                         ? `url(${skin.buttons.skipFill}) left center / auto 100% no-repeat`
-                        : 'rgb(153, 153, 153)',
+                        : '#e8808c',
                       transition: 'width 0.5s linear',
                       zIndex: 0
                     }}
@@ -914,11 +826,11 @@ useEffect(() => {
 
                         zIndex: 2,
 
-                        color: skin
+                        color: isHorrorParty
 
                           ? (progress >= 45 ? '#fff' : '#7a0d0d')
 
-                          : '#1a1814',
+                          : (progress >= 45 ? '#fff' : '#1a1814'),
 
                         fontWeight: 900,
 
@@ -960,16 +872,31 @@ useEffect(() => {
                         style={{
                           height: 58,
                           borderRadius: 10,
-                          border: skin ? 'none' : '1px solid #ddd',
-                          background: skin
+                          border: 'none',
+                          background: isHorrorParty
                             ? `url(${selectedChoice === c ? skin.answerSelected : skin.answers[i % skin.answers.length]}) center / 100% 100% no-repeat`
-                            : selectedChoice === c ? '#1a1814' : '#fff',
-                          color: skin ? '#fff' : selectedChoice === c ? '#fff' : '#000',
-                          textShadow: skin ? '0 2px 4px rgba(0,0,0,.85)' : 'none',
-                          fontWeight: 600,
+                            : selectedChoice === c
+                              ? 'linear-gradient(#d8b05a, #836c43)'
+                              : 'linear-gradient(#fcf7ef, #f1e5cd)',
+                          color: isHorrorParty
+                            ? '#fff'
+                            : selectedChoice === c
+                              ? '#fff'
+                              : '#2b2218',
+                          textShadow: isHorrorParty
+                            ? '0 2px 4px rgba(0,0,0,.85)'
+                            : selectedChoice === c
+                              ? '0 1px 2px rgba(80,45,0,.35)'
+                              : 'none',
+                          fontWeight: 700,
                           opacity: lockChoice ? 0.4 : 1,
                           pointerEvents: lockChoice ? 'none' : 'auto',
-                          transition: 'opacity 0.2s ease'
+                          transition: 'opacity 0.2s ease, transform 0.12s ease, box-shadow 0.12s ease',
+                          boxShadow: isHorrorParty
+                          ? 'none'
+                          : selectedChoice === c
+                            ? '0 6px 18px rgba(118,86,32,.28)'
+                            : '0 4px 12px rgba(90,70,40,.18)',
                         }}>
                         <div style={{
                           padding: '2px 6px',
@@ -1082,18 +1009,18 @@ useEffect(() => {
                             width: 72,
                             height: 46,
                             borderRadius: 11,
-                            background: skin
+                            background: isHorrorParty
                               ? `url(${skin.buttons.nextHint}) center / 100% 100% no-repeat`
                               : '#e8808c',
-                            color: skin
+                            color: isHorrorParty
                               ? '#7a0d0d'
                               : '#fff',
-                            textShadow: skin
+                            textShadow: isHorrorParty
                             ? '0 1px 0 rgba(255,255,255,.35)'
                             : 'none',
                             fontWeight: 700,
                             fontSize: '0.8rem',
-                            border: skin ? 'none' : 'none',
+                            border: isHorrorParty ? 'none' : 'none',
                           }}>
                           정답
                         </button>
@@ -1167,7 +1094,7 @@ useEffect(() => {
                       <div style={{
                         fontSize: '1.3rem',
                         fontWeight: 900,
-                        color: '#c8a84a',
+                        color: isHorrorParty ? '#ffffff' : '#8b6a2d',
                         marginBottom: 4,
                         textAlign: 'center',
                         lineHeight: 1.3
@@ -1189,8 +1116,8 @@ useEffect(() => {
                           style={{
                             border: 'none',
                             background: 'transparent',
-                            color: skin ? 'rgba(255,255,255,.85)' : 'rgba(92, 91, 91, 0.72)',
-                            textShadow: skin ? '0 2px 5px rgba(0,0,0,.9)' : 'none',
+                            color: isHorrorParty ? 'rgba(255,255,255,.85)' : 'rgba(92, 91, 91, 0.72)',
+                            textShadow: isHorrorParty ? '0 2px 5px rgba(0,0,0,.9)' : 'none',
                             fontSize: '0.8rem',
                             cursor: 'pointer',
                             padding: 4,
@@ -1257,13 +1184,13 @@ useEffect(() => {
                       position: 'relative',
                       borderRadius: 22,
                       overflow: 'hidden',
-                      border: skin
+                      border: isHorrorParty
                         ? '1px solid rgba(170,0,0,.35)'
                         : '1.5px solid #ece8e2',
-                      background: skin
+                      background: isHorrorParty
                         ? 'rgba(18,18,18,.88)'
                         : '#fff',
-                      backdropFilter: skin
+                      backdropFilter: isHorrorParty
                         ? 'blur(8px)'
                         : 'none',
                       padding: 16,
@@ -1435,7 +1362,7 @@ useEffect(() => {
                               alignItems: 'center',
                               gap: 10,
                               fontSize: '0.75rem',
-                              color: skin
+                              color: isHorrorParty
                                 ? 'rgba(255,255,255,.88)'
                                 : '#555'
                             }}>
@@ -1454,7 +1381,7 @@ useEffect(() => {
                               alignItems: 'center',
                               gap: 10,
                               fontSize: '0.75rem',
-                              color: skin
+                              color: isHorrorParty
                               ? 'rgba(255,255,255,.88)'
                               : '#555'
                             }}>
@@ -1474,7 +1401,7 @@ useEffect(() => {
                               alignItems: 'center',
                               gap: 10,
                               fontSize: '0.75rem',
-                              color: skin
+                              color: isHorrorParty
                                 ? 'rgba(255,255,255,.88)'
                                 : '#555'
                             }}>
@@ -1494,7 +1421,7 @@ useEffect(() => {
                               alignItems: 'center',
                               gap: 10,
                               fontSize: '0.75rem',
-                              color: skin
+                              color: isHorrorParty
                                 ? 'rgba(255,255,255,.88)'
                                 : '#555'
                             }}>
@@ -1521,7 +1448,7 @@ useEffect(() => {
                               alignItems: 'flex-start',
                               gap: 10,
                               fontSize: '0.75rem',
-                              color: skin
+                              color: isHorrorParty
                                 ? 'rgba(255,255,255,.88)'
                                 : '#555',
                               lineHeight: 1.5
@@ -1545,7 +1472,7 @@ useEffect(() => {
                               alignItems: 'center',
                               gap: 10,
                               fontSize: '0.75rem',
-                              color: skin
+                              color: isHorrorParty
                                 ? 'rgba(255,255,255,.88)'
                                 : '#555'
                             }}>
@@ -1597,7 +1524,7 @@ useEffect(() => {
                                 textAlign: 'left',
                                 fontSize: '0.8rem',
                                 fontWeight: 800,
-                              color: skin
+                              color: isHorrorParty
                                 ? 'rgba(255,255,255,.88)'
                                 : '#666',
                                 cursor: 'pointer'
@@ -1619,7 +1546,7 @@ useEffect(() => {
                           borderTop: '1px solid #efebe5',
                           fontSize: '0.82rem',
                           lineHeight: 1.7,
-                          color: skin
+                          color: isHorrorParty
                             ? 'rgba(255,255,255,.88)'
                             : '#555'
                         }}>
@@ -1641,19 +1568,15 @@ useEffect(() => {
                       width: '100%',
                       height: 60,
                       borderRadius: 14,
-                      border: skin ? 'none' : 'none',
-                      background: skin
-                        ? `url(${skin.buttons.nextQuiz}) center / 100% 100% no-repeat`
-                        : '#4a4a4a',
-                      color: skin ? '#850a0a' : '#fff',
-                      textShadow: skin
+                      border: isHorrorParty ? 'none' : 'none',
+                      background: `url(${skin.buttons.nextQuiz}) center / 100% 100% no-repeat`,
+                      color: isHorrorParty ? '#850a0a' : '#fff',
+                      textShadow: isHorrorParty
                         ? '0 2px 5px rgba(0,0,0,.8)'
                         : 'none',
                       fontWeight: 900,
                       fontSize: '1rem',
-                      boxShadow: skin
-                        ? 'none'
-                        : '0 4px 10px rgba(0,0,0,.2)',
+                      boxShadow: 'none',
                       overflow: 'hidden'
                     }}
                   >

@@ -43,7 +43,7 @@ export default function ModeScreen(props) {
     <div>
       <div style={{
         width: '100%',
-        background: '#fff',
+        background: '#f8f3ea',
         position: 'relative',
         display: 'flex',
         height: '100dvh',
@@ -79,7 +79,7 @@ export default function ModeScreen(props) {
 
               fontWeight:700,
 
-              color:'#6f6e6e',
+              color:'#746f6b',
 
               letterSpacing:'0.12em'
 
@@ -116,7 +116,7 @@ export default function ModeScreen(props) {
 
                     borderRadius:999,
 
-                    border:'1px solid #e5ddd5',
+                    border:'0.5px solid #e5ddd5',
 
                     background:'#fff',
 
@@ -171,7 +171,7 @@ export default function ModeScreen(props) {
 
                     borderRadius:999,
 
-                    border:'1px solid #e5ddd5',
+                    border:'0.5px solid #e5ddd5',
 
                     background:'#fff',
 
@@ -215,7 +215,7 @@ export default function ModeScreen(props) {
                 flex: 1,
                 height: 40,
                 borderRadius: 10,
-                background: quizMode === 'subjective' ? '#414141' : '#eee',
+                background: quizMode === 'subjective' ? '#414141' : '#ffffff',
                 color: quizMode === 'subjective' ? '#fff' : '#6f6e6e',
                 fontWeight: 700
               }}>
@@ -377,7 +377,6 @@ export default function ModeScreen(props) {
             flexDirection: 'row',
             gap: 10,
             flexShrink: 0,
-            background: '#fff'
           }}>
 
             {/* 퀴즈시작 버튼 */}
@@ -411,11 +410,11 @@ export default function ModeScreen(props) {
                 flex: 1,
                 height: 54,
                 borderRadius: 12,
-                background: 'transparent',
+                background: '#ffffff',
                 color: '#6e6e6e',
                 fontSize: '0.8rem',
                 fontWeight: 500,
-                border: '1.5px solid #e8e4dd',
+                border: '0.5px solid #e8e4dd',
                 cursor: 'pointer'
               }}
               onClick={() => {
