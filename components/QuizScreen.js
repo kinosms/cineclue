@@ -766,7 +766,7 @@ useEffect(() => {
                       : '#faf8f3',
                     color: isHorrorParty ? '#7a0d0d' : '#1a1814',
                     fontWeight: 900,
-                    fontSize: '0.86rem',
+                    fontSize: '0.8rem',
                     opacity: (sh >= 5 || lockChoice || isFlashing) ? 0.45 : 1,
                     pointerEvents: (sh >= 5 || lockChoice || isFlashing) ? 'none' : 'auto',
                     textShadow: isHorrorParty ? '0 1px 0 rgba(255,255,255,.45)' : 'none'
@@ -834,7 +834,7 @@ useEffect(() => {
 
                         fontWeight: 900,
 
-                        fontSize: '0.86rem',
+                        fontSize: '0.8rem',
 
                         pointerEvents: 'none'
 
@@ -873,6 +873,7 @@ useEffect(() => {
                           height: 58,
                           borderRadius: 10,
                           border: 'none',
+                          fontSize: '0.86rem',
                           background: isHorrorParty
                             ? `url(${selectedChoice === c ? skin.answerSelected : skin.answers[i % skin.answers.length]}) center / 100% 100% no-repeat`
                             : selectedChoice === c
@@ -1575,7 +1576,7 @@ useEffect(() => {
                         ? '0 2px 5px rgba(0,0,0,.8)'
                         : 'none',
                       fontWeight: 900,
-                      fontSize: '1rem',
+                      fontSize: '0.9rem',
                       boxShadow: 'none',
                       overflow: 'hidden'
                     }}
