@@ -286,7 +286,7 @@ useEffect(() => {
                   top: -6,
                   right: -6,
                   fontSize: '0.7rem',
-                  fontWeight: 900,
+                  fontWeight: 700,
                   padding: '2px 6px',
                   borderRadius: 10,
                   color:
@@ -368,7 +368,7 @@ useEffect(() => {
               </div>
               <div style={{
                 fontSize: '0.78rem',
-                fontWeight: 800,
+                fontWeight: 700,
                 color: '#ffffff',
                 textShadow: isHorrorParty ? '0 2px 6px rgba(0,0,0,.85)' : 'none',
                 lineHeight: 1.1
@@ -380,7 +380,7 @@ useEffect(() => {
             {/* 퀴즈점수 */}
             <div style={{
               fontSize: '0.9rem',
-              fontWeight: 900,
+              fontWeight: 800,
               color: '#f77784',
               whiteSpace: 'nowrap'
             }}>
@@ -1575,7 +1575,7 @@ useEffect(() => {
                       textShadow: isHorrorParty
                         ? '0 2px 5px rgba(0,0,0,.8)'
                         : 'none',
-                      fontWeight: 900,
+                      fontWeight: 800,
                       fontSize: '0.9rem',
                       boxShadow: 'none',
                       overflow: 'hidden'
