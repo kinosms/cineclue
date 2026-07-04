@@ -328,7 +328,7 @@ const sortedRanking = [...patchedRanking].sort(
                 borderRadius: 8,
                 background: '#9d3642',
                 color: '#ffffff',
-                fontWeight: 700
+                fontWeight: 600
               }}
             >
               정답보기
@@ -952,7 +952,7 @@ const sortedRanking = [...patchedRanking].sort(
                   ? '#7a0d0d'
                   : '#6d5842',
                 fontSize: '0.8rem',
-                fontWeight: 500,
+                fontWeight: 700,
                 border: '1.5px solid #e8e4dd'
               }}
               onClick={() => {
