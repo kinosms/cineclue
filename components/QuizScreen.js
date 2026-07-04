@@ -4,7 +4,7 @@ import {
   pauseBgmForVideo
 } from '../library/audioManager'
 import { useState, useEffect } from 'react'
-import { getModeSkin } from './Modeskins'
+import { getModeSkin } from './ModeSkins'
 
 
 function preloadImages(images) {
