@@ -2,7 +2,7 @@
 
 import { playSound} from '../library/audioManager'
 import { isAndroidApp } from '../utils/platform'
-import { getModeSkin } from './modeSkins'
+import { getModeSkin } from './Modeskins'
 
 export default function ResultScreen(props) {
 
