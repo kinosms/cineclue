@@ -177,7 +177,7 @@ export default function ModeScreen(props) {
 
                     fontSize:'0.72rem',
 
-                    fontWeight:800,
+                    fontWeight:600,
 
                     color:'#5f5a55',
 
@@ -217,7 +217,7 @@ export default function ModeScreen(props) {
                 borderRadius: 10,
                 background: quizMode === 'subjective' ? '#414141' : '#ffffff',
                 color: quizMode === 'subjective' ? '#fff' : '#6f6e6e',
-                fontWeight: 700
+                fontWeight: 600
               }}>
               주관식
             </button>
@@ -232,7 +232,7 @@ export default function ModeScreen(props) {
                 borderRadius: 10,
                 background: quizMode === 'objective' ? '#414141' : '#eee',
                 color: quizMode === 'objective' ? '#fff' : '#6f6e6e',
-                fontWeight: 700
+                fontWeight: 600
               }}>
               객관식
             </button>
