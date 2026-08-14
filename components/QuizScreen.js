@@ -674,7 +674,8 @@ useEffect(() => {
                 {/* 오답일 때만 신고 */}
                 {fbt === 'sk' && (
                   <div style={{
-                    position: 'relative'
+                    position: 'relative',
+                    zIndex: showReportMenu ? 9999 : 'auto'
                   }}>
                     <button
                       onClick={() =>
@@ -790,7 +791,7 @@ useEffect(() => {
                     padding: 0,
                     background: isHorrorParty
                       ? `url(${skin.buttons.nextHint}) center / 100% 100% no-repeat`
-                      : '##faf8f3',
+                      : '#faf8f3',
                     transform: buttonActive ? 'scale(0.95)' : 'scale(1)',
                     transition: 'transform 0.1s ease'
                   }}
@@ -1108,7 +1109,8 @@ useEffect(() => {
                         position: 'absolute',
                         right: 0,
                         top: '50%',
-                        transform: 'translateY(-50%)'
+                        transform: 'translateY(-50%)',
+                        zIndex: showReportMenu ? 9999 : 10
                       }}>
                         <button
                           onClick={() =>
@@ -1142,7 +1144,7 @@ useEffect(() => {
                             borderRadius: 12,
                             overflow: 'hidden',
                             boxShadow: '0 8px 24px rgba(0,0,0,0.08)',
-                            zIndex: 50,
+                            zIndex: 10000,
                             minWidth: 95
                           }}>
                             {/* 제목 오류 */}

@@ -552,15 +552,13 @@ export default function CharacterScreen(props) {
 
                   버전 : v{appVersion}
                   <br /><br />
-                    • 웹 체험판 공개
+                    • 신고하기 팝업 오류 개선
                     <br />
-                    • 앱 로그인 기능 안정화
+                    • 일반모드 스킨 추가
                     <br />
-                    • 캐릭터 부활 기능 추가
+                    • 호러모드 스킨 추가
                     <br />
-                    • 목숨 시스템 개편 (20 / 20)
-                    <br />
-                    • Google · Naver 검색 등록
+                    • 호러모드 BGM 추가
                         <br /><br />
 
                     <div style={{
