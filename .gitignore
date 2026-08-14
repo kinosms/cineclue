@@ -3,3 +3,4 @@ node_modules
 .next
 .env.local.save
 .DS_Store
+public/skins/default/AdobeReader2600121662.dmg
