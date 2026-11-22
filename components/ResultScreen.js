@@ -82,7 +82,9 @@ export default function ResultScreen(props) {
 
 
   const isHorrorParty = selGrade === 'horror'
+  const isSciFi = selGrade === 'sf'
   const skin = getModeSkin(selGrade)
+  
 
   const safeUsers = Array.isArray(users) ? users : []
   const user = safeUsers.find(u => u.charId === selChar)
@@ -240,7 +242,7 @@ const sortedRanking = [...patchedRanking].sort(
           <div style={{
             fontSize: '0.8rem',
             fontWeight: 700,
-            color: isHorrorParty ? '#ffffff' : '#1a1814',
+            color: skin.colors.resultName,
             marginBottom: 6
           }}>
             {nickname}
@@ -249,7 +251,7 @@ const sortedRanking = [...patchedRanking].sort(
           <div style={{
             fontSize: '2.5rem',
             fontWeight: 900,
-            color: isHorrorParty ? '#bd2121' : '#ff6b7a'
+            color: skin.colors.resultTotalScore
           }}>
             {(displayScore || 0).toLocaleString()}점
           </div>
@@ -274,9 +276,17 @@ const sortedRanking = [...patchedRanking].sort(
               style={{
                 padding: '6px 12px',
                 borderRadius: 20,
-                border: '0.6px solid #ddd',
-                background: '#fff',
-                color: isHorrorParty ? '#aa0202' : '#222',
+                border: isSciFi
+                  ? '1px solid rgba(0,217,245,.65)'
+                  : '0.6px solid #ddd',
+                background: isSciFi
+                  ? 'rgba(5,15,25,.92)'
+                  : '#fff',
+                color: isSciFi
+                  ? '#00E5FF'
+                  : isHorrorParty
+                    ? '#aa0202'
+                    : '#222',
                 fontSize: '0.8rem',
                 cursor: 'pointer'
             }}>
@@ -399,23 +409,15 @@ const sortedRanking = [...patchedRanking].sort(
                       position: 'relative',
                       overflow: 'hidden',
                       borderRadius: 13,
-                      border: isHorrorParty
-                        ? '1px solid rgba(150,20,20,.35)'
-                        : '1.5px solid #d9c7a5',
-                      background: isHorrorParty
-                        ? 'rgba(0, 0, 0, 0.88)'
-                        : '#f8f3e7',
+                      border: skin.colors.resultCardBorder,
+                      background: skin.colors.resultCardBg,
                       padding: '12px 16px',
                       marginBottom: 8,
                       display: 'flex',
                       alignItems: 'center',
                       gap: 12,
-                      color: isHorrorParty
-                        ? '#f2f2f2'
-                        : '#2b2218',
-                      boxShadow: isHorrorParty
-                        ? '0 8px 24px rgba(0,0,0,.35)'
-                        : '0 4px 12px rgba(80,60,30,.10)',
+                      color: skin.colors.resultCardText,
+                      boxShadow: skin.colors.resultCardGlow,
                       backdropFilter: isHorrorParty
                         ? 'blur(8px)'
                         : 'none',
@@ -449,8 +451,9 @@ const sortedRanking = [...patchedRanking].sort(
                         <div style={{
                           position: 'absolute',
                           inset: 0,
-                          background:
-                            'linear-gradient(to right, rgba(255,255,255,0.88) 0%, rgba(255, 255, 255, 0.43) 35%, rgba(255,255,255,0.00) 50%, rgba(255, 255, 255, 0.34) 65%, rgba(255,255,255,0.88) 100%)',
+                          background: isSciFi
+                            ? 'linear-gradient(to right, rgba(5,15,25,.96) 0%, rgba(5,15,25,.65) 35%, rgba(5,15,25,.35) 50%, rgba(5,15,25,.65) 65%, rgba(5,15,25,.96) 100%)'
+                            : 'linear-gradient(to right, rgba(255,255,255,0.88) 0%, rgba(255,255,255,0.43) 35%, rgba(255,255,255,0.00) 50%, rgba(255,255,255,0.34) 65%, rgba(255,255,255,0.88) 100%)',
                           zIndex: 1,
                           pointerEvents: 'none'
                         }} />
@@ -508,12 +511,14 @@ const sortedRanking = [...patchedRanking].sort(
                               '0.8rem',
                         fontWeight: 700,
                         transition: 'opacity 0.15s ease',
-                        color:
-                          (r.correct || showAnswers)
-                            ? '#1a1814'
-                            : '#c0bbb4',
+                        color: (r.correct || showAnswers)
+                          ? skin.colors.resultMovieTitle
+                          : skin.colors.resultFailText,
                         lineHeight: 1.25,
                         wordBreak: 'keep-all',
+                        textShadow: isHorrorParty
+                          ? '0 2px 5px rgba(0,0,0,.95)'
+                          : 'none',
                       }}>
                         {r.correct
                           ? r.title
@@ -536,8 +541,12 @@ const sortedRanking = [...patchedRanking].sort(
                       <div style={{
                         fontSize: '0.85rem',
                         fontWeight: 800,
-                        textShadow: '0 1px 3px rgba(255,255,255,0.85)',
-                        color: r.correct ? '#d42c3f' : '#c7b9b9'
+                        textShadow: isSciFi
+                          ? '0 1px 4px rgba(0,0,0,.85)'
+                          : '0 1px 3px rgba(255,255,255,0.85)',
+                        color: r.correct
+                          ? skin.colors.resultScoreText
+                          : skin.colors.resultScoreFail,
                       }}>
                         {r.correct ? `+${r.score}` : '-'}
                       </div>
@@ -596,8 +605,12 @@ const sortedRanking = [...patchedRanking].sort(
                         lineHeight: 1.0,
                         fontSize: '0.53rem',
                         fontWeight: 900,
-                        color: 'rgba(0, 0, 0, 0.92)',
-                        textShadow: '0 1px 4px rgba(236, 236, 236, 0.45)',
+                        color: isSciFi
+                          ? '#00E5FF'
+                          : 'rgba(0, 0, 0, 0.92)',
+                        textShadow: isSciFi
+                          ? '0 1px 4px rgba(0,0,0,.9)'
+                          : '0 1px 4px rgba(236, 236, 236, 0.45)',
                         letterSpacing: '0.5px',
                         pointerEvents: 'none'
                       }}>
@@ -646,24 +659,38 @@ const sortedRanking = [...patchedRanking].sort(
                             key={i}
                             style={{
                               borderRadius: 13,
-                              border: isHorrorParty
+                              border: isSciFi
                                 ? isMe
-                                  ? '1.5px solid rgba(190,30,30,.65)'
-                                  : '1px solid rgba(130,20,20,.35)'
-                                : isMe
-                                  ? '2px solid #d6b16a'
-                                  : '1.5px solid #d9c7a5',
-                              background: isHorrorParty
+                                  ? '1.5px solid rgba(0,229,255,.9)'
+                                  : '1px solid rgba(0,217,245,.45)'
+                                : isHorrorParty
+                                  ? isMe
+                                    ? '1.5px solid rgba(190,30,30,.65)'
+                                    : '1px solid rgba(130,20,20,.35)'
+                                  : isMe
+                                    ? '2px solid #d6b16a'
+                                    : '1.5px solid #d9c7a5',
+                              background: isSciFi
                                 ? isMe
-                                  ? 'rgba(55,18,18,.92)'
-                                  : 'rgba(24,24,24,.88)'
-                                : isMe
-                                  ? '#fff1d2'
-                                  : '#f8f3e7',
-                              color: isHorrorParty ? '#f2f2f2' : '#2b2218',
-                              boxShadow: isHorrorParty
-                                ? '0 8px 22px rgba(0,0,0,.35)'
-                                : '0 4px 12px rgba(80,60,30,.10)',
+                                  ? 'rgba(7,45,60,.95)'
+                                  : 'rgba(5,15,25,.90)'
+                                : isHorrorParty
+                                  ? isMe
+                                    ? 'rgba(55,18,18,.92)'
+                                    : 'rgba(24,24,24,.88)'
+                                  : isMe
+                                    ? '#fff1d2'
+                                    : '#f8f3e7',
+                              color: isSciFi
+                                ? '#F2FAFF'
+                                : isHorrorParty
+                                  ? '#f2f2f2'
+                                  : '#2b2218',
+                              boxShadow: isSciFi
+                                ? '0 0 10px rgba(0,217,245,.15)'
+                                : isHorrorParty
+                                  ? '0 8px 22px rgba(0,0,0,.35)'
+                                  : '0 4px 12px rgba(80,60,30,.10)',
                               padding: '12px 16px',
                               marginBottom: 8,
                               display: 'flex',
@@ -808,12 +835,16 @@ const sortedRanking = [...patchedRanking].sort(
                                 fontSize: '0.8rem',
                                 fontWeight: 700,
                                 color: r
-                                  ? isHorrorParty
-                                    ? '#f2f2f2'
-                                    : '#1a1814'
-                                  : isHorrorParty
+                                  ? isSciFi
+                                    ? '#FFFFFF'
+                                    : isHorrorParty
+                                      ? '#f2f2f2'
+                                      : '#1a1814'
+                                  : isSciFi
                                     ? 'rgba(255,255,255,.35)'
-                                    : '#c0bbb4',
+                                    : isHorrorParty
+                                      ? 'rgba(255,255,255,.35)'
+                                      : '#c0bbb4',
                                 overflow: 'hidden',
                                 textOverflow: 'ellipsis',
                                 whiteSpace: 'nowrap'
@@ -829,12 +860,16 @@ const sortedRanking = [...patchedRanking].sort(
                               fontSize: '0.85rem',
                               fontWeight: 800,
                               color: r
-                                ? isHorrorParty
-                                  ? '#f2f2f2'
-                                  : '#1a1814'
-                                : isHorrorParty
+                                ? isSciFi
+                                  ? '#00E5FF'
+                                  : isHorrorParty
+                                    ? '#f2f2f2'
+                                    : '#1a1814'
+                                : isSciFi
                                   ? 'rgba(255,255,255,.35)'
-                                  : '#c0bbb4',
+                                  : isHorrorParty
+                                    ? 'rgba(255,255,255,.35)'
+                                    : '#c0bbb4',
                               whiteSpace: 'nowrap'
                             }}>
                               {r ? r.score : 0}
@@ -848,8 +883,16 @@ const sortedRanking = [...patchedRanking].sort(
                           marginTop: 8,
                           padding: '12px 14px',
                           borderRadius: 14,
-                          background: '#fff5f6',
-                          border: '2px solid #e8808c',
+                          background: isSciFi
+                            ? 'rgba(7,45,60,.95)'
+                            : '#fff5f6',
+
+                          border: isSciFi
+                            ? '2px solid rgba(0,229,255,.9)'
+                            : '2px solid #e8808c',
+                          boxShadow: isSciFi
+                            ? '0 0 12px rgba(0,217,245,.20)'
+                            : 'none',
                           display: 'flex',
                           alignItems: 'center',
                           gap: 10
@@ -857,7 +900,7 @@ const sortedRanking = [...patchedRanking].sort(
                           <div style={{
                             fontSize: '0.75rem',
                             fontWeight: 800,
-                            color: '#e8808c'
+                            color: isSciFi ? '#FFFFFF' : '#e8808c'
                           }}>
                             내 순위
                           </div>
@@ -865,7 +908,7 @@ const sortedRanking = [...patchedRanking].sort(
                           <div style={{
                             fontSize: '1rem',
                             fontWeight: 900,
-                            color: '#e8808c'
+                            color: isSciFi ? '#00E5FF' : '#e8808c'
                           }}>
                             {myRank}위
                           </div>
@@ -873,6 +916,7 @@ const sortedRanking = [...patchedRanking].sort(
                           <div style={{
                             fontSize: '0.85rem',
                             fontWeight: 700,
+                            color: isSciFi ? '#FFFFFF' : undefined,
                             flex: 1,
                             minWidth: 0,
                             overflow: 'hidden',
@@ -885,6 +929,7 @@ const sortedRanking = [...patchedRanking].sort(
                           <div style={{
                             fontSize: '0.9rem',
                             fontWeight: 900,
+                            color: isSciFi ? '#00E5FF' : undefined,
                             whiteSpace: 'nowrap'
                           }}>
                             {(displayScore || 0).toLocaleString()}
@@ -919,12 +964,16 @@ const sortedRanking = [...patchedRanking].sort(
                   flex: 1,
                   height: 54,
                   borderRadius: 14,
-                  background: isHorrorParty
-                    ? `url(${skin.buttons.nextHint}) center / 100% 100% no-repeat`
-                    : '#e3d5bc',
-                  color: isHorrorParty
-                    ? '#7a0d0d'
-                    : '#2b2218',
+                  background: isSciFi
+                    ? `url(${skin.buttons.nextQuiz}) center / 100% 100% no-repeat`
+                    : isHorrorParty
+                      ? `url(${skin.buttons.nextHint}) center / 100% 100% no-repeat`
+                      : '#e3d5bc',
+                  color: isSciFi
+                    ? skin.colors.resultButtonText
+                    : isHorrorParty
+                      ? '#7a0d0d'
+                      : '#2b2218',
                   fontSize: '0.8rem',
                   fontWeight: 700,
                   border: 'none'
@@ -945,15 +994,21 @@ const sortedRanking = [...patchedRanking].sort(
                 flex: 1,
                 height: 54,
                 borderRadius: 12,
-                background: isHorrorParty
-                  ? `url(${skin.buttons.nextHint}) center / 100% 100% no-repeat`
-                  : '#fff',
-                color: isHorrorParty
-                  ? '#7a0d0d'
-                  : '#6d5842',
+                background: isSciFi
+                  ? `url(${skin.buttons.nextQuiz}) center / 100% 100% no-repeat`
+                  : isHorrorParty
+                    ? `url(${skin.buttons.nextHint}) center / 100% 100% no-repeat`
+                    : '#fff',
+                color: isSciFi
+                  ? skin.colors.resultButtonText
+                  : isHorrorParty
+                    ? '#7a0d0d'
+                    : '#6d5842',
                 fontSize: '0.8rem',
                 fontWeight: 700,
-                border: '1.5px solid #e8e4dd'
+                border: isSciFi
+                  ? 'none'
+                  : '1.5px solid #e8e4dd',
               }}
               onClick={() => {
                 playSound('click')

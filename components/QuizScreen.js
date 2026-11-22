@@ -90,6 +90,21 @@ export default function QuizScreen(props) {
 const [activeProviderId, setActiveProviderId] = useState(null)
 const skin = getModeSkin(selGrade)
 const isHorrorParty = selGrade === 'horror'
+const isSciFi = selGrade === 'sf'
+const movieInfoTextColor = isSciFi
+  ? skin.colors.movieInfoText
+  : isHorrorParty
+    ? 'rgba(255,255,255,.88)'
+    : '#555'
+const isSpecialSkin = isHorrorParty || isSciFi
+
+console.log('모드:', selGrade)
+
+console.log('스킨:', skin.key)
+
+console.log('배경:', skin.background)
+
+console.log('SF 여부:', isSciFi)
 
 useEffect(() => {
   if (!skin) return
@@ -243,7 +258,9 @@ useEffect(() => {
         width: '100%',
         background: isHorrorParty
           ? `linear-gradient(rgba(0,0,0,.28), rgba(0,0,0,.55)), url(${skin.background}) center / cover no-repeat`
-                  : `url('/skins/default/background.webp') center / cover no-repeat`,
+          : isSciFi
+            ? `url(${skin.background}) center / cover no-repeat`
+            : `url('/skins/default/background.webp') center / cover no-repeat`,
         display: 'flex',
         flexDirection: 'column',
         flex: 1,
@@ -259,9 +276,9 @@ useEffect(() => {
 
         {/* 헤더 영역 */}
         <div style={{
-          background: isHorrorParty ? 'rgba(0,0,0,.58)' : '#64584a ',
-          borderBottom: isHorrorParty ? '1px solid rgba(255,0,0,.28)' : 'none',
-          backdropFilter: isHorrorParty ? 'blur(8px)' : 'none',
+          background: skin.colors.headerBg,
+          borderBottom: skin.colors.headerBorder,
+          backdropFilter: skin.colors.headerBlur,
           padding: '14px 20px 10px',
           flexShrink: 0,
           position: 'relative',
@@ -610,10 +627,8 @@ useEffect(() => {
                   background: `url(${skin.hints[i % skin.hints.length]}) center / 100% 100% no-repeat`,
                   padding: isHorrorParty ? '17px 18px' : '13px 15px',
                   marginBottom: 8,
-                  color: isHorrorParty ? '#fff' : '#2b2218',
-                  textShadow: isHorrorParty
-                    ? '0 2px 4px rgba(0,0,0,.8)'
-                    : 'none',
+                  color: skin.colors.hintText,
+                  textShadow: skin.colors.hintShadow,
                   boxShadow: '0 10px 24px rgba(0,0,0,.35)'
                 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -621,7 +636,7 @@ useEffect(() => {
                       width: 28,
                       height: 28,
                       borderRadius: '50%',
-                      background: isHorrorParty ? '#7b0000' : '#4d2b2f',
+                      background: skin.colors.hintNumberBg,
                       color: '#fff',
                       fontSize: '0.65rem',
                       fontWeight: 800,
@@ -762,15 +777,15 @@ useEffect(() => {
                     height: 48,
                     border: 'none',
                     borderRadius: 12,
-                    background: isHorrorParty
+                    background: isHorrorParty || isSciFi
                       ? `url(${skin.buttons.nextHint}) center / 100% 100% no-repeat`
                       : '#faf8f3',
-                    color: isHorrorParty ? '#7a0d0d' : '#1a1814',
+                    color: skin.colors.nextHintText,
                     fontWeight: 700,
                     fontSize: '0.8rem',
                     opacity: (sh >= 5 || lockChoice || isFlashing) ? 0.45 : 1,
                     pointerEvents: (sh >= 5 || lockChoice || isFlashing) ? 'none' : 'auto',
-                    textShadow: isHorrorParty ? '0 1px 0 rgba(255,255,255,.45)' : 'none'
+                    textShadow: skin.colors.nextHintShadow
                   }}
                 >
                   다음 힌트
@@ -790,7 +805,9 @@ useEffect(() => {
                     borderRadius: 12,
                     padding: 0,
                     background: isHorrorParty
-                      ? `url(${skin.buttons.nextHint}) center / 100% 100% no-repeat`
+                    ? `url(${skin.buttons.nextHint}) center / 100% 100% no-repeat`
+                    : isSciFi
+                      ? `url(${skin.buttons.skip}) center / 100% 100% no-repeat`
                       : '#faf8f3',
                     transform: buttonActive ? 'scale(0.95)' : 'scale(1)',
                     transition: 'transform 0.1s ease'
@@ -800,47 +817,49 @@ useEffect(() => {
                     style={{
                       position: 'absolute',
                       inset: 0,
-                      width: `${progress}%`,
-                      background: isHorrorParty
-                        ? `url(${skin.buttons.skipFill}) left center / auto 100% no-repeat`
-                        : '#e8808c',
-                      transition: 'width 0.5s linear',
-                      zIndex: 0
+
+                      width: isSciFi ? '100%' : `${progress}%`,
+
+                      background: isSciFi
+                        ? `url(${skin.buttons.skipFill}) left center / 100% 100% no-repeat`
+                        : isHorrorParty
+                          ? `url(${skin.buttons.skipFill}) left center / auto 100% no-repeat`
+                          : '#e8808c',
+
+                      clipPath: isSciFi
+                        ? `inset(0 ${100 - progress}% 0 0)`
+                        : 'none',
+
+                      transition: isSciFi
+                        ? 'clip-path 0.5s linear'
+                        : 'width 0.5s linear',
+
+                      zIndex: 0,
+                      pointerEvents: 'none',
                     }}
                   />
 
                   {/* 기본 글자 */}
-
                     <span
-
                       style={{
-
                         position: 'absolute',
-
                         inset: 0,
-
                         display: 'flex',
-
                         alignItems: 'center',
-
                         justifyContent: 'center',
-
                         zIndex: 2,
-
-                        color: isHorrorParty
-
-                          ? (progress >= 45 ? '#fff' : '#7a0d0d')
-
-                          : (progress >= 45 ? '#fff' : '#1a1814'),
-
+                        color: isSciFi
+                          ? '#FFFFFF'
+                          : isHorrorParty
+                            ? (progress >= 45 ? '#fff' : '#7a0d0d')
+                            : (progress >= 45 ? '#fff' : '#1a1814'),
+                        textShadow: isSciFi
+                          ? '0 2px 5px rgba(0,0,0,.95)'
+                          : 'none',
                         fontWeight: 700,
-
                         fontSize: '0.8rem',
-
                         pointerEvents: 'none'
-
                       }}
-
                     >
 
                       넘기기
@@ -877,28 +896,34 @@ useEffect(() => {
                           fontSize: '0.86rem',
                           background: isHorrorParty
                             ? `url(${selectedChoice === c ? skin.answerSelected : skin.answers[i % skin.answers.length]}) center / 100% 100% no-repeat`
-                            : selectedChoice === c
-                              ? 'linear-gradient(#d8b05a, #836c43)'
-                              : 'linear-gradient(#fcf7ef, #f1e5cd)',
-                          color: isHorrorParty
-                            ? '#fff'
+                            : isSciFi
+                              ? `url(${
+                                  selectedChoice === c
+                                    ? skin.answerSelectedList[i]
+                                    : skin.answers[i]
+                                }) center / 100% 100% no-repeat`
+                              : selectedChoice === c
+                                ? 'linear-gradient(#d8b05a, #836c43)'
+                                : 'linear-gradient(#fcf7ef, #f1e5cd)',
+                          color: isHorrorParty || isSciFi
+                            ? skin.colors.answerText
                             : selectedChoice === c
                               ? '#fff'
-                              : '#2b2218',
-                          textShadow: isHorrorParty
-                            ? '0 2px 4px rgba(0,0,0,.85)'
-                            : selectedChoice === c
-                              ? '0 1px 2px rgba(80,45,0,.35)'
-                              : 'none',
+                              : skin.colors.answerText,
+                          textShadow: isHorrorParty || isSciFi
+                          ? skin.colors.answerShadow
+                          : selectedChoice === c
+                            ? '0 1px 2px rgba(80,45,0,.35)'
+                            : skin.colors.answerShadow,
                           fontWeight: 700,
                           opacity: lockChoice ? 0.4 : 1,
                           pointerEvents: lockChoice ? 'none' : 'auto',
                           transition: 'opacity 0.2s ease, transform 0.12s ease, box-shadow 0.12s ease',
-                          boxShadow: isHorrorParty
-                          ? 'none'
-                          : selectedChoice === c
-                            ? '0 6px 18px rgba(118,86,32,.28)'
-                            : '0 4px 12px rgba(90,70,40,.18)',
+                          boxShadow: isHorrorParty || isSciFi
+                            ? 'none'
+                            : selectedChoice === c
+                              ? '0 6px 18px rgba(118,86,32,.28)'
+                              : '0 4px 12px rgba(90,70,40,.18)',
                         }}>
                         <div style={{
                           padding: '2px 6px',
@@ -1011,15 +1036,11 @@ useEffect(() => {
                             width: 72,
                             height: 46,
                             borderRadius: 11,
-                            background: isHorrorParty
+                            background: isHorrorParty || isSciFi
                               ? `url(${skin.buttons.nextHint}) center / 100% 100% no-repeat`
                               : '#e8808c',
-                            color: isHorrorParty
-                              ? '#7a0d0d'
-                              : '#fff',
-                            textShadow: isHorrorParty
-                            ? '0 1px 0 rgba(255,255,255,.35)'
-                            : 'none',
+                            color: skin.colors.nextHintText,
+                            textShadow: skin.colors.nextHintShadow,
                             fontWeight: 700,
                             fontSize: '0.8rem',
                             border: isHorrorParty ? 'none' : 'none',
@@ -1096,7 +1117,14 @@ useEffect(() => {
                       <div style={{
                         fontSize: '1.3rem',
                         fontWeight: 800,
-                        color: isHorrorParty ? '#ffffff' : '#8b6a2d',
+                          color: isSciFi
+                          ? skin.colors.resultTitle
+                          : isHorrorParty
+                            ? '#ffffff'
+                            : '#8b6a2d',
+                        textShadow: isSciFi
+                          ? '0 2px 8px rgba(0,0,0,.95)'
+                          : 'none',
                         marginBottom: 4,
                         textAlign: 'center',
                         lineHeight: 1.3
@@ -1187,15 +1215,22 @@ useEffect(() => {
                       position: 'relative',
                       borderRadius: 22,
                       overflow: 'hidden',
-                      border: isHorrorParty
-                        ? '1px solid rgba(170,0,0,.35)'
-                        : '1.5px solid #ece8e2',
-                      background: isHorrorParty
-                        ? 'rgba(18,18,18,.88)'
-                        : '#fff',
+                      border: isSciFi
+                        ? skin.colors.movieInfoBorder
+                        : isHorrorParty
+                          ? '1px solid rgba(150,20,20,.35)'
+                          : 'none',
+                      background: isSciFi
+                        ? skin.colors.movieInfoBg
+                        : isHorrorParty
+                          ? 'rgba(0,0,0,.85)'
+                          : 'rgba(255,255,255,.95)',
                       backdropFilter: isHorrorParty
                         ? 'blur(8px)'
                         : 'none',
+                      boxShadow: isSciFi
+                        ? skin.colors.movieInfoGlow
+                        : undefined,
                       padding: 16,
                       marginBottom: 14
                     }}>
@@ -1365,9 +1400,7 @@ useEffect(() => {
                               alignItems: 'center',
                               gap: 10,
                               fontSize: '0.75rem',
-                              color: isHorrorParty
-                                ? 'rgba(255,255,255,.88)'
-                                : '#555'
+                              color: movieInfoTextColor,
                             }}>
                               <span style={{
                                 width: 38,
@@ -1384,9 +1417,7 @@ useEffect(() => {
                               alignItems: 'center',
                               gap: 10,
                               fontSize: '0.75rem',
-                              color: isHorrorParty
-                              ? 'rgba(255,255,255,.88)'
-                              : '#555'
+                              color: movieInfoTextColor,
                             }}>
                               <span style={{
                                 width: 38,
@@ -1404,9 +1435,7 @@ useEffect(() => {
                               alignItems: 'center',
                               gap: 10,
                               fontSize: '0.75rem',
-                              color: isHorrorParty
-                                ? 'rgba(255,255,255,.88)'
-                                : '#555'
+                              color: movieInfoTextColor,
                             }}>
                               <span style={{
                                 width: 38,
@@ -1424,9 +1453,7 @@ useEffect(() => {
                               alignItems: 'center',
                               gap: 10,
                               fontSize: '0.75rem',
-                              color: isHorrorParty
-                                ? 'rgba(255,255,255,.88)'
-                                : '#555'
+                              color: movieInfoTextColor,
                             }}>
                               <span style={{
                                 width: 38,
@@ -1451,9 +1478,7 @@ useEffect(() => {
                               alignItems: 'flex-start',
                               gap: 10,
                               fontSize: '0.75rem',
-                              color: isHorrorParty
-                                ? 'rgba(255,255,255,.88)'
-                                : '#555',
+                              color: movieInfoTextColor,
                               lineHeight: 1.5
                             }}>
                               <span style={{ width: 38, flexShrink: 0, whiteSpace: 'nowrap', fontSize: '0.75rem' }}>출연
@@ -1475,9 +1500,7 @@ useEffect(() => {
                               alignItems: 'center',
                               gap: 10,
                               fontSize: '0.75rem',
-                              color: isHorrorParty
-                                ? 'rgba(255,255,255,.88)'
-                                : '#555'
+                              color: movieInfoTextColor,
                             }}>
                               <span style={{
                                 width: 38,
@@ -1495,7 +1518,9 @@ useEffect(() => {
                                   }}
                                   style={{
                                     cursor: 'pointer',
-                                    color: '#c84f4f',
+                                    color: isSciFi
+                                      ? '#00E5FF'
+                                      : '#c84f4f',
                                     fontWeight: 700
                                   }}
                                 >
@@ -1527,9 +1552,11 @@ useEffect(() => {
                                 textAlign: 'left',
                                 fontSize: '0.8rem',
                                 fontWeight: 800,
-                              color: isHorrorParty
-                                ? 'rgba(255,255,255,.88)'
-                                : '#666',
+                                color: isSciFi
+                                  ? skin.colors.movieInfoText
+                                  : isHorrorParty
+                                    ? 'rgba(255,255,255,.88)'
+                                    : '#666',
                                 cursor: 'pointer'
                               }}>
                               {showSynopsis
@@ -1546,12 +1573,12 @@ useEffect(() => {
                         <div style={{
                           marginTop: 18,
                           paddingTop: 16,
-                          borderTop: '1px solid #efebe5',
+                          borderTop: isSciFi
+                            ? '1px solid rgba(0,217,245,.35)'
+                            : '1px solid #efebe5',
                           fontSize: '0.82rem',
                           lineHeight: 1.7,
-                          color: isHorrorParty
-                            ? 'rgba(255,255,255,.88)'
-                            : '#555'
+                          color: movieInfoTextColor,
                         }}>
                           {m.overview}
                         </div>
@@ -1573,7 +1600,11 @@ useEffect(() => {
                       borderRadius: 14,
                       border: isHorrorParty ? 'none' : 'none',
                       background: `url(${skin.buttons.nextQuiz}) center / 100% 100% no-repeat`,
-                      color: isHorrorParty ? '#850a0a' : '#fff',
+                      color: isSciFi
+                        ? skin.colors.buttonText
+                        : isHorrorParty
+                          ? '#850a0a'
+                          : '#fff',
                       textShadow: isHorrorParty
                         ? '0 2px 5px rgba(0,0,0,.8)'
                         : 'none',
