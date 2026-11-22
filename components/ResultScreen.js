@@ -83,6 +83,7 @@ export default function ResultScreen(props) {
 
   const isHorrorParty = selGrade === 'horror'
   const isSciFi = selGrade === 'sf'
+  const isKorea = selGrade === 'kr'
   const skin = getModeSkin(selGrade)
   
 
@@ -243,7 +244,12 @@ const sortedRanking = [...patchedRanking].sort(
             fontSize: '0.8rem',
             fontWeight: 700,
             color: skin.colors.resultName,
-            marginBottom: 6
+            marginBottom: 6,
+            textShadow: isKorea
+              ? skin.colors.resultNameShadow
+              : isSciFi
+                ? '0 2px 6px rgba(0,0,0,.95), 0 0 12px rgba(0,0,0,.8)'
+                : 'none',
           }}>
             {nickname}
           </div>
@@ -251,7 +257,10 @@ const sortedRanking = [...patchedRanking].sort(
           <div style={{
             fontSize: '2.5rem',
             fontWeight: 900,
-            color: skin.colors.resultTotalScore
+            color: skin.colors.resultTotalScore,
+              textShadow: isKorea
+              ? skin.colors.resultTotalScoreShadow
+              : 'none',
           }}>
             {(displayScore || 0).toLocaleString()}점
           </div>
@@ -276,20 +285,26 @@ const sortedRanking = [...patchedRanking].sort(
               style={{
                 padding: '6px 12px',
                 borderRadius: 20,
+
                 border: isSciFi
                   ? '1px solid rgba(0,217,245,.65)'
                   : '0.6px solid #ddd',
+
                 background: isSciFi
                   ? 'rgba(5,15,25,.92)'
                   : '#fff',
+
                 color: isSciFi
                   ? '#00E5FF'
                   : isHorrorParty
                     ? '#aa0202'
-                    : '#222',
+                    : isKorea
+                      ? skin.colors.resultButtonText
+                      : '#222',
+
                 fontSize: '0.8rem',
                 cursor: 'pointer'
-            }}>
+              }}>
               {resultView === 'score' ? '랭킹 보기' : '점수 보기'}
             </button>
           </div>
@@ -964,12 +979,12 @@ const sortedRanking = [...patchedRanking].sort(
                   flex: 1,
                   height: 54,
                   borderRadius: 14,
-                  background: isSciFi
+                  background: (isSciFi || isKorea)
                     ? `url(${skin.buttons.nextQuiz}) center / 100% 100% no-repeat`
                     : isHorrorParty
                       ? `url(${skin.buttons.nextHint}) center / 100% 100% no-repeat`
                       : '#e3d5bc',
-                  color: isSciFi
+                  color: (isSciFi || isKorea)
                     ? skin.colors.resultButtonText
                     : isHorrorParty
                       ? '#7a0d0d'
@@ -994,12 +1009,12 @@ const sortedRanking = [...patchedRanking].sort(
                 flex: 1,
                 height: 54,
                 borderRadius: 12,
-                background: isSciFi
+                background: (isSciFi || isKorea)
                   ? `url(${skin.buttons.nextQuiz}) center / 100% 100% no-repeat`
                   : isHorrorParty
                     ? `url(${skin.buttons.nextHint}) center / 100% 100% no-repeat`
                     : '#fff',
-                color: isSciFi
+                color: (isSciFi || isKorea)
                   ? skin.colors.resultButtonText
                   : isHorrorParty
                     ? '#7a0d0d'

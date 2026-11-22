@@ -91,12 +91,14 @@ const [activeProviderId, setActiveProviderId] = useState(null)
 const skin = getModeSkin(selGrade)
 const isHorrorParty = selGrade === 'horror'
 const isSciFi = selGrade === 'sf'
-const movieInfoTextColor = isSciFi
+const isKorea = selGrade === 'kr'
+
+const movieInfoTextColor = (isSciFi || isKorea)
   ? skin.colors.movieInfoText
   : isHorrorParty
     ? 'rgba(255,255,255,.88)'
     : '#555'
-const isSpecialSkin = isHorrorParty || isSciFi
+const isSpecialSkin = isHorrorParty || isSciFi || isKorea
 
 console.log('모드:', selGrade)
 
@@ -258,7 +260,7 @@ useEffect(() => {
         width: '100%',
         background: isHorrorParty
           ? `linear-gradient(rgba(0,0,0,.28), rgba(0,0,0,.55)), url(${skin.background}) center / cover no-repeat`
-          : isSciFi
+          : (isSciFi || isKorea)
             ? `url(${skin.background}) center / cover no-repeat`
             : `url('/skins/default/background.webp') center / cover no-repeat`,
         display: 'flex',
@@ -593,6 +595,7 @@ useEffect(() => {
             hintLevel={sh}
             onFlash={setIsFlashing}
             isHorror={isHorrorParty}
+            isSciFi={isSciFi}
           />
         )}
 
@@ -676,15 +679,22 @@ useEffect(() => {
               }}>
 
                 {/* 메시지 */}
-                <div style={{
-                  fontSize: '0.78rem',
-                  fontWeight: 700,
-                  color: fbt === 'ok'
-                    ? '#4a9c6d'
-                    : '#311a1a'
-                }}>
-                  {fb}
-                </div>
+                  <div style={{
+                    fontSize: '0.78rem',
+                    fontWeight: 700,
+                    color: isKorea
+                      ? '#FFFFFF'
+                      : isSciFi
+                        ? '#FFFFFF'
+                        : isHorrorParty
+                          ? '#f83c3c'
+                          : '#311a1a',
+                    textShadow: (isSciFi || isHorrorParty || isKorea)
+                      ? '0 2px 5px rgba(0,0,0,.95)'
+                      : 'none',
+                  }}>
+                    {fb}
+                  </div>
 
                 {/* 오답일 때만 신고 */}
                 {fbt === 'sk' && (
@@ -777,7 +787,7 @@ useEffect(() => {
                     height: 48,
                     border: 'none',
                     borderRadius: 12,
-                    background: isHorrorParty || isSciFi
+                    background: isHorrorParty || isSciFi || isKorea
                       ? `url(${skin.buttons.nextHint}) center / 100% 100% no-repeat`
                       : '#faf8f3',
                     color: skin.colors.nextHintText,
@@ -806,7 +816,7 @@ useEffect(() => {
                     padding: 0,
                     background: isHorrorParty
                     ? `url(${skin.buttons.nextHint}) center / 100% 100% no-repeat`
-                    : isSciFi
+                    : (isSciFi || isKorea)
                       ? `url(${skin.buttons.skip}) center / 100% 100% no-repeat`
                       : '#faf8f3',
                     transform: buttonActive ? 'scale(0.95)' : 'scale(1)',
@@ -818,19 +828,19 @@ useEffect(() => {
                       position: 'absolute',
                       inset: 0,
 
-                      width: isSciFi ? '100%' : `${progress}%`,
+                      width: (isSciFi || isKorea) ? '100%' : `${progress}%`,
 
-                      background: isSciFi
+                      background: (isSciFi || isKorea)
                         ? `url(${skin.buttons.skipFill}) left center / 100% 100% no-repeat`
                         : isHorrorParty
                           ? `url(${skin.buttons.skipFill}) left center / auto 100% no-repeat`
                           : '#e8808c',
 
-                      clipPath: isSciFi
+                      clipPath: (isSciFi || isKorea)
                         ? `inset(0 ${100 - progress}% 0 0)`
                         : 'none',
 
-                      transition: isSciFi
+                      transition: (isSciFi || isKorea)
                         ? 'clip-path 0.5s linear'
                         : 'width 0.5s linear',
 
@@ -896,7 +906,7 @@ useEffect(() => {
                           fontSize: '0.86rem',
                           background: isHorrorParty
                             ? `url(${selectedChoice === c ? skin.answerSelected : skin.answers[i % skin.answers.length]}) center / 100% 100% no-repeat`
-                            : isSciFi
+                            : (isSciFi || isKorea)
                               ? `url(${
                                   selectedChoice === c
                                     ? skin.answerSelectedList[i]
@@ -905,12 +915,12 @@ useEffect(() => {
                               : selectedChoice === c
                                 ? 'linear-gradient(#d8b05a, #836c43)'
                                 : 'linear-gradient(#fcf7ef, #f1e5cd)',
-                          color: isHorrorParty || isSciFi
+                          color: isHorrorParty || isSciFi || isKorea
                             ? skin.colors.answerText
                             : selectedChoice === c
                               ? '#fff'
                               : skin.colors.answerText,
-                          textShadow: isHorrorParty || isSciFi
+                          textShadow: isHorrorParty || isSciFi || isKorea
                           ? skin.colors.answerShadow
                           : selectedChoice === c
                             ? '0 1px 2px rgba(80,45,0,.35)'
@@ -919,7 +929,7 @@ useEffect(() => {
                           opacity: lockChoice ? 0.4 : 1,
                           pointerEvents: lockChoice ? 'none' : 'auto',
                           transition: 'opacity 0.2s ease, transform 0.12s ease, box-shadow 0.12s ease',
-                          boxShadow: isHorrorParty || isSciFi
+                          boxShadow: isHorrorParty || isSciFi || isKorea
                             ? 'none'
                             : selectedChoice === c
                               ? '0 6px 18px rgba(118,86,32,.28)'
@@ -1020,15 +1030,39 @@ useEffect(() => {
                           placeholder="영화 제목 입력"
                           style={{
                             flex: 1,
+                            minWidth: 0,
                             height: 46,
-                            borderRadius: 11,
-                            border: '1.5px solid #e8e4dd',
-                            background: '#faf9f7',
-                            padding: '0 14px'
+                            borderRadius: isSciFi || isHorrorParty ? 10 : 11,
+                            border: isKorea
+                              ? '1.5px solid #a98253'
+                              : isSciFi
+                                ? '1.5px solid #00D9F5'
+                                : isHorrorParty
+                                  ? '1.5px solid #9B1717'
+                                  : '1.5px solid #e8e4dd',
+                            background: isKorea
+                              ? 'rgba(243,226,196,.97)'
+                              : isSciFi
+                                ? 'rgba(6,20,30,.96)'
+                                : isHorrorParty
+                                  ? 'rgba(18,8,10,.96)'
+                                  : '#faf9f7',
+                            color: isKorea
+                              ? '#2b2218'
+                              : isSciFi || isHorrorParty
+                                ? '#FFFFFF'
+                                : '#232323',
+                            boxShadow: isSciFi
+                              ? '0 0 12px rgba(0,217,245,.25), inset 0 0 12px rgba(0,217,245,.08)'
+                              : isHorrorParty
+                                ? '0 0 12px rgba(150,0,0,.25), inset 0 0 10px rgba(100,0,0,.12)'
+                                : 'none',
+                            padding: '0 14px',
+                            fontSize: 15,
+                            outline: 'none',
                           }}
                         />
                         <button
-                          
                           onClick={() => {
                             submit()
                           }}
@@ -1036,32 +1070,58 @@ useEffect(() => {
                             width: 72,
                             height: 46,
                             borderRadius: 11,
-                            background: isHorrorParty || isSciFi
+                            background: isHorrorParty || isSciFi || isKorea
                               ? `url(${skin.buttons.nextHint}) center / 100% 100% no-repeat`
                               : '#e8808c',
                             color: skin.colors.nextHintText,
                             textShadow: skin.colors.nextHintShadow,
                             fontWeight: 700,
                             fontSize: '0.8rem',
-                            border: isHorrorParty ? 'none' : 'none',
-                          }}>
+                            border: 'none',
+                          }}
+                        >
                           정답
                         </button>
                       </div>
 
                       {/* 입력 자동완성 */}
                       {suggestions.length > 0 && (
-                        <div style={{
-                          position: 'absolute',
-                          left: 0,
-                          right: 0,
-                          top: 52,
-                          background: '#fff',
-                          border: '1px solid #ddd',
-                          borderRadius: 10,
-                          overflow: 'hidden',
-                          zIndex: 50
-                        }}>
+                        <div
+                          style={{
+                            position: 'absolute',
+                            left: 0,
+                            right: 0,
+                            top: 52,
+
+                            background: isKorea
+                              ? 'rgba(243,226,196,.98)'
+                              : isSciFi
+                                ? 'rgba(6,20,30,.98)'
+                                : isHorrorParty
+                                  ? 'rgba(18,8,10,.98)'
+                                  : '#fff',
+
+                            border: isKorea
+                              ? '1.5px solid #a98253'
+                              : isSciFi
+                                ? '1.5px solid #00D9F5'
+                                : isHorrorParty
+                                  ? '1.5px solid #9B1717'
+                                  : '1px solid #ddd',
+
+                            borderRadius: 10,
+                            overflow: 'hidden',
+                            zIndex: 50,
+
+                            boxShadow: isKorea
+                              ? '0 6px 18px rgba(60,35,15,.25)'
+                              : isSciFi
+                                ? '0 6px 24px rgba(0,0,0,.65), 0 0 12px rgba(0,217,245,.2)'
+                                : isHorrorParty
+                                  ? '0 6px 24px rgba(0,0,0,.75), 0 0 12px rgba(150,0,0,.2)'
+                                  : 'none',
+                          }}
+                        >
                           {suggestions.map((s, i) => (
                             <div
                               key={i}
@@ -1073,22 +1133,51 @@ useEffect(() => {
                               style={{
                                 padding: '10px 12px',
                                 fontSize: '0.8rem',
-                                borderBottom: '1px solid #eee',
+
+                                borderBottom: isKorea
+                                  ? '1px solid rgba(169,130,83,.35)'
+                                  : isSciFi
+                                    ? '1px solid rgba(0,217,245,.18)'
+                                    : isHorrorParty
+                                      ? '1px solid rgba(180,40,40,.25)'
+                                      : '1px solid #eee',
+
                                 cursor: 'pointer',
-                                background:
-                                  selectedSuggestion === i
-                                    ? '#f3f0eb'
-                                    : '#fff',
-                                color:
-                                  selectedSuggestion === i
-                                    ? '#1a1814'
-                                    : '#555',
-                                fontWeight:
-                                  selectedSuggestion === i
-                                    ? 700
-                                    : 500,
+
+                                background: isKorea
+                                  ? selectedSuggestion === i
+                                    ? '#d9b88a'
+                                    : 'transparent'
+                                  : isSciFi
+                                    ? selectedSuggestion === i
+                                      ? 'rgba(0,217,245,.22)'
+                                      : 'transparent'
+                                    : isHorrorParty
+                                      ? selectedSuggestion === i
+                                        ? 'rgba(150,20,20,.35)'
+                                        : 'transparent'
+                                      : selectedSuggestion === i
+                                        ? '#f3f0eb'
+                                        : '#fff',
+
+                                color: isKorea
+                                  ? '#2b2218'
+                                  : isSciFi
+                                    ? selectedSuggestion === i
+                                      ? '#00E5FF'
+                                      : '#E8F3F7'
+                                    : isHorrorParty
+                                      ? selectedSuggestion === i
+                                        ? '#FF7777'
+                                        : '#E8DADA'
+                                      : selectedSuggestion === i
+                                        ? '#1a1814'
+                                        : '#555',
+
+                                fontWeight: selectedSuggestion === i ? 700 : 500,
                                 transition: 'all .12s ease'
-                              }}>
+                              }}
+                            >
                               {s.title}
                             </div>
                           ))}
@@ -1215,12 +1304,12 @@ useEffect(() => {
                       position: 'relative',
                       borderRadius: 22,
                       overflow: 'hidden',
-                      border: isSciFi
+                      border: (isSciFi || isKorea)
                         ? skin.colors.movieInfoBorder
                         : isHorrorParty
                           ? '1px solid rgba(150,20,20,.35)'
                           : 'none',
-                      background: isSciFi
+                      background: (isSciFi || isKorea)
                         ? skin.colors.movieInfoBg
                         : isHorrorParty
                           ? 'rgba(0,0,0,.85)'
@@ -1228,7 +1317,7 @@ useEffect(() => {
                       backdropFilter: isHorrorParty
                         ? 'blur(8px)'
                         : 'none',
-                      boxShadow: isSciFi
+                      boxShadow: (isSciFi || isKorea)
                         ? skin.colors.movieInfoGlow
                         : undefined,
                       padding: 16,
@@ -1552,7 +1641,7 @@ useEffect(() => {
                                 textAlign: 'left',
                                 fontSize: '0.8rem',
                                 fontWeight: 800,
-                                color: isSciFi
+                                color: (isSciFi || isKorea)
                                   ? skin.colors.movieInfoText
                                   : isHorrorParty
                                     ? 'rgba(255,255,255,.88)'
@@ -1575,7 +1664,9 @@ useEffect(() => {
                           paddingTop: 16,
                           borderTop: isSciFi
                             ? '1px solid rgba(0,217,245,.35)'
-                            : '1px solid #efebe5',
+                            : isKorea
+                              ? '1px solid rgba(117,69,45,.35)'
+                              : '1px solid #efebe5',
                           fontSize: '0.82rem',
                           lineHeight: 1.7,
                           color: movieInfoTextColor,
@@ -1600,7 +1691,7 @@ useEffect(() => {
                       borderRadius: 14,
                       border: isHorrorParty ? 'none' : 'none',
                       background: `url(${skin.buttons.nextQuiz}) center / 100% 100% no-repeat`,
-                      color: isSciFi
+                      color: (isSciFi || isKorea)
                         ? skin.colors.buttonText
                         : isHorrorParty
                           ? '#850a0a'

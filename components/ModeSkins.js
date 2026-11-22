@@ -135,9 +135,52 @@ export const MODE_SKINS = {
     resultScoreText: '#00E5FF',
     resultScoreFail: '#94A3B8',
     resultButtonText: '#111111',
-  },
+
+      },
+
 }),
-}
+    // 한국영화
+    kr: makeSkin('kr', {
+      assetKey: 'korea',
+      className: 'skin-korea',
+      individualAnswerSelected: true,
+      colors: {
+        headerBg: 'rgba(65, 43, 26, 0.92)',
+        headerBorder: '1px solid rgba(190,145,85,.45)',
+        headerBlur: 'blur(8px)',
+        resultTitle: '#5C351D',
+        text: '#2b2218',
+        point: '#9E3528',
+        buttonText: '#2b2218',
+        hintText: '#2b2218',
+        hintShadow: 'none',
+        hintNumberBg: '#75452D',
+        answerText: '#2b2218',
+        answerShadow: 'none',
+        nextHintText: '#2b2218',
+        nextHintShadow: 'none',
+        resultName: '#000000',
+        resultNameShadow: '0 1px 1px rgba(93, 88, 88, 0.85)',
+        resultTotalScore: '#031602',
+        resultTotalScoreShadow: '0 1px 1px rgba(131, 126, 126, 0.75)',
+        resultCardBg: '#f3e2c4',
+        resultCardBorder: '1.5px solid #a98253',
+        resultCardGlow: '0 4px 12px rgba(60,35,15,.18)',
+        resultCardText: '#2b2218',
+        resultMovieTitle: '#2b2218',
+        resultFailText: '#8a7867',
+        resultScoreText: '#9E3528',
+        resultScoreFail: '#a89785',
+        resultRankingButtonText: '#2b2218',
+        resultButtonText: '#2b2218',
+        movieInfoBg: 'rgba(243, 226, 196, 0.97)',
+        movieInfoBorder: '1.5px solid #a98253',
+        movieInfoGlow: '0 4px 12px rgba(60,35,15,.18)',
+        movieInfoText: '#2b2218',
+      },
+    }),
+  }
+
 
 export function getModeSkin(modeKey) {
   return MODE_SKINS[modeKey] || MODE_SKINS.default
