@@ -245,7 +245,7 @@ const sortedRanking = [...patchedRanking].sort(
             fontWeight: 700,
             color: skin.colors.resultName,
             marginBottom: 6,
-            textShadow: isKorea
+            textShadow: (isKorea || selGrade === 'anime' || selGrade === 'thriller')
               ? skin.colors.resultNameShadow
               : isSciFi
                 ? '0 2px 6px rgba(0,0,0,.95), 0 0 12px rgba(0,0,0,.8)'
@@ -258,7 +258,7 @@ const sortedRanking = [...patchedRanking].sort(
             fontSize: '2.5rem',
             fontWeight: 900,
             color: skin.colors.resultTotalScore,
-              textShadow: isKorea
+            textShadow: (isKorea || ['anime', 'thriller'].includes(selGrade))
               ? skin.colors.resultTotalScoreShadow
               : 'none',
           }}>
@@ -300,9 +300,12 @@ const sortedRanking = [...patchedRanking].sort(
                     ? '#aa0202'
                     : isKorea
                       ? skin.colors.resultButtonText
-                      : '#222',
+                      : ['anime', 'hk', 'thriller'].includes(selGrade)
+                        ? skin.colors.rankingButtonText
+                        : '#222',
 
                 fontSize: '0.8rem',
+                fontWeight: 700,
                 cursor: 'pointer'
               }}>
               {resultView === 'score' ? '랭킹 보기' : '점수 보기'}
@@ -457,7 +460,7 @@ const sortedRanking = [...patchedRanking].sort(
                             height: '100%',
                             objectFit: 'cover',
                             objectPosition: 'center center',
-                            opacity: 0.7,
+                            opacity: 0.85,
                             zIndex: 0,
                             pointerEvents: 'none'
                           }}
@@ -467,8 +470,8 @@ const sortedRanking = [...patchedRanking].sort(
                           position: 'absolute',
                           inset: 0,
                           background: isSciFi
-                            ? 'linear-gradient(to right, rgba(5,15,25,.96) 0%, rgba(5,15,25,.65) 35%, rgba(5,15,25,.35) 50%, rgba(5,15,25,.65) 65%, rgba(5,15,25,.96) 100%)'
-                            : 'linear-gradient(to right, rgba(255,255,255,0.88) 0%, rgba(255,255,255,0.43) 35%, rgba(255,255,255,0.00) 50%, rgba(255,255,255,0.34) 65%, rgba(255,255,255,0.88) 100%)',
+                            ? 'linear-gradient(to right, rgba(5,15,25,.92) 0%, rgba(5,15,25,.55) 35%, rgba(5,15,25,.08) 55%, rgba(5,15,25,.55) 80%, rgba(5,15,25,.85) 100%)'
+                            : 'linear-gradient(to right, rgba(0,0,0,.68) 0%, rgba(0,0,0,.42) 35%, rgba(0,0,0,.05) 55%, rgba(0,0,0,.35) 80%, rgba(0,0,0,.65) 100%)',
                           zIndex: 1,
                           pointerEvents: 'none'
                         }} />
@@ -482,32 +485,47 @@ const sortedRanking = [...patchedRanking].sort(
                       width: 28,
                       height: 28,
                       borderRadius: '50%',
-                      background: isHorrorParty
-                        ? isCorrect
-                          ? '#7b0000'
-                          : 'rgba(255,255,255,.10)'
-                        : isCorrect
-                          ? '#f3ead8'
-                          : '#f5f3ef',
+                      background: isSciFi
+                        ? 'rgba(5,25,35,.95)'
+                        : isHorrorParty
+                          ? isCorrect
+                            ? '#7b0000'
+                            : 'rgba(255,255,255,.10)'
+                          : ['thriller', 'hk', 'anime'].includes(selGrade)
+                            ? '#f3ead8'
+                            : isCorrect
+                              ? '#f3ead8'
+                              : '#f5f3ef',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
-                      border: isHorrorParty
-                        ? isCorrect
-                          ? '1.5px solid rgba(255,120,120,.65)'
-                          : '1.5px solid rgba(255,255,255,.18)'
-                        : `1.5px solid ${isCorrect ? '#d6bd8c' : '#e8e4dd'}`
-                    }}>
+                      border: isSciFi
+                        ? '1.5px solid #00E5FF'
+                        : isHorrorParty
+                          ? isCorrect
+                            ? '1.5px solid rgba(255,120,120,.65)'
+                            : '1.5px solid rgba(255,255,255,.18)'
+                          : ['thriller', 'hk', 'anime'].includes(selGrade)
+                            ? '1.5px solid #d6bd8c'
+                            : `1.5px solid ${isCorrect ? '#d6bd8c' : '#e8e4dd'}`,
+                      boxShadow: isSciFi
+                        ? '0 0 6px rgba(0,229,255,.45), inset 0 0 5px rgba(0,229,255,.15)'
+                        : 'none'
+                        }}>
                       <span style={{
                         fontSize: '0.7rem',
                         fontWeight: 800,
-                        color: isHorrorParty
-                        ? isCorrect
-                          ? '#fff'
-                          : 'rgba(255,255,255,.45)'
-                        : isCorrect
-                          ? '#7a5a28'
-                          : '#b0aaa3'
+                        color: isSciFi
+                          ? '#00E5FF'
+                          : isHorrorParty
+                            ? isCorrect
+                              ? '#fff'
+                              : 'rgba(255,255,255,.45)'
+                            : ['thriller', 'hk', 'anime'].includes(selGrade)
+                              ? '#7a5a28'
+                              : isCorrect
+                                ? '#7a5a28'
+                                : '#b0aaa3',
                       }}>
                         Q{i + 1}
                       </span>
@@ -527,13 +545,50 @@ const sortedRanking = [...patchedRanking].sort(
                         fontWeight: 700,
                         transition: 'opacity 0.15s ease',
                         color: (r.correct || showAnswers)
-                          ? skin.colors.resultMovieTitle
+
+                          ? selGrade === 'anime' && r.poster_path
+
+                            ? '#FFFFFF'
+
+                            : isKorea
+
+                              ? r.poster_path ? '#FFF3DC' : '#42301F'
+
+                              : selGrade === 'hk' && !r.poster_path
+
+                                ? '#423923'
+
+                                : skin.colors.resultMovieTitle
+
                           : skin.colors.resultFailText,
                         lineHeight: 1.25,
+                        textShadow: '0 1px 3px rgba(0,0,0,.95), 0 0 6px rgba(0,0,0,.65)',
                         wordBreak: 'keep-all',
                         textShadow: isHorrorParty
+
                           ? '0 2px 5px rgba(0,0,0,.95)'
-                          : 'none',
+
+                          : selGrade === 'anime'
+
+                            ? r.poster_path && (r.correct || showAnswers)
+
+                              ? '0 2px 4px rgba(0,0,0,.85)'
+
+                              : 'none'
+
+                            : selGrade === 'hk'
+
+                              ? !r.correct && !showAnswers
+
+                                ? 'none'
+
+                                : r.poster_path
+
+                                  ? '0 1px 3px rgba(0,0,0,.85)'
+
+                                  : 'none'
+
+                              : 'none',
                       }}>
                         {r.correct
                           ? r.title
@@ -556,12 +611,30 @@ const sortedRanking = [...patchedRanking].sort(
                       <div style={{
                         fontSize: '0.85rem',
                         fontWeight: 800,
-                        textShadow: isSciFi
-                          ? '0 1px 4px rgba(0,0,0,.85)'
-                          : '0 1px 3px rgba(255,255,255,0.85)',
                         color: r.correct
-                          ? skin.colors.resultScoreText
+
+                          ? selGrade === 'anime' && r.poster_path
+
+                            ? '#A8DCFF'
+
+                            : isKorea
+
+                              ? r.poster_path ? '#FFD58A' : '#A83228'
+
+                              : skin.colors.resultScoreText
+
                           : skin.colors.resultScoreFail,
+                        textShadow: selGrade === 'anime'
+                          ? r.poster_path && r.correct
+                            ? '0 2px 4px rgba(0,0,0,.85)'
+                            : 'none'
+                          : isKorea
+                            ? r.poster_path
+                              ? '0 2px 4px rgba(0,0,0,.85)'
+                              : 'none'
+                            : (selGrade === 'hk' || selGrade === 'thriller' || isSciFi)
+                              ? '0 1px 3px rgba(0,0,0,.95), 0 0 6px rgba(0,0,0,.65)'
+                              : '0 1px 3px rgba(255,255,255,.85)',
                       }}>
                         {r.correct ? `+${r.score}` : '-'}
                       </div>
@@ -620,12 +693,24 @@ const sortedRanking = [...patchedRanking].sort(
                         lineHeight: 1.0,
                         fontSize: '0.53rem',
                         fontWeight: 900,
-                        color: isSciFi
-                          ? '#00E5FF'
-                          : 'rgba(0, 0, 0, 0.92)',
-                        textShadow: isSciFi
-                          ? '0 1px 4px rgba(0,0,0,.9)'
-                          : '0 1px 4px rgba(236, 236, 236, 0.45)',
+                        color: selGrade === 'anime' && r.poster_path
+
+                          ? '#FFFFFF'
+
+                          : skin.colors.resultMovieTitle,
+                        textShadow: selGrade === 'anime'
+
+                          ? r.poster_path
+
+                            ? '0 2px 4px rgba(0,0,0,.85)'
+
+                            : 'none'
+
+                          : (selGrade === 'hk' || selGrade === 'thriller' || isSciFi)
+
+                            ? '0 1px 3px rgba(0,0,0,.95), 0 0 6px rgba(0,0,0,.65)'
+
+                            : '0 1px 3px rgba(255,255,255,.85)',
                         letterSpacing: '0.5px',
                         pointerEvents: 'none'
                       }}>
@@ -979,16 +1064,20 @@ const sortedRanking = [...patchedRanking].sort(
                   flex: 1,
                   height: 54,
                   borderRadius: 14,
-                  background: (isSciFi || isKorea)
+                  background: (isSciFi || isKorea || selGrade === 'anime' || selGrade === 'thriller' || selGrade === 'hk')
                     ? `url(${skin.buttons.nextQuiz}) center / 100% 100% no-repeat`
                     : isHorrorParty
                       ? `url(${skin.buttons.nextHint}) center / 100% 100% no-repeat`
                       : '#e3d5bc',
-                  color: (isSciFi || isKorea)
+
+                  color: (isSciFi || isKorea || selGrade === 'anime' || selGrade === 'thriller' || selGrade === 'hk')
                     ? skin.colors.resultButtonText
                     : isHorrorParty
                       ? '#7a0d0d'
                       : '#2b2218',
+                  textShadow: selGrade === 'thriller'
+                    ? skin.colors.buttonShadow
+                    : 'none',
                   fontSize: '0.8rem',
                   fontWeight: 700,
                   border: 'none'
@@ -1009,19 +1098,23 @@ const sortedRanking = [...patchedRanking].sort(
                 flex: 1,
                 height: 54,
                 borderRadius: 12,
-                background: (isSciFi || isKorea)
+                background: (isSciFi || isKorea || selGrade === 'anime' || selGrade === 'thriller' || selGrade === 'hk')
                   ? `url(${skin.buttons.nextQuiz}) center / 100% 100% no-repeat`
                   : isHorrorParty
                     ? `url(${skin.buttons.nextHint}) center / 100% 100% no-repeat`
                     : '#fff',
-                color: (isSciFi || isKorea)
+
+                color: (isSciFi || isKorea || selGrade === 'anime' || selGrade === 'thriller' || selGrade === 'hk')
                   ? skin.colors.resultButtonText
                   : isHorrorParty
                     ? '#7a0d0d'
                     : '#6d5842',
+                textShadow: selGrade === 'thriller'
+                  ? skin.colors.buttonShadow
+                  : 'none',
                 fontSize: '0.8rem',
                 fontWeight: 700,
-                border: isSciFi
+                border: (isSciFi || isKorea || selGrade === 'anime' || selGrade === 'thriller' || selGrade === 'hk')
                   ? 'none'
                   : '1.5px solid #e8e4dd',
               }}
