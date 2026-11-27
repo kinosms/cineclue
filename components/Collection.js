@@ -88,7 +88,71 @@ const loadCollections = async (nextSortType = sortType) => {
     return
   }
 
-  const postersData = data || []
+  const collectionRows = data || []
+
+const movieIds = [...new Set(
+
+  collectionRows
+
+    .map(p => p.movie_data?.id)
+
+    .filter(id => id != null)
+
+)]
+
+let movieMap = new Map()
+
+if (movieIds.length > 0) {
+
+  const { data: movieRows, error: movieError } = await supabase
+
+    .from('movies')
+
+    .select('id, poster_path')
+
+    .in('id', movieIds)
+
+  if (!movieError) {
+
+    movieMap = new Map(
+
+      (movieRows || []).map(m => [m.id, m])
+
+    )
+
+  } else {
+
+    console.error('컬렉션 포스터 조회 실패', movieError)
+
+  }
+
+}
+
+const postersData = collectionRows.map(p => {
+
+  const latestMovie = movieMap.get(p.movie_data?.id)
+
+  return {
+
+    ...p,
+
+    movie_data: {
+
+      ...p.movie_data,
+
+      poster_path:
+
+        latestMovie?.poster_path?.trim() ||
+
+        p.movie_data?.poster_path ||
+
+        null
+
+    }
+
+  }
+
+})
 
 
 

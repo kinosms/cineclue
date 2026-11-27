@@ -406,11 +406,17 @@ const sortedRanking = [...patchedRanking].sort(
 
                         saveCollection(r)
 
-                        const providers = await fetchWatchProviders(
+                        const providers = r.tmdb_id
 
-                          r.tmdb_id || r.id
+                          ? await fetchWatchProviders(
 
-                        )
+                              r.tmdb_id,
+
+                              r.tmdb_media_type || 'movie'
+
+                            )
+
+                          : []
 
                         setWatchProviders(providers)
 

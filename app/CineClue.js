@@ -2851,12 +2851,20 @@ return () => {
 
      }
 
-    let mediaType = 'movie'
-    let found = await searchTMDB('movie')
+    let mediaType = movie.tmdb_media_type || 'movie'
 
-    if (!found) {
+    let found = movie.tmdb_id
+
+      ? { id: movie.tmdb_id }
+
+      : await searchTMDB(mediaType)
+
+    if (!found && mediaType === 'movie') {
+
       mediaType = 'tv'
+
       found = await searchTMDB('tv')
+
     }
 
     if (!found) {
@@ -3242,8 +3250,14 @@ async function handleShowAnswers() {
   async function getRandomMovieByCountry(country) {
     if (!supabase) return null
     let query = supabase
+
       .from('movies')
+
       .select('*')
+
+      .not('poster_path', 'is', null)
+
+      .neq('poster_path', '')
     switch (country) {
       case '미국':
         query = query.ilike('country', '%미국%')
@@ -3273,7 +3287,7 @@ async function handleShowAnswers() {
       `getRandomMovieByCountry(${country})`
     )
     if (error || !data?.length) return null
-    return shuffle(data)[0]
+    return shuffle(data.filter(m => m.poster_path?.trim()))[0] || null
   }
 
 
@@ -3291,8 +3305,14 @@ async function handleShowAnswers() {
   if (!supabase) return null
 
   let query = supabase
+
     .from('movies')
+
     .select('*')
+
+    .not('poster_path', 'is', null)
+
+    .neq('poster_path', '')
 
   // 캐스팅 퀴즈는 일단 전체 영화 기준
   if (selGrade !== 'casting' && selGrade !== 'all') {
@@ -3320,7 +3340,7 @@ async function handleShowAnswers() {
 
   if (!data.length) return null
 
-  return shuffle(data)[0]
+  return shuffle(data.filter(m => m.poster_path?.trim()))[0] || null
 }
 
 function isKoreanOrEnglishName(name = '') {
@@ -3645,6 +3665,8 @@ const goNextCastingQuiz = () => {
             *,
             hints(*)
           `)
+          .not('poster_path', 'is', null)
+          .neq('poster_path', '')
         const g = selGrade
 
         if (g === '2020s') query = query.gte('year', 2020)
@@ -3682,7 +3704,7 @@ const goNextCastingQuiz = () => {
             )
 
           if (data.length === 0) break
-          all.push(...data)
+          all.push(...data.filter(m => m.poster_path?.trim()))
           if (data.length < pageSize) break
           from += pageSize
         }
@@ -3744,8 +3766,8 @@ const goNextCastingQuiz = () => {
       const updated = await Promise.all(
         sel.map(async movie => {
           const tmdb = await loadTMDB(movie)
-          const posterUrl = tmdb?.poster_path
-            ? `https://image.tmdb.org/t/p/w300${tmdb.poster_path}`
+          const posterUrl = movie.poster_path
+            ? `https://image.tmdb.org/t/p/w300${movie.poster_path}`
             : null
           if (posterUrl) {
             await new Promise(resolve => {
@@ -3757,39 +3779,73 @@ const goNextCastingQuiz = () => {
 
           }
           return {
+
             ...movie,
+
             tmdbLoaded: true,
+
             poster_path:
-              tmdb?.poster_path || null,
+
+              movie.poster_path || null,
+
             backdrop_path:
+
               tmdb?.backdrop_path || null,
+
             overview:
-              tmdb?.overview || '',
+
+              movie.overview || tmdb?.overview || '',
+
             tmdb_id:
-              tmdb?.id || null,
-            tmdb_media_type: 
+
+              movie.tmdb_id || tmdb?.id || null,
+
+            tmdb_media_type:
+
               tmdb?.media_type || 'movie',
+
             release_date:
-              tmdb?.release_date || '',
+
+              movie.release_date || tmdb?.release_date || '',
+
             vote_average:
-              tmdb?.vote_average || null,
-            genres: 
+
+              movie.vote_average ?? tmdb?.vote_average ?? null,
+
+            genres:
+
               tmdb?.genres || [],
-            production_countries: 
+
+            production_countries:
+
               tmdb?.production_countries || [],
+
             credits:
+
               tmdb?.credits || null,
+
             youtubeKey:
+
               tmdb?.youtubeKey || null,
+
             director:
-              tmdb?.credits?.crew
-              ?.find(p => p.job === 'Director')
-              ?.name || '-',
+
+              movie.director || tmdb?.credits?.crew
+
+                ?.find(p => p.job === 'Director')
+
+                ?.name || '-',
+
             cast:
-              tmdb?.credits?.cast
-              ?.slice(0, 5)
-              ?.map(a => a.name)
-              ?.join(' · ') || '-'
+
+              movie.cast || tmdb?.credits?.cast
+
+                ?.slice(0, 5)
+
+                ?.map(a => a.name)
+
+                ?.join(' · ') || '-'
+
           }
         })
       )
@@ -3867,8 +3923,10 @@ const goNextCastingQuiz = () => {
 
       const tmdb = await loadTMDB(baseMovie)
 
-      const posterUrl = tmdb?.poster_path
-        ? `https://image.tmdb.org/t/p/w300${tmdb.poster_path}`
+      const posterUrl = baseMovie.poster_path
+
+        ? `https://image.tmdb.org/t/p/w300${baseMovie.poster_path}`
+
         : null
 
       if (posterUrl) {
@@ -3889,17 +3947,24 @@ const goNextCastingQuiz = () => {
             .map(h => h.hint_text)
           : [],
         tmdbLoaded: true,
-        poster_path: tmdb?.poster_path || movie.poster_path || null,
+        poster_path: baseMovie.poster_path || movie.poster_path || null,
         backdrop_path: tmdb?.backdrop_path || movie.backdrop_path || null,
-        overview: tmdb?.overview || movie.overview || '',
-        tmdb_id: tmdb?.id || movie.tmdb_id || null,
-        release_date: tmdb?.release_date || movie.release_date || '',
-        vote_average: tmdb?.vote_average || movie.vote_average || null,
+        overview: baseMovie.overview || movie.overview || tmdb?.overview || '',
+        tmdb_id: baseMovie.tmdb_id || movie.tmdb_id || tmdb?.id || null,
+        release_date: baseMovie.release_date || movie.release_date || tmdb?.release_date || '',
+        vote_average: baseMovie.vote_average ?? movie.vote_average ?? tmdb?.vote_average ?? null,
         credits: tmdb?.credits || movie.credits || null,
-        youtubeKey: tmdb?.youtubeKey || movie.youtubeKey || null, 
+        youtubeKey: tmdb?.youtubeKey || movie.youtubeKey || null,
         tmdb_media_type: tmdb?.media_type || movie.tmdb_media_type || 'movie',
         genres: tmdb?.genres || movie.genres || [],
-        production_countries: tmdb?.production_countries || movie.production_countries || []
+        production_countries: tmdb?.production_countries || movie.production_countries || [],
+        director: baseMovie.director || movie.director || tmdb?.credits?.crew
+          ?.find(p => p.job === 'Director')
+          ?.name || '-',
+        cast: baseMovie.cast || movie.cast || tmdb?.credits?.cast
+          ?.slice(0, 5)
+          ?.map(a => a.name)
+          ?.join(' · ') || '-'
       }
     } catch (e) {
       console.error('recoverQuizData failed', e)
@@ -4574,11 +4639,7 @@ useEffect(() => {
       if (!movie) return
 
       // 이미 불러왔으면 패스
-      const needsTmdbLoad =
-        !movie.tmdbLoaded ||
-        !movie.tmdb_id ||
-        !movie.poster_path ||
-        !movie.overview
+      const needsTmdbLoad = !movie.tmdbLoaded
       if (!needsTmdbLoad) return
       try {
         const tmdb = await loadTMDB(movie)
@@ -4586,19 +4647,47 @@ useEffect(() => {
           prev.map((m, idx) => {
             if (idx !== qi) return m
             return {
+
               ...m,
+
               tmdbLoaded: true,
-              poster_path: tmdb?.poster_path || null,
-              backdrop_path: tmdb?.backdrop_path || null,
-              overview: tmdb?.overview || '',
-              tmdb_id: tmdb?.id || null,
-              tmdb_media_type: tmdb?.media_type || 'movie',
-              release_date: tmdb?.release_date || '',
-              vote_average: tmdb?.vote_average || null,
-              genres: tmdb?.genres || [],
-              credits: tmdb?.credits || null,
-              production_countries: tmdb?.production_countries || [],
-              youtubeKey: tmdb?.youtubeKey || null
+
+              poster_path: m.poster_path || null,
+
+              backdrop_path: tmdb?.backdrop_path || m.backdrop_path || null,
+
+              overview: m.overview || tmdb?.overview || '',
+
+              tmdb_id: m.tmdb_id || tmdb?.id || null,
+
+              tmdb_media_type: tmdb?.media_type || m.tmdb_media_type || 'movie',
+
+              release_date: m.release_date || tmdb?.release_date || '',
+
+              vote_average: m.vote_average ?? tmdb?.vote_average ?? null,
+
+              genres: tmdb?.genres || m.genres || [],
+
+              credits: tmdb?.credits || m.credits || null,
+
+              production_countries: tmdb?.production_countries || m.production_countries || [],
+
+              youtubeKey: tmdb?.youtubeKey || m.youtubeKey || null,
+
+              director: m.director || tmdb?.credits?.crew
+
+                ?.find(p => p.job === 'Director')
+
+                ?.name || '-',
+
+              cast: m.cast || tmdb?.credits?.cast
+
+                ?.slice(0, 5)
+
+                ?.map(a => a.name)
+
+                ?.join(' · ') || '-'
+
             }
           })
         )
@@ -5177,8 +5266,6 @@ useEffect(() => {
           progress={progress}
           buttonActive={buttonActive}
 
-          CharAvatar={CharAvatar}
-
           showSynopsis={showSynopsis}
           setShowSynopsis={setShowSynopsis}
 
@@ -5191,7 +5278,6 @@ useEffect(() => {
 
           supabase={supabase}
           safeQuery={safeQuery}
-          AppLayout={AppLayout}
           questionReady={questionReady}
           watchProviders={watchProviders}
           fetchWatchProviders={fetchWatchProviders}
@@ -5308,7 +5394,6 @@ useEffect(() => {
           loadRanking={loadRanking}
           collectionTargetUserId={collectionTargetUserId}
           setCollectionTargetUserId={setCollectionTargetUserId}
-          setCollectionReturnScreen={setCollectionReturnScreen}
 
           showAnswers={showAnswers}
           showAppToast={showAppToast}
