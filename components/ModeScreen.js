@@ -137,7 +137,7 @@ async function handleModeStart(m) {
               letterSpacing:'0.12em'
 
             }}>
-              도전할 모드를 선택하세요.
+              퀴즈 모드를 선택하세요.
             </div>
 
             {/* RIGHT */}

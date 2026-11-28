@@ -658,7 +658,7 @@ const sortedRanking = [...patchedRanking].sort(
 
                   }
                   const isCorrect = r.correct === true
-                  const isRevealed = isCorrect || showAnswers
+                  const isRevealed = isCorrect || showAnswers.includes(r.id)
                   const isPosterReady =
 
                   !isRevealed ||
@@ -870,7 +870,7 @@ const sortedRanking = [...patchedRanking].sort(
                               playSound('click')
 
                               try {
-                                await handleShowAnswers()
+                                await handleShowAnswers(r)
                               } catch (e) {
                                 console.error('RESULT_BUTTON_ERROR=', e)
                                 showAppToast?.('광고를 불러오지 못했습니다')

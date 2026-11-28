@@ -1898,7 +1898,7 @@ function restoreAppSnapshot(options = {}) {
   }, [])
   const [suggestions, setSuggestions] = useState([])
   const [allMovies, setAllMovies] = useState([])
-  const [showAnswers, setShowAnswers] = useState(false)
+  const [showAnswers, setShowAnswers] = useState([])
   const [lifeDelta, setLifeDelta] = useState(null)
   const [deathMessage, setDeathMessage] = useState(false)
   const [isReviving, setIsReviving] = useState(false)
@@ -3626,7 +3626,7 @@ return () => {
       setIsRevived(true)
 
       await new Promise(resolve =>
-        setTimeout(resolve, 1000)
+        setTimeout(resolve, 1500)
       )
 
       // 부활 연출 종료
@@ -3768,7 +3768,7 @@ return () => {
         )
 
         closeListener = await AdMob.addListener(
-          RewardAdPluginEvents.RewardedAdDismissed,
+          RewardAdPluginEvents.Dismissed,
           () => {
             finish()
           }
@@ -3820,13 +3820,14 @@ async function showRewardedLifeAd() {
         RewardAdPluginEvents.Rewarded,
         () => {
           rewarded = true
-          finish(true)
+          console.log('[REVIVE AD] Rewarded')
         }
       )
 
       closeListener = await AdMob.addListener(
-        RewardAdPluginEvents.RewardedAdDismissed,
+        RewardAdPluginEvents.Dismissed,
         () => {
+          console.log('[REVIVE AD] Dismissed', rewarded)
           finish()
         }
       )
@@ -3846,18 +3847,44 @@ async function showRewardedLifeAd() {
   })
 }
 
-async function handleShowAnswers() {
+async function handleShowAnswers(movie) {
+
+  if (!movie?.id) return
+  if (showAnswers.includes(movie.id)) return
+  if (isAdShowingRef.current) return
+
   try {
+
     if (!isAndroidApp) {
+
       showAppToast('웹 이용은 준비 중입니다')
+
       return
+
     }
+
     const success = await showRewardedAd()
+
     if (!success) return
-    setShowAnswers(true)
+
+    // 선택한 영화만 공개
+
+    setShowAnswers(prev =>
+
+      [...new Set([...prev, movie.id])]
+
+    )
+
+    // 컬렉션 저장
+
+    await saveCollection(movie)
+
   } catch (e) {
+
     showAppToast('광고를 불러오지 못했습니다')
+
   }
+
 }
 
 
@@ -4583,6 +4610,7 @@ const goNextCastingQuiz = () => {
       setQi(0)
       setSh(1)
       setResults([])
+      setShowAnswers([])
       setAnswered(false)
       setFb('')
       setFbt('')
@@ -5267,11 +5295,10 @@ useEffect(() => {
     skipLockRef.current = false
     
     setProgress(0)
-    setButtonActive(false)
     setTimerStartedAt(null)
    
     setButtonActive(false)
-    setShowAnswers(false)
+    setShowAnswers([])
     setShowSynopsis(false)
     setShowReportMenu(false)
 
@@ -5705,9 +5732,6 @@ useEffect(() => {
         )}
 
         {isPreparingAd && (
-          <CharacterSpinner />
-        )}
-        {isPreparingLifeAd && (
           <CharacterSpinner />
         )}
 

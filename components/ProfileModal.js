@@ -104,8 +104,6 @@ const genreImages = {
 
 }
 
-
-
   if (!showProfile) return null
 
   return (
