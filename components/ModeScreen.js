@@ -1,6 +1,7 @@
 'use client'
 import { playSound } from '../library/audioManager'
 import SettingsMenu from './SettingsMenu'
+import { useRef } from 'react'
 
 export default function ModeScreen(props) {
 
@@ -34,6 +35,40 @@ export default function ModeScreen(props) {
     screen
   } = props
 
+  const startingRef = useRef(false)
+
+async function handleModeStart(m) {
+
+  if (loading || startingRef.current) return
+
+  if (isGuestLocked(m)) {
+
+    showAppToast('로그인 후 이용 가능합니다')
+
+    return
+
+  }
+
+  startingRef.current = true
+
+  try {
+
+    playSound('modeclick')
+
+    setQuizMode('objective')
+
+    toggleGrade(m.key)
+
+    await loadMovies(m.key)
+
+  } finally {
+
+    startingRef.current = false
+
+  }
+
+}
+
   return (
     <div>
       <div style={{
@@ -50,13 +85,27 @@ export default function ModeScreen(props) {
 
         flexDirection: 'column',
 
-        padding: '40px 0 40px',
+        padding: '40px 0 0',
 
-        overflowY: 'auto'
+        boxSizing: 'border-box',
+
+        overflow: 'hidden'
 
       }}>
 
-        <div style={{ padding:  '0 20px', flexShrink: 0 }}>
+        <div style={{
+
+          padding: '0 20px',
+
+          flex: 1,
+
+          minHeight: 0,
+
+          display: 'flex',
+
+          flexDirection: 'column'
+
+        }}>
 
           {/* 컬렉션 */}
           <div style={{
@@ -67,7 +116,9 @@ export default function ModeScreen(props) {
 
             justifyContent:'space-between',
 
-            marginBottom:18,
+            marginBottom:30,
+
+            flexShrink: 0,
 
             paddingLeft:4,
 
@@ -218,226 +269,68 @@ export default function ModeScreen(props) {
 
             </div>
 
-          <div style={{ display: 'flex', gap: 8, marginBottom: 16 }}>
-            <button
-              onClick={() => {
-                if (selGrade === 'casting') {
-                    showAppToast('캐스팅 퀴즈는\n객관식만 가능합니다')
-                    return
-                  }
-                playSound('click')
-                setQuizMode('subjective')
-              }}
-              style={{
-                flex: 1,
-                height: 40,
-                borderRadius: 10,
-                background: quizMode === 'subjective' ? '#42658A' : '#E5E7EB',
-                color: quizMode === 'subjective' ? '#FFFFFF' : '#454A50',
-                fontWeight: 600,
-                boxShadow: quizMode === 'subjective'
-                ? 'inset 0 3px 6px rgba(0,0,0,0.35)'
-                : '0 4px 0 #111315, 0 6px 10px rgba(0,0,0,0.3)',
-              }}>
-              주관식
-            </button>
-            <button
-              onClick={() => {
-                playSound('click')
-                setQuizMode('objective')
-              }}
-              style={{
-                flex: 1,
-                height: 40,
-                borderRadius: 10,
-                background: quizMode === 'objective' ? '#42658A' : '#E5E7EB',
-                color: quizMode === 'objective' ? '#FFFFFF' : '#454A50',
-                fontWeight: 600, 
-                boxShadow: quizMode === 'objective'
-                ? 'inset 0 3px 6px rgba(0,0,0,0.35)'
-                : '0 4px 0 #111315, 0 6px 10px rgba(0,0,0,0.3)',
-              }}>
-              객관식
-            </button>
-          </div>
-
-
-          {/* 스크롤 영역 */}
-
+          {/* 게임모드 스크롤 영역 */}
           <div style={{
-            flex: 1,
+            flex: '1 1 0px',
+            minHeight: 0,
+            height: 0,
             overflowY: 'auto',
-            padding: '10px 5px 5px',
-            display: 'flex',
-            flexDirection: 'column'
+            overflowX: 'hidden',
+            scrollbarWidth: 'none',
+            WebkitOverflowScrolling: 'touch',
+            overscrollBehavior: 'contain',
+            padding: '5px 0 calc(24px + env(safe-area-inset-bottom))'
           }}>
 
             <div style={{
               display: 'grid',
-              gridTemplateColumns: 'repeat(3,1fr)',
-              gap: 10,
-              order: 2
+              gridTemplateColumns: 'repeat(2, minmax(0, 1fr))',
+              gap: 12
             }}>
-              {ERA_MODES.map(m => {
-                const sel = selGrade === m.key
+
+              {[...THEME_MODES, ...ERA_MODES].map(m => {
                 const locked = isGuestLocked(m)
+
                 return (
-                  <div
+                  <button
                     key={m.key}
-                    onClick={() => {
-                      if (locked) {
-                        showAppToast('로그인 후 이용 가능합니다')
-                        return
-                      }
-                      playSound('modeclick')
-                      toggleGrade(m.key)
-                    }}
+                    aria-label={m.label || m.key}
+                    disabled={loading}
+                    onClick={() => handleModeStart(m)}
                     style={{
-                      aspectRatio: '1.5 / 1',
-                      borderRadius: 16,
+                      width: '100%',
+                      aspectRatio: '1 / 1',
+                      borderRadius: 10,
                       overflow: 'hidden',
                       position: 'relative',
-                      cursor: 'pointer',
+                      cursor: loading ? 'default' : 'pointer',
                       opacity: locked ? 0.35 : 1,
                       filter: locked ? 'grayscale(1)' : 'none',
-                      transform: sel ? 'scale(1.05)' : 'scale(1)',
-                      boxShadow: sel
-                        ? '0 6px 18px rgba(0,0,0,0.2)'
-                        : '0 2px 6px rgba(0,0,0,0.08)'
-                    }}>
+                      padding: 0,
+                      border: 'none',
+                      background: 'transparent',
+                      boxShadow: '0 3px 8px rgba(0,0,0,0.25)'
+                    }}
+                  >
                     <img
                       src={m.image}
+                      alt={m.label || m.key}
                       style={{
                         width: '100%',
                         height: '100%',
-                        objectFit: 'cover'
-                      }} />
-                    {sel && (
-                      <div style={{
-                        position: 'absolute',
-                        inset: 0,
-                        border: '3px solid rgba(255, 0, 0, 0.9)',
-                        borderRadius: 16,
-                        pointerEvents: 'none'
-                      }} />
-                    )}
-                  </div>
+                        objectFit: 'contain',
+                        display: 'block'
+                      }}
+                    />
+                  </button>
                 )
               })}
+
             </div>
-            {/* 🔥 테마 */}
-            <div style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(3,1fr)',
-              gap: 10,
-              order: 1,
-              marginBottom: 16
-            }}>
-              {[
-                ...THEME_MODES,
-                 {
-                  key: 'casting',
-                  image: '/mode/casting.webp'
-                 }
-              ].map(m => {
-
-                {/* 아래 이줄 삭제하면 캐스팅퀴즈 노출 */}
-                if (m.key === 'casting') return null 
-                
-                const sel = selGrade === m.key  
-                const locked = isGuestLocked(m)
-                return (
-                  <div
-                    key={m.key}
-                    onClick={() => {
-                      if (locked) {
-                        showAppToast('로그인 후 이용 가능합니다')
-                        return
-                      }
-                      playSound('modeclick')
-
-                      if (m.key === 'casting') {
-                        setQuizMode('objective')
-                      }
-
-                      toggleGrade(m.key)
-                    }}
-                    style={{
-                      aspectRatio: '1.5 / 1',
-                      borderRadius: 16,
-                      overflow: 'hidden',
-                      position: 'relative',
-                      cursor: 'pointer',
-                      opacity: locked ? 0.35 : 1,
-                      filter: locked ? 'grayscale(1)' : 'none',
-                      transform: sel ? 'scale(1.05)' : 'scale(1)',
-                      boxShadow: sel
-                        ? '0 6px 18px rgba(0,0,0,0.2)'
-                        : '0 2px 6px rgba(0,0,0,0.08)'
-                    }}>
-                    <img
-                      src={m.image}
-                      style={{
-                        width: '100%',
-                        height: '100%',
-                        objectFit: 'cover'
-                      }} />
-                    {sel && (
-                      <div style={{
-                        position: 'absolute',
-                        inset: 0,
-                        border: '3px solid rgba(255, 0, 0, 0.9)',
-                        borderRadius: 16,
-                        pointerEvents: 'none'
-                      }} />
-                    )}
-                  </div>
-                )
-              })}
-            </div>  
           </div>
 
-          {/* 버튼 영역 */}
-          <div style={{
-            padding: '20px 0 0',
-            display: 'flex',
-            flexDirection: 'row',
-            gap: 10,
-            flexShrink: 0,
-          }}>
 
-            {/* 퀴즈 시작 버튼 */}
-            <button
-              style={{
-                flex: 1,
-                width: '100%',
-                height: 54,
-                borderRadius: 14,
-                background: selGrade !== null && !loading
-                ? '#ED4B5E'
-                : '#565B60',
-                color: selGrade !== null && !loading ? '#FFFFFF' : '#B5B9BD',
-                fontSize: '1.1rem',
-                fontWeight: 800,
-                boxShadow: selGrade !== null && !loading
-                  ? `
-                    inset 0 3px 5px rgba(255,255,255,0.4),
-                    inset 0 -5px 10px rgba(0,0,0,0.2),
-                    0 4px 8px rgba(0,0,0,0.3)
-                  `
-                  : 'none',
-                border: 'none',
-                cursor: selGrade !== null && !loading ? 'pointer' : 'default'
-              }}
-              disabled={selGrade === null || loading}
-              onClick={() => {
-                if (selGrade === null || loading) return
-                playSound('click')
-                loadMovies()
-              }}>
-              {loading ? 'Loading...' : 'START'}
-            </button>
-          </div>
+          
         </div>
       </div>
     </div>

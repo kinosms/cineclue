@@ -3867,7 +3867,7 @@ const goNextCastingQuiz = () => {
 }
 
 
-  async function loadMovies() {
+  async function loadMovies(selectedGrade = selGrade) {
     if (!currentUser?.userId) {
       setScreen('char')
       setLoading(false)
@@ -3883,7 +3883,7 @@ const goNextCastingQuiz = () => {
       setDeathMessage(true)
       return
     }
-    if (selGrade === 'casting') {
+    if (selectedGrade === 'casting') {
       setLoading(true)
       setShowSpinner(true)
       setProgress(0)
@@ -3922,7 +3922,7 @@ const goNextCastingQuiz = () => {
       // 2️⃣ DB에서 퀴즈 5편 구성
       const { data: quizMovies, error: quizError } =
         await supabase.rpc('get_quiz_movies', {
-          p_grade: selGrade,
+          p_grade: selectedGrade,
           p_user_id: userId
         })
 
