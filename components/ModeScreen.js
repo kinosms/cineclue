@@ -217,6 +217,7 @@ async function handleModeStart(m) {
     setScreen('collection')
   }}
   style={{
+    position: 'relative',
     width: 58,
     height: 46,
     padding: 0,
@@ -227,14 +228,66 @@ async function handleModeStart(m) {
   }}
 >
   <img
+
     src="/icons/collection.webp"
+
     alt=""
+
     style={{
-      width: '100%',
-      height: '100%',
-      objectFit: 'contain'
+
+        width: '100%',
+
+        height: '100%',
+
+        objectFit: 'contain',
+
+        transform: 'translateY(-5px)'
+
     }}
+
   />
+
+  {/* 컬렉션 획득 개수 */}
+
+  <span style={{
+
+      position: 'absolute',
+
+      right: -2,
+
+      bottom: 0,
+
+      minWidth: 18,
+
+      height: 18,
+
+      padding: '0 3px',
+
+      boxSizing: 'border-box',
+
+      borderRadius: 999,
+
+      background: '#C62828',
+
+      border: '1px solid #FFD36A',
+
+      color: '#FFFFFF',
+
+      fontSize: '0.65rem',
+
+      fontWeight: 900,
+
+      display: 'flex',
+
+      alignItems: 'center',
+
+      justifyContent: 'center'
+
+  }}>
+
+      {authUser ? (posterCount || 0) : 0}
+
+  </span>
 </button>
 
                   <SettingsMenu

@@ -5,6 +5,7 @@ import {
 } from '../library/audioManager'
 import { useState, useEffect } from 'react'
 import { getModeSkin } from './ModeSkins'
+import DefaultAnimatedBackground from './DefaultAnimatedBackground'
 
 
 function preloadImages(images) {
@@ -276,19 +277,39 @@ useEffect(() => {
       <div 
       className={`quiz-screen ${skin.className}`}
       style={{
+
         width: '100%',
+
         background: isHorrorParty
+
           ? `linear-gradient(rgba(0,0,0,.28), rgba(0,0,0,.55)), url(${skin.background}) center / cover no-repeat`
+
           : isSpecialSkin
+
             ? `url(${skin.background}) center / cover no-repeat`
-            : `url('/skins/default/background.webp') center / cover no-repeat`,
+
+            : 'linear-gradient(145deg, #E8D2B5 0%, #FFF8EC 45%, #E5C9A5 100%)',
+
         display: 'flex',
+
         flexDirection: 'column',
+
         flex: 1,
+
         height: '100dvh',
+
         overflow: 'hidden',
-        WebkitOverflowScrolling: 'touch'
+
+        WebkitOverflowScrolling: 'touch',
+
+        position: 'relative',
+
+        isolation: 'isolate'
+
       }}>
+
+        {/* 디폴트 스킨 애니메이션 배경 */}
+        {!isSpecialSkin && <DefaultAnimatedBackground />}
 
         {/* 최종 오답 레드 플래시 */}
 
@@ -1042,11 +1063,21 @@ useEffect(() => {
                   style={{
                     flex: 1,
                     height: 48,
-                    border: 'none',
-                    borderRadius: 12,
+                    border: isSpecialSkin
+                    ? 'none'
+                    : '1px solid #D5C5B2',
+                    borderRadius: isSpecialSkin ? 12 : 30,
                     background: isSpecialSkin
-                      ? `url(${skin.buttons.nextHint}) center / 100% 100% no-repeat`
-                      : '#faf8f3',
+
+                    ? `url(${skin.buttons.nextHint}) center / 100% 100% no-repeat`
+
+                    : 'linear-gradient(180deg, #FFFFFF 0%, #F8F4EE 100%)',
+
+                  boxShadow: isSpecialSkin
+
+                    ? 'none'
+
+                    : 'inset 0 2px 3px rgba(255,255,255,.95), 0 3px 6px rgba(100,65,30,.15)',
                     color: skin.colors.nextHintText,
                     fontWeight: 700,
                     fontSize: '0.8rem',
@@ -1068,14 +1099,28 @@ useEffect(() => {
                     height: 48,
                     position: 'relative',
                     overflow: 'hidden',
-                    border: 'none',
-                    borderRadius: 12,
+                    border: isSpecialSkin
+
+                      ? 'none'
+
+                      : '1px solid #D5C5B2',
+                    borderRadius: isSpecialSkin ? 12 : 30,
                     padding: 0,
                     background: isHorrorParty
-                    ? `url(${skin.buttons.nextHint}) center / 100% 100% no-repeat`
-                    : isSpecialSkin
-                      ? `url(${skin.buttons.skip}) center / 100% 100% no-repeat`
-                      : '#faf8f3',
+
+                      ? `url(${skin.buttons.nextHint}) center / 100% 100% no-repeat`
+
+                      : isSpecialSkin
+
+                        ? `url(${skin.buttons.skip}) center / 100% 100% no-repeat`
+
+                        : 'linear-gradient(180deg, #FFFFFF 0%, #F8F4EE 100%)',
+
+                    boxShadow: isSpecialSkin
+
+                      ? 'none'
+
+                      : 'inset 0 2px 3px rgba(255,255,255,.95), 0 3px 6px rgba(100,65,30,.15)',
                     transform: buttonActive ? 'scale(0.95)' : 'scale(1)',
                     transition: 'transform 0.1s ease'
                   }}
@@ -1168,8 +1213,16 @@ useEffect(() => {
                         disabled={lockChoice}
                         style={{
                           height: 58,
-                          borderRadius: 10,
-                          border: 'none',
+                          borderRadius: isSpecialSkin ? 10 : 14,
+                          border: isSpecialSkin
+
+                          ? 'none'
+
+                          : selectedChoice === c
+
+                            ? '1.5px solid #99703B'
+
+                            : '1.5px solid #C9A16D',
                           fontSize: '0.86rem',
                           background: isHorrorParty
                             ? `url(${selectedChoice === c ? skin.answerSelected : skin.answers[i % skin.answers.length]}) center / 100% 100% no-repeat`
@@ -1180,30 +1233,48 @@ useEffect(() => {
                                     : skin.answers[i]
                                 }) center / 100% 100% no-repeat`
                               : selectedChoice === c
-                                ? 'linear-gradient(#d8b05a, #836c43)'
-                                : 'linear-gradient(#fcf7ef, #f1e5cd)',
-                          color: isSpecialSkin
+
+                                ? 'linear-gradient(165deg, #DDB77B 0%, #B38A4E 50%, #88602F 100%)'
+
+                                : 'linear-gradient(165deg, #FFFCF7 0%, #F7EDDF 50%, #EBD6B9 100%)',
+                          color: isMystery
+
+                          ? '#241e18'
+
+                          : isSpecialSkin
+
                             ? skin.colors.answerText
+
                             : selectedChoice === c
+
                               ? '#fff'
+
                               : skin.colors.answerText,
 
-                          textShadow: isSpecialSkin
+                        textShadow: isMystery
+
+                          ? '0 1px 1px rgba(255,255,255,.35)'
+
+                          : isSpecialSkin
+
                             ? skin.colors.answerShadow
+
                             : selectedChoice === c
+
                               ? '0 1px 2px rgba(80,45,0,.35)'
+
                               : skin.colors.answerShadow,
 
-                          fontWeight: 700,
+                        fontWeight: 700,
                           opacity: lockChoice ? 0.4 : 1,
                           pointerEvents: lockChoice ? 'none' : 'auto',
                           transition: 'opacity 0.2s ease, transform 0.12s ease, box-shadow 0.12s ease',
 
                           boxShadow: isSpecialSkin
-                            ? 'none'
-                            : selectedChoice === c
-                              ? '0 6px 18px rgba(118,86,32,.28)'
-                              : '0 4px 12px rgba(90,70,40,.18)',
+  ? 'none'
+  : selectedChoice === c
+    ? 'inset 0 0 0 2px rgba(255,235,190,.5), inset 0 3px 7px rgba(90,55,20,.25), 0 2px 5px rgba(90,60,30,.25)'
+    : 'inset 0 0 0 2px rgba(255,255,255,.85), inset 0 -4px 6px rgba(170,125,70,.15), 0 5px 10px rgba(100,65,30,.22)',
                         }}>
                         <div style={{
                           padding: '2px 6px',

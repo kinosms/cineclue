@@ -260,45 +260,79 @@ export default function SettingsMenu(props) {
                     borderTop: '1px solid #ece8e2',
                     margin: 15
                   }} />
-                  • 주관식 모드 :
-                  <br />
-                  <div style={{ paddingLeft: 16 }}>
-                    힌트 보기 중간에 한글자 또는 초성을 힌트로 제공합니다.
-                    <br />
-                    정답 입력시 영화제목 자동완성을 이용할 수 있습니다.
-                    <br />
-                    획득 점수는 1000pt 부터 시작합니다.
-                  </div>
-                  • 객관식 모드 :
-                  <br />
-                  <div style={{ paddingLeft: 16 }}>
-                    정답 선택은 2회까지 가능합니다.
-                    <br />
-                    획득 점수는 100pt 부터 시작합니다.
-                  </div>
-                  • 콤보 모드 :
-                  <br />
-                  <div style={{ paddingLeft: 16 }}>
-                    연속3회 퀴즈를 맞출 경우 다음 문제부터 콤보모드가 발동됩니다.
-                    <br />
-                    콤보모드시 점수X3, 최대 점수X5 까지 점수를 얻습니다.
-                  </div>
-                  <div style={{
-                    borderTop: '1px solid #ece8e2',
-                    margin: 15
-                  }} />
-                  • 목숨은 20개로 시작하고, 부활시 10개로 시작합니다.
-                  <br />
-                  • 앱 로그인 유저는
-                  <br />
-                  <div style={{ paddingLeft: 16 }}>
-                    1. 전체 캐릭터, 전체 게임 모드 이용이 가능합니다.
-                    <br />
-                    2. 캐릭터가 죽을 경우 부활이 가능합니다.
-                    <br />
-                    3. 프로필 정보와 기록 관리를 할 수 있습니다.
-                    <br />
-                    4. 영화 포스터 컬렉션을 이용할 수 있습니다.
+                  <strong>• 기본 규칙</strong>
+
+    <div style={{ paddingLeft: 16, marginBottom: 12 }}>
+
+      한 라운드는 5문제로 구성됩니다.
+
+      <br />
+
+      힌트를 적게 사용할수록 높은 점수를 획득합니다.
+
+      <br />
+
+      정답 선택은 최대 2회까지 가능합니다.
+
+      <br />
+
+      오답 또는 문제를 넘기면 목숨이 차감됩니다.
+
+    </div>
+
+    <strong>• 콤보 모드</strong>
+
+    <div style={{ paddingLeft: 16, marginBottom: 12 }}>
+
+      3문제 연속 정답 시 콤보 모드가 발동됩니다.
+
+      <br />
+
+      연속 정답에 따라 최대 5배의 점수를 획득합니다.
+
+    </div>
+
+    <strong>• 목숨과 부활</strong>
+
+    <div style={{ paddingLeft: 16, marginBottom: 12 }}>
+
+      목숨을 모두 소진하면 게임이 종료됩니다.
+
+      <br />
+
+      부활을 통해 게임을 계속할 수 있습니다.
+
+    </div>
+
+    <div style={{
+
+      borderTop: '1px solid #ece8e2',
+
+      margin: 15
+
+    }} />
+
+    <strong>• 포스터 컬렉션</strong>
+
+    <div style={{ paddingLeft: 16, marginBottom: 12 }}>
+
+      정답을 맞히면 영화 포스터를 획득합니다.
+
+      <br />
+
+      다양한 게임 모드를 통해 컬렉션을 채워보세요.
+
+    </div>
+
+    <strong>• 랭킹 및 프로필</strong>
+
+    <div style={{ paddingLeft: 16 }}>
+
+      누적 점수와 최고 연속 정답 기록에 도전하세요.
+
+      <br />
+
+      프로필에서 레벨, 칭호, 장르별 숙련도를 확인할 수 있습니다.
                   </div>
                 </div>
               )}
@@ -508,22 +542,9 @@ export default function SettingsMenu(props) {
                 }}>
 
                   버전 : v{appVersion}
-                  <br /><br />
-                    • 신고하기 팝업 오류 개선
-                    <br />
-                    • 일반모드 스킨 추가
-                    <br />
-                    • 호러모드 스킨 추가
-                    <br />
-                    • 호러모드 BGM 추가
-                        <br /><br />
-
                     <div style={{
-
                       fontSize: '0.72rem',
-
                       color: '#999'
-
                     }}>
 
                       Build : {buildNumber}

@@ -4,6 +4,7 @@ import { playSound} from '../library/audioManager'
 import { isAndroidApp } from '../utils/platform'
 import { getModeSkin } from './ModeSkins'
 import { useRef, useEffect, useState } from 'react'
+import DefaultAnimatedBackground from './DefaultAnimatedBackground'
 
 export default function ResultScreen(props) {
 
@@ -355,8 +356,14 @@ const sortedRanking = [...patchedRanking].sort(
           overflow: 'hidden',
 
           background: isHorrorParty
+
             ? `linear-gradient(rgba(0,0,0,.30), rgba(0,0,0,.55)), url(${skin.background}) center / cover no-repeat`
-            : `url(${skin.background}) center / cover no-repeat`,
+
+            : isDefaultSkin
+
+              ? '#F7EBDD'
+
+              : `url(${skin.background}) center / cover no-repeat`,
 
           display: 'flex',
 
@@ -364,9 +371,16 @@ const sortedRanking = [...patchedRanking].sort(
 
           padding: '12px 0 8px',
 
+          position: 'relative',
+
+          isolation: 'isolate'
+
         }}
 
       >
+
+        {/* 디폴트 스킨 애니메이션 배경 */}
+        {isDefaultSkin && <DefaultAnimatedBackground />}
 
         {/* 상단 영역 */}
         <div style={{
@@ -493,12 +507,32 @@ const sortedRanking = [...patchedRanking].sort(
               }}
 
               style={{
-                padding: '6px 12px',
+                padding: '7px 16px',
                 borderRadius: 20,
 
                 border: isSciFi
-                  ? '1px solid rgba(0,217,245,.65)'
-                  : '0.6px solid #ddd',
+
+                ? '1.5px solid #00D9F5'
+
+                : isHorrorParty
+
+                  ? '1.5px solid #AA0202'
+
+                  : isKorea
+
+                    ? `1.5px solid ${skin.colors.resultButtonText}`
+
+                    : ['anime', 'hk', 'thriller'].includes(selGrade)
+
+                      ? `1.5px solid ${skin.colors.rankingButtonText}`
+
+                      : '1.5px solid #B8A58C',
+
+              boxShadow: isSciFi
+
+                ? '0 0 8px rgba(0,217,245,.35)'
+
+                : 'inset 0 -3px 5px rgba(0,0,0,.08), 0 3px 6px rgba(0,0,0,.3)',
 
                 background: isSciFi
                   ? 'rgba(5,15,25,.92)'
@@ -542,7 +576,7 @@ const sortedRanking = [...patchedRanking].sort(
 
           position: 'relative',
 
-          flex: resultView === 'ranking' ? 1 : '0 1 auto',
+          flex: '0 1 auto',
 
           minHeight: 0,
 
@@ -559,8 +593,11 @@ const sortedRanking = [...patchedRanking].sort(
             padding: '2px 20px 0',
 
             height: resultView === 'score'
-              ? 'auto'
-              : 'calc(min(46dvh, 420px) + 60px)',
+
+            ? 'auto'
+
+            : 'calc(min(46dvh, 420px)',
+
             overflowY: resultView === 'score' ? 'auto' : 'hidden',
 
             overflowX: 'hidden',
@@ -1470,6 +1507,7 @@ const sortedRanking = [...patchedRanking].sort(
           <div style={{
             flexShrink: 0,
             padding: '12px 20px calc(10px + env(safe-area-inset-bottom))',
+            marginTop: resultView === 'score' ? 8 : 0,
             display: 'flex',
             gap: 10,
             background: 'transparent',
