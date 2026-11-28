@@ -97,107 +97,94 @@ export default function ModeScreen(props) {
 
                 alignItems:'center',
 
-                gap:8
+                gap:20
 
               }}>
 
                 {/* 트로피 */}
+<button
+  aria-label="트로피"
+  onClick={() => {
+    showAppToast('준비중입니다')
+  }}
+  style={{
+    position: 'relative',
+    width: 46,
+    height: 46,
+    padding: 0,
+    border: 'none',
+    background: 'transparent',
+    flexShrink: 0,
+    cursor: 'pointer'
+  }}
+>
+  <img
+    src="/icons/trophy.webp"
+    alt=""
+    style={{
+      width: '100%',
+      height: '100%',
+      objectFit: 'contain'
+    }}
+  />
 
-                <button
-                  onClick={() => {
-
-                  showAppToast('준비중입니다')
-
-                }}
-
-                  style={{
-
-                    height:34,
-
-                    padding:'0 14px',
-
-                    borderRadius:999,
-
-                    border:'0.5px solid #e5ddd5',
-
-                    background:'#fff',
-
-                    fontSize:'0.72rem',
-
-                    fontWeight:800,
-
-                    color:'#5f5a55',
-
-                    display:'flex',
-
-                    alignItems:'center',
-
-                    gap:7,
-
-                    boxShadow:'0 1px 2px rgba(0,0,0,0.03)'
-
-                  }}
-
-                >
-
-                  🏆 0
-
-                </button>
+  {/* 트로피 획득 개수 */}
+  <span style={{
+    position: 'absolute',
+    right: -2,
+    bottom: 0,
+    minWidth: 18,
+    height: 18,
+    padding: '0 3px',
+    boxSizing: 'border-box',
+    borderRadius: 999,
+    background: '#C62828',
+    border: '1px solid #FFD36A',
+    color: '#FFFFFF',
+    fontSize: '0.65rem',
+    fontWeight: 900,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center'
+  }}>
+    0
+  </span>
+</button>
 
                 {/* 컬렉션 */}
+<button
+  aria-label="컬렉션"
+  onClick={() => {
+    playSound('click')
 
-                <button
+    if (!authUser) {
+      showAppToast('로그인 후 이용 가능합니다')
+      return
+    }
 
-                  onClick={() => {
-
-                    playSound('click')
-
-                    if (!authUser) {
-
-                      showAppToast('로그인 후 이용 가능합니다')
-                      return
-
-                    }
-
-                    setCollectionReturnScreen('grade')
-
-                    setScreen('collection')
-
-                  }}
-
-                  style={{
-
-                    height:34,
-
-                    padding:'0 14px',
-
-                    borderRadius:999,
-
-                    border:'0.5px solid #e5ddd5',
-
-                    background:'#fff',
-
-                    fontSize:'0.72rem',
-
-                    fontWeight:600,
-
-                    color:'#5f5a55',
-
-                    display:'flex',
-
-                    alignItems:'center',
-
-                    gap:7,
-
-                    boxShadow:'0 1px 2px rgba(0,0,0,0.03)'
-
-                  }}
-
-                >
-
-                  🎬 컬렉션
-
-                </button>
+    setCollectionReturnScreen('grade')
+    setScreen('collection')
+  }}
+  style={{
+    width: 58,
+    height: 46,
+    padding: 0,
+    border: 'none',
+    background: 'transparent',
+    flexShrink: 0,
+    cursor: 'pointer'
+  }}
+>
+  <img
+    src="/icons/collection.webp"
+    alt=""
+    style={{
+      width: '100%',
+      height: '100%',
+      objectFit: 'contain'
+    }}
+  />
+</button>
 
                   <SettingsMenu
 

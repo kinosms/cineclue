@@ -3,7 +3,7 @@
 import { playSound} from '../library/audioManager'
 import { isAndroidApp } from '../utils/platform'
 import { getModeSkin } from './ModeSkins'
-import { useRef, useEffect } from 'react'
+import { useRef, useEffect, useState } from 'react'
 
 export default function ResultScreen(props) {
 
@@ -85,6 +85,9 @@ export default function ResultScreen(props) {
   const isSciFi = selGrade === 'sf'
   const isKorea = selGrade === 'kr'
   const skin = getModeSkin(selGrade)
+  const isDefaultSkin = ![
+    'sf', 'kr', 'anime', 'thriller', 'hk', 'horror'
+  ].includes(selGrade)
   const rankingSkin = {
 
   panelBg: isSciFi
@@ -145,10 +148,11 @@ export default function ResultScreen(props) {
 
 }
 
-  const totalScoreRef = useRef(null)
+const totalScoreRef = useRef(null)
 const posterScoreRefs = useRef([])
 const flightAnimations = useRef([])
 const flightLayerRef = useRef(null)
+const [loadedPosters, setLoadedPosters] = useState({})
 
 useEffect(() => {
   if (skipResultAnimation) return
@@ -375,8 +379,8 @@ const sortedRanking = [...patchedRanking].sort(
 
           <div style={{
             position: 'relative',
-            width: 75,
-            height: 75,
+            width: 66,
+            height: 66,
             borderRadius: '50%',
             background: isHorrorParty
               ? 'rgba(25,25,25,.55)'
@@ -461,7 +465,7 @@ const sortedRanking = [...patchedRanking].sort(
           </div>
 
           <div ref={totalScoreRef} style={{
-            fontSize: '2.5rem',
+            fontSize: '2.2rem',
             fontWeight: 900,
             color: skin.colors.resultTotalScore,
             textShadow: (isKorea || ['anime', 'thriller'].includes(selGrade))
@@ -472,8 +476,8 @@ const sortedRanking = [...patchedRanking].sort(
           </div>
 
           <div style={{
-            marginTop: 10,
-            marginBottom: 18,
+            marginTop: 8,
+            marginBottom: 8,
             display: 'flex',
             justifyContent: 'center'
           }}>
@@ -534,20 +538,39 @@ const sortedRanking = [...patchedRanking].sort(
         </div>
 
         {/* 리스트 영역  */}
-        <div style={{ position: 'relative' }}>
+        <div style={{
+
+          position: 'relative',
+
+          flex: resultView === 'ranking' ? 1 : '0 1 auto',
+
+          minHeight: 0,
+
+          display: 'flex',
+
+          flexDirection: 'column'
+
+        }}>
           
 
           {/* 점수_랭킹 리스트 */}
           <div style={{
-            padding: '7px 20px 0',
-            // 🔥 핵심 1: score 기준 높이 고정
+
+            padding: '2px 20px 0',
+
             height: resultView === 'score'
-              ? 'min(46dvh, 420px)'
-              : `${Math.min(results.length, 5) * 65 + 3}px`,
-            // 🔥 핵심 2: ranking은 스크롤만
+              ? 'auto'
+              : 'calc(min(46dvh, 420px) + 60px)',
             overflowY: resultView === 'score' ? 'auto' : 'hidden',
+
+            overflowX: 'hidden',
+
+            scrollbarWidth: 'none',
+
             WebkitOverflowScrolling: 'touch',
+
             overscrollBehavior: 'contain'
+
           }}>
 
             {resultView === 'score' ? (
@@ -599,6 +622,13 @@ const sortedRanking = [...patchedRanking].sort(
                   }
                   const isCorrect = r.correct === true
                   const isRevealed = isCorrect || showAnswers
+                  const isPosterReady =
+
+                  !isRevealed ||
+
+                  !r.poster_path ||
+
+                  loadedPosters[r.poster_path]
 
                   const hasMovieInfo =
                     r.tmdb_id ||
@@ -626,45 +656,79 @@ const sortedRanking = [...patchedRanking].sort(
                         setShowMovieCard(true)
                       }}
                       style={{
-  position: 'relative',
-  width: 'calc((100% - 20px) / 3)',
-  flexShrink: 0,
-  minWidth: 0,
-  aspectRatio: '2 / 3',
+                        position: 'relative',
+                        width: 'calc((100% - 20px) / 3)',
+                        flexShrink: 0,
+                        minWidth: 0,
+                        aspectRatio: '2 / 3',
 
-  // 포스터 순차 등장 효과
-  opacity: skipResultAnimation ? 1 : 0,
+                        // 포스터 순차 등장 효과
+                        visibility: isPosterReady ? 'visible' : 'hidden',
+                        opacity: skipResultAnimation ? 1 : 0,
 
-  animation: skipResultAnimation
-    ? 'none'
-    : 'posterSlam 0.22s ease-out both, posterImpact 1.8s ease-in-out forwards',
-    
+                        animation: skipResultAnimation
+                          ? 'none'
+                          : 'posterSlam 0.22s ease-out both, posterImpact 1.8s ease-in-out forwards',
+                          
 
-  animationDelay: skipResultAnimation
-    ? '0s'
-    : `${0.3 + i * 0.22}s, ${0.52 + i * 0.22}s`,
+                        animationDelay: skipResultAnimation
+                          ? '0s'
+                          : `${0.3 + i * 0.22}s, ${0.52 + i * 0.22}s`,
 
-  transformOrigin: 'center center',
+                        transformOrigin: 'center center',
 
-  boxSizing: 'border-box',
-  borderRadius: 10,
-  overflow: 'hidden',
-  border: skin.colors.resultCardBorder,
-  background: isRevealed
-    ? skin.colors.resultCardBg
-    : '#202020',
-  boxShadow: skin.colors.resultCardGlow,
-  cursor: isRevealed && hasMovieInfo
-    ? 'pointer'
-    : 'default'
-}}
+                        boxSizing: 'border-box',
+                        borderRadius: 10,
+                        overflow: 'hidden',
+                        border: skin.colors.resultCardBorder,
+                        background: isRevealed
+                          ? skin.colors.resultCardBg
+                          : '#202020',
+                        boxShadow: skin.colors.resultCardGlow,
+                        cursor: isRevealed && hasMovieInfo
+                          ? 'pointer'
+                          : 'default'
+                      }}
                     >
 
                       {/* 영화 포스터 */}
                       {isRevealed && r.poster_path && (
                         <img
+                        onLoad={async (e) => {
+
+                          const img = e.currentTarget
+
+                          try {
+
+                            await img.decode()
+
+                          } catch {}
+
+                          setLoadedPosters(prev => ({
+
+                            ...prev,
+
+                            [r.poster_path]: true
+
+                          }))
+
+                        }}
+
+                        onError={() => {
+
+                          setLoadedPosters(prev => ({
+
+                            ...prev,
+
+                            [r.poster_path]: true
+
+                          }))
+
+                        }}
                           src={`https://image.tmdb.org/t/p/w500${r.poster_path}`}
                           alt={r.title || ''}
+                          loading="eager"
+                          decoding="sync"
                           style={{
                             position: 'absolute',
                             inset: 0,
@@ -703,28 +767,46 @@ const sortedRanking = [...patchedRanking].sort(
 
                       {/* 콤보 도장 */}
                       {r.combo && (
-                        <div style={{
+
+                      <img
+
+                        src={
+
+                          r.combo === 'good' ? '/combo/great.webp' :
+
+                          r.combo === 'wow' ? '/combo/unstoppable.webp' :
+
+                          '/combo/absolute.webp'
+
+                        }
+
+                        alt={r.combo}
+
+                        style={{
+
                           position: 'absolute',
+
                           top: 8,
+
                           right: 5,
-                          padding: '3px 5px',
-                          borderRadius: 4,
+
+                          width: '45%',
+
+                          height: 'auto',
+
                           transform: 'rotate(-10deg)',
-                          fontSize: '0.55rem',
-                          fontWeight: 900,
+
+                          filter: 'drop-shadow(0 2px 3px rgba(0,0,0,.8))',
+
                           zIndex: 3,
-                          background:
-                            r.combo === 'good' ? '#fff3cd' :
-                            r.combo === 'wow' ? '#ffe0e0' :
-                            r.combo === 'crazy' ? '#e6d6ff' : '#eee',
-                          color:
-                            r.combo === 'good' ? '#c8a84a' :
-                            r.combo === 'wow' ? '#d45c5c' :
-                            r.combo === 'crazy' ? '#7a4cff' : '#888'
-                        }}>
-                          {r.combo.toUpperCase()}
-                        </div>
-                      )}
+
+                          pointerEvents: 'none'
+
+                        }}
+
+                      />
+
+                    )}
 
                       {/* 오답 - 정답보기 버튼 */}
                       {!isRevealed && (
@@ -893,72 +975,72 @@ const sortedRanking = [...patchedRanking].sort(
 
                     }}>
 
-                      {Array.from({ length: rankingRevealDone ? TOP_LIMIT : 5 }).map((_, i) => {
+                      {Array.from({ length: TOP_LIMIT }).map((_, i) => {
                         const r = safeRanking[i] || null
                         const char = r ? CHARS.find(c => c.id === r.character_id) : null
                         const isMe =
                           r &&
                             String(r.user_id) === String(currentUser?.userId)
-                        const isAnimated = !skipResultAnimation && i < 5
+                        const isAnimated = !skipResultAnimation
 
                         return (
                           <div
                             key={i}
                             style={{
 
-  position: 'relative',
+                            position: 'relative',
 
-  borderRadius: isMe ? 6 : 0,
+                            borderRadius: isMe ? 6 : 0,
 
-  border: isMe
+                            border: isMe
 
-    ? `1px solid ${rankingSkin.myBorder}`
+                              ? `1px solid ${rankingSkin.myBorder}`
 
-    : '1px solid transparent',
+                              : '1px solid transparent',
 
-  borderBottom: isMe
+                            borderBottom: isMe
 
-    ? `1px solid ${rankingSkin.myBorder}`
+                              ? `1px solid ${rankingSkin.myBorder}`
 
-    : `1px solid ${rankingSkin.divider}`,
+                              : `1px solid ${rankingSkin.divider}`,
 
-  background: isMe
+                            background: isMe
 
-    ? rankingSkin.myBg
+                              ? rankingSkin.myBg
 
-    : 'transparent',
+                              : 'transparent',
 
-  color: rankingSkin.text,
+                            color: rankingSkin.text,
 
-  boxShadow: isMe
+                            boxShadow: isMe
 
-    ? 'inset 0 0 8px rgba(255,255,255,.15)'
+                              ? 'inset 0 0 8px rgba(255,255,255,.15)'
 
-    : 'none',
+                              : 'none',
 
-  padding: '10px 8px',
+                            padding: '10px 8px',
 
-  marginBottom: 0,
+                            marginBottom: 0,
 
-  minHeight: 36,
+                            minHeight: 36,
 
-  display: 'flex',
+                            display: 'flex',
 
-  alignItems: 'center',
+                            alignItems: 'center',
 
-  gap: 12,
+                            gap: 8,
 
-  animation: isAnimated
+                            animation: isAnimated
 
-    ? 'fadeUp 0.3s ease forwards'
+                              ? 'fadeUp 0.3s ease forwards'
 
-    : 'none',
+                              : 'none',
 
-  opacity: isAnimated ? 0 : 1,
+                            opacity: isAnimated ? 0 : 1,
 
-  animationDelay: `${i * 0.08}s`
+                            animationDelay: `${i * 0.08}s`
 
-}}
+                          }}
                           >
 
                             {/* 순위 */}
@@ -1055,30 +1137,10 @@ const sortedRanking = [...patchedRanking].sort(
                                 >
                                   <CharAvatar
                                     charId={r.character_id}
-                                    size={28}
+                                    size={40}
                                   />
                                 </div>
-                                {/* 📊 배지 */}
-                                <div
-                                  style={{
-                                    position: 'absolute',
-                                    right: -5,
-                                    bottom: -5,
-                                    width: 16,
-                                    height: 16,
-                                    borderRadius: '50%',
-                                    background: '#fff8f9',
-                                    border: '1px solid #e8e4dd',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    fontSize: '0.45rem',
-                                    boxShadow: '0 2px 5px rgba(0,0,0,0.08)',
-                                    cursor: 'pointer'
-                                  }}
-                                >
-                                  📊
-                                </div>
+                              
                               </div>
                             ) : (
                               <div style={{
@@ -1092,10 +1154,16 @@ const sortedRanking = [...patchedRanking].sort(
                             {/* 이름 */}
                             <div style={{
                               flex: 1,
-                              minWidth: 0
+                              minWidth: 0,
+                              marginLeft: 15,
                             }}>
                               <div style={{
-                                fontSize: '0.8rem',
+                                fontSize:
+                                (r?.nickname || '').length >= 13 ? '0.65rem' :
+                                (r?.nickname || '').length >= 10 ? '0.7rem' :
+                                (r?.nickname || '').length >= 7 ? '0.8rem' :
+                                (r?.nickname || '').length >= 5 ? '0.85rem' :
+                                '0.95rem',
                                 fontWeight: 700,
                                 color: r
                                   ? isSciFi
@@ -1118,25 +1186,164 @@ const sortedRanking = [...patchedRanking].sort(
                                 }
                               </div>
                             </div>
-                            {/* 점수 */}
-                            <div style={{
-                              fontSize: '0.85rem',
-                              fontWeight: 800,
-                              color: r
-                                ? isSciFi
-                                  ? '#00E5FF'
-                                  : isHorrorParty
-                                    ? '#f2f2f2'
-                                    : '#1a1814'
-                                : isSciFi
-                                  ? 'rgba(255,255,255,.35)'
-                                  : isHorrorParty
-                                    ? 'rgba(255,255,255,.35)'
-                                    : '#c0bbb4',
-                              whiteSpace: 'nowrap'
-                            }}>
-                              {r ? Number(r.score || 0).toLocaleString() : '0'}
-                            </div>
+                            {/* 점수 및 최고 연속 정답 기록 */}
+
+<div style={{
+
+  display: 'flex',
+
+  flexDirection: 'column',
+
+  alignItems: 'flex-end',
+
+  justifyContent: 'center',
+
+  gap: 3,
+
+  flexShrink: 0,
+
+  whiteSpace: 'nowrap'
+
+}}>
+
+  {/* 점수 */}
+
+  <div style={{
+
+    fontSize:
+
+  Number(r?.score || 0) >= 1000000000 ? '0.75rem' :
+
+  Number(r?.score || 0) >= 100000000 ? '0.8rem' :
+
+  Number(r?.score || 0) >= 10000000 ? '0.85rem' :
+
+  Number(r?.score || 0) >= 1000000 ? '0.9rem' :
+
+  '1rem',
+
+    fontWeight: 800,
+
+    color: r
+
+      ? isSciFi
+
+        ? '#00E5FF'
+
+        : isHorrorParty
+
+          ? '#f2f2f2'
+
+          : '#1a1814'
+
+          : isSciFi
+
+            ? 'rgba(255,255,255,.35)'
+
+            : isHorrorParty
+
+              ? 'rgba(255,255,255,.35)'
+
+              : '#c0bbb4',
+
+                lineHeight: 1.1
+
+              }}>
+
+                {r ? Number(r.score || 0).toLocaleString() : '0'}
+
+              </div>
+
+              {/* 최고 연속 정답 기록 */}
+              {Number(r?.max_streak || 0) > 0 && (
+                <div style={{
+                  width: 55,
+
+                  height: 24,
+
+                  boxSizing: 'border-box',
+
+                  display: 'flex',
+
+                  alignItems: 'center',
+
+                  justifyContent: 'center',
+
+                  gap: 3,
+
+                  fontSize: '0.6rem',
+
+                  fontWeight: 800,
+
+                  padding: 0,
+
+                  borderRadius: 4,
+
+                  whiteSpace: 'nowrap',
+
+                  lineHeight: 1.2,
+
+                  flexShrink: 0,
+
+                  background:
+
+                  r.max_streak >= 20
+
+                    ? (isHorrorParty ? '#39263F' : '#38145C')
+
+                    : r.max_streak >= 10
+
+                      ? (isHorrorParty ? '#632923' : '#A82C18')
+
+                      : r.max_streak >= 5
+
+                        ? (isHorrorParty ? '#493824' : '#FFD580')
+
+                        : (isHorrorParty ? '#38302D' : '#E5E0D5'),
+
+                      color:
+
+                        r.max_streak >= 20 ? '#F0C2FF' :
+
+                        r.max_streak >= 10 ? '#FFE6C0' :
+
+                        r.max_streak >= 5
+
+                          ? (isHorrorParty ? '#D9B879' : '#805000')
+
+                          : (isHorrorParty ? '#BDB0A5' : '#655B4C'),
+
+                                      border: 'none',
+
+                                      boxShadow: 'none',
+                                      }}>
+                                        {r.max_streak >= 10 ? '🔥' : (
+
+                                        <span style={{
+
+                                          color: r.max_streak >= 5
+
+                                            ? (isHorrorParty ? '#D9B879' : '#805000')
+
+                                            : (isHorrorParty ? '#BDB0A5' : '#655B4C'),
+
+                                          fontSize: r.max_streak >= 5 ? '0.8rem' : '0.65rem',
+
+                                          fontWeight: 900,
+
+                                        }}>
+
+                                          {r.max_streak >= 5 ? '⚡︎' : '◆'}
+
+                                        </span>
+
+                                      )}
+
+                                      {Number(r.max_streak)}연속
+                                      </div>
+                                    )}
+
+                                  </div>
                           </div>
                         )
                       })}
@@ -1188,14 +1395,62 @@ const sortedRanking = [...patchedRanking].sort(
                           }}>
                             {myRankData?.nickname || 'USER'}
                           </div>
+                          {/* 내 점수 및 최고 연속 정답 기록 */}
 
                           <div style={{
-                            fontSize: '0.9rem',
-                            fontWeight: 900,
-                            color: isSciFi ? '#00E5FF' : undefined,
+
+                            display: 'flex',
+
+                            flexDirection: 'column',
+
+                            alignItems: 'flex-end',
+
+                            justifyContent: 'center',
+
+                            gap: 4,
+
+                            flexShrink: 0,
+
                             whiteSpace: 'nowrap'
+
                           }}>
-                            {(displayScore || 0).toLocaleString()}
+
+                            {/* 내 점수 */}
+
+                            <div style={{
+
+                              fontSize: '0.9rem',
+
+                              fontWeight: 900,
+
+                              color: isSciFi ? '#00E5FF' : undefined,
+
+                              lineHeight: 1.1
+
+                            }}>
+
+                              {(displayScore || 0).toLocaleString()}
+
+                            </div>
+
+                            {/* 내 최고 연속 정답 기록 */}
+
+                            <div style={{
+
+                              fontSize: '0.6rem',
+
+                              fontWeight: 700,
+
+                              color: isSciFi ? '#FFD58A' : '#96703A',
+
+                              lineHeight: 1.1
+
+                            }}>
+
+                              최고 {Number(myRankData?.max_streak || 0)}연속
+
+                            </div>
+
                           </div>
                         </div>
                       )}
@@ -1211,10 +1466,10 @@ const sortedRanking = [...patchedRanking].sort(
         </div>
 
         {/* 하단 영역 */}
-        {visibleResults > results.length && (
+        {visibleResults >= results.length && (
           <div style={{
             flexShrink: 0,
-            padding: '25px 20px calc(10px + env(safe-area-inset-bottom))',
+            padding: '12px 20px calc(10px + env(safe-area-inset-bottom))',
             display: 'flex',
             gap: 10,
             background: 'transparent',
@@ -1244,8 +1499,26 @@ const sortedRanking = [...patchedRanking].sort(
                     ? skin.colors.buttonShadow
                     : 'none',
                   fontSize: '0.8rem',
-                  fontWeight: 700,
-                  border: 'none'
+
+                  fontWeight: isDefaultSkin ? 800 : 700,
+
+                  border: 'none',
+
+                  boxShadow: isDefaultSkin
+
+                    ? `
+
+                      inset 0 3px 5px rgba(255,255,255,0.4),
+
+                      inset 0 -5px 10px rgba(0,0,0,0.2),
+
+                      0 4px 8px rgba(0,0,0,0.3)
+
+                    `
+
+                    : 'none',
+
+                  cursor: 'pointer'
                 }}
                 onClick={() => {
                   playSound('click')
@@ -1262,7 +1535,7 @@ const sortedRanking = [...patchedRanking].sort(
               style={{
                 flex: 1,
                 height: 54,
-                borderRadius: 12,
+                borderRadius: isDefaultSkin ? 14 : 12,
                 background: (isSciFi || isKorea || selGrade === 'anime' || selGrade === 'thriller' || selGrade === 'hk')
                   ? `url(${skin.buttons.nextQuiz}) center / 100% 100% no-repeat`
                   : isHorrorParty
@@ -1278,7 +1551,23 @@ const sortedRanking = [...patchedRanking].sort(
                   ? skin.colors.buttonShadow
                   : 'none',
                 fontSize: '0.8rem',
-                fontWeight: 700,
+                fontWeight: isDefaultSkin ? 800 : 700,
+
+                boxShadow: isDefaultSkin
+
+                  ? `
+
+                    inset 0 3px 5px rgba(255,255,255,0.8),
+
+                    inset 0 -5px 10px rgba(0,0,0,0.12),
+
+                    0 4px 8px rgba(0,0,0,0.25)
+
+                  `
+
+                  : 'none',
+
+                cursor: 'pointer',
                 border: (isSciFi || isKorea || selGrade === 'anime' || selGrade === 'thriller' || selGrade === 'hk')
                   ? 'none'
                   : '1.5px solid #e8e4dd',

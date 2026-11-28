@@ -114,6 +114,12 @@ const isSpecialSkin =
 useEffect(() => {
   if (!skin) return
   preloadImages([
+    '/combo/great.webp',
+    '/combo/unstoppable.webp',
+    '/combo/absolute.webp',
+    '/combo/fire.webp',
+
+    skin.background,
     skin.background,
     ...(skin.hints || []),
     ...(skin.answers || []),
@@ -274,6 +280,34 @@ useEffect(() => {
         WebkitOverflowScrolling: 'touch'
       }}>
 
+        {/* 최종 오답 레드 플래시 */}
+
+          {answered && fbt === 'sk' && (
+
+            <div
+
+              key={`wrong-flash-${qi}`}
+
+              style={{
+
+                position: 'fixed',
+
+                inset: 0,
+
+                zIndex: 99999,
+
+                pointerEvents: 'none',
+
+                background: 'radial-gradient(ellipse at center, rgba(255,0,0,0.08) 0%, rgba(255,0,0,0.35) 50%, rgba(255,0,0,0.85) 100%)',
+
+                animation: 'wrongScreenFlash 0.8s ease-out forwards'
+
+              }}
+
+            />
+
+          )}
+
         {/*퀴즈화면 시작시 스피너 사라짐*/}
         {showSpinner && (
           <CharacterSpinner fadeOut={!showSpinner} />
@@ -380,7 +414,7 @@ useEffect(() => {
               gap: 2
             }}>
               <div style={{
-                fontSize: '0.62rem',
+                fontSize: '0.75rem',
                 fontWeight: 700,
                 color: 'rgba(255,255,255,.72)',
                 textShadow: '0 2px 5px rgba(0,0,0,.8)',
@@ -389,7 +423,7 @@ useEffect(() => {
                 [{currentMode?.label}]
               </div>
               <div style={{
-                fontSize: '0.78rem',
+                fontSize: '0.95rem',
                 fontWeight: 700,
                 color: '#ffffff',
                 textShadow: isHorrorParty ? '0 2px 6px rgba(0,0,0,.85)' : 'none',
@@ -401,7 +435,7 @@ useEffect(() => {
 
             {/* 퀴즈점수 */}
               <div style={{
-                fontSize: '0.9rem',
+                fontSize: '1.6rem',
                 fontWeight: 800,
                 color: isSpecialSkin
                   ? skin.colors.point
@@ -424,7 +458,7 @@ useEffect(() => {
 
             {/* 문제 번호 */}
             <span style={{
-              fontSize: '0.7rem',
+              fontSize: '0.8rem',
               fontWeight: 700,
               padding: '3px 9px',
               borderRadius: 20,
@@ -441,7 +475,7 @@ useEffect(() => {
             {/* 연도 */}
             {m.year && (
               <span style={{
-                fontSize: '0.7rem',
+                fontSize: '0.8rem',
                 fontWeight: 500,
                 padding: '3px 0',
                 borderRadius: 20,
@@ -458,7 +492,7 @@ useEffect(() => {
             {/* 국가 */}
             {m.country && (
               <span style={{
-                fontSize: '0.7rem',
+                fontSize: '0.8rem',
                 fontWeight: 500,
                 padding: '3px 10px',
                 borderRadius: 20,
@@ -474,7 +508,7 @@ useEffect(() => {
             {/* 장르 */}
             {m.final_genre && (
               <span style={{
-                fontSize: '0.7rem',
+                fontSize: '0.8rem',
                 fontWeight: 500,
                 padding: '3px 10px',
                 borderRadius: 20,
@@ -517,81 +551,266 @@ useEffect(() => {
           </div>
         </div>
 
-        {/* 콤보배너 영역*/}
-        {mode && (
-          <div style={{
-            margin: '8px 16px 0',
-            borderRadius: 10,
-            position: 'relative',
-            overflow: 'hidden',
-            padding: '7px 14px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            background:
-              mode === 'good' ? '#fff7e6' :
-                mode === 'wow' ? '#fff0f0' :
-                  mode === 'crazy' ? '#f3e8ff' : '#fff',
 
-            border: `1px solid ${mode === 'good' ? '#f0c36d' :
-              mode === 'wow' ? '#f0b4b4' :
-                mode === 'crazy' ? '#c8a8ff' : '#eee'
-              }`,
-            flexShrink: 0
-          }}>
 
-            <div style={{
+{/* 콤보배너 영역*/}
+{mode && (
+  <div style={{
+    margin: '8px 16px 0',
+    height: 48,
+    position: 'relative',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    flexShrink: 0,
+    gap: 8,
+    overflow: 'visible'
+  }}>
+
+    <style>{`
+      @keyframes comboPop {
+
+  0% {
+
+    transform: scale(.5);
+
+    opacity: 0;
+
+  }
+
+  45% {
+
+    transform: scale(1.25);
+
+    opacity: 1;
+
+  }
+
+  75% {
+
+    transform: scale(.95);
+
+  }
+
+  100% {
+
+    transform: scale(1);
+
+    opacity: 1;
+
+  }
+
+}
+
+@keyframes comboNeonPulse {
+
+  0%, 100% {
+
+    filter: brightness(1)
+
+      drop-shadow(0 0 2px #00aaff);
+
+  }
+
+  50% {
+
+    filter: brightness(1.4)
+
+      drop-shadow(0 0 12px #00d5ff);
+
+  }
+
+}
+
+      @keyframes comboFireWave {
+        0%, 100% {
+          transform: scale(1, .85) skewX(-3deg);
+          opacity: .8;
+        }
+        35% {
+          transform: scale(1.03, 1.1) skewX(4deg);
+          opacity: 1;
+        }
+        70% {
+          transform: scale(.98, .95) skewX(-5deg);
+          opacity: .85;
+        }
+      }
+
+      @keyframes comboFireWave2 {
+        0%, 100% {
+          transform: scaleX(-1) scaleY(.8);
+          opacity: .45;
+        }
+        50% {
+          transform: scaleX(-1) scaleY(1.2);
+          opacity: .85;
+        }
+      }
+
+      @keyframes comboEmberRise {
+        0% {
+          transform: translate(0, 0) scale(1);
+          opacity: 0;
+        }
+        20% {
+          opacity: 1;
+        }
+        100% {
+          transform: translate(8px, -42px) scale(.2);
+          opacity: 0;
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        .combo-effect {
+          animation: none !important;
+        }
+      }
+    `}</style>
+
+    {/* 콤보 이미지 영역 */}
+    <div style={{
+      position: 'relative',
+      isolation: 'isolate',
+      width:
+        mode === 'good' ? 170 :
+        mode === 'wow' ? 200 : 235,
+      maxWidth: '74%',
+      minWidth: 0,
+      height: '100%',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center'
+    }}>
+
+      {/* 불꽃 레이어 1 */}
+      {mode !== 'good' && (
+        <img
+          className="combo-effect"
+          src="/combo/fire.webp"
+          alt=""
+          style={{
+            position: 'absolute',
+            left: '-3%',
+            bottom: 3,
+            width: '106%',
+            height: mode === 'wow' ? 20 : 62,
+            zIndex: 1,
+            transformOrigin: 'bottom center',
+            animation: 'comboFireWave .85s ease-in-out infinite',
+            pointerEvents: 'none'
+          }}
+        />
+      )}
+
+      {/* 불꽃 레이어 2 — 최고 콤보 전용 */}
+      {mode === 'crazy' && (
+        <img
+          className="combo-effect"
+          src="/combo/fire.webp"
+          alt=""
+          style={{
+            position: 'absolute',
+            left: '-5%',
+            bottom: 0,
+            width: '110%',
+            height: 65,
+            zIndex: 1,
+            transformOrigin: 'bottom center',
+            animation: 'comboFireWave2 1.1s ease-in-out infinite',
+            pointerEvents: 'none'
+          }}
+        />
+      )}
+
+      {/* 콤보 글자 이미지 */}
+      <img
+        key={`${mode}-${comboStreak}`}
+        className="combo-effect"
+        src={
+          mode === 'good' ? '/combo/great.webp' :
+          mode === 'wow' ? '/combo/unstoppable.webp' :
+          '/combo/absolute.webp'
+        }
+        alt={
+          mode === 'good' ? 'GREAT COMBO!' :
+          mode === 'wow' ? 'UNSTOPPABLE!' :
+          'ABSOLUTE CINEMA!'
+        }
+        style={{
+          position: 'relative',
+          width: '100%',
+          height: 'auto',
+          zIndex: 2,
+          animation:
+
+          mode === 'good'
+
+            ? 'comboPop .5s ease-out both, comboNeonPulse 1.2s ease-in-out infinite'
+
+            : 'comboPop .5s ease-out both',
+          pointerEvents: 'none'
+        }}
+      />
+
+      {/* 날아오르는 불티 */}
+      {mode !== 'good' &&
+        Array.from({
+          length: mode === 'wow' ? 4 : 12
+        }).map((_, i) => (
+          <span
+            className="combo-effect"
+            key={i}
+            style={{
               position: 'absolute',
-              inset: 0,
-              borderRadius: 10,
-              zIndex: 0,
-              opacity: 0.6,
-              filter: 'blur(10px)',
-              background:
-                mode === 'good' ? '#ffe08a' :
-                  mode === 'wow' ? '#ff9e9e' :
-                    mode === 'crazy' ? '#b388ff' : 'transparent',
-              animation:
-                mode === 'good' ? 'glowPulse 1.2s ease-in-out infinite' :
-                  mode === 'wow' ? 'glowPulse 0.8s ease-in-out infinite' :
-                    mode === 'crazy' ? 'glowPulse 0.4s ease-in-out infinite' :
-                      'none'
-            }} />
-            <span style={{
-              position: 'relative',
-              zIndex: 1,
-              fontSize: '0.72rem',
-              fontWeight: 700,
-              color:
-                mode === 'good' ? '#c8a84a' :
-                  mode === 'wow' ? '#d45c5c' :
-                    mode === 'crazy' ? '#9b5cff' :
-                      '#aaa'
-            }}>
-              {
-                mode === 'good' ? '👍 어? 좀 치는데? 이제 시작이다 그대로 달리자 !!' :
-                  mode === 'wow' ? '💀 뇌야 돌아라!! 손아 날아라!! 이건 끝까지 간다!! 💀' :
-                    mode === 'crazy' ? '🔥 미친 상승감!!! 제니퍼 로페즈 아나콘다!! 스스메!! 🔥' :
-                      ''
-              }
-            </span>
+              left: `${8 + (i * 17) % 85}%`,
+              bottom: mode === 'wow' ? 5 : 15,
+              width: mode === 'wow' ? 2 : 3,
+              height: mode === 'wow' ? 2 : 3,
+              borderRadius: '50%',
+              background: '#ffdf75',
+              boxShadow: '0 0 5px #ff6500',
+              zIndex: 3,
+              opacity: 0,
+              animation: `comboEmberRise ${0.9 + (i % 4) * .2}s linear infinite`,
+              animationDelay: `${i * .13}s`,
+              pointerEvents: 'none'
+            }}
+          />
+        ))
+      }
+    </div>
 
-            <span style={{
-              fontSize: '0.68rem',
-              color:
-                mode === 'good' ? '#342907' :
-                  mode === 'wow' ? '#630c0c' :
-                    mode === 'crazy' ? '#3b1678' :
-                      '#aaa'
-            }}>
-              {comboStreak}연속 ×{
-                mode === 'good' ? 3 :
-                  mode === 'wow' ? 4 :
-                    mode === 'crazy' ? 5 : 1
-              }
-            </span>
-          </div>
-        )}
+    {/* 우측 연속 횟수 및 배율 */}
+    <span style={{
+      position: 'relative',
+      fontSize:
+
+        mode === 'good' ? '1.0rem' :
+
+        mode === 'wow' ? '1.1rem' :
+
+        '1.2rem',
+
+      fontWeight: 900,
+      color:
+        mode === 'good' ? '#80DFFF' :
+        mode === 'wow' ? '#FFAD55' :
+        '#FFD700',
+      textShadow: '0 1px 3px #000, 0 0 5px #000',
+      whiteSpace: 'nowrap',
+      flexShrink: 0
+    }}>
+      {comboStreak}연속 ×{
+        mode === 'good' ? 3 :
+        mode === 'wow' ? 4 : 5
+      }
+    </span>
+
+  </div>
+)}
+        
 
         {/* 주관식모드에서 한글자 힌트 효과 */}
         {quizMode === 'subjective' && (
@@ -657,8 +876,19 @@ useEffect(() => {
                     </span>
 
                     <div style={{
-                      fontSize: '0.82rem',
-                      lineHeight: 1.7
+                      fontSize: '0.95rem',
+
+                      fontWeight: 500,
+
+                      lineHeight: 1.55,
+
+                      letterSpacing: '0.01em',
+
+                      wordBreak: 'keep-all',
+
+                      overflowWrap: 'anywhere',
+
+                      minWidth: 0
                     }}>
                       {m.hintsArr?.[i] || '힌트 로딩중...'}
                     </div>
@@ -1821,6 +2051,24 @@ useEffect(() => {
           신고가 접수되었어요
         </div>
       )}
+
+      <style jsx>{`
+
+       @keyframes wrongScreenFlash {
+
+        0%   { opacity: 0; }
+
+        10%  { opacity: 1; }
+
+        30%  { opacity: 1; }
+
+        100% { opacity: 0; }
+
+      }
+
+        }
+
+      `}</style>
 
       <style jsx>{`
                 @keyframes comboPulse {

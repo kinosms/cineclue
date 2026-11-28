@@ -542,7 +542,7 @@ async function loadRanking({ supabase }) {
   const result = await safeQuery(
     supabase
       .from('characters')
-      .select('id, auth_user_id, char_id, nickname, score')
+      .select('id, auth_user_id, char_id, nickname, score, max_streak')
       .not('score', 'is', null)
       .order('score', { ascending: false }),
     'load ranking'
@@ -555,6 +555,7 @@ async function loadRanking({ supabase }) {
     user_id: d.auth_user_id,
     character_id: d.char_id,
     score: d.score || 0,
+    max_streak: d.max_streak || 0,
     nickname: d.nickname,
     rank: index + 1
   }))
@@ -1528,7 +1529,7 @@ function restoreAppSnapshot(options = {}) {
 
           .from('characters')
 
-          .select('id, auth_user_id, char_id, nickname, score')
+          .select('id, auth_user_id, char_id, nickname, score, max_streak')
 
           .not('score', 'is', null)
 
@@ -1545,6 +1546,7 @@ function restoreAppSnapshot(options = {}) {
         character_id: d.char_id,
 
         score: d.score || 0,
+        max_streak: d.max_streak || 0,
 
         nickname: d.nickname,
 
@@ -4230,6 +4232,20 @@ const goNextCastingQuiz = () => {
     return Math.round(base)
   }
 
+  async function saveMaxStreak(streak) {
+    if (!currentUser?.userId || !authUser) return
+    await safeQuery(
+      supabase
+        .from('characters')
+        .update({
+          max_streak: streak
+        })
+        .eq('auth_user_id', currentUser.userId)
+        .lt('max_streak', streak),
+      'save max streak'
+    )
+  }
+
   // 콤보는 3문제 연속 맞춘 후 다음 퀴즈에 발동
   function updateCombo(correct) {
     if (!correct) {
@@ -4289,6 +4305,8 @@ const goNextCastingQuiz = () => {
           else if (ns === 3) appliedMode = 'good'
           setComboStreak(ns)
           setMode(appliedMode)
+          // 최고 연속 정답 기록 저장
+          void saveMaxStreak(ns)
         } else {
           // 객관식에서 두 번째 클릭으로 맞춘 경우: 콤보 인정 안 함
           setComboStreak(0)
@@ -4431,7 +4449,7 @@ const goNextCastingQuiz = () => {
             if (sh < 5) {
               nextH()
             }
-            setFb('다시 생각해봐')
+            setFb('이러면 나가린데…')
             setFbt('ng')
             return
           }
@@ -4439,11 +4457,7 @@ const goNextCastingQuiz = () => {
             playSound('wrong')
             setWrongCount(2)
             setLockChoice(true)
-            setFb('기회를 더 줄 수가 없어요')
-            setFbt('ng')
-            setTimeout(() => {
-              doSkip()
-            }, 700)
+            doSkip()
             return
           }
         }
@@ -4451,7 +4465,7 @@ const goNextCastingQuiz = () => {
           playSound('wrong')
           setInput('')
 
-            const messages = FBW[sh] || ['다시 생각해봐']
+            const messages = FBW[sh] || ['확실하지 않으면 승부를 걸지 마라.']
             setFb(
               messages[Math.floor(Math.random() * messages.length)]
             )
@@ -4598,7 +4612,7 @@ const goNextCastingQuiz = () => {
     youtubeKey: m.youtubeKey || null
   }])
 
-  setFb('다음번엔 꼭 맞추길...')
+  setFb(`우린 답을 찾을 것이다. 늘 그랬듯이.`)
   setFbt('sk')
   setAnswered(true)
   if (authUser) {
