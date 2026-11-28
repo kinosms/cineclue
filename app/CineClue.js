@@ -3464,84 +3464,41 @@ async function handleShowAnswers() {
 
 
   // 결과 화면 순차 노출 + 점수 카운트
-  useEffect(() => {
+useEffect(() => {
+  if (screen !== 'result') return
+  if (results.length === 0) return
 
-    if (screen !== 'result') return
+  setResultView('score')
 
-    if (results.length === 0) return
+  if (skipResultAnimation) {
+    setDisplayScore(score)
+    setVisibleResults(results.length + 1)
+    return
+  }
 
-    if (!users || users.length === 0) return
+  setDisplayScore(roundStartScore)
+  setVisibleResults(0)
 
+  const timers = []
 
-    // 🔥 컬렉션 복귀 시 상태 유지
+  results.forEach((r, i) => {
+    const landingTime = 520 + i * 220
 
-    setResultView('score')
+    timers.push(setTimeout(() => {
+      setVisibleResults(i + 1)
+    }, landingTime))
+  })
 
-    setVisibleResults(1)
+  // 모든 점수 이동 완료 후 하단 버튼 노출
+  timers.push(setTimeout(() => {
+    setDisplayScore(score)
+    setVisibleResults(results.length + 1)
+  }, 520 + (results.length - 1) * 220 + 2000))
 
-    const roundScore = score - roundStartScore
-
-    const startScore = roundStartScore
-
-    const tot = startScore + roundScore
-
-    setDisplayScore(startScore)
-
-    let i = 0
-
-    const interval = setInterval(() => {
-
-      i++
-
-      setVisibleResults(i)
-
-      if (i >= results.length) {
-
-        clearInterval(interval)
-
-        setTimeout(() => {
-
-          setVisibleResults(v => v + 1)
-
-          setTimeout(() => {
-
-            let cur = startScore
-
-            const diff = tot - startScore
-
-            if (diff <= 0) {
-
-              setDisplayScore(tot)
-              return
-            }
-
-            const step = Math.ceil(diff / 60)
-
-            const iv = setInterval(() => {
-
-              cur = Math.min(cur + step, tot)
-
-              setDisplayScore(cur)
-
-              if (cur >= tot) {
-
-                clearInterval(iv)
-
-              }
-
-            }, 20)
-
-          }, 400)
-
-        }, 400)
-
-      }
-
-    }, 400)
-
-    return () => clearInterval(interval)
-
-  }, [screen, results])
+  return () => {
+    timers.forEach(clearTimeout)
+  }
+}, [screen, results, skipResultAnimation])
 
 
   useEffect(() => {
@@ -5593,6 +5550,7 @@ useEffect(() => {
           CHARS={CHARS}
 
           displayScore={displayScore}
+          setDisplayScore={setDisplayScore}
           CharAvatar={CharAvatar}
 
           isLevelCompleted={isLevelCompleted}
