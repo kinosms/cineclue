@@ -1215,6 +1215,8 @@ function blockWebLogin() {
   const [isRestoring, setIsRestoring] = useState(false)
   const isPausedRef = useRef(false)
   const forceCharOnResumeRef = useRef(false)
+  const backgroundStartedAtRef = useRef(null)
+  const BACKGROUND_LIMIT_MS = 60000
 
   function saveCurrentSession({
     screen,
@@ -1582,6 +1584,7 @@ function restoreAppSnapshot(options = {}) {
   const [rankingRevealDone, setRankingRevealDone] = useState(false)
   const primaryGrade = selGrade || null
   const [progress, setProgress] = useState(0); // 0 ~ 100
+  const [skipTimerAnimation, setSkipTimerAnimation] = useState(false)
   const duration = quizMode === 'objective' ? 15 : 30; // 총 30초
   const skipTime = 30; // 30초에 자동 실행
   const [buttonActive, setButtonActive] = useState(false)
@@ -2524,45 +2527,29 @@ useEffect(() => {
   }
 
   useEffect(() => {
-
     const pauseForBackground = () => {
-
+      if (backgroundStartedAtRef.current === null) {
+        backgroundStartedAtRef.current = Date.now()
+      }
       isPausedRef.current = true
-
       stopBgm()
-
       stopSound('castingClock')
-
       clearInterval(timerRef.current)
-
       timerRef.current = null
-
       const isGameScreen =
-
         screen === 'quiz' || screen === 'castingQuiz'
-
       if (isGameScreen) {
-
         forceCharOnResumeRef.current = true
-
         return
-
       }
 
       // OAuth 로그인 이동 중에는 현재 화면 저장 금지
-
       if (
-
         localStorage.getItem('cineclue_oauth_start') !== 'true' &&
-
         !deathMessage
-
       ) {
-
         saveAppSnapshot()
-
       }
-
     }
     
 
@@ -2573,14 +2560,19 @@ useEffect(() => {
         return
       }
 
+      const backgroundElapsed = backgroundStartedAtRef.current === null
+          ? 0
+          : Date.now() - backgroundStartedAtRef.current
+        backgroundStartedAtRef.current = null
+        console.log(
+          '[게임 복귀] 이탈 시간:',
+          Math.round(backgroundElapsed / 1000) + '초'
+      )
+
       if (deathMessage || reviveLockRef.current) {
-
         forceCharOnResumeRef.current = false
-
         setIsRestoring(false)
-
         return
-
       }
 
       // OAuth 로그인 복귀 중에는 기존 앱 복원 로직 금지
@@ -2591,51 +2583,118 @@ useEffect(() => {
       }
 
       const registerResumeAudioOnce = () => {
-
         if (resumeAudioHandlerRef.current) {
-
           window.removeEventListener('pointerdown', resumeAudioHandlerRef.current)
-
           window.removeEventListener('touchstart', resumeAudioHandlerRef.current)
-
           window.removeEventListener('click', resumeAudioHandlerRef.current)
-
         }
 
         const resumeAudioOnce = () => {
-
           resetSfxPool()
-
           playSound('click', 0.01)
-
           resumeBgmByScreen()
-
           window.removeEventListener('pointerdown', resumeAudioOnce)
-
           window.removeEventListener('touchstart', resumeAudioOnce)
-
           window.removeEventListener('click', resumeAudioOnce)
-
           resumeAudioHandlerRef.current = null
-
           }
-
         resumeAudioHandlerRef.current = resumeAudioOnce
-
         window.addEventListener('pointerdown', resumeAudioOnce, { once: true })
-
         window.addEventListener('touchstart', resumeAudioOnce, { once: true })
-
         window.addEventListener('click', resumeAudioOnce, { once: true })
+      }
+
+      // 60초 미만 이탈 시 기존 퀴즈 유지
+
+      if (backgroundElapsed < BACKGROUND_LIMIT_MS) {
+
+        forceCharOnResumeRef.current = false
+
+        isPausedRef.current = false
+
+        setIsRestoring(false)
+
+        // 복귀 시 이미 제한시간이 초과된 경우
+
+        if (
+
+          screen === 'quiz' &&
+
+          questionReady &&
+
+          !answered &&
+
+          timerStartedAt &&
+
+          Date.now() - timerStartedAt >= duration * 1000
+
+        ) {
+
+          clearInterval(timerRef.current)
+
+          timerRef.current = null
+
+          registerResumeAudioOnce()
+
+          console.log('[게임 복귀] 기존 화면 유지:', screen)
+
+          await doSkip()
+
+          return
+
+        }
+
+        // 복귀 시 타이머 위치 즉시 반영
+
+        if (
+
+          screen === 'quiz' &&
+
+          questionReady &&
+
+          !answered &&
+
+          timerStartedAt
+
+        ) {
+
+          const elapsed = (Date.now() - timerStartedAt) / 1000
+
+          const percent = Math.min((elapsed / duration) * 100, 100)
+
+          setSkipTimerAnimation(true)
+
+          setProgress(percent)
+
+          // 화면 반영 후 기존 애니메이션 복구
+
+          requestAnimationFrame(() => {
+
+            requestAnimationFrame(() => {
+
+              setSkipTimerAnimation(false)
+
+            })
+
+          })
+
+        }
+
+        setResumeTick(v => v + 1)
+
+        registerResumeAudioOnce()
+
+        console.log('[게임 복귀] 기존 퀴즈 유지')
+
+        return
 
       }
 
-      // 퀴즈 중 복귀는 퀴즈 복원하지 않고 캐릭터 화면으로 이동
-
-      if (
-        forceCharOnResumeRef.current ||
-        screen === 'quiz' ||
-        screen === 'castingQuiz'
+        // 60초 이상 이탈 시 게임모드 선택 화면 이동
+        if (
+          backgroundElapsed >= BACKGROUND_LIMIT_MS &&
+          currentUser &&
+          screen !== 'intro'
         ) {
 
             forceCharOnResumeRef.current = false
@@ -2674,36 +2733,29 @@ useEffect(() => {
             setSelectedAnswer(null)
             setCastingRevealedCount(1)
 
-            await restoreAuthCharacters()
-            setScreen('char')
-
+            setShowSettings(false)
+            setSettingsPage(null)
+            setShowProfile(false)
+            setShowLogin(false)
+            setScreen('grade')
             isPausedRef.current = false
             setIsRestoring(false)
+            registerResumeAudioOnce()
+            console.log('[게임 복귀] 장기 이탈 - 게임모드 선택 이동')
             return
           }
 
         setIsRestoring(true)
 
-        try {
-          await new Promise(r => setTimeout(r, 600))
+        // 인트로 및 인증 전 화면 유지
 
-          const authRestored = await restoreAuthCharacters()
+        forceCharOnResumeRef.current = false
 
-          restoreAppSnapshot({
-            keepUsers: authRestored
-          })
+        isPausedRef.current = false
 
-          await new Promise(r => requestAnimationFrame(r))
-          await new Promise(r => setTimeout(r, 300))
+        setIsRestoring(false)
 
-          isPausedRef.current = false
-          setResumeTick(v => v + 1)
-          registerResumeAudioOnce()
-        } catch (e) {
-          console.error('resume failed', e)
-        } finally {
-          setIsRestoring(false)
-        }
+        registerResumeAudioOnce()
     }
 
 
@@ -2794,62 +2846,41 @@ return () => {
 
 
   async function saveCollection(movie) {
-
-  if (!authUser) return
-
-  if (!supabase) return
-
-  // 포스터 없으면 컬렉션 저장 안 함
-
-  if (!movie?.poster_path) {
-
-    return
-
-  }
-
-  try {
-
-    const { data, error } = await supabase
-
-      .from('collections')
-
-      .upsert(
-
-        {
-
-          user_id: authUser.id,
-
-          movie_id: movie.id,
-
-          movie_title: movie.title,
-
-          movie_data: movie,
-
-          viewed_at: new Date().toISOString()
-
-        },
-
-        {
-
-          onConflict: 'user_id,movie_id'
-
-        }
-
-      )
-
-    if (error) {
-
-      console.error('collection save error', error)
-
+    if (!authUser) return
+    if (!supabase) return
+    // 포스터 없으면 컬렉션 저장 안 함
+    if (!movie?.poster_path) {
+      return
     }
-
-  } catch (err) {
-
-    console.error('collection save error', err)
-
+    try {
+      const { data, error } = await supabase
+        .from('collections')
+        .upsert(
+          {
+            user_id: authUser.id,
+            movie_id: movie.id,
+            movie_title: movie.title,
+            movie_data: movie,
+            viewed_at: new Date().toISOString()
+          },
+          {
+            onConflict: 'user_id,movie_id',
+            ignoreDuplicates: true
+          }
+        )
+        .select('id')
+      if (error) {
+        console.error('collection save error', error)
+        return
+      }
+      // 신규 포스터가 저장된 경우에만 개수 증가
+      if (data?.length > 0) {
+        setPosterCount(prev => prev + data.length)
+      }
+    } catch (err) {
+      console.error('collection save error', err)
+    }
   }
-
-}
 
 
 
@@ -2946,9 +2977,26 @@ return () => {
 
   async function loadTMDB(movie) {
 
+    // DB 상세 메타데이터가 동기화된 경우 API 호출 생략
+    if (movie.tmdb_id && movie.tmdb_detail_synced_at) {
+      console.log('[TMDB] DB 사용:', movie.title)
+      return {
+        id: movie.tmdb_id,
+        media_type: movie.tmdb_media_type || 'movie',
+        poster_path: movie.poster_path || null,
+        backdrop_path: movie.backdrop_path || null,
+        overview: movie.overview || '',
+        release_date: movie.release_date || '',
+        vote_average: movie.vote_average ?? null,
+        credits: movie.tmdb_credits || null,
+        production_countries:
+          movie.tmdb_production_countries || [],
+        youtubeKey: movie.youtube_key || null
+      }
+    }
+    console.log('[TMDB] API 호출:', movie.title)
     const TMDB_KEY =
       process.env.NEXT_PUBLIC_TMDB_KEY
-
     try {
 
       async function searchTMDB(type) {
@@ -3909,164 +3957,96 @@ const goNextCastingQuiz = () => {
       }
       // 1️⃣ 현재 유저
       const userId = String(currentUser?.userId)
-      // 2️⃣ 로그 가져오기
 
-      const { data: logs = [] } =
+      const loadStartedAt = performance.now()
 
-        await safeQuery(
+      // 2️⃣ DB에서 퀴즈 5편 구성
+      const { data: quizMovies, error: quizError } =
+        await supabase.rpc('get_quiz_movies', {
+          p_grade: selGrade,
+          p_user_id: userId
+        })
 
-          supabase
-
-            .from('game_logs')
-
-            .select('movie_id')
-
-            .eq('user_id', userId)
-
-            .not('movie_id', 'is', null)
-
-            .order('id', { ascending: false }),
-
-          'load game logs'
-
-        )
-
-
-      const HISTORY_LIMIT = {
-        '2020s': 900,
-        '2010s': 900,
-        '2000s': 900,
-        '1990s': 900,
-        'old': 700,
-        'kr': 900,
-        'thriller': 700,
-        'horror': 250,
-        'hk': 250,
-        'sf': 250,
-        'anime': 200
-      }
-      const playedIds = (logs || [])
-        .map(l => l.movie_id)
-        .slice(0, HISTORY_LIMIT[selGrade] || 300)
-
-      // 3️⃣ 영화 가져오기 (🔥 필터 제거)
-      async function fetchMoviesByYears() {
-        let query = supabase
-          .from('movies')
-          .select(`
-            *,
-            hints(*)
-          `)
-          .not('poster_path', 'is', null)
-          .neq('poster_path', '')
-        const g = selGrade
-
-        if (g === '2020s') query = query.gte('year', 2020)
-        if (g === '2010s') query = query.gte('year', 2010).lt('year', 2020)
-        if (g === '2000s') query = query.gte('year', 2000).lt('year', 2010)
-        if (g === '1990s') query = query.gte('year', 1990).lt('year', 2000)
-        if (g === 'old') query = query.lt('year', 1990)
-        if (g === 'horror') query = query.ilike('genre', '%공포%')
-        if (g === 'hk') query = query.or('country.ilike.%홍콩%,country.ilike.%중국%,country.ilike.%대만%,country.ilike.%일본%')
-        if (g === 'sf') query = query.ilike('genre', '%SF%')
-        if (g === 'kr') query = query.ilike('country', '%한국%')
-        if (g === 'anime') query = query.ilike('genre', '%애니%')
-        if (g === 'thriller') query = query.ilike('genre', '%스릴러%')
-        if (g === 'all') {// 필터 없음 (전체)
-        }
-        const all = []
-        const pageSize = 1000
-        let from = 0
-
-        while (true) {
-          const { data = [] } =
-
-            await safeQuery(
-
-              query.range(
-
-                from,
-
-                from + pageSize - 1
-
-              ),
-
-              `load movies page ${from}`
-
-            )
-
-          if (data.length === 0) break
-          all.push(...data.filter(m => m.poster_path?.trim()))
-          if (data.length < pageSize) break
-          from += pageSize
-        }
-        return all
-      }
-      const delayPromise = new Promise(r => setTimeout(r, 500))
-
-      const [movies] = await Promise.all([
-        fetchMoviesByYears(),
-        delayPromise
-      ])
-
-
-      if (!movies || movies.length === 0) {
-        setHasNetworkError(true)
-        setLoading(false)
-        setShowSpinner(false)
-        setScreen('char')
-        return
+      if (quizError) {
+        console.error('[퀴즈 로딩] RPC 오류:', quizError)
+        throw quizError
       }
 
-      // 4️⃣ JS에서 필터
-      const playedSet = new Set(playedIds)
-      const filtered = movies.filter(m => !playedSet.has(m.id))
-      let finalPool = filtered
+      console.log(
+        '[퀴즈 로딩] RPC 조회:',
+        Math.round(performance.now() - loadStartedAt) + 'ms',
+        '출제 영화:', quizMovies?.length
+      )
 
-      // 🔥 1️⃣ 풀 부족 시 자동 리셋
-      if (filtered.length < 10) {
-        alert('해당 시대 영화가 부족합니다')
-        setLoading(false)
-        return
+      if (!Array.isArray(quizMovies) || quizMovies.length !== 5) {
+        throw new Error('출제 영화 5편 확보 실패')
       }
-      // 🔥 1차 샘플링 (전체에서 100개)
-      const sampled = shuffle(finalPool).slice(0, 50)
 
-      // 🔥 2차 랜덤 (그 안에서 5개)
-      const baseSel = shuffle(sampled).slice(0, 5)
-
-      const sel = baseSel.map(m => ({
-
+      // 3️⃣ 기존 게임 데이터 구조로 변환
+      const sel = quizMovies.map(m => ({
         ...m,
-
-        hintsArr: m.hints
-
-          ? m.hints
-
-            .sort((a, b) => a.hint_level - b.hint_level)
-
-            .map(h => h.hint_text)
-
-          : [],
-
-        choices:
-
-          buildChoices(m, movies)
-
+        hintsArr: (m.hints || [])
+          .sort((a, b) => a.hint_level - b.hint_level)
+          .map(h => h.hint_text),
+        choices: m.choices || []
       }))
+
+      // 4️⃣ 출제 데이터 검증
+      if (sel.some(m =>
+        !m.title ||
+        m.hintsArr.length < 5 ||
+        m.choices.length !== 4
+      )) {
+        throw new Error('퀴즈 출제 데이터 불완전')
+      }
 
       const updated = await Promise.all(
         sel.map(async movie => {
+          const tmdbStartedAt = performance.now()
           const tmdb = await loadTMDB(movie)
+          console.log(
+            '[퀴즈 로딩] TMDB:',
+            movie.title,
+            Math.round(performance.now() - tmdbStartedAt) + 'ms'
+          )
           const posterUrl = movie.poster_path
+
             ? `https://image.tmdb.org/t/p/w300${movie.poster_path}`
+
             : null
+
           if (posterUrl) {
+
             await new Promise(resolve => {
+
               const img = new Image()
+
+              const finish = () => {
+
+                clearTimeout(timeout)
+
+                img.onload = null
+
+                img.onerror = null
+
+                resolve()
+
+              }
+
+              const timeout = setTimeout(() => {
+
+                console.warn('[포스터 로딩] 시간 초과:', movie.title)
+
+                finish()
+
+              }, 2000)
+
+              img.onload = finish
+
+              img.onerror = finish
+
               img.src = posterUrl
-              img.onload = resolve
-              img.onerror = resolve
+
             })
 
           }
@@ -4150,6 +4130,14 @@ const goNextCastingQuiz = () => {
       setScreen('mode')
       return
     }
+
+      console.log(
+
+        '[퀴즈 로딩] 전체 소요시간:',
+
+        Math.round(performance.now() - loadStartedAt) + 'ms'
+
+      )
 
       setPool(updated)
       setQuestionReady(true)
@@ -4330,6 +4318,9 @@ const goNextCastingQuiz = () => {
 
       if (correct) {
         playSound('correct')
+
+        // 정답 영화 포스터 자동 수집
+        saveCollection(m)
 
         const isFirstTry = wrongCount === 0
         const comboAllowed = quizMode === 'subjective' || isFirstTry
@@ -4631,10 +4622,6 @@ const goNextCastingQuiz = () => {
     return updated
   })
 
-  if (authUser) {
-    await saveCharacterLivesToDb(nextLivesForDb)
-  }
-
   setResults(r => [...r, {
     ...m,
     correct: false,
@@ -4657,6 +4644,9 @@ const goNextCastingQuiz = () => {
   setFb('다음번엔 꼭 맞추길...')
   setFbt('sk')
   setAnswered(true)
+  if (authUser) {
+    await saveCharacterLivesToDb(nextLivesForDb)
+  }
   setIsSubmitting(false)
   skipLockRef.current = false
 
@@ -4796,6 +4786,7 @@ useEffect(() => {
 
 
   async function nextQ() {
+    if (isSubmitting || skipLockRef.current) return
     inputRef.current?.blur()
 
     isPausedRef.current = false
@@ -5527,6 +5518,7 @@ useEffect(() => {
           lockChoice={lockChoice}
 
           progress={progress}
+          skipTimerAnimation={skipTimerAnimation}
           buttonActive={buttonActive}
 
           showSynopsis={showSynopsis}
@@ -5604,7 +5596,6 @@ useEffect(() => {
           CharAvatar={CharAvatar}
 
           isLevelCompleted={isLevelCompleted}
-          saveCollection={saveCollection}
 
           playClick={playClick}
           loadMovies={loadMovies}

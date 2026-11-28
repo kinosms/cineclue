@@ -50,7 +50,6 @@ export default function ResultScreen(props) {
     setMovieCard,
     setMovieCardFlipped,
     loadMovies,
-    saveCollection,
     skipResultAnimation,
     setSkipResultAnimation,
     loadRanking,
@@ -401,8 +400,6 @@ const sortedRanking = [...patchedRanking].sort(
                         hasMovieInfo
 
                       ) {
-
-                        saveCollection(r)
 
                         const providers = r.tmdb_id
 

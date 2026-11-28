@@ -71,6 +71,7 @@ export default function QuizScreen(props) {
     setSelectedChoice,
     lockChoice,
     progress,
+    skipTimerAnimation = false,
     currnet,
     buttonActive,
     showSynopsis,
@@ -856,9 +857,11 @@ useEffect(() => {
                         ? `inset(0 ${100 - progress}% 0 0)`
                         : 'none',
 
-                      transition: (isSpecialSkin && !isHorrorParty)
-                        ? 'clip-path 0.5s linear'
-                        : 'width 0.5s linear',
+                      transition: skipTimerAnimation
+                        ? 'none'
+                        : (isSpecialSkin && !isHorrorParty)
+                          ? 'clip-path 0.5s linear'
+                          : 'width 0.5s linear',
 
                       zIndex: 0,
                       pointerEvents: 'none',
