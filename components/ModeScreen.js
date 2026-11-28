@@ -40,7 +40,7 @@ export default function ModeScreen(props) {
 
         width: '100%',
 
-        background: '#f8f3ea',
+        background: '#242628',
 
         position: 'relative',
 
@@ -81,7 +81,7 @@ export default function ModeScreen(props) {
 
               fontWeight:700,
 
-              color:'#746f6b',
+              color:'#b8b8b8',
 
               letterSpacing:'0.12em'
 
@@ -245,9 +245,12 @@ export default function ModeScreen(props) {
                 flex: 1,
                 height: 40,
                 borderRadius: 10,
-                background: quizMode === 'subjective' ? '#414141' : '#ffffff',
-                color: quizMode === 'subjective' ? '#fff' : '#6f6e6e',
-                fontWeight: 600
+                background: quizMode === 'subjective' ? '#42658A' : '#E5E7EB',
+                color: quizMode === 'subjective' ? '#FFFFFF' : '#454A50',
+                fontWeight: 600,
+                boxShadow: quizMode === 'subjective'
+                ? 'inset 0 3px 6px rgba(0,0,0,0.35)'
+                : '0 4px 0 #111315, 0 6px 10px rgba(0,0,0,0.3)',
               }}>
               주관식
             </button>
@@ -260,9 +263,12 @@ export default function ModeScreen(props) {
                 flex: 1,
                 height: 40,
                 borderRadius: 10,
-                background: quizMode === 'objective' ? '#414141' : '#eee',
-                color: quizMode === 'objective' ? '#fff' : '#6f6e6e',
-                fontWeight: 600
+                background: quizMode === 'objective' ? '#42658A' : '#E5E7EB',
+                color: quizMode === 'objective' ? '#FFFFFF' : '#454A50',
+                fontWeight: 600, 
+                boxShadow: quizMode === 'objective'
+                ? 'inset 0 3px 6px rgba(0,0,0,0.35)'
+                : '0 4px 0 #111315, 0 6px 10px rgba(0,0,0,0.3)',
               }}>
               객관식
             </button>
@@ -274,14 +280,16 @@ export default function ModeScreen(props) {
           <div style={{
             flex: 1,
             overflowY: 'auto',
-            padding: '10px 5px 5px'
+            padding: '10px 5px 5px',
+            display: 'flex',
+            flexDirection: 'column'
           }}>
 
             <div style={{
               display: 'grid',
               gridTemplateColumns: 'repeat(3,1fr)',
               gap: 10,
-              marginBottom: 16
+              order: 2
             }}>
               {ERA_MODES.map(m => {
                 const sel = selGrade === m.key
@@ -335,6 +343,8 @@ export default function ModeScreen(props) {
               display: 'grid',
               gridTemplateColumns: 'repeat(3,1fr)',
               gap: 10,
+              order: 1,
+              marginBottom: 16
             }}>
               {[
                 ...THEME_MODES,
@@ -416,10 +426,19 @@ export default function ModeScreen(props) {
                 width: '100%',
                 height: 54,
                 borderRadius: 14,
-                background: selGrade !== null && !loading ? '#ed4b5e' : '#d4d0cc',
-                color: '#fff',
-                fontSize: '0.8rem',
-                fontWeight: 700,
+                background: selGrade !== null && !loading
+                ? '#ED4B5E'
+                : '#565B60',
+                color: selGrade !== null && !loading ? '#FFFFFF' : '#B5B9BD',
+                fontSize: '1.1rem',
+                fontWeight: 800,
+                boxShadow: selGrade !== null && !loading
+                  ? `
+                    inset 0 3px 5px rgba(255,255,255,0.4),
+                    inset 0 -5px 10px rgba(0,0,0,0.2),
+                    0 4px 8px rgba(0,0,0,0.3)
+                  `
+                  : 'none',
                 border: 'none',
                 cursor: selGrade !== null && !loading ? 'pointer' : 'default'
               }}
@@ -429,7 +448,7 @@ export default function ModeScreen(props) {
                 playSound('click')
                 loadMovies()
               }}>
-              {loading ? '로딩 중...' : '퀴즈 시작'}
+              {loading ? 'Loading...' : 'START'}
             </button>
           </div>
         </div>
