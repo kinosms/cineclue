@@ -15,6 +15,8 @@ import Collection from '../components/Collection'
 import MovieFlipCard from '../components/MovieFlipCard'
 import ProfileModal from '../components/ProfileModal'
 import { Capacitor } from '@capacitor/core'
+import MyProfileModal from '../components/MyProfileModal'
+import ReviveOverlay from '../components/ReviveOverlay'
 import {
   playSound,
   stopSound,
@@ -383,7 +385,7 @@ async function saveLog({
 
 
 
-async function getProfileStats(supabase, charId) {
+async function getProfileStats(supabase, userId) {
 
   const { data: logs = [] } =
 
@@ -395,7 +397,7 @@ async function getProfileStats(supabase, charId) {
 
         .select('*')
 
-        .eq('character_id', charId),
+        .eq('user_id', userId),
 
       'load profile stats'
 
@@ -563,14 +565,74 @@ async function loadRanking({ supabase }) {
 
 
 
-function CharAvatar({ charId, size = 40 }) {
+function CharAvatar({ charId, size = 40, innerScale = 1 }) {
+
   const c = CHARS.find(x => x.id === charId)
-  if (!c) return <div style={{ width: size, height: size, borderRadius: '50%', background: '#f0eeea', border: '1.5px solid #e0dcd4' }} />
+
+  if (!c) return <div style={{
+
+    width: size,
+
+    height: size,
+
+    borderRadius: '50%',
+
+    background: '#f0eeea',
+
+    border: '1.5px solid #e0dcd4'
+
+  }} />
+
   return (
-    <div style={{ width: size, height: size, borderRadius: '50%', background: '#f5f3ef', border: '1.5px solid #e8e4dd', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', flexShrink: 0 }}>
-      <svg viewBox="0 0 80 80" fill="none" style={{ width: size, height: size }}>{c.svg.props.children}</svg>
+
+    <div style={{
+
+      width: size,
+
+      height: size,
+
+      borderRadius: '50%',
+
+      background: '#f5f3ef',
+
+      border: '1.5px solid #e8e4dd',
+
+      display: 'flex',
+
+      alignItems: 'center',
+
+      justifyContent: 'center',
+
+      overflow: 'hidden',
+
+      flexShrink: 0
+
+    }}>
+
+      <svg
+
+        viewBox="0 0 80 80"
+
+        fill="none"
+
+        style={{
+
+          width: size * innerScale,
+
+          height: size * innerScale
+
+        }}
+
+      >
+
+        {c.svg.props.children}
+
+      </svg>
+
     </div>
+
   )
+
 }
 
 
@@ -960,6 +1022,9 @@ const [hasNetworkError, setHasNetworkError] = useState(false)
 
   const [showLogin, setShowLogin] = useState(false)
   const [authUser, setAuthUser] = useState(null)
+  // 자동 익명 인증 중복 실행 방지
+  const isEnteringRef = useRef(false)
+  const [isEntering, setIsEntering] = useState(false)
 
 
   function isNativeApp() {
@@ -1066,17 +1131,8 @@ function blockWebLogin() {
     }
   }
 
-  const isGuestLocked = (mode) => {
-    if (authUser) return false
-    const allowed = ['2020s', '2010s', '2000s']
-    return !allowed.includes(mode.key)
-  }
-
-  const isGuestLockedChar = (char) => {
-    if (authUser) return false
-    const allowed = ['yoda', 'immortan', 'leon']
-    return !allowed.includes(char.id)
-  }
+  const isGuestLocked = () => false
+  const isGuestLockedChar = () => false
 
   const menuItems = [
     '소개',
@@ -1087,7 +1143,7 @@ function blockWebLogin() {
     '신고하기',
     '설정',
     '버전정보',
-    authUser ? '로그아웃' : '로그인'
+    authUser && !authUser.is_anonymous ? '로그아웃' : '로그인', '프로필'
   ]
 
   const logout = async () => {
@@ -1110,7 +1166,6 @@ function blockWebLogin() {
       setShowNameModal(false)
       setShowMergeModal(false)
       setProfileUser(null)
-      setProfileTarget(null)
       setProfileStats(null)
       setCollectionTargetUserId(null)
 
@@ -1405,7 +1460,51 @@ function restoreAppSnapshot(options = {}) {
   const [ready, setReady] = useState(false)
   const [showSpinner, setShowSpinner] = useState(false)
   const safeUsers = Array.isArray(users) ? users : []
-  const currentUser = safeUsers.find(u => u.charId === selChar) || null
+  const currentUser = safeUsers.find(u =>
+    u.userId === authUser?.id
+  ) || null
+
+  // 내 프로필 정보 변경
+  const updateMyProfile = async (changes) => {
+    if (!currentUser || !authUser) {
+      throw new Error('사용자 정보 없음')
+    }
+    const userId = currentUser.userId
+    const dbChanges = {}
+    if (changes.charId !== undefined) {
+      dbChanges.char_id = changes.charId
+    }
+    if (changes.nickname !== undefined) {
+      dbChanges.nickname = changes.nickname
+    }
+
+    // Supabase 프로필 업데이트
+    const { data, error } = await supabase
+      .from('characters')
+      .update(dbChanges)
+      .eq('auth_user_id', userId)
+      .select()
+      .single()
+    if (error) throw error
+
+    // 화면에 변경 정보 반영
+    setUsers(prev => prev.map(u =>
+      u.userId === userId
+        ? {
+            ...u,
+            charId: data.char_id,
+            nickname: data.nickname
+          }
+        : u
+    ))
+
+    // 선택 캐릭터 동기화
+    if (changes.charId !== undefined) {
+      setSelChar(data.char_id)
+    }
+  }
+
+
   const currentUserId = currentUser?.userId
   const lives = currentUser?.lives ?? 20
   const isDead = currentUser?.isDead ?? false
@@ -1479,16 +1578,7 @@ function restoreAppSnapshot(options = {}) {
   const skipLockRef = useRef(false)
   const [isLoadingRecommend, setIsLoadingRecommend] = useState(false)
   const [loadingDots, setLoadingDots] = useState('.')
-  const [profileTarget, setProfileTarget]
-    = useState(null)
-  const [profileUser, setProfileUser]
-    = useState(null)
-  const profileCharId =
-    profileTarget || selChar
-  const profileChar =
-    CHARS.find(
-      c => c.id === profileCharId
-    )
+  const [profileUser, setProfileUser] = useState(null)
   const [rankingRevealDone, setRankingRevealDone] = useState(false)
   const primaryGrade = selGrade || null
   const [progress, setProgress] = useState(0); // 0 ~ 100
@@ -1507,6 +1597,9 @@ function restoreAppSnapshot(options = {}) {
   const [showAnswers, setShowAnswers] = useState(false)
   const [lifeDelta, setLifeDelta] = useState(null)
   const [deathMessage, setDeathMessage] = useState(false)
+  const [isReviving, setIsReviving] = useState(false)
+  const [isRevived, setIsRevived] = useState(false)
+  const reviveLockRef = useRef(false) 
   const [pendingLifeDelta, setPendingLifeDelta] = useState(null)
   const [showSynopsis, setShowSynopsis] = useState(false)
   const [showReportMenu, setShowReportMenu] = useState(false)
@@ -1718,78 +1811,129 @@ function restoreAppSnapshot(options = {}) {
 
   async function enterCharacterScreen() {
 
+  if (!authChecked || isEnteringRef.current) return
+
+  isEnteringRef.current = true
+  setIsEntering(true)
   setIsLoadingCharacters(true)
 
   try {
 
-    if (authUser?.id) {
+    // 1. 기존 인증 세션 확인
+    const {
+      data: sessionData,
+      error: sessionError
+    } = await supabase.auth.getSession()
 
-      if (users.length > 0) {
+    if (sessionError) throw sessionError
 
-        setScreen('char')
+    let user = sessionData?.session?.user ?? null
 
-        return
+    // 2. 기존 인증 세션이 없으면 익명 인증
+    if (!user) {
 
+      const { data, error } =
+        await supabase.auth.signInAnonymously()
+
+      if (error) throw error
+
+      user = data?.session?.user ?? null
+
+      if (!user) {
+        throw new Error('Anonymous authentication failed')
       }
-
-      const { data, error } = await supabase
-
-        .from('characters')
-
-        .select('*')
-
-        .eq('auth_user_id', authUser.id)
-
-      if (error) {
-
-        return
-
-      }
-
-      const loadedUsers = (data || []).map(c => ({
-
-        charId: c.char_id,
-
-        nickname: c.nickname,
-
-        score: c.score || 0,
-
-        lives: c.lives ?? 20,
-
-        userId: c.auth_user_id,
-
-        isGuest: false,
-
-        isDead: (c.lives ?? 20) <= 0
-
-      }))
-
-      setUsers(loadedUsers)
-
-      setScreen('char')
-
-      return
-
     }
 
-    const guestUsers = loadUsers(null)
+    // 3. 인증 사용자 설정
+    setAuthUser(user)
 
-    setUsers(guestUsers)
+    // 4. 기존 캐릭터 데이터 조회
+    const { data, error } = await supabase
+      .from('characters')
+      .select('*')
+      .eq('auth_user_id', user.id)
 
-    setScreen('char')
+    if (error) throw error
+
+    const loadedUsers = (data || []).map(c => ({
+      charId: c.char_id,
+      nickname: c.nickname,
+      score: c.score || 0,
+      lives: c.lives ?? 20,
+      userId: c.auth_user_id,
+      isGuest: false,
+      isDead: (c.lives ?? 20) <= 0
+    }))
+
+    // 기존 사용자 불러오기 (사망 상태 포함)
+let activeUser = loadedUsers[0]
+
+// 실제 신규 사용자만 프로필 생성
+if (!activeUser) {
+
+  const defaultProfile = {
+    auth_user_id: user.id,
+    char_id: 'yoda',
+    nickname: '포스의 스승',
+    score: 0,
+    lives: 20
+  }
+
+  const { error: profileError } = await supabase
+    .from('characters')
+    .insert(defaultProfile)
+
+  if (profileError) throw profileError
+
+  activeUser = {
+    charId: 'yoda',
+    nickname: '포스의 스승',
+    score: 0,
+    lives: 20,
+    userId: user.id,
+    isGuest: false,
+    isDead: false
+  }
+}
+
+    // 선택된 프로필 적용
+    setUsers([activeUser])
+    setSelChar(activeUser.charId)
+
+    // 기존 점수 유지
+    setScore(activeUser.score || 0)
+    setRoundStartScore(activeUser.score || 0)
+
+    // 5. 컬렉션 수 조회
+    const { count, error: collectionError } = await supabase
+      .from('collections')
+      .select('*', {
+        count: 'exact',
+        head: true
+      })
+      .eq('user_id', user.id)
+
+    if (!collectionError) {
+      setPosterCount(count || 0)
+    }
+
+    // 6. 게임 모드 선택 화면으로 바로 진입
+    setScreen('grade')
 
   } catch (e) {
 
     console.error('enterCharacterScreen failed', e)
 
+    alert('접속에 실패했습니다. 다시 시도해 주세요.')
+
   } finally {
 
+    isEnteringRef.current = false
+    setIsEntering(false)
     setIsLoadingCharacters(false)
-
     setShowSpinner(false)
 
   }
-
 }
 
 
@@ -1950,6 +2094,9 @@ useEffect(() => {
 
           setAuthChecked(true)
           setAuthUser(user)
+          // 들어가기 과정에서 발생한 인증 이벤트는
+          // enterCharacterScreen에서 직접 처리
+          if (isEnteringRef.current) return
 
           if (user) {
             const oauthStart =
@@ -2131,32 +2278,16 @@ useEffect(() => {
 
 
   async function saveCharacterLivesToDb(nextLives) {
-
-
-  if (!authUser) return
-
+  if (!authUser?.id) return
   if (!currentUser?.userId) return
-
-  if (!selChar) return
-
   const safeLives = Math.max(0, Math.min(nextLives, 20))
-
   const result = await supabase
-
     .from('characters')
-
     .update({
-
       lives: safeLives
-
     })
-
-    .eq('auth_user_id', currentUser.userId)
-
-    .eq('char_id', selChar)
-
+    .eq('auth_user_id', authUser.id)
     .select()
-
 }
 
 
@@ -2214,7 +2345,7 @@ useEffect(() => {
         setAnimateStats(true)
       }, 60)
     }
-  }, [showProfile, profileTarget])
+  }, [showProfile, profileUser])
 
 
 
@@ -2442,13 +2573,14 @@ useEffect(() => {
         return
       }
 
-      if (deathMessage) {
-        setDeathMessage(false)
-        setSelChar(null)
-        setScreen('char')
-        isPausedRef.current = false
+      if (deathMessage || reviveLockRef.current) {
+
+        forceCharOnResumeRef.current = false
+
         setIsRestoring(false)
+
         return
+
       }
 
       // OAuth 로그인 복귀 중에는 기존 앱 복원 로직 금지
@@ -2615,6 +2747,7 @@ return () => {
 
  useEffect(() => {
   if (screen !== 'quiz') return
+  if (deathMessage) return
   if (!questionReady) return
   if (answered) return
   if (isPausedRef.current) return
@@ -2655,7 +2788,8 @@ return () => {
     questionReady,
     resumeTick,
     timerStartedAt,
-    isRestoring
+    isRestoring, 
+    deathMessage
   ])
 
 
@@ -2926,12 +3060,163 @@ return () => {
 
 
   function triggerDeath() {
-    setDeathMessage(true)   // 👉 화면 띄우기
-    setTimeout(() => {
+    clearInterval(timerRef.current)
+    timerRef.current = null
+    inputRef.current?.blur()
+    isPausedRef.current = true
+    setIsRevived(false)
+    setDeathMessage(true)
+  }
+
+  async function handleRevive() {
+
+    if (!deathMessage || reviveLockRef.current) return
+    if (!authUser?.id) return
+
+    reviveLockRef.current = true
+    setIsReviving(true)
+
+    try {
+
+      // 앱에서만 보상형 광고 재생
+      if (isNativeApp()) {
+        const success = await showRewardedLifeAd()
+
+        if (!success) return
+      }
+
+      // 부활 시 생명 10개
+      const revivedLives = 10
+
+      // DB에 생명 저장
+      const { error } = await supabase
+        .from('characters')
+        .update({
+          lives: revivedLives
+        })
+        .eq('auth_user_id', authUser.id)
+        .select()
+        .single()
+
+      if (error) throw error
+
+      // 현재 사용자 상태 복원
+      setUsers(prev => prev.map(u =>
+        u.userId === authUser.id
+          ? {
+              ...u,
+              lives: revivedLives,
+              isDead: false
+            }
+          : u
+      ))
+
+      setLifeDelta(revivedLives)
+
+      // 무덤 → 캐릭터 전환
+      setIsRevived(true)
+
+      await new Promise(resolve =>
+        setTimeout(resolve, 1000)
+      )
+
+      // 부활 연출 종료
       setDeathMessage(false)
-      setSelChar(null)
-      setScreen('char')     // 👉 캐릭터 선택으로 이동
-    }, 3500)
+      setIsRevived(false)
+      forceCharOnResumeRef.current = false
+      isPausedRef.current = false
+      // 퀴즈 진행 중 사망한 경우에만 퀴즈 재개
+      if (screen === 'quiz') {
+        setResumeTick(v => v + 1)
+      }
+      resumeBgmByScreen()
+
+    } catch (error) {
+
+      console.error('revive failed', error)
+      showAppToast('부활하지 못했습니다. 다시 시도해 주세요.')
+
+    } finally {
+
+      setIsReviving(false)
+      reviveLockRef.current = false
+
+    }
+  }
+
+  async function handleRestart() {
+    if (!deathMessage || reviveLockRef.current) return
+    if (!authUser?.id) return
+
+    reviveLockRef.current = true
+    setIsReviving(true)
+
+    try {
+      // DB 점수 초기화 및 생명 회복
+      const { error } = await supabase
+        .from('characters')
+        .update({
+          score: 0,
+          lives: 20
+        })
+        .eq('auth_user_id', authUser.id)
+        .select()
+        .single()
+
+      if (error) throw error
+
+      // 사용자 상태 초기화
+      setUsers(prev => prev.map(u =>
+        u.userId === authUser.id
+          ? {
+              ...u,
+              score: 0,
+              lives: 20,
+              isDead: false
+            }
+          : u
+      ))
+
+      // 타이머 정지
+      clearInterval(timerRef.current)
+      timerRef.current = null
+
+      // 점수 초기화
+      setScore(0)
+      setRoundStartScore(0)
+
+      // 기존 퀴즈 초기화
+      setPool([])
+      setResults([])
+      setQi(0)
+      setSh(1)
+      setAnswered(false)
+      setInput('')
+      setFb('')
+      setFbt('')
+      setQuestionReady(false)
+      setIsSubmitting(false)
+
+      // 일시정지 상태 해제
+      isPausedRef.current = false
+      forceCharOnResumeRef.current = false
+      skipLockRef.current = false
+
+      // 사망 오버레이 종료
+      setDeathMessage(false)
+      setIsRevived(false)
+
+      // 모드 선택 화면으로 이동
+      setScreen('grade')
+
+    } catch (error) {
+      console.error('restart failed', error)
+      showAppToast('초기화하지 못했습니다. 다시 시도해 주세요.')
+
+    } finally {
+      setIsReviving(false)
+      reviveLockRef.current = false
+    }
   }
 
 
@@ -3109,8 +3394,6 @@ async function handleShowAnswers() {
           })
 
           .eq('auth_user_id', userId)
-
-          .eq('char_id', selChar)
 
           .select(),
 
@@ -3582,6 +3865,15 @@ const goNextCastingQuiz = () => {
       setScreen('char')
       setLoading(false)
       setShowSpinner(false)
+      return
+    }
+    // 사망 상태에서는 퀴즈 진입 차단
+
+    if (currentUser.lives <= 0) {
+      setLoading(false)
+      setShowSpinner(false)
+      setIsRevived(false)
+      setDeathMessage(true)
       return
     }
     if (selGrade === 'casting') {
@@ -4061,7 +4353,7 @@ const goNextCastingQuiz = () => {
         setUsers(prev => {
           const updated = prev.map(u => {
 
-            if (u.charId === selChar) {
+            if (u.userId === currentUserId) {
               const prevLives = u.lives ?? 20
               const nextLives = Math.min(prevLives + 1, 20)
 
@@ -4310,21 +4602,16 @@ const goNextCastingQuiz = () => {
   const willDie = (currentUser?.lives ?? 20) <= 1
   const nextLivesForDb = Math.max((currentUser?.lives ?? 20) - 1, 0)
   const genreValue = m?.final_genre || '기타'
-  const roundScore = score - roundStartScore
 
   // 1️⃣ 화면/로컬 상태 먼저 반영
   setUsers(prev => {
     const updated = prev.map(u => {
-      if (u.charId === selChar) {
+      if (u.userId === currentUser.userId) {
         const prevLives = u.lives ?? 20
         const nextLives = prevLives - 1
 
         if (nextLives < prevLives) {
           setLifeDelta(-1)
-        }
-
-        if (nextLives <= 0) {
-          triggerDeath()
         }
 
         return {
@@ -4367,18 +4654,15 @@ const goNextCastingQuiz = () => {
     youtubeKey: m.youtubeKey || null
   }])
 
-  if (willDie) {
-    setAnswered(true)
-    setIsSubmitting(false)
-    skipLockRef.current = false
-    triggerDeath()
-  } else {
-    setFb('다음번엔 꼭 맞추길...')
-    setFbt('sk')
-    setAnswered(true)
-    setIsSubmitting(false)
-    skipLockRef.current = false
-  }
+  setFb('다음번엔 꼭 맞추길...')
+  setFbt('sk')
+  setAnswered(true)
+  setIsSubmitting(false)
+  skipLockRef.current = false
+
+if (willDie) {
+  triggerDeath()
+}
 
   saveLog({
     supabase,
@@ -4407,21 +4691,6 @@ const goNextCastingQuiz = () => {
     'update genre stats skip'
   ).catch(console.error)
 
-  if (willDie) {
-    saveLog({
-      supabase,
-      userId: String(currentUser.userId),
-      charId: selChar,
-      movie: { id: null },
-      hintUsed: 0,
-      score: roundScore,
-      comboMode: null,
-      isCorrect: true,
-      nickname: currentUser.nickname,
-      log_type: 'result',
-      quizMode
-    }).catch(console.error)
-  }
 }
 
 
@@ -4993,6 +5262,7 @@ useEffect(() => {
           onStart={enterCharacterScreen}
           onLogin={() => setShowLogin(true)}
           isAuthLoading={isRestoring}
+          isEntering={isEntering}
         />
       )}
 
@@ -5010,45 +5280,16 @@ useEffect(() => {
 
 
       {/* 🔥 Death Overlay (항상 최상단) */}
-      {deathMessage && (screen === 'quiz' || screen === 'result') && (
-        <div style={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          width: '100%',
-          height: '100%',
-          background: 'rgba(0,0,0,0.85)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          zIndex: 9999
-        }}>
-          <div className="typingText">
-            Hasta la Vista Baby...
-          </div>
-          <style jsx>{`
-            .typingText {
-              font-size: 2rem;
-              font-weight: 900;
-              color: #fff;
-              opacity: 0;
-              transform: translateY(20px);
-              animation: textFade 1.8s ease forwards;
-            }
-            @keyframes fadeIn {
-              from { opacity: 0 }
-              to { opacity: 1 }
-            }
-            @keyframes textFade {
-              to {
-                opacity: 1;
-                transform: translateY(0);
-              }
-            }
-         `}
-          </style>
-        </div>
-      )}
+      <ReviveOverlay
+        show={deathMessage && (screen === 'quiz' || screen === 'grade')}
+        selChar={selChar}
+        CharAvatar={CharAvatar}
+        isNativeApp={isNativeApp()}
+        isReviving={isReviving}
+        isRevived={isRevived}
+        onRevive={handleRevive}
+        onRestart={handleRestart}
+      />
 
 
       {screen === 'char' && (
@@ -5173,6 +5414,28 @@ useEffect(() => {
           posterCount={posterCount}
 
           showAppToast={showAppToast}
+
+          showSettings={showSettings}
+
+          setShowSettings={setShowSettings}
+
+          menuItems={menuItems}
+
+          settingsPage={settingsPage}
+
+          setSettingsPage={setSettingsPage}
+
+          logout={logout}
+
+          bgmOn={bgmOn}
+
+          setBgmOn={setBgmOn}
+
+          sfxOn={sfxOn}
+
+          setSfxOn={setSfxOn}
+
+          screen={screen}
 
         />
 
@@ -5350,7 +5613,6 @@ useEffect(() => {
           loadMovieDetail={loadMovieDetail}
 
           setProfileStats={setProfileStats}
-          setProfileTarget={setProfileTarget}
           setProfileUser={setProfileUser}
 
           setAnimateStats={setAnimateStats}
@@ -5506,6 +5768,22 @@ useEffect(() => {
             </div>
           </div>
         </div>
+      )}
+
+     {settingsPage === '프로필' && (
+        <MyProfileModal
+          currentUser={currentUser}
+          LEVEL_TITLES={LEVEL_TITLES}
+          CharAvatar={CharAvatar}
+          CHARS={CHARS}
+          onClose={() => setSettingsPage(null)}
+          onChangeCharacter={async charId => {
+            await updateMyProfile({ charId })
+          }}
+          onChangeNickname={async nickname => {
+            await updateMyProfile({ nickname })
+          }}
+        />
       )}
 
 

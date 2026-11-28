@@ -14,7 +14,8 @@ export default function IntroScreen({
   authUser,
   authChecked,
   introAnimationDone,
-  isAuthLoading
+  isAuthLoading,
+  isEntering
 }) {
 
   const [mounted, setMounted] = useState(false)
@@ -145,6 +146,7 @@ export default function IntroScreen({
           </div>
 
           <button
+          disabled={!authChecked || isEntering || isAuthLoading}
             onClick={() => {
               playSound('click')
               onEnter()
@@ -162,48 +164,26 @@ export default function IntroScreen({
             들어가기
           </button>
 
-          {/* 로그인 */}
-            <div style={{
-              marginTop: 18,
-              textAlign: 'center',
-              minHeight: 32,
-              minWidth: 220,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center'
-            }}>
+          {/* SNS 로그인 사용자 환영 메시지 */}
+          <div style={{
+            marginTop: 18,
+            textAlign: 'center',
+            minHeight: 32,
+            minWidth: 220,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center'
+          }}>
 
-              {!authChecked ? (
+            {authChecked &&
+              !isAuthLoading &&
+              authUser?.is_anonymous === false && (
                 <div style={{
-                  fontSize: '0.85rem',
-                  color: '#666'
+                  fontSize: '0.9rem',
+                  color: '#8f8f8f',
+                  whiteSpace: 'nowrap'
                 }}>
-                  로그인 상태 확인중...
-                </div>
-              ) : !authUser ? (
-                <button
-                  onClick={onLogin}
-                  style={{
-                    border: 'none',
-                    background: 'transparent',
-                    fontSize: '0.9rem',
-                    color: '#8f8f8f',
-                    textDecoration: 'underline',
-                    cursor: 'pointer',
-                    padding: '6px 10px'
-                  }}>
-                  로그인
-                </button>
-              ) : (
-                <div
-                  style={{
-                    fontSize: '0.9rem',
-                    color: '#8f8f8f',
-                    whiteSpace: 'nowrap'
-                  }}>
-                  {isAuthLoading
-                    ? '🎬 로그인 접속중...'
-                    : `🎬 ${authUser.user_metadata?.name || '회원'}님 반가워요`}
+                  🎬 {authUser.user_metadata?.name || '회원'}님 반가워요
                 </div>
               )}
             </div>

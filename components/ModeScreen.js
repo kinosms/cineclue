@@ -1,60 +1,62 @@
 'use client'
 import { playSound } from '../library/audioManager'
+import SettingsMenu from './SettingsMenu'
 
 export default function ModeScreen(props) {
 
   const {
-
     setQuizMode,
-
     quizMode,
-
     ERA_MODES,
-
     selGrade,
-
     isGuestLocked,
-
     toggleGrade,
-
     THEME_MODES,
-
     setShowLogin,
-
     loading,
-
     loadMovies,
-
     setScreen,
-
     authUser,
-
     posterCount,
-
     setCollectionReturnScreen,
-
     setToastMessage,
-
-    showAppToast
-
+    showAppToast, 
+    showSettings,
+    setShowSettings,
+    menuItems,
+    settingsPage,
+    setSettingsPage,
+    logout,
+    bgmOn,
+    setBgmOn,
+    sfxOn,
+    setSfxOn,
+    screen
   } = props
 
   return (
     <div>
       <div style={{
+
         width: '100%',
+
         background: '#f8f3ea',
+
         position: 'relative',
+
         display: 'flex',
+
         height: '100dvh',
+
         flexDirection: 'column',
+
         padding: '40px 0 40px',
+
         overflowY: 'auto'
 
       }}>
 
-        <div style={{ padding: '0 20px', flexShrink: 0 }}>
-
+        <div style={{ padding:  '0 20px', flexShrink: 0 }}>
 
           {/* 컬렉션 */}
           <div style={{
@@ -196,6 +198,34 @@ export default function ModeScreen(props) {
                   🎬 컬렉션
 
                 </button>
+
+                  <SettingsMenu
+
+                    showSettings={showSettings}
+
+                    setShowSettings={setShowSettings}
+
+                    menuItems={menuItems}
+
+                    settingsPage={settingsPage}
+
+                    setSettingsPage={setSettingsPage}
+
+                    setShowLogin={setShowLogin}
+
+                    logout={logout}
+
+                    bgmOn={bgmOn}
+
+                    setBgmOn={setBgmOn}
+
+                    sfxOn={sfxOn}
+
+                    setSfxOn={setSfxOn}
+
+                    screen={screen}
+
+                  />
 
               </div>
 
@@ -379,11 +409,11 @@ export default function ModeScreen(props) {
             flexShrink: 0,
           }}>
 
-            {/* 퀴즈시작 버튼 */}
+            {/* 퀴즈 시작 버튼 */}
             <button
-              
               style={{
                 flex: 1,
+                width: '100%',
                 height: 54,
                 borderRadius: 14,
                 background: selGrade !== null && !loading ? '#ed4b5e' : '#d4d0cc',
@@ -399,29 +429,7 @@ export default function ModeScreen(props) {
                 playSound('click')
                 loadMovies()
               }}>
-
-              {loading ? '로딩 중...' : '퀴즈시작'}
-            </button>
-
-            {/* 뒤로가기 버튼 */}
-            <button
-              
-              style={{
-                flex: 1,
-                height: 54,
-                borderRadius: 12,
-                background: '#ffffff',
-                color: '#6e6e6e',
-                fontSize: '0.8rem',
-                fontWeight: 500,
-                border: '0.5px solid #e8e4dd',
-                cursor: 'pointer'
-              }}
-              onClick={() => {
-                playSound('click')
-                setScreen('char')
-              }}>
-              캐릭터 선택 돌아가기
+              {loading ? '로딩 중...' : '퀴즈 시작'}
             </button>
           </div>
         </div>

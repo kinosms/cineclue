@@ -28,7 +28,6 @@ export default function ResultScreen(props) {
     showProfile,
     setShowProfile,
     setProfileStats,
-    setProfileTarget,
     setProfileUser,
     setAnimateStats,
     profileUser,
@@ -88,7 +87,7 @@ export default function ResultScreen(props) {
   
 
   const safeUsers = Array.isArray(users) ? users : []
-  const user = safeUsers.find(u => u.charId === selChar)
+  const user = currentUser
   const baseScore = user?.score ?? 0
   const roundScore = (results ?? []).reduce((s, r) => s + r.score, 0)
   const tot = baseScore + roundScore
@@ -98,9 +97,9 @@ export default function ResultScreen(props) {
   const char = CHARS.find(c => c.id === selChar)
   const safeRankingSource = Array.isArray(ranking) ? ranking : []
   const patchedRanking = safeRankingSource.map(r => {
-    const isMe =
-      String(r.user_id) === String(currentUser?.userId) &&
-      String(r.character_id) === String(selChar)
+  const isMe =
+    String(r.user_id) === String(currentUser?.userId)
+
     if (isMe) {
       return {
         ...r,
@@ -197,12 +196,11 @@ const sortedRanking = [...patchedRanking].sort(
                   return
                 }
                 setProfileStats(null)
-                setProfileTarget(null)
                 setProfileUser(currentUser)
                 setAnimateStats(false)
                 const profile = await getProfileStats(
                   supabase,
-                  selChar
+                  currentUser.userId
                 )
                 setProfileStats(profile)
                 requestAnimationFrame(() => {
@@ -738,8 +736,7 @@ const sortedRanking = [...patchedRanking].sort(
                   const TOP_LIMIT = 10
                   const myRankIndex = safeRanking.findIndex(
                     r =>
-                      String(r.user_id) === String(currentUser?.userId) &&
-                      String(r.character_id) === String(selChar)
+                      String(r.user_id) === String(currentUser?.userId)
                   )
                   const myRank =
                     myRankIndex >= 0
@@ -756,8 +753,7 @@ const sortedRanking = [...patchedRanking].sort(
                         const char = r ? CHARS.find(c => c.id === r.character_id) : null
                         const isMe =
                           r &&
-                          String(r.user_id) === String(currentUser?.userId) &&
-                          String(r.character_id) === String(selChar)
+                            String(r.user_id) === String(currentUser?.userId)
                         const isAnimated = !skipResultAnimation && i < 5
 
                         return (
@@ -877,14 +873,12 @@ const sortedRanking = [...patchedRanking].sort(
                                     playSound('click')
                                     // 🔥 이전 프로필 초기화
                                     setProfileStats(null)
-                                    // 🔥 랭킹 프로필 대상 지정
-                                    setProfileTarget(r.character_id)
                                     // 🔥 랭킹 row 자체 저장
                                     setProfileUser(r)
                                     setAnimateStats(false)
                                       const profile = await getProfileStats(
                                         supabase,
-                                        r.character_id
+                                        r.user_id
                                       )
                                     setProfileStats(profile)
                                     requestAnimationFrame(() => {
@@ -1126,7 +1120,7 @@ const sortedRanking = [...patchedRanking].sort(
               }}
               onClick={() => {
                 playSound('click')
-                setScreen('char')
+                setScreen('grade')
               }}
             >
               홈으로
