@@ -13,7 +13,9 @@ const SOUND_MAP = {
   castingBgm: '/castingbgm.mp3',
   castingClock: '/castingclock.mp3',
   horror_mode_bgm: '/horror_mode_bgm.mp3',
-  horror_mode_combo: '/horror_mode_combo.mp3'
+  horror_mode_combo: '/horror_mode_combo.mp3', 
+  sf_mode_bgm: '/sf_mode_bgm.mp3',
+  sf_mode_combo: '/sf_mode_combo.mp3'
 }
 
 const audioPools = {}
@@ -81,7 +83,7 @@ export function setBgmSpeed(rate = 1) {
 export function preloadSounds() {
 
   Object.keys(SOUND_MAP).forEach(name => {
-
+    if (name === 'sf_mode_bgm') return
     getPool(name, name.includes('Bgm') ? 1 : 4)
 
   })

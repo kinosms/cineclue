@@ -1350,37 +1350,63 @@ function restoreAppSnapshot(options = {}) {
   
   const closeTrailer = () => {
 
-    setTrailerKey(null)
+  setTrailerKey(null)
 
-    const isHorror = selGrade === 'horror' || quizMode === 'horror'
+  const isHorror = selGrade === 'horror' || quizMode === 'horror'
 
-    if (screen === 'quiz') {
+  const isSciFi = selGrade === 'sf' || quizMode === 'sf'
 
-      if (mode) {
+  if (screen === 'quiz') {
 
-        playBgm(isHorror ? 'horror_mode_combo' : 'comboBgm', 0.25)
+    if (mode) {
 
-      } else {
+      playBgm(
 
-        playBgm(isHorror ? 'horror_mode_bgm' : 'mainBgm', 0.25)
+        isHorror
 
-      }
+          ? 'horror_mode_combo'
 
-      return
+          : isSciFi
+
+            ? 'sf_mode_combo'
+
+            : 'comboBgm',
+
+        0.25
+
+      )
+
+    } else {
+
+      playBgm(
+
+        isHorror ? 'horror_mode_bgm' :
+
+        isSciFi ? 'sf_mode_bgm' :
+
+        'mainBgm',
+
+        0.25
+
+      )
 
     }
 
-    if (screen === 'result') {
-
-      playBgm(isHorror ? 'horror_mode_bgm' : 'resultBgm', 0.25)
-
-      return
-
-    }
-
-    playBgm(isHorror ? 'horror_mode_bgm' : 'mainBgm', 0.25)
+    return
 
   }
+
+  if (screen === 'result') {
+
+    playBgm(isHorror ? 'horror_mode_bgm' : 'resultBgm', 0.25)
+
+    return
+
+  }
+
+  playBgm(isHorror ? 'horror_mode_bgm' : 'mainBgm', 0.25)
+
+}
 
   const [bgmOn, setBgmOn] = useState(true)
   const [sfxOn, setSfxOn] = useState(true)
@@ -1640,10 +1666,30 @@ function restoreAppSnapshot(options = {}) {
 
     if (screen === 'quiz') {
       const isHorror = selGrade === 'horror' || quizMode === 'horror'
+      const isSciFi = selGrade === 'sf' || quizMode === 'sf'
       if (mode) {
-        playBgm(isHorror ? 'horror_mode_combo' : 'comboBgm', 0.25)
+        playBgm(
+
+          isHorror
+
+            ? 'horror_mode_combo'
+
+            : isSciFi
+
+              ? 'sf_mode_combo'
+
+              : 'comboBgm',
+
+          0.25
+
+        )
       } else {
-        playBgm(isHorror ? 'horror_mode_bgm' : 'mainBgm', 0.25)
+        playBgm(
+          isHorror ? 'horror_mode_bgm' :
+          isSciFi ? 'sf_mode_bgm' :
+          'mainBgm',
+          0.25
+        )
       }
       return
     }
@@ -1944,49 +1990,48 @@ if (!activeUser) {
 
 
 function resumeBgmByScreen() {
-
   if (isAdShowingRef.current) return
-
   const currentScreen = screenRef.current
-
   const currentMode = modeRef.current
-
   const currentSelGrade = selGradeRef.current
-
   const currentQuizMode = quizModeRef.current
-
   const isHorror =
-
     currentSelGrade === 'horror' || currentQuizMode === 'horror'
-
+  const isSciFi =
+    currentSelGrade === 'sf' || currentQuizMode === 'sf'
   if (currentScreen === 'intro') return
-
   if (currentScreen === 'quiz') {
-
     if (currentMode) {
+      playBgm(
 
-      playBgm(isHorror ? 'horror_mode_combo' : 'comboBgm', 0.25)
+        isHorror
 
+          ? 'horror_mode_combo'
+
+          : isSciFi
+
+            ? 'sf_mode_combo'
+
+            : 'comboBgm',
+
+        0.25
+
+      )
     } else {
-
-      playBgm(isHorror ? 'horror_mode_bgm' : 'mainBgm', 0.25)
-
+      playBgm(
+        isHorror ? 'horror_mode_bgm' :
+        isSciFi ? 'sf_mode_bgm' :
+        'mainBgm',
+        0.25
+      )
     }
-
     return
-
   }
-
   if (currentScreen === 'result') {
-
     playBgm(isHorror ? 'horror_mode_bgm' : 'resultBgm', 0.25)
-
     return
-
   }
-
   playBgm(isHorror ? 'horror_mode_bgm' : 'mainBgm', 0.25)
-
 }
 
 
@@ -4615,9 +4660,31 @@ const goNextCastingQuiz = () => {
   setFb(`우린 답을 찾을 것이다. 늘 그랬듯이.`)
   setFbt('sk')
   setAnswered(true)
-  if (authUser) {
-    await saveCharacterLivesToDb(nextLivesForDb)
-  }
+  const spinnerTimer = setTimeout(() => {
+
+  setShowSpinner(true)
+
+    }, 300)
+
+    try {
+
+      if (authUser) {
+
+        await saveCharacterLivesToDb(nextLivesForDb)
+
+      }
+
+    } finally {
+
+      clearTimeout(spinnerTimer)
+
+      setIsSubmitting(false)
+
+      skipLockRef.current = false
+
+      setShowSpinner(false)
+
+    }
   setIsSubmitting(false)
   skipLockRef.current = false
 

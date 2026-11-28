@@ -113,22 +113,32 @@ const isSpecialSkin =
 
 useEffect(() => {
   if (!skin) return
-  preloadImages([
+
+  const images = [
     '/combo/great.webp',
     '/combo/unstoppable.webp',
     '/combo/absolute.webp',
     '/combo/fire.webp',
 
     skin.background,
-    skin.background,
     ...(skin.hints || []),
     ...(skin.answers || []),
-    skin.answerSelected,
+
+    ...(isHorrorParty
+      ? [skin.answerSelected]
+      : isSpecialSkin
+        ? (skin.answerSelectedList || [])
+        : []),
+
     skin.buttons?.nextHint,
+    skin.buttons?.skip,
     skin.buttons?.skipFill,
     skin.buttons?.nextQuiz,
-  ].filter(Boolean))
-}, [skin])
+  ].filter(Boolean)
+
+  preloadImages([...new Set(images)])
+
+}, [skin, isHorrorParty, isSpecialSkin])
 
 useEffect(() => {
   const movie = pool?.[qi]
