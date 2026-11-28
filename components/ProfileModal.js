@@ -103,41 +103,7 @@ const genreImages = {
   '판타지공포': '/profile/genres/fantasy_horror.webp'
 
 }
-const profileMenuStyle = {
 
-  flex: 1,
-
-  minWidth: 0,
-
-  minHeight: 76,
-
-  borderRadius: 16,
-
-  padding: '12px 10px',
-
-  display: 'flex',
-
-  flexDirection: 'row',
-
-  alignItems: 'center',
-
-  gap: 8,
-
-  cursor: 'pointer',
-
-  textAlign: 'left',
-
-  boxShadow: '0 3px 8px rgba(75,65,120,.08)'
-
-}
-
-const profileMenuImages = {
-
-  recommend: null,
-
-  collection: null
-
-}
 
 
   if (!showProfile) return null
@@ -407,12 +373,28 @@ const profileMenuImages = {
                             profileStats?.favoriteGenres?.[0] || '-'
                           ],
                           [
-                            '최근 플레이',
-                            profileStats?.lastPlayed
-                              ? new Date(profileStats.lastPlayed)
-                                .toLocaleDateString('ko-KR')
-                              : '-'
-                          ]
+
+                          '최근 플레이',
+
+                          profileStats?.lastPlayed
+
+                            ? new Date(
+
+                                /(?:Z|[+-]\d{2}:\d{2})$/i.test(profileStats.lastPlayed)
+
+                                  ? profileStats.lastPlayed
+
+                                  : `${profileStats.lastPlayed}Z`
+
+                              ).toLocaleDateString('ko-KR', {
+
+                                timeZone: 'Asia/Seoul'
+
+                              })
+
+                            : '-'
+
+                        ]
                         ].map(([k, v], i) => (
 
                         <div
@@ -741,176 +723,7 @@ const profileMenuImages = {
                     })}
                 </div>
               </div>
-
-
-
-
-              <div style={{
-
-                display: 'flex',
-
-                gap: 10,
-
-                marginTop: 12
-
-              }}>
-
-
-              {/* 추천 영화 */}
-              <button
-                onClick={() => {
-                  playSound('click')
-                  openMovieRecommend()
-                }}
-
-                style={{
-                  ...profileMenuStyle,
-                  border: '1px solid #C4A5F5',
-                  background: 'linear-gradient(120deg,#F4E9FF,#E8E4FC)'
-                }}
-              >
-
-                {/* 대표 이미지 */}
-                <div style={{
-                  width: 42,
-                  height: 48,
-                  flexShrink: 0
-                }}>
-                  {profileMenuImages.recommend && (
-                    <img
-                      src={profileMenuImages.recommend}
-                      alt=""
-                      style={{
-                        width: '100%',
-                        height: '100%',
-                        objectFit: 'contain'
-                      }}
-                    />
-                  )}
-                </div>
-
-                {/* 텍스트 영역 */}
-                <div style={{
-                  flex: 1,
-                  minWidth: 0
-                }}>
-                  <div style={{
-                    fontSize: '0.88rem',
-                    fontWeight: 900,
-                    color: '#39265D',
-                    marginBottom: 5,
-                    whiteSpace: 'nowrap'
-                  }}>
-                    추천 영화
-                  </div>
-
-                  <div style={{
-                    fontSize: '0.62rem',
-                    fontWeight: 500,
-                    color: '#77658F',
-                    lineHeight: 1.4
-                  }}>
-                    장르 성향 기반 추천
-                  </div>
-                </div>
-
-                {/* 화살표 */}
-                <span style={{
-                  fontSize: '1.3rem',
-                  fontWeight: 500,
-                  color: '#7651B0',
-                  flexShrink: 0
-                }}>
-                  ›
-                </span>
-
-              </button>
-
-              {/* 컬렉션 */}
-              <button
-                onClick={(e) => {
-                  playSound('click')
-                  e.stopPropagation()
-
-                  const targetUserId =
-                    profileUser?.user_id ||
-                    profileUser?.userId ||
-                    currentUser?.userId ||
-                    authUser?.id
-
-                  setCollectionTargetUserId(profileUser?.user_id || authUser?.id)
-                  setSkipResultAnimation(true)
-                  setCollectionReturnScreen('result')
-                  setScreen('collection')
-
-                  setTimeout(() => {
-                    setShowProfile(false)
-                  }, 0)
-                }}
-
-                style={{
-                  ...profileMenuStyle,
-                  border: '1px solid #9DBFEF',
-                  background: 'linear-gradient(120deg,#EDF6FF,#DCE9FC)'
-                }}
-              >
-
-                {/* 대표 이미지 */}
-                <div style={{
-                  width: 42,
-                  height: 48,
-                  flexShrink: 0
-                }}>
-                  {profileMenuImages.collection && (
-                    <img
-                      src={profileMenuImages.collection}
-                      alt=""
-                      style={{
-                        width: '100%',
-                        height: '100%',
-                        objectFit: 'contain'
-                      }}
-                    />
-                  )}
-                </div>
-
-                {/* 텍스트 영역 */}
-                <div style={{
-                  flex: 1,
-                  minWidth: 0
-                }}>
-                  <div style={{
-                    fontSize: '0.88rem',
-                    fontWeight: 900,
-                    color: '#203D68',
-                    marginBottom: 5,
-                    whiteSpace: 'nowrap'
-                  }}>
-                    컬렉션
-                  </div>
-
-                  <div style={{
-                    fontSize: '0.62rem',
-                    fontWeight: 500,
-                    color: '#59769D',
-                    lineHeight: 1.4
-                  }}>
-                    열어본 영화 보관함
-                  </div>
-                </div>
-
-                {/* 화살표 */}
-                <span style={{
-                  fontSize: '1.3rem',
-                  fontWeight: 500,
-                  color: '#487BC1',
-                  flexShrink: 0
-                }}>
-                  ›
-                </span>
-
-              </button>
-              </div>
+              
             </div>
 
           </div>

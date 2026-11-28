@@ -11,6 +11,7 @@ import {
 export default function IntroScreen({
   onEnter,
   onLogin,
+  enableSocialLogin = false,
   authUser,
   authChecked,
   introAnimationDone,
@@ -175,8 +176,12 @@ export default function IntroScreen({
             justifyContent: 'center'
           }}>
 
-            {authChecked &&
+            {enableSocialLogin &&
+
+              authChecked &&
+
               !isAuthLoading &&
+
               authUser?.is_anonymous === false && (
                 <div style={{
                   fontSize: '0.9rem',

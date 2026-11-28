@@ -42,6 +42,10 @@ import {
 const REWARD_AD_ID = 'ca-app-pub-9833499589161859/2594869167'
 const REWARD_LIFE_AD_ID = 'ca-app-pub-9833499589161859/2950092381'
 
+// SNS 로그인 기능 활성화 여부
+
+const ENABLE_SOCIAL_LOGIN = false
+
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || ''
 const SUPABASE_KEY = process.env.NEXT_PUBLIC_SUPABASE_KEY || ''
 
@@ -51,7 +55,7 @@ const supabase = createClient(
   {
     auth: {
       flowType: 'pkce',
-      detectSessionInUrl: true,
+      detectSessionInUrl: ENABLE_SOCIAL_LOGIN,
       persistSession: true,
       autoRefreshToken: true
     }
@@ -1051,7 +1055,204 @@ function blockWebLogin() {
 
 }
 
+const ACCOUNT_MERGE_KEY = 'cineclue_account_merge_token'
+
+const oauthCallbackRef = useRef(false)
+
+// SNS 로그인 비활성화 시 기존 OAuth 관련 저장값 정리
+
+useEffect(() => {
+
+  if (ENABLE_SOCIAL_LOGIN) return
+
+  localStorage.removeItem(ACCOUNT_MERGE_KEY)
+
+  localStorage.removeItem('cineclue_oauth_start')
+
+  oauthCallbackRef.current = false
+
+}, [])
+
+function cancelOAuthLogin() {
+
+  localStorage.removeItem(ACCOUNT_MERGE_KEY)
+
+  localStorage.removeItem('cineclue_oauth_start')
+
+  localStorage.removeItem('cineclue_session')
+
+  setIsRestoring(false)
+
+  setShowLogin(false)
+
+}
+
+// 소셜 로그인 전 익명 계정 통합 토큰 발급
+async function prepareAccountMerge() {
+  if (!ENABLE_SOCIAL_LOGIN) return
+  const { data, error } = await supabase.auth.getSession()
+
+  if (error) throw error
+
+  const user = data?.session?.user
+
+  if (!user?.is_anonymous) return
+
+  // 이전 로그인 시도에서 남은 토큰 제거
+  localStorage.removeItem(ACCOUNT_MERGE_KEY)
+
+  // 통합할 캐릭터가 있는지 확인
+  const { data: character, error: characterError } =
+    await supabase
+      .from('characters')
+      .select('id')
+      .eq('auth_user_id', user.id)
+      .maybeSingle()
+
+  if (characterError) throw characterError
+
+  // 캐릭터가 없으면 일반 소셜 로그인 진행
+  if (!character) return
+
+  const { data: token, error: mergeError } =
+    await supabase.rpc('prepare_account_merge')
+
+  if (mergeError) throw mergeError
+
+  if (!token) {
+    throw new Error('Merge token missing')
+  }
+
+  localStorage.setItem(ACCOUNT_MERGE_KEY, token)
+}
+
+// 소셜 로그인 성공 후 계정 통합
+const accountMergePromiseRef = useRef(null)
+
+async function completeAccountMerge(user) {
+  if (!ENABLE_SOCIAL_LOGIN) return null
+  if (!user || user.is_anonymous) return null
+
+  const token = localStorage.getItem(ACCOUNT_MERGE_KEY)
+
+  if (!token) return null
+
+  if (accountMergePromiseRef.current) {
+    return await accountMergePromiseRef.current
+  }
+
+  accountMergePromiseRef.current = (async () => {
+
+    let data = null
+    let lastError = null
+
+    for (let attempt = 0; attempt < 3; attempt++) {
+      try {
+        const result = await supabase.rpc(
+          'complete_account_merge',
+          { p_token: token }
+        )
+
+        if (result.error) throw result.error
+
+        if (!result.data?.success) {
+          throw new Error('Account merge failed')
+        }
+
+        data = result.data
+        lastError = null
+        break
+
+      } catch (e) {
+        lastError = e
+
+        console.warn(
+          `[Account Merge] 시도 ${attempt + 1}/3 실패`,
+          e
+        )
+
+        // DB에서 반환한 명시적인 통합 오류는 재시도하지 않음
+        if (e?.code === 'P0001') break
+
+        if (attempt < 2) {
+          await new Promise(resolve =>
+            setTimeout(resolve, 1000 * (attempt + 1))
+          )
+        }
+      }
+    }
+
+    if (lastError) throw lastError
+
+    if (!data?.success) {
+      throw new Error('Account merge failed')
+}
+
+    localStorage.removeItem(ACCOUNT_MERGE_KEY)
+    localStorage.removeItem('cineclue_session')
+    localStorage.removeItem('cineclue_current_session')
+    localStorage.removeItem('cineclue_app_snapshot')
+      // 이전 계정의 프로필 정보 초기화
+      setProfileUser(null)
+      setProfileStats(null)
+      setCollectionTargetUserId(null)
+      setSelChar(null)
+      setTempChar(null)
+      setNickname('')
+
+      setRanking([])
+
+      // 이전 계정의 게임 데이터 초기화
+
+      setUsers([])
+
+      setScore(0)
+
+      setRoundStartScore(0)
+
+      setDisplayScore(0)
+
+      setResults([])
+
+      setComboStreak(0)
+
+      setCrazyStreak(0)
+
+      setMode(null)
+
+      setPool([])
+
+      setQi(0)
+
+      setSh(1)
+
+      setAnswered(false)
+
+      resultSavedRef.current = false
+      // 통합된 계정으로 다시 게임 진입
+      setScreen('intro')
+      setIntroAnimationDone(true)
+      console.log('[Account Merge] 완료', data)
+    return data
+  })()
+
+  try {
+    return await accountMergePromiseRef.current
+  } finally {
+    accountMergePromiseRef.current = null
+  }
+}
+
   const loginGoogle = async () => {
+    if (!ENABLE_SOCIAL_LOGIN) return
+    oauthCallbackRef.current = false
+    try {
+      await prepareAccountMerge()
+    } catch (e) {
+      console.error('prepare account merge failed', e)
+      showAppToast('계정 연동 준비에 실패했습니다.')
+      return
+    }
 
     setShowLogin(false)
 
@@ -1081,7 +1282,10 @@ function blockWebLogin() {
     })
     if (error) {
       console.error('google oauth login error', error)
+      localStorage.removeItem(ACCOUNT_MERGE_KEY)
+      localStorage.removeItem('cineclue_oauth_start')
       setIsRestoring(false)
+      showAppToast('로그인에 실패했습니다.')
       return
     }
     if (isNativeApp && data?.url) {
@@ -1092,6 +1296,15 @@ function blockWebLogin() {
   }
 
   const loginKakao = async () => {
+    if (!ENABLE_SOCIAL_LOGIN) return
+    oauthCallbackRef.current = false
+    try {
+      await prepareAccountMerge()
+    } catch (e) {
+      console.error('prepare account merge failed', e)
+      showAppToast('계정 연동 준비에 실패했습니다.')
+      return
+    }
 
     setShowLogin(false)
 
@@ -1122,8 +1335,19 @@ function blockWebLogin() {
     })
 
     if (error) {
+
       console.error('kakao oauth login error', error)
+
+      localStorage.removeItem(ACCOUNT_MERGE_KEY)
+
+      localStorage.removeItem('cineclue_oauth_start')
+
+      setIsRestoring(false)
+
+      showAppToast('로그인에 실패했습니다.')
+
       return
+
     }
     if (isNativeApp && data?.url) {
       await Browser.open({
@@ -1136,19 +1360,38 @@ function blockWebLogin() {
   const isGuestLockedChar = () => false
 
   const menuItems = [
+
     '소개',
+
     '게임 규칙',
+
     '이메일',
+
     '개인정보 처리방침',
+
     '영화데이터 사용안내',
+
     '신고하기',
+
     '설정',
+
     '버전정보',
-    authUser && !authUser.is_anonymous ? '로그아웃' : '로그인', '프로필'
+
+    ...(ENABLE_SOCIAL_LOGIN
+
+      ? [authUser && !authUser.is_anonymous ? '로그아웃' : '로그인']
+
+      : []),
+
+    '프로필'
+
   ]
 
   const logout = async () => {
-    isLoggingOutRef.current = true
+
+  if (!ENABLE_SOCIAL_LOGIN) return
+
+  isLoggingOutRef.current = true
     setIsLoggingOut(true)
 
     try {
@@ -1159,6 +1402,36 @@ function blockWebLogin() {
 
       setAuthUser(null)
       setUsers([])
+      setPosterCount(0)
+
+
+      // 이전 계정의 게임 데이터 초기화
+
+      setScore(0)
+
+      setRoundStartScore(0)
+
+      setDisplayScore(0)
+
+      setResults([])
+
+      setComboStreak(0)
+
+      setCrazyStreak(0)
+
+      setMode(null)
+
+      setPool([])
+
+      setQi(0)
+
+      setSh(1)
+
+      setAnswered(false)
+
+      setRanking([])
+
+      resultSavedRef.current = false
       setSelChar(null)
       setTempChar(null)
       setNickname('')
@@ -1172,7 +1445,7 @@ function blockWebLogin() {
 
       isPausedRef.current = false
       setIsRestoring(false)
-
+      localStorage.removeItem(ACCOUNT_MERGE_KEY)
       localStorage.removeItem('cineclue_oauth_start')
       localStorage.removeItem('cineclue_session')
       localStorage.removeItem('cineclue_current_session')
@@ -1862,7 +2135,11 @@ function restoreAppSnapshot(options = {}) {
 
   async function enterCharacterScreen() {
 
-  if (!authChecked || isEnteringRef.current) return
+  if (
+    !authChecked ||
+    isEnteringRef.current ||
+    isRestoring
+  ) return
 
   isEnteringRef.current = true
   setIsEntering(true)
@@ -1895,6 +2172,13 @@ function restoreAppSnapshot(options = {}) {
       }
     }
 
+    // 계정 통합 완료 후 게임 진입
+
+    if (ENABLE_SOCIAL_LOGIN && user && !user.is_anonymous) {
+
+      await completeAccountMerge(user)
+
+    }
     // 3. 인증 사용자 설정
     setAuthUser(user)
 
@@ -1951,9 +2235,19 @@ if (!activeUser) {
     setUsers([activeUser])
     setSelChar(activeUser.charId)
 
-    // 기존 점수 유지
-    setScore(activeUser.score || 0)
-    setRoundStartScore(activeUser.score || 0)
+    // DB 점수를 기준으로 모든 점수 상태 동기화
+
+    const baseScore = activeUser.score || 0
+
+    setScore(baseScore)
+
+    setRoundStartScore(baseScore)
+
+    setDisplayScore(baseScore)
+
+    setResults([])
+
+    resultSavedRef.current = false
 
     // 5. 컬렉션 수 조회
     const { count, error: collectionError } = await supabase
@@ -2037,12 +2331,16 @@ function resumeBgmByScreen() {
 
 // 딥링크 복귀시 세션처리 //
 useEffect(() => {
+
+  if (!ENABLE_SOCIAL_LOGIN) return
+
   const setupDeepLinkLogin = async () => {
     const listener = await App.addListener('appUrlOpen', async (event) => {
 
       if (!event.url?.startsWith('com.cineclue.app://auth')) {
         return
       }
+      oauthCallbackRef.current = true
 
       setShowLogin(false)
       setIsLoggingOut(false)
@@ -2054,25 +2352,42 @@ useEffect(() => {
       const code = url.searchParams.get('code')
 
       if (!code) {
-        setIsRestoring(false)
+        cancelOAuthLogin()
+        Browser.close().catch(() => {})
         return
       }
 
       const { error } = await supabase.auth.exchangeCodeForSession(code)
-
-      if (error) {
-        setIsRestoring(false)
-        return
-      }
+        if (error) {
+          console.error('OAuth session exchange failed', error)
+          cancelOAuthLogin()
+          Browser.close().catch(() => {})
+          showAppToast('로그인에 실패했습니다.')
+          return
+        }
 
       const { data } = await supabase.auth.getSession()
-      const user = data?.session?.user ?? null
+    const user = data?.session?.user ?? null
 
-      setAuthUser(user)
+    if (user && !user.is_anonymous) {
+      setIsRestoring(true)
 
-      if (user) {
-        const result = await supabase
-          .from('characters')
+      try {
+        await completeAccountMerge(user)
+      } catch (e) {
+        console.error('[Account Merge] 실패', e)
+        setIsRestoring(false)
+        Browser.close().catch(() => {})
+        alert('게임 기록 통합에 실패했습니다. 앱을 다시 실행해 주세요.')
+        return
+      }
+    }
+
+    setAuthUser(user)
+
+    if (user) {
+      const result = await supabase
+        .from('characters')
           .select('*')
           .eq('auth_user_id', user.id)
 
@@ -2112,6 +2427,60 @@ useEffect(() => {
   }
 }, [])
 
+// 소셜 로그인 브라우저 닫기 감지
+useEffect(() => {
+  if (!ENABLE_SOCIAL_LOGIN) return
+  if (!Capacitor.isNativePlatform()) return
+
+  let listener
+  let timer
+  let disposed = false
+
+  Browser.addListener('browserFinished', () => {
+
+    clearTimeout(timer)
+
+    timer = setTimeout(async () => {
+
+      if (disposed) return
+      if (oauthCallbackRef.current) return
+
+      if (
+        localStorage.getItem('cineclue_oauth_start') !== 'true'
+      ) return
+
+      const { data, error } =
+        await supabase.auth.getSession()
+
+      if (disposed || error) return
+      if (oauthCallbackRef.current) return
+
+      const user = data?.session?.user
+
+      // 소셜 로그인 성공 상태라면 취소하지 않음
+      if (user && !user.is_anonymous) return
+
+      cancelOAuthLogin()
+
+      showAppToast('로그인이 취소되었습니다.')
+
+    }, 1500)
+
+  }).then(l => {
+    if (disposed) {
+      l.remove()
+    } else {
+      listener = l
+    }
+  })
+
+  return () => {
+    disposed = true
+    clearTimeout(timer)
+    listener?.remove?.()
+  }
+}, [])
+
 
 
 
@@ -2124,23 +2493,51 @@ useEffect(() => {
   useEffect(() => {
     if (!supabase) return
 
-    supabase.auth.getSession()
-    .then(({ data }) => {
-      setAuthUser(data?.session?.user ?? null)
-      })
-
-      .catch(err => {
-        console.error('getSession error', err)
-        setAuthUser(null)
-      })
-      .finally(() => {
-        setAuthChecked(true)
-      })
-
     const { data: { subscription } } =
-      supabase.auth.onAuthStateChange(
-        async (_event, session) => {
+
+    supabase.auth.onAuthStateChange(
+
+      (_event, session) => {
+
+        setTimeout(async () => {
+
           const user = session?.user ?? null
+
+          // 웹 OAuth 취소 또는 인증 실패 처리
+          if (
+            ENABLE_SOCIAL_LOGIN &&
+            !Capacitor.isNativePlatform() &&
+            _event === 'INITIAL_SESSION' &&
+            localStorage.getItem('cineclue_oauth_start') === 'true' &&
+            (!user || user.is_anonymous)
+          ) {
+            cancelOAuthLogin()
+            showAppToast('로그인이 완료되지 않았습니다.')
+          }
+
+          // 소셜 로그인 성공 시 익명 계정 통합
+          if (
+            ENABLE_SOCIAL_LOGIN &&
+            user &&
+            !user.is_anonymous &&
+            localStorage.getItem(ACCOUNT_MERGE_KEY)
+          ) {
+            setIsRestoring(true)
+
+            try {
+              await completeAccountMerge(user)
+            } catch (e) {
+              console.error('[Account Merge] 실패', e)
+
+              setIsRestoring(false)
+
+              alert(
+                '게임 기록 통합에 실패했습니다. 앱을 다시 실행해 주세요.'
+              )
+
+              return
+            }
+          }
 
           setAuthChecked(true)
           setAuthUser(user)
@@ -2149,12 +2546,19 @@ useEffect(() => {
           if (isEnteringRef.current) return
 
           if (user) {
-            const oauthStart =
-              localStorage.getItem(
-                'cineclue_oauth_start'
-              )
+            const oauthStart = ENABLE_SOCIAL_LOGIN
+
+            ? localStorage.getItem('cineclue_oauth_start')
+
+            : null
               
-              if (screen === 'quiz') {
+              if (
+
+                screenRef.current === 'quiz' ||
+
+                screenRef.current === 'castingQuiz'
+
+              ) {
               console.warn('퀴즈 중 auth characters 로드 생략')
               return
             }
@@ -2188,36 +2592,34 @@ useEffect(() => {
             }
             const data = result?.data || []
             if (data.length === 0) {
-              if (screen !== 'quiz') {
-                setUsers([])
-              }
-              setIsRestoring(false)
-              return
+            if (
+              screenRef.current !== 'quiz' &&
+              screenRef.current !== 'castingQuiz'
+            ) {
+              setUsers([])
             }
+            setPosterCount(0)
+            if (ENABLE_SOCIAL_LOGIN && !user.is_anonymous) {
+              localStorage.removeItem('cineclue_oauth_start')
+              localStorage.removeItem('cineclue_session')
+              setShowLogin(false)
+            }
+            setIsRestoring(false)
+            return
+          }
 
             const { count } = await supabase
-
               .from('collections')
-
               .select('*', {
-
                 count: 'exact',
-
                 head: true
-
               })
-
               .eq('user_id', user.id)
-
             setPosterCount(count || 0)
 
-
             const loadedUsers = await Promise.all(
-
               data.map(async c => {
-
                 return {
-
                   charId: c.char_id,
                   nickname: c.nickname,
                   score: c.score || 0,
@@ -2225,11 +2627,8 @@ useEffect(() => {
                   userId: c.auth_user_id,
                   isGuest: false, 
                   isDead: (c.lives ?? 20) <= 0
-
                 }
-
               })
-
             )
 
             setUsers(loadedUsers)
@@ -2273,6 +2672,7 @@ useEffect(() => {
             setUsers(loadedUsers)
 
           }
+        }, 0)
         }
       )
 
@@ -2532,6 +2932,18 @@ useEffect(() => {
 
     if (!user) return false
 
+    if (
+      ENABLE_SOCIAL_LOGIN &&
+      !user.is_anonymous &&
+      localStorage.getItem(ACCOUNT_MERGE_KEY)
+    ) {
+      try {
+        await completeAccountMerge(user)
+      } catch (e) {
+        console.error('[Account Merge] 복귀 처리 실패', e)
+        return false
+      }
+    }
     setAuthUser(user)
 
     if (screen === 'quiz' || screen === 'castingQuiz' || screen === 'result') {
@@ -2592,7 +3004,8 @@ useEffect(() => {
 
       // OAuth 로그인 이동 중에는 현재 화면 저장 금지
       if (
-        localStorage.getItem('cineclue_oauth_start') !== 'true' &&
+        (!ENABLE_SOCIAL_LOGIN ||
+        localStorage.getItem('cineclue_oauth_start') !== 'true') && 
         !deathMessage
       ) {
         saveAppSnapshot()
@@ -2623,9 +3036,10 @@ useEffect(() => {
       }
 
       // OAuth 로그인 복귀 중에는 기존 앱 복원 로직 금지
-      if (localStorage.getItem('cineclue_oauth_start') === 'true') {
+      if (
+        ENABLE_SOCIAL_LOGIN &&
+        localStorage.getItem('cineclue_oauth_start') === 'true') {
         isPausedRef.current = false
-        setIsRestoring(false)
         return
       }
 
@@ -3452,9 +3866,30 @@ async function handleShowAnswers() {
       resultSavedRef.current = false
       return
     }
+    
+
     if (!supabase || !results?.length) return
+
     if (resultSavedRef.current) return
+
     if (!currentUser?.userId) return
+
+    // 계정 전환 및 복원 중에는 점수 저장 금지
+
+    if (isRestoring || isLoggingOutRef.current) return
+
+    if (ENABLE_SOCIAL_LOGIN) {
+      if (accountMergePromiseRef.current) return
+
+      if (localStorage.getItem(ACCOUNT_MERGE_KEY)) return
+
+      if (localStorage.getItem('cineclue_oauth_start') === 'true') return
+    }
+    // 현재 캐릭터와 인증 계정 일치 확인
+
+    if (!authUser?.id) return
+
+    if (String(currentUser.userId) !== String(authUser.id)) return
 
     resultSavedRef.current = true
 
@@ -5285,27 +5720,40 @@ useEffect(() => {
       {screen === 'intro' && (
         <IntroScreen
           onEnter={enterCharacterScreen}
+          enableSocialLogin={ENABLE_SOCIAL_LOGIN}
           authUser={authUser}
           authChecked={authChecked}
           introAnimationDone={introAnimationDone}
           onStart={enterCharacterScreen}
-          onLogin={() => setShowLogin(true)}
+          onLogin={() => {
+
+            if (ENABLE_SOCIAL_LOGIN) {
+
+              setShowLogin(true)
+
+            }
+
+          }}
           isAuthLoading={isRestoring}
           isEntering={isEntering}
         />
       )}
 
-      <LoginModal
+      {ENABLE_SOCIAL_LOGIN && (
 
-        showLogin={showLogin}
+        <LoginModal
 
-        setShowLogin={setShowLogin}
+          showLogin={showLogin}
 
-        loginGoogle={loginGoogle}
+          setShowLogin={setShowLogin}
 
-        loginKakao={loginKakao}
+          loginGoogle={loginGoogle}
 
-      />
+          loginKakao={loginKakao}
+
+        />
+
+      )}
 
 
       {/* 🔥 Death Overlay (항상 최상단) */}
